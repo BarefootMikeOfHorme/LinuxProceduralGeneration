@@ -1,27 +1,9 @@
 use pyo3::prelude::*;
-use image::{GenericImageView, ImageBuffer, Luma};
 use ndarray::Array2;
 use rayon::prelude::*;
 
 #[allow(unused_imports)]
 use pyo3::types::PyModule;
-
-/// Converts an image implementing GenericImageView to a normalized f32 array
-/// This explicitly uses the GenericImageView trait for efficient pixel access
-fn image_to_array<I>(img: &I) -> Array2<f32>
-where
-    I: GenericImageView<Pixel = Luma<u8>>,
-{
-    let (width, height) = img.dimensions();
-    let mut arr = Array2::<f32>::zeros((height as usize, width as usize));
-
-    // Use GenericImageView's efficient enumerate_pixels iterator
-    for (x, y, pixel) in img.enumerate_pixels() {
-        arr[[y as usize, x as usize]] = pixel[0] as f32 / 255.0;
-    }
-
-    arr
-}
 
 /// High-end sharpness analysis using multiple industry-standard metrics
 ///
@@ -49,8 +31,11 @@ fn rs_sharpness_score(path: &str) -> PyResult<f32> {
         ));
     }
 
-    // Convert using GenericImageView-based conversion
-    let arr = image_to_array(&gray_img);
+    // Convert to f32 array using GenericImageView's enumerate_pixels() iterator
+    let mut arr = Array2::<f32>::zeros((height as usize, width as usize));
+    for (x, y, pixel) in gray_img.enumerate_pixels() {
+        arr[[y as usize, x as usize]] = pixel[0] as f32 / 255.0;
+    }
 
     // Metric 1: Laplacian Variance (Industry standard for sharpness)
     let laplacian_score = compute_laplacian_variance(&arr, width as usize, height as usize);

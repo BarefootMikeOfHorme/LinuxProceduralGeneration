@@ -42,6 +42,10 @@ class CppValidator:
     def _load(self) -> None:
         candidates = []
         if sys.platform.startswith("win"):
+            # First try installed location (next to this module)
+            candidates.append(Path(__file__).resolve().parent / "native_libs" / "vmf_validator_cpp.dll")
+            # Then try build directories
+            candidates.append(Path(__file__).resolve().parents[4] / "build" / "bin" / "vmf_validator_cpp.dll")
             candidates.append(Path(__file__).resolve().parents[2] / "native" / "cpp" / "validator" / "Release" / "vmf_validator_cpp.dll")
             candidates.append(Path(__file__).resolve().parents[2] / "native" / "cpp" / "validator" / "vmf_validator_cpp.dll")
         elif sys.platform == "darwin":

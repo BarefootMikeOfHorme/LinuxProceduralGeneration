@@ -1,5 +1,6 @@
 #include <catch2/catch_test_macros.hpp>
 #include "lineage_logger.h"
+#include "validator.h"
 
 TEST_CASE("LineageLogger flush and clear") {
  LineageLogger logger;
@@ -18,5 +19,5 @@ TEST_CASE("cpp_color_fidelity_score basic") {
  float a[4] = {1,1,0,0};
  float b[4] = {0.5f,0.5f,0,0};
  float score = cpp_color_fidelity_score(a,b,4);
- REQUIRE(score >0.99f || score >0.0f); // crude check
+ REQUIRE((score > 0.0f && score <= 1.0f)); // score should be in valid range [0, 1]
 }
