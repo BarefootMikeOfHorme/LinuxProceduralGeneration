@@ -1,0 +1,127 @@
+Vaultmind Forge – Enterprise Walkthrough
+Lineage-aware Procedural Generation (LPG) System
+Version: 1.0
+Date: October 2025
+Steward: Michael
+
+1. Executive Summary
+Vaultmind Forge is a modular, schema-driven pipeline for procedural asset generation. It integrates generation, validation, refinement, and packaging into a lineage-aware system that archives every decision. Designed for creative control rooms, AI-assisted workflows, and secure enterprise deployment, it ensures reproducibility, auditability, and mythic clarity at every step.
+
+2. System Overview
+Core Features:
+- Schema-bound generation with SDXL, ControlNet, IP-Adapter
+- Native validation (C++/Rust) for anatomy, PBR, mesh, and color
+- Feedback loops that auto-correct and escalate
+- Lineage tracking for every pass (accepted or rejected)
+- Export-ready packaging with metadata and presets
+- System monitoring and safety enforcement
+
+Use Cases:
+- AI-assisted asset pipelines (games, VFX, simulation)
+- Secure content generation with audit trails
+- Research and training data generation with validation gates
+
+3. Pipeline Architecture
+1. Schema Loading → Load YAML/JSON schemas → merge defaults → apply CLI/env overrides
+2. Asset Generation → forge_diffusion creates images/frames with conditioning and control
+3. Super-Resolution → forge_sr enhances outputs using GAN + Diffusion SR → selects best
+4. Validation → forge_validator runs C++/Rust checks → aggregates scores
+5. Feedback Loops → Failed validations trigger schema mutation + corrective passes
+6. Packaging → forge_packaging bundles assets with lineage.json + export presets
+7. Archiving → forge_lineage stores every pass with scores, reasons, and metadata
+8. Monitoring → forge_monitor tracks CPU/GPU/memory → triggers alerts + backoff
+
+4. Modular Components
+forge_agent          – Orchestration & feedback loops (Python)
+forge_diffusion      – Image/frame generation (Python)
+forge_sr             – Super-resolution & scoring (Python)
+forge_validator_cpp  – High-speed validation (C++)
+forge_validator_rust – PBR, color, tiling checks (Rust)
+forge_lineage        – Archive & lineage tracking (Python)
+forge_packaging      – Asset bundling (Python)
+forge_monitor        – System metrics & alerts (Python)
+
+5. Data Contracts
+ValidationReport:
+  ok, reason, scores, subreports
+
+LineageEntry:
+  asset_id, status, reason, scores, helper_passes, prompt, conditioning, timestamp, model_version, blobs
+
+Schemas:
+  storyboard.yaml, pbr_texture.yaml, thresholds.json
+
+6. Feedback Loops
+Trigger           → Action Taken
+color drift       → Enforce palette, apply LUT correction
+anatomy fail      → Pose ControlNet + inpainting
+flicker           → Seed-lock + optical flow repair
+PBR fail          → Regenerate maps, enforce linear color
+
+7. Observability & Logging
+- Per-run logs: logs/run_<timestamp>/
+- JSONL files: agent.jsonl, validation.jsonl, lineage.jsonl, monitor.jsonl
+- Optional summaries: min/max/avg scores, alerts, retries
+
+8. Testing & Safety
+Minimal Tests:
+- Cycle detection in task graph
+- Feedback mapping logic
+- Lineage gzip roundtrip
+- Validator score merging
+
+Safety Features:
+- Input validation (paths, types)
+- Timeouts for long-running validators
+- Configurable thresholds
+- Alert logging with timestamps
+
+9. Deployment & Packaging
+Backends:
+- Rust: built with maturin, returns JSON strings via PyO3
+- C++: built with CMake + Ninja, optional AVX/OpenMP, JSON logging via VMF_LOG_JSON
+
+Packaging:
+- Ship wheels (Rust) and prebuilt DLL/SO/DYLIB (C++) per platform
+- Fallback: source builds with documented prerequisites
+
+Backend Loaders:
+  load_rust_validator() → import forge_validator_rust
+  load_cpp_validator()  → ctypes.CDLL("vmf_validator")
+
+10. Configuration & Thresholds
+Thresholds:
+- anatomy ≥ 0.90
+- perspective ≥ 0.88
+- mesh ≥ 0.90
+- pbr ≥ 0.95
+- temporal_consistency ≥ 0.92
+
+Override Sources:
+- CLI flags
+- Environment variables (e.g., PALETTE_STRENGTH, SEED_LOCK, PASSES_MAX)
+
+11. Team Roles & Collaboration
+Role           → Responsibility
+Steward        → Oversees schema design and lineage rules
+Engineer       → Implements modules and validators
+Operator       → Runs jobs, monitors system, triggers loops
+Archivist      → Reviews lineage logs and rejection patterns
+AI Companion   → Suggests helper passes, tracks feedback
+
+12. Compliance & Auditability
+- All outputs traceable via lineage.json
+- Every rejection archived with reason and corrective action
+- Logs are dual-channel: human-readable + machine-parseable
+- Optional: export lineage scrolls for regulatory review
+
+13. Summary
+Vaultmind Forge is a lineage-aware, schema-bound procedural generation system that:
+- Generates assets with conditioning and control
+- Validates with native speed and structured rigor
+- Refines via feedback loops and helper passes
+- Archives every decision for reproducibility and audit
+- Packages assets with metadata and export presets
+- Monitors system health and enforces safety
+
+It is modular, mythic, and enterprise-ready.

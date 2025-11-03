@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VaultMind Forge - Lineage Viewer Demo</title>
+
+  <!-- React from CDN -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+
+  <!-- Babel Standalone for JSX -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <!-- Component CSS -->
+  <style>
+    /* LineageViewer Styles - Embedded for demo */
+    /* (Copy content from LineageViewer.css here or link to it) */
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: #f3f4f6;
+    }
+
+    #root {
+      min-height: 100vh;
+    }
+
+    /* Include all styles from LineageViewer.css */
+    .lineage-viewer {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+      color: #1f2937;
+    }
+
+    .lineage-viewer.loading,
+    .lineage-viewer.error {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 400px;
+    }
+
+    .spinner {
+      border: 4px solid #f3f4f6;
+      border-top: 4px solid #3b82f6;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .lineage-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .lineage-header h1 {
+      font-size: 2.5rem;
+      margin: 0 0 10px 0;
+      color: #111827;
+    }
+
+    .lineage-header p {
+      color: #6b7280;
+      font-size: 1.1rem;
+    }
+
+    .statistics-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 20px;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      transition: transform 0.2s;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-2px);
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .stat-label {
+      font-size: 0.875rem;
+      opacity: 0.9;
+    }
+
+    .filters-section {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 30px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .filters-row {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr auto;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+
+    .search-input,
+    .filter-select {
+      padding: 10px 15px;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: border-color 0.2s;
+    }
+
+    .search-input:focus,
+    .filter-select:focus {
+      outline: none;
+      border-color: #3b82f6;
+    }
+
+    .btn-clear {
+      padding: 10px 20px;
+      background: #ef4444;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-clear:hover {
+      background: #dc2626;
+    }
+
+    .view-mode-toggle {
+      display: flex;
+      gap: 10px;
+    }
+
+    .view-mode-toggle button {
+      padding: 10px 20px;
+      background: white;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      transition: all 0.2s;
+    }
+
+    .view-mode-toggle button.active {
+      background: #3b82f6;
+      color: white;
+      border-color: #3b82f6;
+    }
+
+    .grid-view {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 20px;
+    }
+
+    .record-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .record-card:hover {
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .status-badge {
+      padding: 4px 12px;
+      border-radius: 20px;
+      color: white;
+      font-size: 0.75rem;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+
+    .card-timestamp {
+      font-size: 0.75rem;
+      color: #6b7280;
+    }
+
+    .card-body {
+      margin-bottom: 15px;
+    }
+
+    .card-title {
+      font-size: 1.25rem;
+      margin: 0 0 8px 0;
+      color: #111827;
+    }
+
+    .card-id,
+    .card-branch {
+      font-size: 0.875rem;
+      color: #6b7280;
+      margin: 4px 0;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #6b7280;
+      font-size: 1.1rem;
+      background: white;
+      border-radius: 12px;
+    }
+
+    /* Demo Banner */
+    .demo-banner {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 15px;
+      text-align: center;
+      margin-bottom: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .demo-banner h2 {
+      margin: 0 0 10px 0;
+    }
+
+    .demo-banner p {
+      margin: 0;
+      opacity: 0.9;
+    }
+
+    .demo-banner a {
+      color: white;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- LineageViewer Component (Embedded) -->
+  <script type="text/babel">
+    const { useState, useEffect, useMemo } = React;
+
+    // Simplified LineageViewer for demo
+    const LineageViewer = ({ apiBaseUrl = 'http://localhost:3000/api' }) => {
+      const [lineageRecords, setLineageRecords] = useState([]);
+      const [loading, setLoading] = useState(true);
+      const [error, setError] = useState(null);
+      const [filters, setFilters] = useState({
+        jobId: '',
+        branch: '',
+        status: '',
+        searchTerm: ''
+      });
+
+      useEffect(() => {
+        const fetchLineageRecords = async () => {
+          setLoading(true);
+          setError(null);
+
+          try {
+            const params = new URLSearchParams();
+            if (filters.jobId) params.append('jobId', filters.jobId);
+            if (filters.branch) params.append('branch', filters.branch);
+            if (filters.status) params.append('status', filters.status);
+
+            const response = await fetch(`${apiBaseUrl}/lineage?${params.toString()}`);
+
+            if (!response.ok) {
+              throw new Error(`Failed to fetch: ${response.statusText}`);
+            }
+
+            const data = await response.json();
+            setLineageRecords(data.data?.records || data.data || []);
+
+          } catch (err) {
+            setError(err.message);
+            console.error('Error fetching lineage:', err);
+          } finally {
+            setLoading(false);
+          }
+        };
+
+        fetchLineageRecords();
+      }, [apiBaseUrl, filters.jobId, filters.branch, filters.status]);
+
+      const filteredRecords = useMemo(() => {
+        let filtered = [...lineageRecords];
+
+        if (filters.searchTerm) {
+          const term = filters.searchTerm.toLowerCase();
+          filtered = filtered.filter(record =>
+            record.run_id?.toLowerCase().includes(term) ||
+            record.job?.id?.toLowerCase().includes(term)
+          );
+        }
+
+        return filtered;
+      }, [lineageRecords, filters.searchTerm]);
+
+      const statistics = useMemo(() => {
+        return {
+          totalRuns: filteredRecords.length,
+          completed: filteredRecords.filter(r => r.execution?.status === 'completed').length,
+          failed: filteredRecords.filter(r => r.execution?.status === 'failed').length,
+          totalAssets: filteredRecords.reduce((sum, r) => sum + (r.assets?.length || 0), 0)
+        };
+      }, [filteredRecords]);
+
+      const getStatusColor = (status) => {
+        const colors = {
+          completed: '#10b981',
+          failed: '#ef4444',
+          running: '#3b82f6'
+        };
+        return colors[status?.toLowerCase()] || '#6b7280';
+      };
+
+      const formatTimestamp = (timestamp) => {
+        if (!timestamp) return 'N/A';
+        return new Date(timestamp).toLocaleString();
+      };
+
+      if (loading) {
+        return (
+          <div className="lineage-viewer loading">
+            <div className="spinner"></div>
+            <p>Loading lineage records...</p>
+          </div>
+        );
+      }
+
+      if (error) {
+        return (
+          <div className="lineage-viewer error">
+            <h3>❌ Error Loading Lineage</h3>
+            <p>{error}</p>
+            <p>Make sure the API server is running at {apiBaseUrl}</p>
+            <button onClick={() => window.location.reload()}>Retry</button>
+          </div>
+        );
+      }
+
+      return (
+        <div className="lineage-viewer">
+          <div className="demo-banner">
+            <h2>🧬 VaultMind Forge Lineage Viewer - Demo</h2>
+            <p>
+              This is a standalone demo. For full functionality, see{' '}
+              <a href="../src/frontend/components/LineageViewer.jsx" target="_blank">
+                LineageViewer.jsx
+              </a>
+            </p>
+          </div>
+
+          <header className="lineage-header">
+            <h1>🧬 Lineage Records</h1>
+            <p>Visualize asset generation history</p>
+          </header>
+
+          <div className="statistics-bar">
+            <div className="stat-card">
+              <div className="stat-value">{statistics.totalRuns}</div>
+              <div className="stat-label">Total Runs</div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-value">{statistics.completed}</div>
+              <div className="stat-label">Completed</div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-value">{statistics.failed}</div>
+              <div className="stat-label">Failed</div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-value">{statistics.totalAssets}</div>
+              <div className="stat-label">Total Assets</div>
+            </div>
+          </div>
+
+          <div className="filters-section">
+            <div className="filters-row">
+              <input
+                type="text"
+                placeholder="🔍 Search by Run ID or Job ID..."
+                value={filters.searchTerm}
+                onChange={(e) => setFilters(prev => ({ ...prev, searchTerm: e.target.value }))}
+                className="search-input"
+              />
+
+              <select
+                value={filters.status}
+                onChange={(e) => setFilters(prev => ({ ...prev, status: e.target.value }))}
+                className="filter-select"
+              >
+                <option value="">All Statuses</option>
+                <option value="completed">Completed</option>
+                <option value="failed">Failed</option>
+                <option value="running">Running</option>
+              </select>
+
+              <button
+                onClick={() => setFilters({ jobId: '', branch: '', status: '', searchTerm: '' })}
+                className="btn-clear"
+              >
+                Clear Filters
+              </button>
+            </div>
+          </div>
+
+          {filteredRecords.length === 0 ? (
+            <div className="empty-state">
+              <h2>📭 No Lineage Records Found</h2>
+              <p>Try running a generation job first:</p>
+              <code style={{display: 'block', marginTop: '10px', padding: '10px', background: '#f3f4f6', borderRadius: '8px'}}>
+                curl -X POST http://localhost:3000/api/diffusion/generate-with-lineage \<br/>
+                &nbsp;&nbsp;-H "Content-Type: application/json" \<br/>
+                &nbsp;&nbsp;-d '{"{\"jobConfig\": {\"id\": \"test\", \"output_type\": \"character\"}}"}'
+              </code>
+            </div>
+          ) : (
+            <div className="grid-view">
+              {filteredRecords.map((record) => (
+                <div key={record.run_id} className="record-card">
+                  <div className="card-header">
+                    <span
+                      className="status-badge"
+                      style={{ backgroundColor: getStatusColor(record.execution?.status) }}
+                    >
+                      {record.execution?.status || 'unknown'}
+                    </span>
+                    <span className="card-timestamp">
+                      {formatTimestamp(record.timestamp)}
+                    </span>
+                  </div>
+
+                  <div className="card-body">
+                    <h3 className="card-title">
+                      {record.job?.output_type || record.job?.id || 'Untitled'}
+                    </h3>
+                    <p className="card-id">Run: {record.run_id?.substring(0, 12)}...</p>
+                    <p className="card-branch">Branch: {record.lineage?.branch || 'main'}</p>
+                    <p className="card-branch">Assets: {record.assets?.length || 0}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      );
+    };
+
+    // Render app
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<LineageViewer />);
+  </script>
+</body>
+</html>

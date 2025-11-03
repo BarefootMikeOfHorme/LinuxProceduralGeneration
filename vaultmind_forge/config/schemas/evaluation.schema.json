@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vaultmind.forge/schemas/evaluation.schema.json",
+  "title": "Evaluation Report",
+  "type": "object",
+  "required": ["job_id", "pass", "metrics", "decision"],
+  "properties": {
+    "job_id": { "type": "string" },
+    "pass": { "type": "string", "enum": ["base", "buildup", "refined"] },
+    "metrics": {
+      "type": "object",
+      "required": ["sharpness", "anatomy", "prompt_alignment", "consistency", "color_fidelity"],
+      "properties": {
+        "sharpness": { "type": "number", "minimum": 0, "maximum": 1 },
+        "anatomy": { "type": "number", "minimum": 0, "maximum": 1 },
+        "prompt_alignment": { "type": "number", "minimum": 0, "maximum": 1 },
+        "consistency": { "type": "number", "minimum": 0, "maximum": 1 },
+        "color_fidelity": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    },
+    "thresholds": {
+      "type": "object",
+      "properties": {
+        "min_sharpness": { "type": "number" },
+        "min_anatomy": { "type": "number" },
+        "min_prompt_alignment": { "type": "number" },
+        "min_consistency": { "type": "number" },
+        "min_color_fidelity": { "type": "number" }
+      }
+    },
+    "remedies": { "type": "array", "items": { "$ref": "#/definitions/remedy" } },
+    "decision": { "type": "string", "enum": ["accept", "retry", "reject"] },
+    "notes": { "type": "string" }
+  },
+  "definitions": {
+    "remedy": {
+      "type": "object",
+      "required": ["issue", "prescription"],
+      "properties": {
+        "issue": { "type": "string" },
+        "prescription": { "type": "string" },
+        "params": { "type": "object" }
+      }
+    }
+  }
+}

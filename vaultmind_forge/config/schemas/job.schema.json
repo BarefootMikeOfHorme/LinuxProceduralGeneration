@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vaultmind.forge/schemas/job.schema.json",
+  "title": "Forge Job",
+  "type": "object",
+  "required": ["id", "output_type", "passes"],
+  "properties": {
+    "id": { "type": "string" },
+    "output_type": { "type": "string", "enum": [
+      "storyboard","game_asset","environment","character","video","advert","film","ui","product","archviz","cad","education","print"
+    ]},
+    "style_tags": { "type": "array", "items": { "type": "string" } },
+    "passes": { "type": "integer", "minimum": 1, "maximum": 10, "default": 3 },
+    "consistency_threshold": { "type": "number", "minimum": 0, "maximum": 1, "default": 0.8 },
+    "references": { "type": "object", "properties": {
+      "palettes": { "type": "array", "items": { "type": "string" } },
+      "embeddings": { "type": "array", "items": { "type": "string" } },
+      "style_guides": { "type": "array", "items": { "type": "string" } }
+    }},
+    "helper_passes": { "type": "array", "items": { "type": "string" } },
+    "lineage": { "type": "object", "properties": {
+      "branch": { "type": "string" },
+      "parent": { "type": "string" }
+    }}
+  }
+}

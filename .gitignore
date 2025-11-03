@@ -1,0 +1,66 @@
+# Ignore OS/editor cruft
+.DS_Store
+Thumbs.db
+*.log
+
+# Python (if used)
+__pycache__/
+*.py[cod]
+.venv/
+
+# Node (if used)
+node_modules/
+package-lock.json
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+uploads/
+
+# Rust (if used)
+target/
+
+# Build artifacts
+build/
+dist/
+
+# Tooling
+.env
+.cache/
+
+# Project
+vaultmind_forge/**/.gitkeep
+output/
+demo_output*/
+lineage/
+
+# Native builds
+vaultmind_forge/native/cpp/validator/build/
+vaultmind_forge/native/rust/validator/target/
+*.dll
+*.so
+*.dylib
+*.pyd
+
+# IDE
+.vs/
+.vscode/
+.idea/
+desktop.ini
+
+# Test artifacts
+.pytest_cache/
+.snapshots/
+test_image.png
+*.egg-info/
+
+# Large model files (datasets added separately when ready)
+*.bin
+*.safetensors
+*.gguf
+*.parquet
+
+# Temporary files
+*.tmp
+*.swp
+*~

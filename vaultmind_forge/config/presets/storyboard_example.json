@@ -1,0 +1,14 @@
+{
+  "id": "example_storyboard_v1",
+  "output_type": "storyboard",
+  "style_tags": ["manga", "cel-shaded", "1960s"],
+  "passes": 3,
+  "consistency_threshold": 0.85,
+  "references": {
+    "palettes": ["references/palettes/mono_warm.json"],
+    "embeddings": ["references/embeddings/character_a.npy"],
+    "style_guides": ["references/style_guides/manga_paneling.md"]
+  },
+  "helper_passes": ["controlnet_depth", "ip_adapter_identity"],
+  "lineage": { "branch": "main", "parent": null }
+}

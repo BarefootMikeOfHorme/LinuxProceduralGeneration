@@ -1,0 +1,110 @@
+{
+  "instructionsPath": "VAULTMIND_FORGE_CURSOR_PROMPT.md",
+  "contextFiles": [
+    "pyproject.toml",
+    "BUILD_NATIVE.md",
+    "vaultmind_forge/__init__.py"
+  ]
+}
+
+///VAULTMIND FORGE – STAGED PLAN FOR CURSOR REFINEMENT PASS
+============================================================
+
+STAGE ONE: Finalize Implementation Scroll
+- Target: VAULTMIND_FORGE_CURSOR_PROMPT.md
+- Action: Append all annotated modules, wiring examples, and refinement notes as a living scroll.
+- Includes:
+  - Tiered module definitions (Orchestration, Creation, Validation, Feedback, Wiring)
+  - Annotated code scaffolds (Python, C++, Rust)
+  - End-to-end job runner (run_storyboard_job.py)
+  - ABI-safe C++ headers + JSON logging guard
+  - PyO3-safe Rust schema returns
+  - Unified logging, feedback mapping, schema merging
+  - Minimal tests that matter
+
+STAGE TWO: Directory Tree Expansion
+- Target: vaultmind_forge/
+- Action: Populate submodules with annotated scaffolds
+- Structure:
+  vaultmind_forge/
+  ├── forge_agent/
+  │   └── agent.py
+  ├── forge_schemas/
+  │   └── loader.py
+  ├── forge_versioning/
+  │   └── branch.py
+  ├── forge_lineage/
+  │   └── archive.py
+  ├── forge_diffusion/
+  │   └── generate.py
+  ├── forge_sr/
+  │   └── upscale.py
+  ├── forge_video/
+  │   └── sequence.py
+  ├── forge_semantic/
+  │   └── inpaint.py
+  ├── forge_packaging/
+  │   └── bundle.py
+  ├── forge_validator/
+  │   └── validate.py
+  ├── forge_monitor/
+  │   └── monitor.py
+  ├── examples/
+  │   └── run_storyboard_job.py
+
+  native/
+  ├── cpp/
+  │   ├── validator/
+  │   │   ├── include/vmf_validator.hpp
+  │   │   └── src/vmf_validator.cpp
+  │   └── CMakeLists.txt
+  ├── rust/
+  │   ├── validator/
+  │   │   └── src/lib.rs
+  │   └── Cargo.toml
+
+STAGE THREE: Test Suite & Observability
+- Target: tests/
+- Action: Add minimal tests and log scaffolds
+- Includes:
+  - test_cycle_detection.py
+  - test_feedback_mapping.py
+  - test_lineage_gzip_roundtrip.py
+  - test_validator_merge.py
+  - log_jsonl() utility
+  - logs/run_<timestamp>/ structure
+
+STAGE FOUR: Packaging & Backend Loading
+- Target: forge_loader.py
+- Action: Add backend loader logic
+- Includes:
+  - load_rust_validator()
+  - load_cpp_validator()
+  - Notes for wheel/DLL/SO packaging per platform
+
+STAGE FIVE: Configuration & Thresholds
+- Target: config/
+- Action: Define schema defaults, CLI/env overrides
+- Includes:
+  - default_schema.yaml
+  - thresholds.json
+  - CLI/env override logic
+
+STAGE SIX: Scroll Generator (Optional)
+- Target: forge_scrolls/
+- Action: Auto-generate lineage scrolls per asset
+- Includes:
+  - Markdown or JSON summary per asset
+  - Rejection reasons, helper passes, scores
+  - Optional PDF export
+
+SUMMARY
+This plan coordinates all refinement passes into a staged deployment:
+- Tiered modules with annotated clarity
+- ABI/PyO3 safety and structured interop
+- Feedback loops and schema escalation
+- Unified logging and minimal tests
+- Packaging and backend loading
+- Threshold config and runtime overrides
+
+Tomorrow’s cursor will commit ceremony, clarity, and mythic stewardship.//
