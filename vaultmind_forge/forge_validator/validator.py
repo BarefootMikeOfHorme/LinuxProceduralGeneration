@@ -1,59 +1,130 @@
-from pathlib import Path
-from dataclasses import dataclass
-from typing import List
-from pydantic import BaseModel
-import random
-import time
+"""
+VaultMind Forge - Asset Validator
+High-level validator interface with backend integration
+"""
 
-# Use backend manager if available
-try:
-    from .backends import get_backend_manager
-except Exception:
-    get_backend_manager = None
+from __future__ import annotations
+
+from pathlib import Path
+from typing import Dict, Optional
+from pydantic import BaseModel
+
+from .backends import get_backend
+
 
 class ValidationResult(BaseModel):
+    """Validation result for a single asset"""
     file: str
     score: float
     status: str
-    checks: dict = {}
+    checks: Dict[str, float] = {}
+
 
 class Validator:
-    def __init__(self):
-        # config/thresholds could be loaded here
-        self.threshold =0.5
-        self._backend = get_backend_manager() if get_backend_manager is not None else None
+    """
+    High-level asset validator with automatic backend selection
+
+    Example:
+        >>> validator = Validator(threshold=0.7)
+        >>> result = validator.validate_asset("output/image.png")
+        >>> print(f"Score: {result.score}, Status: {result.status}")
+    """
+
+    def __init__(self, threshold: float = 0.5, backend: Optional[object] = None):
+        """
+        Initialize validator
+
+        Args:
+            threshold: Minimum score for pass (0.0-1.0)
+            backend: Optional specific backend, otherwise auto-select
+        """
+        self.backend = backend or get_backend()
+        self.threshold = threshold
 
     def validate_asset(self, path: Path | str) -> ValidationResult:
-        """Run a fast mock validation: prefer native backend if available, otherwise random placeholder."""
+        """
+        Validate a single asset
+
+        Args:
+            path: Path to asset file
+
+        Returns:
+            ValidationResult with score, status, and detailed checks
+        """
         p = Path(path)
+
+        # Check if file exists
         if not p.exists():
-            return ValidationResult(file=str(p), score=0.0, status="missing", checks={})
+            return ValidationResult(
+                file=str(p),
+                score=0.0,
+                status="missing",
+                checks={"file_exists": 0.0}
+            )
 
-        if self._backend is not None:
-            try:
-                out = self._backend.validate_asset(p)
-                # out may be dict-like; normalize
-                if isinstance(out, dict):
-                    return ValidationResult(**out)
-                if hasattr(out, "model_dump"):
-                    return ValidationResult(**out.model_dump())
-                if hasattr(out, "dict"):
-                    return ValidationResult(**out.dict())
-                if hasattr(out, "__dict__"):
-                    return ValidationResult(**out.__dict__)
-                # fallback to manual mapping if sequence
-                if isinstance(out, (list, tuple)):
-                    if len(out) ==2:
-                        score, status = out
-                        return ValidationResult(file=str(p), score=float(score), status=str(status), checks={})
-                    if len(out) >=3:
-                        return ValidationResult(file=str(p), score=float(out[1]), status=str(out[2]), checks={})
-            except Exception:
-                # fallback to local behavior
-                pass
+        # Run backend validation
+        try:
+            checks = self.backend.validate(p)
 
-        # placeholder checks (local fallback)
-        score = round(random.uniform(0.3,1.0),3)
-        status = "pass" if score >= self.threshold else "fail"
-        checks = {"sharpness": round(random.uniform(0.3,1.0),3), "consistency": round(random.uniform(0.3,1.0),3)}
-        return ValidationResult(file=str(p), score=score, status=status, checks=checks)
+            # Calculate overall score (average of all checks)
+            if checks:
+                score = sum(checks.values()) / len(checks)
+            else:
+                score = 0.0
+
+            # Determine status
+            status = "pass" if score >= self.threshold else "fail"
+
+            return ValidationResult(
+                file=str(p),
+                score=round(score, 3),
+                status=status,
+                checks=checks
+            )
+
+        except Exception as e:
+            return ValidationResult(
+                file=str(p),
+                score=0.0,
+                status="error",
+                checks={"error": 0.0, "error_message": str(e)}
+            )
+
+    def validate_batch(self, paths: list[Path | str]) -> list[ValidationResult]:
+        """
+        Validate multiple assets
+
+        Args:
+            paths: List of asset paths
+
+        Returns:
+            List of ValidationResult objects
+        """
+        return [self.validate_asset(p) for p in paths]
+
+    def get_summary(self, results: list[ValidationResult]) -> Dict[str, any]:
+        """
+        Generate summary statistics from validation results
+
+        Args:
+            results: List of ValidationResult objects
+
+        Returns:
+            Dict with summary statistics
+        """
+        total = len(results)
+        passed = sum(1 for r in results if r.status == "pass")
+        failed = sum(1 for r in results if r.status == "fail")
+        errors = sum(1 for r in results if r.status == "error")
+
+        scores = [r.score for r in results if r.score > 0]
+        avg_score = sum(scores) / len(scores) if scores else 0.0
+
+        return {
+            "total": total,
+            "passed": passed,
+            "failed": failed,
+            "errors": errors,
+            "pass_rate": round(passed / total, 3) if total > 0 else 0.0,
+            "average_score": round(avg_score, 3),
+        }

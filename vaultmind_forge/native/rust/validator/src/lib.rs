@@ -3,6 +3,11 @@ use image::{GenericImageView, ImageBuffer, Luma};
 use ndarray::Array2;
 use rayon::prelude::*;
 
+// Procedural generation imports
+use noise::{NoiseFn, Perlin, OpenSimplex, Fbm, MultiFractal};
+use rand::{Rng, SeedableRng};
+use rand_chacha::ChaCha20Rng;
+
 #[allow(unused_imports)]
 use pyo3::types::PyModule;
 
@@ -200,8 +205,248 @@ fn sobel_y(arr: &Array2<f32>, x: usize, y: usize) -> f32 {
      + arr[[y + 1, x - 1]] + 2.0 * arr[[y + 1, x]] + arr[[y + 1, x + 1]]
 }
 
+// ============================================================================
+// Procedural Generation Functions
+// ============================================================================
+
+/// Generate Perlin noise texture for procedural assets
+///
+/// Perlin noise is smooth, continuous noise ideal for natural-looking textures,
+/// clouds, terrain, and organic patterns.
+///
+/// Args:
+///     width: Texture width in pixels
+///     height: Texture height in pixels
+///     scale: Noise frequency scale (smaller = larger features)
+///     octaves: Number of noise layers (more = more detail)
+///     seed: Random seed for reproducibility
+///
+/// Returns:
+///     Flat Vec<u8> of grayscale pixel values (row-major order)
+#[pyfunction]
+fn generate_perlin_texture(
+    width: u32,
+    height: u32,
+    scale: f64,
+    octaves: usize,
+    seed: u64,
+) -> PyResult<Vec<u8>> {
+    let perlin = Perlin::new(seed as u32);
+    let mut pixels = Vec::with_capacity((width * height) as usize);
+
+    let scale = scale.max(0.001); // Prevent division by zero
+
+    for y in 0..height {
+        for x in 0..width {
+            let nx = x as f64 / width as f64 * scale;
+            let ny = y as f64 / height as f64 * scale;
+
+            // Multi-octave sampling for richer detail
+            let mut value = 0.0;
+            let mut amplitude = 1.0;
+            let mut frequency = 1.0;
+            let mut max_value = 0.0;
+
+            for _ in 0..octaves {
+                value += perlin.get([nx * frequency, ny * frequency]) * amplitude;
+                max_value += amplitude;
+                amplitude *= 0.5;
+                frequency *= 2.0;
+            }
+
+            // Normalize to [0, 1] then to [0, 255]
+            value = value / max_value;
+            let normalized = ((value + 1.0) * 0.5).clamp(0.0, 1.0);
+            pixels.push((normalized * 255.0) as u8);
+        }
+    }
+
+    Ok(pixels)
+}
+
+/// Generate Simplex noise pattern for organic textures
+///
+/// Simplex noise (OpenSimplex variant) has fewer directional artifacts than Perlin,
+/// making it ideal for organic patterns, water, fire, and smoke effects.
+///
+/// Args:
+///     width: Texture width in pixels
+///     height: Texture height in pixels
+///     frequency: Noise frequency (higher = smaller features)
+///     seed: Random seed for reproducibility
+///
+/// Returns:
+///     Flat Vec<u8> of grayscale pixel values
+#[pyfunction]
+fn generate_simplex_pattern(
+    width: u32,
+    height: u32,
+    frequency: f64,
+    seed: u64,
+) -> PyResult<Vec<u8>> {
+    let simplex = OpenSimplex::new(seed as u32);
+    let mut pixels = Vec::with_capacity((width * height) as usize);
+
+    let frequency = frequency.max(0.001);
+
+    for y in 0..height {
+        for x in 0..width {
+            let nx = x as f64 * frequency;
+            let ny = y as f64 * frequency;
+
+            let value = simplex.get([nx, ny]);
+
+            // Normalize from [-1, 1] to [0, 255]
+            let normalized = ((value + 1.0) * 0.5).clamp(0.0, 1.0);
+            pixels.push((normalized * 255.0) as u8);
+        }
+    }
+
+    Ok(pixels)
+}
+
+/// Generate Fractional Brownian Motion (FBM) heightmap for terrain and detail
+///
+/// FBM combines multiple octaves of noise with specific parameters to create
+/// natural-looking terrain, clouds, and complex organic patterns.
+///
+/// Args:
+///     width: Heightmap width in pixels
+///     height: Heightmap height in pixels
+///     octaves: Number of noise layers (typical: 4-8)
+///     lacunarity: Frequency multiplier per octave (typical: 2.0)
+///     persistence: Amplitude multiplier per octave (typical: 0.5)
+///     seed: Random seed for reproducibility
+///
+/// Returns:
+///     Flat Vec<f32> of height values in [0, 1]
+#[pyfunction]
+fn generate_fbm_heightmap(
+    width: u32,
+    height: u32,
+    octaves: usize,
+    lacunarity: f64,
+    persistence: f64,
+    seed: u64,
+) -> PyResult<Vec<f32>> {
+    // Create FBM noise with custom parameters
+    let fbm = Fbm::<Perlin>::new(seed as u32)
+        .set_octaves(octaves)
+        .set_frequency(1.0)
+        .set_lacunarity(lacunarity)
+        .set_persistence(persistence);
+
+    let mut heights = Vec::with_capacity((width * height) as usize);
+
+    for y in 0..height {
+        for x in 0..width {
+            // Normalize coordinates to [0, 1]
+            let nx = x as f64 / width as f64;
+            let ny = y as f64 / height as f64;
+
+            let value = fbm.get([nx * 4.0, ny * 4.0]); // Scale for interesting features
+
+            // Normalize from approximately [-1, 1] to [0, 1]
+            // FBM range depends on octaves/persistence, so we clamp
+            let normalized = ((value + 1.0) * 0.5).clamp(0.0, 1.0) as f32;
+            heights.push(normalized);
+        }
+    }
+
+    Ok(heights)
+}
+
+/// Generate variation seeds for reproducible asset generation
+///
+/// Creates a sequence of pseudo-random seeds derived from a base seed,
+/// ensuring reproducible generation across multiple variations.
+///
+/// Args:
+///     base_seed: Starting seed value
+///     count: Number of variation seeds to generate
+///
+/// Returns:
+///     Vec<u64> of variation seeds
+#[pyfunction]
+fn generate_variation_seeds(base_seed: u64, count: usize) -> PyResult<Vec<u64>> {
+    let mut rng = ChaCha20Rng::seed_from_u64(base_seed);
+    let seeds: Vec<u64> = (0..count).map(|_| rng.gen()).collect();
+    Ok(seeds)
+}
+
+/// Generate Perlin noise with custom amplitude mapping
+///
+/// Advanced Perlin generation with remapping function for specific use cases
+/// like creating masks, blend maps, or artistic effects.
+///
+/// Args:
+///     width: Texture width
+///     height: Texture height
+///     scale: Base frequency scale
+///     octaves: Detail layers
+///     seed: Random seed
+///     contrast: Contrast adjustment (1.0 = normal, >1.0 = more contrast)
+///     brightness: Brightness offset (-1.0 to 1.0)
+///
+/// Returns:
+///     Flat Vec<u8> of remapped pixel values
+#[pyfunction]
+fn generate_perlin_advanced(
+    width: u32,
+    height: u32,
+    scale: f64,
+    octaves: usize,
+    seed: u64,
+    contrast: f64,
+    brightness: f64,
+) -> PyResult<Vec<u8>> {
+    let perlin = Perlin::new(seed as u32);
+    let mut pixels = Vec::with_capacity((width * height) as usize);
+
+    let scale = scale.max(0.001);
+
+    for y in 0..height {
+        for x in 0..width {
+            let nx = x as f64 / width as f64 * scale;
+            let ny = y as f64 / height as f64 * scale;
+
+            let mut value = 0.0;
+            let mut amplitude = 1.0;
+            let mut frequency = 1.0;
+            let mut max_value = 0.0;
+
+            for _ in 0..octaves {
+                value += perlin.get([nx * frequency, ny * frequency]) * amplitude;
+                max_value += amplitude;
+                amplitude *= 0.5;
+                frequency *= 2.0;
+            }
+
+            value = value / max_value;
+
+            // Apply contrast and brightness
+            value = (value * contrast) + brightness;
+
+            // Normalize to [0, 1] then [0, 255]
+            let normalized = ((value + 1.0) * 0.5).clamp(0.0, 1.0);
+            pixels.push((normalized * 255.0) as u8);
+        }
+    }
+
+    Ok(pixels)
+}
+
 #[pymodule]
 fn vmf_validator(m: &Bound<'_, PyModule>) -> PyResult<()> {
+    // Validation functions
     m.add_function(wrap_pyfunction!(rs_sharpness_score, m)?)?;
+
+    // Procedural generation functions
+    m.add_function(wrap_pyfunction!(generate_perlin_texture, m)?)?;
+    m.add_function(wrap_pyfunction!(generate_simplex_pattern, m)?)?;
+    m.add_function(wrap_pyfunction!(generate_fbm_heightmap, m)?)?;
+    m.add_function(wrap_pyfunction!(generate_variation_seeds, m)?)?;
+    m.add_function(wrap_pyfunction!(generate_perlin_advanced, m)?)?;
+
     Ok(())
 }
