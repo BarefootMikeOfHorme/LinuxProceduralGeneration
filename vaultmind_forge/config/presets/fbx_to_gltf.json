@@ -1,0 +1,110 @@
+{
+  "format_id": "fbx_2020_to_gltf_2",
+  "format_type": "model",
+  "category": "normalized",
+  "priority": "high",
+  "format_info": {
+    "name": "FBX to GLTF Conversion",
+    "version": "FBX 2020 -> GLTF 2.0",
+    "extensions": [".fbx"],
+    "mime_types": ["application/octet-stream"],
+    "binary": true
+  },
+  "handlers": {
+    "import": {
+      "function": "forge_converter.handlers.fbx_import",
+      "description": "Import FBX models using Assimp",
+      "options": {
+        "preserve_hierarchy": true,
+        "triangulate": true,
+        "generate_normals": false
+      },
+      "timeout": 300
+    },
+    "export": {
+      "function": "forge_converter.handlers.gltf_export",
+      "description": "Export to GLTF 2.0 format",
+      "options": {
+        "embed_textures": false,
+        "binary": false,
+        "draco_compression": false
+      },
+      "timeout": 300
+    },
+    "validate": {
+      "function": "forge_converter.handlers.gltf_validate",
+      "description": "Validate GLTF output against spec",
+      "timeout": 60
+    }
+  },
+  "conversion_rules": {
+    "coordinate_system": "right_handed_y_up",
+    "unit_scale": 1.0,
+    "uv_origin": "bottom_left",
+    "max_texture_size": 4096,
+    "compression": {
+      "enabled": false,
+      "algorithm": "none",
+      "quality": "high"
+    }
+  },
+  "supported_features": {
+    "meshes": true,
+    "materials": true,
+    "textures": true,
+    "animations": true,
+    "skinning": true,
+    "morphs": true,
+    "lights": false,
+    "cameras": false,
+    "pbr_materials": true,
+    "vertex_colors": true,
+    "multiple_uvs": true
+  },
+  "quality_checks": [
+    {
+      "check_type": "poly_count",
+      "threshold": 100000,
+      "severity": "warning"
+    },
+    {
+      "check_type": "texture_size",
+      "threshold": 4096,
+      "severity": "warning"
+    },
+    {
+      "check_type": "uv_overlap",
+      "threshold": 0.05,
+      "severity": "error"
+    }
+  ],
+  "examples": [
+    {
+      "scenario": "Character model from artist to procedural pipeline",
+      "source_format": "FBX 2020",
+      "target_format": "GLTF 2.0",
+      "options": {
+        "preserve_animations": true,
+        "triangulate": true
+      },
+      "expected_result": "GLTF model with embedded materials, external PNG textures"
+    }
+  ],
+  "dependencies": {
+    "libraries": ["assimp", "pygltflib"],
+    "tools": [],
+    "minimum_versions": {
+      "assimp": "5.0.0",
+      "pygltflib": "1.15.0"
+    }
+  },
+  "metadata": {
+    "last_updated": "2025-11-04",
+    "tested_versions": ["FBX 2020", "FBX 2019"],
+    "references": [
+      "https://github.com/KhronosGroup/glTF/tree/master/specification/2.0",
+      "https://help.autodesk.com/view/FBX/2020/ENU/"
+    ],
+    "maintainer": "VaultMind Forge"
+  }
+}

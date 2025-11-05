@@ -1,0 +1,188 @@
+{
+  "optimization_id": "mobile_high_quality",
+  "target_platform": ["mobile_high", "mobile_medium"],
+  "priority": "performance",
+  "passes": [
+    {
+      "pass_name": "geometry_optimization",
+      "enabled": true,
+      "operations": [
+        "vertex_welding",
+        "mesh_decimation",
+        "cache_optimization"
+      ],
+      "order": 1
+    },
+    {
+      "pass_name": "texture_optimization",
+      "enabled": true,
+      "operations": [
+        "texture_resize",
+        "texture_compression",
+        "mipmap_generation"
+      ],
+      "order": 2
+    },
+    {
+      "pass_name": "surface_optimization",
+      "enabled": true,
+      "operations": [
+        "normal_generation",
+        "tangent_generation"
+      ],
+      "order": 3
+    }
+  ],
+  "mesh_optimization": {
+    "decimation": {
+      "enabled": true,
+      "target_reduction": 0.4,
+      "preserve_boundaries": true,
+      "preserve_uvs": true,
+      "preserve_normals": true,
+      "algorithm": "quadric_error"
+    },
+    "welding": {
+      "enabled": true,
+      "threshold": 0.0001
+    },
+    "normal_smoothing": {
+      "enabled": true,
+      "angle_threshold": 30
+    },
+    "tangent_generation": {
+      "enabled": true,
+      "algorithm": "mikktspace"
+    },
+    "cache_optimization": {
+      "vertex_cache": true,
+      "overdraw": true,
+      "vertex_fetch": true
+    }
+  },
+  "texture_optimization": {
+    "resize": {
+      "enabled": true,
+      "max_width": 1024,
+      "max_height": 1024,
+      "power_of_two": true,
+      "filter": "lanczos"
+    },
+    "compression": {
+      "enabled": true,
+      "format_by_type": {
+        "diffuse": "astc",
+        "normal": "astc",
+        "data": "etc2"
+      },
+      "quality": "medium"
+    },
+    "mipmap_generation": {
+      "enabled": true,
+      "filter": "kaiser",
+      "levels": -1
+    },
+    "channel_packing": {
+      "enabled": true,
+      "packing_rules": [
+        {
+          "output_name": "orm",
+          "r": "occlusion",
+          "g": "roughness",
+          "b": "metallic",
+          "a": ""
+        }
+      ]
+    },
+    "atlas_generation": {
+      "enabled": false,
+      "max_atlas_size": 2048,
+      "padding": 2,
+      "power_of_two": true
+    }
+  },
+  "lod_generation": {
+    "enabled": true,
+    "levels": [
+      {
+        "level": 0,
+        "reduction": 0.0,
+        "screen_coverage": 1.0,
+        "texture_scale": 1.0
+      },
+      {
+        "level": 1,
+        "reduction": 0.5,
+        "screen_coverage": 0.5,
+        "texture_scale": 0.5
+      },
+      {
+        "level": 2,
+        "reduction": 0.75,
+        "screen_coverage": 0.25,
+        "texture_scale": 0.5
+      },
+      {
+        "level": 3,
+        "reduction": 0.9,
+        "screen_coverage": 0.1,
+        "texture_scale": 0.25
+      }
+    ],
+    "algorithm": "quadric_error"
+  },
+  "animation_optimization": {
+    "keyframe_reduction": {
+      "enabled": true,
+      "tolerance": 0.01
+    },
+    "compression": {
+      "enabled": true,
+      "algorithm": "acl"
+    }
+  },
+  "quality_metrics": {
+    "min_acceptable_quality": 0.75,
+    "metrics": [
+      "visual_fidelity",
+      "poly_count",
+      "file_size",
+      "texture_quality"
+    ],
+    "auto_rollback": true
+  },
+  "batch_settings": {
+    "parallel_processing": true,
+    "max_workers": -1,
+    "batch_size": 5
+  },
+  "output_settings": {
+    "preserve_originals": true,
+    "output_suffix": "_mobile",
+    "generate_report": true
+  },
+  "examples": [
+    {
+      "scenario": "Character model for mobile game",
+      "asset_type": "character",
+      "settings": {
+        "target_poly_count": 10000,
+        "max_texture_size": 1024
+      },
+      "expected_result": {
+        "size_reduction": "60-70%",
+        "quality_impact": "Minimal visual difference on mobile screens",
+        "performance_gain": "2x draw call reduction"
+      }
+    }
+  ],
+  "metadata": {
+    "last_updated": "2025-11-04",
+    "tested_platforms": ["Android (Mali GPU)", "iOS (Apple GPU)"],
+    "references": [
+      "https://arm-software.github.io/astc-encoder/",
+      "https://github.com/nfrechette/acl"
+    ],
+    "maintainer": "VaultMind Forge"
+  }
+}

@@ -1,0 +1,380 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vaultmind.forge/schemas/engine_export.schema.json",
+  "title": "Engine Export Configuration",
+  "description": "Defines engine-specific asset export settings and optimizations",
+  "type": "object",
+  "required": ["engine_id", "engine_name", "platform", "export_settings"],
+  "properties": {
+    "engine_id": {
+      "type": "string",
+      "description": "Unique engine identifier",
+      "pattern": "^[a-z0-9_]+$"
+    },
+    "engine_name": {
+      "type": "string",
+      "enum": ["unity", "unreal", "godot", "web", "blender", "custom"],
+      "description": "Target game engine or platform"
+    },
+    "platform": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["windows", "linux", "macos", "android", "ios", "webgl", "playstation", "xbox", "switch", "cross-platform"]
+      },
+      "description": "Target platforms for this export configuration"
+    },
+    "priority": {
+      "type": "string",
+      "enum": ["critical", "high", "medium", "low"],
+      "default": "medium",
+      "description": "Export priority"
+    },
+    "export_settings": {
+      "type": "object",
+      "required": ["model_format", "texture_formats"],
+      "properties": {
+        "model_format": {
+          "type": "object",
+          "required": ["primary", "version"],
+          "properties": {
+            "primary": {
+              "type": "string",
+              "enum": ["fbx", "gltf", "glb", "obj", "dae", "blend", "uasset"],
+              "description": "Primary model format for this engine"
+            },
+            "version": {
+              "type": "string",
+              "description": "Format version (e.g., 'FBX 2020', 'GLTF 2.0')"
+            },
+            "alternatives": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Fallback format options"
+            },
+            "export_options": {
+              "type": "object",
+              "properties": {
+                "triangulate": { "type": "boolean", "default": true },
+                "apply_modifiers": { "type": "boolean", "default": true },
+                "include_animations": { "type": "boolean", "default": true },
+                "bake_transforms": { "type": "boolean", "default": false },
+                "embed_textures": { "type": "boolean", "default": false }
+              }
+            }
+          }
+        },
+        "texture_formats": {
+          "type": "object",
+          "required": ["diffuse", "normal"],
+          "properties": {
+            "diffuse": {
+              "$ref": "#/definitions/texture_format"
+            },
+            "normal": {
+              "$ref": "#/definitions/texture_format"
+            },
+            "metallic": {
+              "$ref": "#/definitions/texture_format"
+            },
+            "roughness": {
+              "$ref": "#/definitions/texture_format"
+            },
+            "ao": {
+              "$ref": "#/definitions/texture_format"
+            },
+            "emissive": {
+              "$ref": "#/definitions/texture_format"
+            },
+            "orm": {
+              "$ref": "#/definitions/texture_format",
+              "description": "Packed ORM (Occlusion, Roughness, Metallic)"
+            }
+          }
+        },
+        "naming_convention": {
+          "type": "object",
+          "properties": {
+            "style": {
+              "type": "string",
+              "enum": ["PascalCase", "camelCase", "snake_case", "kebab-case", "custom"],
+              "description": "Asset naming style"
+            },
+            "prefixes": {
+              "type": "object",
+              "description": "Required prefixes per asset type",
+              "properties": {
+                "static_mesh": { "type": "string", "default": "" },
+                "skeletal_mesh": { "type": "string", "default": "" },
+                "texture": { "type": "string", "default": "" },
+                "material": { "type": "string", "default": "" },
+                "blueprint": { "type": "string", "default": "" }
+              }
+            },
+            "suffixes": {
+              "type": "object",
+              "description": "Required suffixes per asset type"
+            },
+            "lod_naming": {
+              "type": "string",
+              "description": "LOD naming pattern (e.g., '{name}_LOD{level}')"
+            }
+          }
+        },
+        "directory_structure": {
+          "type": "object",
+          "properties": {
+            "models_path": { "type": "string", "default": "models" },
+            "textures_path": { "type": "string", "default": "textures" },
+            "materials_path": { "type": "string", "default": "materials" },
+            "animations_path": { "type": "string", "default": "animations" },
+            "custom_paths": {
+              "type": "object",
+              "description": "Engine-specific custom directories"
+            }
+          }
+        }
+      }
+    },
+    "optimization": {
+      "type": "object",
+      "properties": {
+        "lod_generation": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean", "default": false },
+            "levels": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "level": { "type": "integer", "minimum": 0 },
+                  "reduction": { "type": "number", "minimum": 0, "maximum": 1 },
+                  "screen_size": { "type": "number", "description": "Screen percentage threshold" }
+                }
+              }
+            },
+            "algorithm": {
+              "type": "string",
+              "enum": ["quadric", "edge_collapse", "clustering"]
+            }
+          }
+        },
+        "texture_compression": {
+          "type": "object",
+          "properties": {
+            "desktop": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["bc7", "bc5", "bc4", "bc3", "bc1", "dxt5", "dxt1"]
+              }
+            },
+            "mobile": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["etc2", "astc", "pvrtc"]
+              }
+            },
+            "web": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["basis", "webp", "jpg", "png"]
+              }
+            }
+          }
+        },
+        "mesh_optimization": {
+          "type": "object",
+          "properties": {
+            "vertex_cache_optimization": { "type": "boolean", "default": true },
+            "overdraw_optimization": { "type": "boolean", "default": false },
+            "vertex_fetch_optimization": { "type": "boolean", "default": true },
+            "strip_unused_attributes": { "type": "boolean", "default": true }
+          }
+        },
+        "batching": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean", "default": false },
+            "max_batch_size": { "type": "integer", "default": 100 },
+            "combine_meshes": { "type": "boolean", "default": false },
+            "atlas_textures": { "type": "boolean", "default": false }
+          }
+        }
+      }
+    },
+    "quality_targets": {
+      "type": "object",
+      "properties": {
+        "poly_count": {
+          "type": "object",
+          "properties": {
+            "min": { "type": "integer" },
+            "max": { "type": "integer" },
+            "target": { "type": "integer" }
+          }
+        },
+        "texture_size": {
+          "type": "object",
+          "properties": {
+            "min": { "type": "integer", "default": 64 },
+            "max": { "type": "integer", "default": 4096 },
+            "default": { "type": "integer", "default": 2048 }
+          }
+        },
+        "file_size": {
+          "type": "object",
+          "properties": {
+            "max_model_mb": { "type": "number" },
+            "max_texture_mb": { "type": "number" }
+          }
+        }
+      }
+    },
+    "material_settings": {
+      "type": "object",
+      "properties": {
+        "shader_model": {
+          "type": "string",
+          "enum": ["pbr", "standard", "unlit", "custom"]
+        },
+        "texture_packing": {
+          "type": "object",
+          "description": "Channel packing configuration",
+          "properties": {
+            "orm": {
+              "type": "object",
+              "properties": {
+                "r": { "type": "string", "enum": ["occlusion", "metallic", "roughness", "none"] },
+                "g": { "type": "string", "enum": ["occlusion", "metallic", "roughness", "none"] },
+                "b": { "type": "string", "enum": ["occlusion", "metallic", "roughness", "none"] },
+                "a": { "type": "string", "enum": ["alpha", "none"] }
+              }
+            }
+          }
+        },
+        "material_conventions": {
+          "type": "object",
+          "description": "Engine-specific material setup"
+        }
+      }
+    },
+    "validation": {
+      "type": "object",
+      "properties": {
+        "pre_export_checks": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["uv_check", "normal_check", "poly_count", "texture_size", "naming_convention", "material_slots"]
+          }
+        },
+        "post_export_checks": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["file_integrity", "size_validation", "format_compliance", "import_test"]
+          }
+        },
+        "auto_fix": {
+          "type": "boolean",
+          "default": false,
+          "description": "Attempt to automatically fix validation errors"
+        }
+      }
+    },
+    "pipeline_integration": {
+      "type": "object",
+      "properties": {
+        "pre_processors": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Processors to run before export"
+        },
+        "post_processors": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Processors to run after export"
+        },
+        "metadata_files": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "filename": { "type": "string" },
+              "format": { "type": "string", "enum": ["json", "yaml", "xml", "ini"] },
+              "content": { "type": "object" }
+            }
+          }
+        }
+      }
+    },
+    "examples": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["scenario", "asset_type", "settings"],
+        "properties": {
+          "scenario": { "type": "string" },
+          "asset_type": { "type": "string" },
+          "settings": { "type": "object" },
+          "expected_output": { "type": "string" }
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "last_updated": { "type": "string", "format": "date" },
+        "tested_engine_versions": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "references": {
+          "type": "array",
+          "items": { "type": "string", "format": "uri" }
+        },
+        "maintainer": { "type": "string" }
+      }
+    }
+  },
+  "definitions": {
+    "texture_format": {
+      "type": "object",
+      "required": ["extension", "compression"],
+      "properties": {
+        "extension": {
+          "type": "string",
+          "enum": ["dds", "tga", "png", "jpg", "webp", "exr", "hdr", "basis"],
+          "description": "File extension for this texture type"
+        },
+        "compression": {
+          "type": "string",
+          "description": "Compression algorithm (e.g., 'BC7', 'ETC2', 'ASTC')"
+        },
+        "quality": {
+          "type": "string",
+          "enum": ["low", "medium", "high", "max"],
+          "default": "high"
+        },
+        "max_size": {
+          "type": "integer",
+          "description": "Maximum texture dimension",
+          "default": 2048
+        },
+        "mipmap": {
+          "type": "boolean",
+          "default": true,
+          "description": "Generate mipmaps"
+        },
+        "srgb": {
+          "type": "boolean",
+          "description": "Use sRGB color space"
+        }
+      }
+    }
+  }
+}

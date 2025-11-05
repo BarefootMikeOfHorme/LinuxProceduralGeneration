@@ -1,0 +1,254 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vaultmind.forge/schemas/format_conversion.schema.json",
+  "title": "Format Conversion Definition",
+  "description": "Defines format handlers for bidirectional asset conversion",
+  "type": "object",
+  "required": ["format_id", "format_type", "category", "handlers"],
+  "properties": {
+    "format_id": {
+      "type": "string",
+      "description": "Unique identifier for this format (e.g., 'fbx_2020', 'gltf_2.0')",
+      "pattern": "^[a-z0-9_]+$"
+    },
+    "format_type": {
+      "type": "string",
+      "enum": ["model", "texture", "animation", "material", "audio"],
+      "description": "Primary asset type this format handles"
+    },
+    "category": {
+      "type": "string",
+      "enum": ["source", "normalized", "procedural", "engine_ready"],
+      "description": "Pipeline stage where this format is used"
+    },
+    "priority": {
+      "type": "string",
+      "enum": ["critical", "high", "medium", "low"],
+      "default": "medium",
+      "description": "Conversion priority for this format"
+    },
+    "format_info": {
+      "type": "object",
+      "required": ["name", "extensions", "mime_types"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Human-readable format name"
+        },
+        "version": {
+          "type": "string",
+          "description": "Format version (e.g., '2020', '2.0')"
+        },
+        "extensions": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^\\.[a-z0-9]+$" },
+          "description": "File extensions for this format",
+          "minItems": 1
+        },
+        "mime_types": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "MIME types for format detection"
+        },
+        "binary": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether format is binary or text-based"
+        }
+      }
+    },
+    "handlers": {
+      "type": "object",
+      "properties": {
+        "import": {
+          "$ref": "#/definitions/handler"
+        },
+        "export": {
+          "$ref": "#/definitions/handler"
+        },
+        "validate": {
+          "$ref": "#/definitions/handler"
+        },
+        "repair": {
+          "$ref": "#/definitions/handler"
+        }
+      }
+    },
+    "conversion_rules": {
+      "type": "object",
+      "properties": {
+        "coordinate_system": {
+          "type": "string",
+          "enum": ["right_handed_y_up", "right_handed_z_up", "left_handed_y_up", "left_handed_z_up"],
+          "description": "Coordinate system transformation"
+        },
+        "unit_scale": {
+          "type": "number",
+          "description": "Unit scale factor (1.0 = 1 meter)",
+          "default": 1.0
+        },
+        "uv_origin": {
+          "type": "string",
+          "enum": ["bottom_left", "top_left"],
+          "description": "UV coordinate origin"
+        },
+        "max_texture_size": {
+          "type": "integer",
+          "description": "Maximum texture dimension",
+          "default": 4096
+        },
+        "compression": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean", "default": false },
+            "algorithm": {
+              "type": "string",
+              "enum": ["bc7", "bc5", "bc4", "etc2", "astc", "draco", "none"]
+            },
+            "quality": {
+              "type": "string",
+              "enum": ["low", "medium", "high", "max"],
+              "default": "high"
+            }
+          }
+        }
+      }
+    },
+    "supported_features": {
+      "type": "object",
+      "properties": {
+        "meshes": { "type": "boolean", "default": false },
+        "materials": { "type": "boolean", "default": false },
+        "textures": { "type": "boolean", "default": false },
+        "animations": { "type": "boolean", "default": false },
+        "skinning": { "type": "boolean", "default": false },
+        "morphs": { "type": "boolean", "default": false },
+        "lights": { "type": "boolean", "default": false },
+        "cameras": { "type": "boolean", "default": false },
+        "pbr_materials": { "type": "boolean", "default": false },
+        "vertex_colors": { "type": "boolean", "default": false },
+        "multiple_uvs": { "type": "boolean", "default": false }
+      }
+    },
+    "quality_checks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["check_type", "threshold"],
+        "properties": {
+          "check_type": {
+            "type": "string",
+            "enum": ["poly_count", "texture_size", "uv_overlap", "manifold", "normal_validity"]
+          },
+          "threshold": {
+            "type": "number",
+            "description": "Threshold value for the check"
+          },
+          "severity": {
+            "type": "string",
+            "enum": ["error", "warning", "info"],
+            "default": "warning"
+          }
+        }
+      }
+    },
+    "examples": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["scenario", "source_format", "target_format"],
+        "properties": {
+          "scenario": {
+            "type": "string",
+            "description": "Use case description"
+          },
+          "source_format": {
+            "type": "string",
+            "description": "Input format"
+          },
+          "target_format": {
+            "type": "string",
+            "description": "Output format"
+          },
+          "options": {
+            "type": "object",
+            "description": "Conversion options for this scenario"
+          },
+          "expected_result": {
+            "type": "string",
+            "description": "Expected outcome"
+          }
+        }
+      }
+    },
+    "dependencies": {
+      "type": "object",
+      "properties": {
+        "libraries": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Required libraries (e.g., 'assimp', 'pillow')"
+        },
+        "tools": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Required external tools"
+        },
+        "minimum_versions": {
+          "type": "object",
+          "description": "Minimum version requirements"
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "last_updated": {
+          "type": "string",
+          "format": "date"
+        },
+        "tested_versions": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "references": {
+          "type": "array",
+          "items": { "type": "string", "format": "uri" },
+          "description": "Documentation and specification links"
+        },
+        "maintainer": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "handler": {
+      "type": "object",
+      "required": ["function", "description"],
+      "properties": {
+        "function": {
+          "type": "string",
+          "description": "Handler function name or import path"
+        },
+        "description": {
+          "type": "string",
+          "description": "What this handler does"
+        },
+        "options": {
+          "type": "object",
+          "description": "Handler-specific options"
+        },
+        "timeout": {
+          "type": "integer",
+          "description": "Maximum execution time in seconds",
+          "default": 300
+        },
+        "fallback": {
+          "type": "string",
+          "description": "Fallback handler if this one fails"
+        }
+      }
+    }
+  }
+}

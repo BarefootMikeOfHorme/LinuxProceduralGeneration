@@ -1,0 +1,195 @@
+{
+  "engine_id": "unity_2022_lts",
+  "engine_name": "unity",
+  "platform": ["windows", "android", "ios", "webgl"],
+  "priority": "high",
+  "export_settings": {
+    "model_format": {
+      "primary": "fbx",
+      "version": "FBX 2020",
+      "alternatives": ["obj"],
+      "export_options": {
+        "triangulate": true,
+        "apply_modifiers": true,
+        "include_animations": true,
+        "bake_transforms": false,
+        "embed_textures": false
+      }
+    },
+    "texture_formats": {
+      "diffuse": {
+        "extension": "dds",
+        "compression": "bc7",
+        "quality": "high",
+        "max_size": 2048,
+        "mipmap": true,
+        "srgb": true
+      },
+      "normal": {
+        "extension": "dds",
+        "compression": "bc5",
+        "quality": "high",
+        "max_size": 2048,
+        "mipmap": true,
+        "srgb": false
+      },
+      "metallic": {
+        "extension": "dds",
+        "compression": "bc4",
+        "quality": "high",
+        "max_size": 2048,
+        "mipmap": true,
+        "srgb": false
+      },
+      "roughness": {
+        "extension": "dds",
+        "compression": "bc4",
+        "quality": "high",
+        "max_size": 2048,
+        "mipmap": true,
+        "srgb": false
+      },
+      "ao": {
+        "extension": "dds",
+        "compression": "bc4",
+        "quality": "high",
+        "max_size": 2048,
+        "mipmap": true,
+        "srgb": false
+      }
+    },
+    "naming_convention": {
+      "style": "PascalCase",
+      "prefixes": {
+        "static_mesh": "",
+        "skeletal_mesh": "",
+        "texture": "",
+        "material": "MAT_",
+        "blueprint": ""
+      },
+      "suffixes": {},
+      "lod_naming": "{name}_LOD{level}"
+    },
+    "directory_structure": {
+      "models_path": "models",
+      "textures_path": "textures",
+      "materials_path": "materials",
+      "animations_path": "animations",
+      "custom_paths": {
+        "prefabs": "prefabs",
+        "shaders": "shaders"
+      }
+    }
+  },
+  "optimization": {
+    "lod_generation": {
+      "enabled": true,
+      "levels": [
+        {
+          "level": 0,
+          "reduction": 0.0,
+          "screen_size": 1.0
+        },
+        {
+          "level": 1,
+          "reduction": 0.5,
+          "screen_size": 0.5
+        },
+        {
+          "level": 2,
+          "reduction": 0.75,
+          "screen_size": 0.25
+        }
+      ],
+      "algorithm": "quadric"
+    },
+    "texture_compression": {
+      "desktop": ["bc7", "bc5", "bc4"],
+      "mobile": ["astc", "etc2"],
+      "web": ["basis", "webp"]
+    },
+    "mesh_optimization": {
+      "vertex_cache_optimization": true,
+      "overdraw_optimization": false,
+      "vertex_fetch_optimization": true,
+      "strip_unused_attributes": true
+    },
+    "batching": {
+      "enabled": false,
+      "max_batch_size": 100,
+      "combine_meshes": false,
+      "atlas_textures": false
+    }
+  },
+  "quality_targets": {
+    "poly_count": {
+      "min": 1000,
+      "max": 50000,
+      "target": 20000
+    },
+    "texture_size": {
+      "min": 256,
+      "max": 2048,
+      "default": 1024
+    },
+    "file_size": {
+      "max_model_mb": 10,
+      "max_texture_mb": 5
+    }
+  },
+  "material_settings": {
+    "shader_model": "pbr",
+    "texture_packing": {
+      "orm": {
+        "r": "occlusion",
+        "g": "roughness",
+        "b": "metallic",
+        "a": "none"
+      }
+    }
+  },
+  "validation": {
+    "pre_export_checks": [
+      "uv_check",
+      "normal_check",
+      "poly_count",
+      "texture_size",
+      "naming_convention"
+    ],
+    "post_export_checks": [
+      "file_integrity",
+      "size_validation",
+      "format_compliance"
+    ],
+    "auto_fix": false
+  },
+  "pipeline_integration": {
+    "pre_processors": [
+      "normalize_coordinates",
+      "generate_lightmap_uvs"
+    ],
+    "post_processors": [
+      "generate_metadata",
+      "create_prefab_template"
+    ],
+    "metadata_files": [
+      {
+        "filename": "asset_manifest.json",
+        "format": "json",
+        "content": {
+          "unity_version": "2022.3 LTS",
+          "render_pipeline": "URP"
+        }
+      }
+    ]
+  },
+  "metadata": {
+    "last_updated": "2025-11-04",
+    "tested_engine_versions": ["Unity 2022.3 LTS", "Unity 2023.1"],
+    "references": [
+      "https://docs.unity3d.com/Manual/ImportingModelFiles.html",
+      "https://docs.unity3d.com/Manual/class-TextureImporter.html"
+    ],
+    "maintainer": "VaultMind Forge"
+  }
+}
