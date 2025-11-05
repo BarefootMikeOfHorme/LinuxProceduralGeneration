@@ -1,7 +1,20 @@
 from __future__ import annotations
 
 """
-Module stub
+VaultMind Forge - Lineage Tracking Module
+Complete asset genealogy with SHA-256 checksums and parent relationships
 """
 
-__all__: list[str] = []
+from .lineage_tracker import (
+    LineageTracker,
+    LineageRecord,
+    OperationType
+)
+
+__all__ = [
+    "LineageTracker",
+    "LineageRecord",
+    "OperationType"
+]
+
+__version__ = "1.0.0"

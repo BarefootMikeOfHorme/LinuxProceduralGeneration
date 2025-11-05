@@ -1,7 +1,28 @@
 from __future__ import annotations
 
 """
-Module stub
+VaultMind Forge - Asset Packaging Module
+Production-grade asset packaging with compression and integrity verification
 """
 
-__all__: list[str] = []
+from .packager import (
+    AssetPackager,
+    AssetManifest,
+    PackageInfo,
+    PackagerError,
+    InvalidAssetError,
+    PackagingFailedError,
+    quick_package,
+)
+
+__all__ = [
+    "AssetPackager",
+    "AssetManifest",
+    "PackageInfo",
+    "PackagerError",
+    "InvalidAssetError",
+    "PackagingFailedError",
+    "quick_package",
+]
+
+__version__ = "1.0.0"

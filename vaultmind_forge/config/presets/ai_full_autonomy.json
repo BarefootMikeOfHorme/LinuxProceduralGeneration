@@ -1,0 +1,95 @@
+{
+  "pipeline_stage": "generation",
+  "ai_authority_level": "full_autonomous",
+  "confidence_thresholds": {
+    "auto_approve": 0.85,
+    "auto_fix": 0.75,
+    "flag_for_review": 0.60,
+    "auto_reject": 0.40
+  },
+  "decision_points": [
+    {
+      "decision_id": "initial_quality_gate",
+      "decision_type": "quality_assessment",
+      "ai_method": "ensemble",
+      "input_features": [
+        "sharpness_score",
+        "anatomy_score",
+        "prompt_alignment",
+        "color_fidelity",
+        "artifact_detection"
+      ],
+      "output_options": ["approve", "retry_with_adjustment", "reject"],
+      "confidence_required": 0.85,
+      "reasoning_template": "Quality assessment: {metric_scores}. Decision: {outcome} (confidence: {confidence}). Reasoning: {explanation}"
+    },
+    {
+      "decision_id": "retry_parameters",
+      "decision_type": "parameter_selection",
+      "ai_method": "learned_policy",
+      "input_features": [
+        "previous_attempts",
+        "failed_metrics",
+        "job_requirements",
+        "style_references"
+      ],
+      "output_options": ["adjust_cfg_scale", "adjust_steps", "adjust_prompt", "change_sampler", "abort"],
+      "confidence_required": 0.75,
+      "reasoning_template": "Failed metrics: {failed_metrics}. Adjustment: {adjustment} to improve {target_metric}"
+    },
+    {
+      "decision_id": "winner_selection",
+      "decision_type": "quality_assessment",
+      "ai_method": "ml_classification",
+      "input_features": [
+        "all_variation_scores",
+        "consistency_metrics",
+        "style_match_scores",
+        "reference_similarity"
+      ],
+      "output_options": ["select_winner", "regenerate_all", "request_human_pick"],
+      "confidence_required": 0.85,
+      "reasoning_template": "Selected variation {winner_id} with score {score}. Reasoning: Best {winning_metrics}"
+    }
+  ],
+  "human_override": {
+    "enabled": true,
+    "require_approval_for": ["hero_assets", "character_models"],
+    "approval_timeout": 600
+  },
+  "learning_feedback": {
+    "collect_metrics": true,
+    "adapt_thresholds": true,
+    "human_corrections": {
+      "store_corrections": true,
+      "retrain_trigger": 50
+    }
+  },
+  "fallback_strategies": [
+    {
+      "condition": "confidence_below_threshold",
+      "action": "retry_with_different_params",
+      "max_retries": 3
+    },
+    {
+      "condition": "all_retries_failed",
+      "action": "request_human_review",
+      "max_retries": 0
+    },
+    {
+      "condition": "quality_metrics_inconsistent",
+      "action": "escalate_to_supervisor",
+      "max_retries": 1
+    }
+  ],
+  "monitoring": {
+    "log_all_decisions": true,
+    "record_reasoning": true,
+    "alert_on_anomalies": true,
+    "performance_tracking": {
+      "decision_time": true,
+      "accuracy_rate": true,
+      "false_positive_rate": true
+    }
+  }
+}

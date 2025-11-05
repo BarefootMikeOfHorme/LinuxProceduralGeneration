@@ -1,0 +1,244 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vaultmind.forge/schemas/ai_control.schema.json",
+  "title": "AI Control Framework",
+  "description": "Defines AI decision-making authority, confidence thresholds, and human-in-loop checkpoints throughout the asset pipeline",
+  "type": "object",
+  "required": ["pipeline_stage", "ai_authority_level", "decision_points"],
+  "properties": {
+    "pipeline_stage": {
+      "type": "string",
+      "enum": [
+        "generation",
+        "validation",
+        "optimization",
+        "conversion",
+        "export",
+        "quality_control"
+      ],
+      "description": "Which stage of the pipeline this AI control applies to"
+    },
+    "ai_authority_level": {
+      "type": "string",
+      "enum": ["full_autonomous", "high_autonomy", "supervised", "advisory_only"],
+      "description": "Level of AI control in this stage"
+    },
+    "confidence_thresholds": {
+      "type": "object",
+      "properties": {
+        "auto_approve": {
+          "type": "number",
+          "minimum": 0.8,
+          "maximum": 1.0,
+          "description": "Confidence threshold for autonomous approval (no human review)"
+        },
+        "auto_fix": {
+          "type": "number",
+          "minimum": 0.7,
+          "maximum": 0.95,
+          "description": "Confidence threshold for automatic fixes"
+        },
+        "flag_for_review": {
+          "type": "number",
+          "minimum": 0.4,
+          "maximum": 0.8,
+          "description": "Below this threshold, flag for human review"
+        },
+        "auto_reject": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 0.5,
+          "description": "Below this threshold, automatically reject and retry"
+        }
+      },
+      "required": ["auto_approve", "flag_for_review"]
+    },
+    "decision_points": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/decision_point"
+      },
+      "description": "Specific decisions the AI makes in this stage"
+    },
+    "human_override": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Allow human to override AI decisions"
+        },
+        "require_approval_for": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "critical_assets",
+              "hero_assets",
+              "character_models",
+              "final_export",
+              "production_ready",
+              "all_decisions"
+            ]
+          },
+          "description": "Which types of assets require human approval"
+        },
+        "approval_timeout": {
+          "type": "integer",
+          "description": "Seconds to wait for human approval before auto-deciding",
+          "default": 300
+        }
+      }
+    },
+    "learning_feedback": {
+      "type": "object",
+      "properties": {
+        "collect_metrics": {
+          "type": "boolean",
+          "default": true,
+          "description": "Collect data on AI decision accuracy"
+        },
+        "adapt_thresholds": {
+          "type": "boolean",
+          "default": false,
+          "description": "Allow AI to adapt confidence thresholds based on success rate"
+        },
+        "human_corrections": {
+          "type": "object",
+          "properties": {
+            "store_corrections": {
+              "type": "boolean",
+              "default": true
+            },
+            "retrain_trigger": {
+              "type": "integer",
+              "description": "Number of corrections before suggesting retraining",
+              "default": 100
+            }
+          }
+        }
+      }
+    },
+    "fallback_strategies": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "condition": {
+            "type": "string",
+            "description": "Condition that triggers fallback (e.g., 'low_confidence', 'timeout', 'error')"
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "request_human_review",
+              "retry_with_different_params",
+              "use_safe_default",
+              "escalate_to_supervisor",
+              "abort_and_log"
+            ]
+          },
+          "max_retries": {
+            "type": "integer",
+            "default": 3
+          }
+        }
+      }
+    },
+    "monitoring": {
+      "type": "object",
+      "properties": {
+        "log_all_decisions": {
+          "type": "boolean",
+          "default": true
+        },
+        "record_reasoning": {
+          "type": "boolean",
+          "default": true,
+          "description": "Store AI reasoning for each decision (explainability)"
+        },
+        "alert_on_anomalies": {
+          "type": "boolean",
+          "default": true
+        },
+        "performance_tracking": {
+          "type": "object",
+          "properties": {
+            "decision_time": {
+              "type": "boolean",
+              "description": "Track time taken per decision"
+            },
+            "accuracy_rate": {
+              "type": "boolean",
+              "description": "Track accuracy vs human corrections"
+            },
+            "false_positive_rate": {
+              "type": "boolean",
+              "description": "Track false positives (AI approved, human rejected)"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "decision_point": {
+      "type": "object",
+      "required": ["decision_id", "decision_type", "ai_method"],
+      "properties": {
+        "decision_id": {
+          "type": "string",
+          "description": "Unique identifier for this decision type"
+        },
+        "decision_type": {
+          "type": "string",
+          "enum": [
+            "quality_assessment",
+            "parameter_selection",
+            "format_choice",
+            "optimization_level",
+            "retry_decision",
+            "asset_routing",
+            "material_assignment",
+            "lod_generation",
+            "texture_resolution",
+            "compression_settings"
+          ]
+        },
+        "ai_method": {
+          "type": "string",
+          "enum": [
+            "ml_classification",
+            "rule_based",
+            "heuristic",
+            "learned_policy",
+            "ensemble",
+            "llm_reasoning",
+            "computer_vision"
+          ],
+          "description": "Method AI uses to make this decision"
+        },
+        "input_features": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "What data the AI considers for this decision"
+        },
+        "output_options": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Possible outcomes of this decision"
+        },
+        "confidence_required": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Minimum confidence for autonomous decision"
+        },
+        "reasoning_template": {
+          "type": "string",
+          "description": "Template for explaining AI reasoning (for human review)"
+        }
+      }
+    }
+  }
+}

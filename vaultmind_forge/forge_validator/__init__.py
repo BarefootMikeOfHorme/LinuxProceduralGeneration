@@ -1,7 +1,28 @@
 from __future__ import annotations
 
 """
-Module stub
+VaultMind Forge - Validator Module
+Quality validation with AI-powered decision making
 """
 
-__all__: list[str] = []
+from .validator import Validator, ValidationResult
+from .ai_validator import (
+    AIValidator,
+    AIValidationResult,
+    ValidationDecision,
+    validate_asset_ai
+)
+
+__all__ = [
+    # Traditional validation
+    "Validator",
+    "ValidationResult",
+
+    # AI-powered validation
+    "AIValidator",
+    "AIValidationResult",
+    "ValidationDecision",
+    "validate_asset_ai"
+]
+
+__version__ = "1.0.0"
