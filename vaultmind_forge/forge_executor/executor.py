@@ -63,14 +63,14 @@ class Executor:
                         task.result = await task.func()
                         task.finished = datetime.utcnow()
                         self.results[task.name] = task.result
-                        print(f"[✓] {task.name}")
+                        print(f"[OK] {task.name}", flush=True)
                         return
                     except Exception as e:
                         task.error = e
                         if attempt + 1 == task.retries:
-                            print(f"[✗] {task.name} failed: {e}")
+                            print(f"[FAIL] {task.name} failed: {e}", flush=True)
                         else:
-                            print(f"[!] {task.name} retrying… ({attempt+1}/{task.retries})")
+                            print(f"[RETRY] {task.name} retrying... ({attempt+1}/{task.retries})", flush=True)
                             await asyncio.sleep(0.5)
 
         tasks_left = set(self.dag.nodes.keys())

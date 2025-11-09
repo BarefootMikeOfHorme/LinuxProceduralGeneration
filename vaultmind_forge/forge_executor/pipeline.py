@@ -6,13 +6,23 @@ End-to-end DAG execution for generation → validation → conversion → export
 from __future__ import annotations
 
 import sys
+import logging
 from pathlib import Path
 from typing import Dict, List, Optional, Any, Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
+from datetime import datetime
 
 # Add modules to path
 sys.path.insert(0, str(Path(__file__).parents[1]))
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+logger = logging.getLogger(__name__)
 
 from forge_validator.ai_validator import AIValidator, ValidationDecision
 from forge_lineage import LineageTracker, OperationType
@@ -26,11 +36,11 @@ class Task:
     id: str
     func: Callable
     args: tuple = ()
-    deps: List[str] = None
-
-    def __post_init__(self):
-        if self.deps is None:
-            self.deps = []
+    deps: List[str] = field(default_factory=list)
+    timeout: Optional[float] = None  # Timeout in seconds
+    started_at: Optional[datetime] = None
+    finished_at: Optional[datetime] = None
+    error: Optional[Exception] = None
 
 
 class DAG:
@@ -67,30 +77,69 @@ class DAG:
 
 
 class Executor:
-    """Simple synchronous executor"""
-    def execute(self, dag: DAG):
-        """Execute DAG tasks in order"""
+    """Simple synchronous executor with error handling and progress tracking"""
+    def execute(self, dag: DAG, on_progress: Optional[Callable[[str, str], None]] = None):
+        """
+        Execute DAG tasks in order
+
+        Args:
+            dag: DAG to execute
+            on_progress: Optional callback for progress updates (task_id, status)
+
+        Raises:
+            RuntimeError: If task execution fails
+        """
         execution_order = dag._get_execution_order()
+        total_tasks = len(execution_order)
+        completed_tasks = 0
 
         for task_id in execution_order:
             task = dag.tasks[task_id]
 
-            # Get dependency results
-            dep_results = []
-            for dep_id in task.deps:
-                if dep_id in dag.results:
+            # Notify progress
+            if on_progress:
+                on_progress(task_id, f"starting ({completed_tasks+1}/{total_tasks})")
+
+            task.started_at = datetime.utcnow()
+            logger.info(f"Executing task: {task_id} ({completed_tasks+1}/{total_tasks})")
+
+            try:
+                # Get dependency results
+                dep_results = []
+                for dep_id in task.deps:
+                    if dep_id not in dag.results:
+                        raise RuntimeError(f"Dependency '{dep_id}' failed or did not complete")
                     dep_results.append(dag.results[dep_id])
 
-            # Execute task
-            if dep_results:
-                # If task has deps, pass the last result as argument
-                result = task.func(*dep_results, *task.args)
-            else:
-                # No deps, just call with args
-                result = task.func(*task.args)
+                # Execute task
+                if dep_results:
+                    # If task has deps, pass the last result as argument
+                    result = task.func(*dep_results, *task.args)
+                else:
+                    # No deps, just call with args
+                    result = task.func(*task.args)
 
-            # Store result
-            dag.results[task_id] = result
+                # Store result
+                task.finished_at = datetime.utcnow()
+                dag.results[task_id] = result
+                completed_tasks += 1
+
+                # Calculate execution time
+                exec_time = (task.finished_at - task.started_at).total_seconds()
+                logger.info(f"Task '{task_id}' completed successfully in {exec_time:.2f}s")
+
+                if on_progress:
+                    on_progress(task_id, f"completed ({completed_tasks}/{total_tasks})")
+
+            except Exception as e:
+                task.error = e
+                task.finished_at = datetime.utcnow()
+                logger.error(f"Task '{task_id}' failed: {str(e)}")
+
+                if on_progress:
+                    on_progress(task_id, f"failed: {str(e)}")
+
+                raise RuntimeError(f"Task '{task_id}' failed: {str(e)}") from e
 
 
 class PipelineStage(Enum):
@@ -155,7 +204,8 @@ class AssetPipeline:
         self,
         ai_authority: AuthorityLevel = AuthorityLevel.HIGH_AUTONOMY,
         max_retries: int = 3,
-        enable_lineage: bool = True
+        enable_lineage: bool = True,
+        base_path: Optional[Path] = None
     ):
         """
         Initialize pipeline
@@ -164,14 +214,105 @@ class AssetPipeline:
             ai_authority: AI authority level for validation
             max_retries: Maximum retry attempts for failed validation
             enable_lineage: Enable lineage tracking
+            base_path: Base path for asset storage (defaults to project assets directory)
         """
         self.ai_validator = AIValidator(authority_level=ai_authority)
         self.lineage_tracker = LineageTracker() if enable_lineage else None
         self.max_retries = max_retries
 
+        # Define base paths
+        if base_path is None:
+            # Default to project assets directory
+            base_path = Path(__file__).parents[2] / "assets"
+        self.base_path = Path(base_path)
+
+        # Define structured output paths for different asset types
+        self.paths = {
+            # Generation outputs by type
+            'generated': {
+                'textures': self.base_path / "generated" / "diffusion" / "textures",
+                'models': self.base_path / "generated" / "diffusion" / "models",
+                'materials': self.base_path / "generated" / "diffusion" / "materials",
+                'animations': self.base_path / "generated" / "diffusion" / "animations",
+                'environments': self.base_path / "generated" / "diffusion" / "environments",
+                'characters': self.base_path / "generated" / "diffusion" / "characters",
+                'props': self.base_path / "generated" / "diffusion" / "props",
+                'effects': self.base_path / "generated" / "diffusion" / "effects",
+                'audio': self.base_path / "generated" / "diffusion" / "audio",
+                'standard': self.base_path / "generated" / "diffusion" / "standard"
+            },
+            # Validation outputs
+            'validated': {
+                'winners': self.base_path / "validated" / "winners",
+                'rejected': self.base_path / "validated" / "rejected",
+                'flagged': self.base_path / "validated" / "flagged_for_review"
+            },
+            # Engine-specific outputs
+            'output': {
+                'unity': self.base_path / "output" / "unity",
+                'unreal': self.base_path / "output" / "unreal",
+                'godot': self.base_path / "output" / "godot",
+                'web': self.base_path / "output" / "web",
+                'blender': self.base_path / "output" / "blender"
+            },
+            # Packaging and distribution
+            'packages': self.base_path / "packages",
+            'temp': self.base_path / "temp"
+        }
+
+        # Flatten and ensure all directories exist
+        self._ensure_directories_exist()
+
+        logger.info(f"Pipeline initialized with base path: {self.base_path}")
+
         # Pipeline state
         self.current_job: Optional[Dict[str, Any]] = None
         self.retry_count = 0
+
+    def _ensure_directories_exist(self):
+        """Create all required directories"""
+        def create_dirs(path_dict):
+            for key, value in path_dict.items():
+                if isinstance(value, dict):
+                    create_dirs(value)
+                elif isinstance(value, Path):
+                    value.mkdir(parents=True, exist_ok=True)
+                    logger.debug(f"Created directory: {value}")
+
+        create_dirs(self.paths)
+        logger.info(f"All pipeline directories initialized")
+
+    def get_path(self, category: str, subcategory: Optional[str] = None) -> Path:
+        """
+        Get a path from the pipeline structure
+
+        Args:
+            category: Main category (generated, validated, output, packages, temp)
+            subcategory: Optional subcategory (textures, models, unity, etc.)
+
+        Returns:
+            Path object
+
+        Example:
+            >>> pipeline.get_path('generated', 'textures')
+            PosixPath('/path/to/assets/generated/diffusion/textures')
+        """
+        if category not in self.paths:
+            raise ValueError(f"Unknown category: {category}")
+
+        path = self.paths[category]
+
+        if subcategory:
+            if isinstance(path, dict):
+                if subcategory not in path:
+                    raise ValueError(f"Unknown subcategory '{subcategory}' in '{category}'")
+                return path[subcategory]
+            else:
+                raise ValueError(f"Category '{category}' has no subcategories")
+
+        # If no subcategory and path is dict, return the dict itself (for iteration)
+        # If no subcategory and path is Path, return the path
+        return path
 
     def run_generation_pipeline(
         self,
@@ -288,11 +429,34 @@ class AssetPipeline:
             generator = DiffusionGenerator()
             result = generator.generate(prompt=job_config["prompt"], ...)
         """
-        print(f"[GENERATE] Generating: {job_config['prompt']}")
+        logger.info(f"[GENERATE] Generating: {job_config['prompt']}")
+
+        # Get output type and determine file extension
+        output_type = job_config.get('output_type', 'standard')
+
+        # Map output types to file extensions
+        type_extensions = {
+            'textures': '.png',
+            'models': '.fbx',
+            'materials': '.mtl',
+            'animations': '.fbx',
+            'environments': '.gltf',
+            'characters': '.fbx',
+            'props': '.fbx',
+            'effects': '.vfx',
+            'audio': '.wav',
+            'standard': '.png'
+        }
+
+        # Get the proper path using the helper method
+        output_dir = self.get_path('generated', output_type)
+
+        # Generate unique filename with timestamp
+        timestamp = datetime.utcnow().strftime('%Y%m%d_%H%M%S')
+        ext = type_extensions.get(output_type, '.png')
+        output_path = output_dir / f"job_{timestamp}_{id(job_config)}{ext}"
 
         # Placeholder: simulate generation
-        output_path = Path("assets/generated/diffusion/textures") / f"job_{id(job_config)}.png"
-        output_path.parent.mkdir(parents=True, exist_ok=True)
         output_path.touch()  # Create placeholder file
 
         # Record lineage
@@ -308,7 +472,7 @@ class AssetPipeline:
             )
             job_config["generation_checksum"] = checksum
 
-        print(f"[GENERATE] Created: {output_path}")
+        logger.info(f"[GENERATE] Created: {output_path}")
         return output_path
 
     def _validate_task(self, generate_result: Path) -> Dict[str, Any]:
@@ -321,7 +485,7 @@ class AssetPipeline:
         Returns:
             Validation result dict
         """
-        print(f"[VALIDATE] Validating: {generate_result}")
+        logger.info(f"[VALIDATE] Validating: {generate_result}")
 
         # AI-powered validation
         context = {
@@ -348,8 +512,8 @@ class AssetPipeline:
                 }
             )
 
-        print(f"[VALIDATE] Decision: {ai_result.decision.value} (confidence: {ai_result.confidence:.2f})")
-        print(f"[VALIDATE] Reasoning: {ai_result.reasoning}")
+        logger.info(f"[VALIDATE] Decision: {ai_result.decision.value} (confidence: {ai_result.confidence:.2f})")
+        logger.info(f"[VALIDATE] Reasoning: {ai_result.reasoning}")
 
         return {
             "asset_path": generate_result,
@@ -372,8 +536,8 @@ class AssetPipeline:
         decision = validate_result["decision"]
 
         if decision == ValidationDecision.RETRY_RECOMMENDED and self.retry_count < self.max_retries:
-            print(f"[RETRY] Retry recommended (attempt {self.retry_count + 1}/{self.max_retries})")
-            print(f"[RETRY] Adjustments: {validate_result['adjustments']}")
+            logger.info(f"[RETRY] Retry recommended (attempt {self.retry_count + 1}/{self.max_retries})")
+            logger.info(f"[RETRY] Adjustments: {validate_result['adjustments']}")
 
             # Apply adjustments and regenerate
             adjustments = validate_result["adjustments"]
@@ -409,14 +573,14 @@ class AssetPipeline:
                 return new_asset
 
         elif decision == ValidationDecision.FLAG_FOR_HUMAN:
-            print(f"[RETRY] Asset flagged for human review")
+            logger.warning(f"[RETRY] Asset flagged for human review")
             # In production, this would queue for human review
             # For now, continue with original asset
             return validate_result["asset_path"]
 
         else:
             # Approved or rejected - no retry
-            print(f"[RETRY] No retry needed: {decision.value}")
+            logger.info(f"[RETRY] No retry needed: {decision.value}")
             return validate_result["asset_path"]
 
     def _optimize_task(self, validated_asset: Path) -> Path:
@@ -427,11 +591,10 @@ class AssetPipeline:
             from forge_converter.optimization import optimize_asset
             optimized = optimize_asset(validated_asset, settings)
         """
-        print(f"[OPTIMIZE] Optimizing: {validated_asset}")
+        logger.info(f"[OPTIMIZE] Optimizing: {validated_asset}")
 
-        # Placeholder: copy to validated directory
-        output_path = Path("assets/validated/winners") / validated_asset.name
-        output_path.parent.mkdir(parents=True, exist_ok=True)
+        # Use defined validated winners path
+        output_path = self.get_path('validated', 'winners') / validated_asset.name
 
         # In production: actually optimize the asset
         # For now: just reference original
@@ -448,7 +611,7 @@ class AssetPipeline:
                 parameters={"stage": "validated"}
             )
 
-        print(f"[OPTIMIZE] Optimized: {output_path}")
+        logger.info(f"[OPTIMIZE] Optimized: {output_path}")
         return output_path
 
     def _export_task(self, engine: str, optimized_asset: Path) -> Path:
@@ -459,11 +622,22 @@ class AssetPipeline:
             from forge_converter import convert_for_engine
             exported = convert_for_engine(optimized_asset, engine)
         """
-        print(f"[EXPORT-{engine.upper()}] Exporting for {engine}")
+        logger.info(f"[EXPORT-{engine.upper()}] Exporting for {engine}")
 
-        # Placeholder: create engine-specific output
-        output_path = Path(f"assets/output/{engine}") / f"{optimized_asset.stem}.{engine}"
-        output_path.parent.mkdir(parents=True, exist_ok=True)
+        # Use defined engine-specific output path
+        engine_dir = self.get_path('output', engine)
+
+        # Determine proper file extension for each engine
+        engine_extensions = {
+            'unity': '.prefab',
+            'unreal': '.uasset',
+            'godot': '.tscn',
+            'web': '.gltf',
+            'blender': '.blend'
+        }
+
+        ext = engine_extensions.get(engine, f'.{engine}')
+        output_path = engine_dir / f"{optimized_asset.stem}{ext}"
 
         # In production: actually convert to engine format
         # For now: just create placeholder
@@ -481,7 +655,7 @@ class AssetPipeline:
                 parameters={"target_engine": engine}
             )
 
-        print(f"[EXPORT-{engine.upper()}] Exported: {output_path}")
+        logger.info(f"[EXPORT-{engine.upper()}] Exported: {output_path}")
         return output_path
 
     def _package_task(self, export_results: List[Path]) -> Path:
@@ -492,14 +666,16 @@ class AssetPipeline:
             from forge_packaging import create_package
             package = create_package(export_results, metadata)
         """
-        print(f"[PACKAGE] Packaging {len(export_results)} exports")
+        logger.info(f"[PACKAGE] Packaging {len(export_results)} exports")
 
-        # Placeholder: create package directory
-        package_path = Path("assets/packages") / f"package_{id(self.current_job)}"
+        # Use defined packages path
+        timestamp = datetime.utcnow().strftime('%Y%m%d_%H%M%S')
+        package_name = f"package_{timestamp}_{id(self.current_job)}"
+        package_path = self.get_path('packages', None) / package_name
         package_path.mkdir(parents=True, exist_ok=True)
 
         # In production: create actual package with metadata, README, etc.
-        print(f"[PACKAGE] Package created: {package_path}")
+        logger.info(f"[PACKAGE] Package created: {package_path}")
         return package_path
 
     def _collect_results(self) -> PipelineResult:
