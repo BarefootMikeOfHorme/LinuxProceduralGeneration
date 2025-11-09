@@ -253,6 +253,19 @@ class OutputStructure:
                     'space': self.base_path / "environments" / "skyboxes" / "space",
                     'fantasy': self.base_path / "environments" / "skyboxes" / "fantasy",
                 },
+                # Billboards & Signs (NEW)
+                'billboards': {
+                    'commercial': self.base_path / "environments" / "billboards" / "commercial",
+                    'industrial': self.base_path / "environments" / "billboards" / "industrial",
+                    'road_signs': self.base_path / "environments" / "billboards" / "road_signs",
+                    'posters': self.base_path / "environments" / "billboards" / "posters",
+                    'neon': self.base_path / "environments" / "billboards" / "neon",
+                    'graffiti': self.base_path / "environments" / "billboards" / "graffiti",
+                    'large_billboards': self.base_path / "environments" / "billboards" / "large_billboards",
+                    'wayfinding': self.base_path / "environments" / "billboards" / "wayfinding",
+                    'warning': self.base_path / "environments" / "billboards" / "warning",
+                    'vintage': self.base_path / "environments" / "billboards" / "vintage",
+                },
             },
 
             # ================================================================
