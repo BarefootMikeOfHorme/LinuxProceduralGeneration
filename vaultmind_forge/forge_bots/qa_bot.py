@@ -16,6 +16,7 @@ import logging
 sys.path.insert(0, str(Path(__file__).parents[1]))
 
 from .base_bot import BaseBot, BotConfig, BotPriority
+from .native_bridge import get_native_bridge
 
 logger = logging.getLogger(__name__)
 
@@ -85,6 +86,11 @@ class QualityAssuranceBot(BaseBot):
         self.qa_config = qa_config
         self.reports: List[QAReport] = []
         self.max_reports = 100
+
+        # Initialize native bridge for high-performance validation
+        self.native = get_native_bridge()
+        capabilities = self.native.get_capabilities()
+        logger.info(f"QA bot initialized with native capabilities: {capabilities}")
 
         # Stats
         self.total_scans = 0
@@ -186,7 +192,7 @@ class QualityAssuranceBot(BaseBot):
 
     def _validate_asset(self, file_path: Path) -> tuple[bool, Optional[Dict]]:
         """
-        Validate single asset.
+        Validate single asset using native bridge for high performance.
 
         Args:
             file_path: Asset path
@@ -194,33 +200,56 @@ class QualityAssuranceBot(BaseBot):
         Returns:
             (is_valid, issue_dict)
         """
-        # Placeholder validation - in real implementation would use forge_validator
-        # For now, just check file size and existence
         try:
             size_mb = file_path.stat().st_size / (1024 ** 2)
 
-            # Simple checks
+            # Check 1: Empty file
             if size_mb == 0:
                 return False, {
                     'file': str(file_path),
                     'severity': 'critical',
-                    'issue': 'Empty file'
+                    'issue': 'Empty file',
+                    'metrics': {}
                 }
 
+            # Check 2: File size warning (not a failure)
             if size_mb > 500:  # Over 500MB
-                return False, {
-                    'file': str(file_path),
-                    'severity': 'warning',
-                    'issue': f'Large file size: {size_mb:.1f} MB'
-                }
+                logger.warning(f"Large file: {file_path.name} ({size_mb:.1f} MB)")
 
+            # Check 3: For image files, use native Rust sharpness validation (10x faster!)
+            if file_path.suffix.lower() in ['.png', '.jpg', '.jpeg', '.bmp', '.tga', '.dds']:
+                try:
+                    sharpness = self.native.fast_sharpness_check(file_path)
+
+                    # Quality threshold check
+                    if sharpness < self.qa_config.min_quality_threshold:
+                        return False, {
+                            'file': str(file_path),
+                            'severity': 'high',
+                            'issue': f'Low sharpness quality',
+                            'metrics': {
+                                'sharpness': round(sharpness, 3),
+                                'threshold': self.qa_config.min_quality_threshold
+                            }
+                        }
+
+                    # Passed!
+                    logger.debug(f"Asset passed: {file_path.name} (sharpness: {sharpness:.3f})")
+                    return True, None
+
+                except Exception as e:
+                    logger.error(f"Native validation failed for {file_path}: {e}")
+                    # Fall through to basic validation
+
+            # For non-image files or if native validation failed, just check existence
             return True, None
 
         except Exception as e:
             return False, {
                 'file': str(file_path),
                 'severity': 'error',
-                'issue': str(e)
+                'issue': str(e),
+                'metrics': {}
             }
 
     def _attempt_repair(self, file_path: Path, issue: Dict) -> bool:

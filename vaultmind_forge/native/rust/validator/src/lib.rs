@@ -1,5 +1,5 @@
 use pyo3::prelude::*;
-use image::{GenericImageView, ImageBuffer, Luma};
+use image::{GenericImageView, Luma, ImageBuffer};
 use ndarray::Array2;
 use rayon::prelude::*;
 
@@ -11,16 +11,13 @@ use rand_chacha::ChaCha20Rng;
 #[allow(unused_imports)]
 use pyo3::types::PyModule;
 
-/// Converts an image implementing GenericImageView to a normalized f32 array
-/// This explicitly uses the GenericImageView trait for efficient pixel access
-fn image_to_array<I>(img: &I) -> Array2<f32>
-where
-    I: GenericImageView<Pixel = Luma<u8>>,
-{
+/// Converts a Luma ImageBuffer to a normalized f32 array
+/// Optimized for fast conversion of grayscale images
+fn image_to_array(img: &ImageBuffer<Luma<u8>, Vec<u8>>) -> Array2<f32> {
     let (width, height) = img.dimensions();
     let mut arr = Array2::<f32>::zeros((height as usize, width as usize));
 
-    // Use GenericImageView's efficient enumerate_pixels iterator
+    // Directly iterate over pixels using ImageBuffer's efficient access
     for (x, y, pixel) in img.enumerate_pixels() {
         arr[[y as usize, x as usize]] = pixel[0] as f32 / 255.0;
     }
