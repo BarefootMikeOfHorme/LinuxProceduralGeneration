@@ -35,6 +35,11 @@ from .style_profile_manager import (
     get_recommended_params,
 )
 
+from .prompt_refiner import (
+    PromptRefinerAgent,
+    PromptRefinement,
+)
+
 __all__ = [
     # Base
     'BaseAgent',
@@ -58,6 +63,10 @@ __all__ = [
     'create_style_aware_pipeline',
     'quick_style_detection',
     'get_recommended_params',
+
+    # Prompt Refiner
+    'PromptRefinerAgent',
+    'PromptRefinement',
 ]
 
 __version__ = "1.0.0"
