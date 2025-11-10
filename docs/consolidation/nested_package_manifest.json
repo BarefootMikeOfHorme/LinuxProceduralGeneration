@@ -1,0 +1,281 @@
+{
+  "archive_name": "nested_package_snapshot_20251109.zip",
+  "created": "2025-11-09T21:21:36.389867",
+  "description": "Historical snapshot of vaultmind_forge package before major development (Oct 28 - Nov 3)",
+  "reason": "Obsolete code - missing 5 modules (forge_bots, forge_intake, forge_procedural, forge_converter, forge_batch)",
+  "missing_modules": [
+    "forge_bots",
+    "forge_intake",
+    "forge_procedural",
+    "forge_converter",
+    "forge_batch"
+  ],
+  "total_files": 44,
+  "total_size": 289236,
+  "files": [
+    {
+      "path": "vaultmind_forge/vaultmind_forge/forge_cli.py",
+      "size": 3216,
+      "hash": "635d5f6e3ec339878d6fcb86b786a362f6392fdc304bdf8d62c284a05a20cf12",
+      "modified": "2025-10-28T07:58:42.380296"
+    },
+    {
+      "path": "vaultmind_forge/vaultmind_forge/__init__.py",
+      "size": 166,
+      "hash": "12b27644285018ee4b90e5b2c552b2ad793e05386e30333909f8ed110709b425",
+      "modified": "2025-10-28T07:42:16.055421"
+    },
+    {
+      "path": "vaultmind_forge/vaultmind_forge/forge_agent/planner.py",
+      "size": 14232,
+      "hash": "e5f889b8ea8b0d438b48929eac394b72824d4ea15e4389e50c863f5251d390da",
+      "modified": "2025-11-03T14:41:12.477055"
+    },
+    {
+      "path": "vaultmind_forge/vaultmind_forge/forge_agent/README.md",
+      "size": 6245,
+      "hash": "4f31a6679c1e8ed691abbd0a688618ec9ebf162c7210f73df0c331da997a9e19",
+      "modified": "2025-11-03T14:45:31.038763"
+    },
+    {
+      "path": "vaultmind_forge/vaultmind_forge/forge_agent/schemas.py",
+      "size": 11802,
+      "hash": "2cd5a329e186d52188e6913c88a66f4438b59ffe86cdab6ed52feb7ff4738a85",
+      "modified": "2025-11-03T14:35:24.548198"
+    },
+    {
+      "path": "vaultmind_forge/vaultmind_forge/forge_agent/styles.py",
+      "size": 9999,
+      "hash": "16600c3cbe5a88fccbcb9cb79d00798013a34929098330dece1a9a5cba91e4d3",
+      "modified": "2025-11-03T14:42:58.047042"
+    },
+    {
+      "path": "vaultmind_forge/vaultmind_forge/forge_agent/__init__.py",
+      "size": 2501,
+      "hash": "884769d85f018c1fc0b0300242a09175e17848b44434cf43b9c04876296d7ed8",
+      "modified": "2025-11-03T14:43:18.070086"
+    },
+    {
+      "path": "vaultmind_forge/vaultmind_forge/forge_cli/html_report.py",
+      "size": 2720,
+      "hash": "6af832b72c3605dbabfc2fb3c1db541c9293aaa8a585608a60349770c3be647b",
+      "modified": "2025-10-28T07:58:42.378766"
+    },
+    {
+      "path": "vaultmind_forge/vaultmind_forge/forge_diffusion/generator.py",
+      "size": 20686,
+      "hash": "9254d317fcd9f56a71f7e5c86b54be14f67d503d5c0ee0889851527f4c1ddae6",
+      "modified": "2025-11-03T20:01:50.723046"
+    },
+    {
+      "path": "vaultmind_forge/vaultmind_forge/forge_diffusion/README.md",
+      "size": 6533,
+      "hash": "8bea6dda159c23bebfe08d9bec849a57ee4a9bba6f1e47b42a0c8b4ee9766850",
+      "modified": "2025-11-03T20:02:44.145796"
+    },
+    {
+      "path": "vaultmind_forge/vaultmind_forge/forge_diffusion/__init__.py",
+      "size": 704,
+      "hash": "7e34a489adc88d880082f997178762960b63ef32fda007f62142b01bffc9cbb7",
+      "modified": "2025-11-03T20:02:43.626265"
+    },
+    {
+      "path": "vaultmind_forge/vaultmind_forge/forge_executor/executor.py",
+      "size": 3071,
+      "hash": "c8d7193b658816ca288fd1abe4816290c831c3993ae162f0e1501196eb93ba6f",
+      "modified": "2025-11-03T20:00:45.890215"
+    },
+    {
+      "path": "vaultmind_forge/vaultmind_forge/forge_executor/README.md",
+      "size": 960,
+      "hash": "14ad9f83b52e1cd5eedeb739b1c8d9a6223d5b91548c61369f38b3ad8f9343b9",
+      "modified": "2025-11-03T20:00:46.354563"
+    },
+    {
+      "path": "vaultmind_forge/vaultmind_forge/forge_executor/__init__.py",
+      "size": 234,
+      "hash": "269ca654fea434071e977c4cadf1e49b01fdd535d62e45231ab9f087f872dec6",
+      "modified": "2025-11-03T20:00:45.428825"
+    },
+    {
+      "path": "vaultmind_forge/vaultmind_forge/forge_lineage/logger.py",
+      "size": 1799,
+      "hash": "6d0737b8a7e0d00885d59432859f7a5378db42f51a4250cddd8011e6f0007fc4",
+      "modified": "2025-10-28T07:56:27.465703"
+    },
+    {
+      "path": "vaultmind_forge/vaultmind_forge/forge_lineage/README.md",
+      "size": 49,
+      "hash": "45633e2d8293decb770d2acd3af6e993268979f963250fce41d2b86c5e785f3b",
+      "modified": "2025-10-28T07:42:48.791674"
+    },
+    {
+      "path": "vaultmind_forge/vaultmind_forge/forge_lineage/__init__.py",
+      "size": 80,
+      "hash": "a43a2062f6caf406c473dd040f71f8e17c0a76ac367fd9a420714ea30da40897",
+      "modified": "2025-10-28T07:42:48.791674"
+    },
+    {
+      "path": "vaultmind_forge/vaultmind_forge/forge_monitor/metrics.py",
+      "size": 11328,
+      "hash": "9128065ad0ab34203b3639a345707bee81423baf5fa2df2e7757f9f5fbb70e56",
+      "modified": "2025-11-03T14:30:37.845169"
+    },
+    {
+      "path": "vaultmind_forge/vaultmind_forge/forge_monitor/monitor.py",
+      "size": 18299,
+      "hash": "65a82cc101ac3fbdcc5d1c420003d3a8e488748864e660d4ba819f60abf8518d",
+      "modified": "2025-11-03T14:29:55.309248"
+    },
+    {
+      "path": "vaultmind_forge/vaultmind_forge/forge_monitor/README.md",
+      "size": 11700,
+      "hash": "ce5a99f9705e33281904ac81a4c7bb4a015a366c358a750e9c814bba2c0b3037",
+      "modified": "2025-11-03T14:33:36.208477"
+    },
+    {
+      "path": "vaultmind_forge/vaultmind_forge/forge_monitor/__init__.py",
+      "size": 1414,
+      "hash": "aa4ffda70fef9dfd737ceaea72c3170a2b25a5302cf3d96c48349c985783b722",
+      "modified": "2025-11-03T14:30:53.177596"
+    },
+    {
+      "path": "vaultmind_forge/vaultmind_forge/forge_packaging/packager.py",
+      "size": 15385,
+      "hash": "e0e7b44f12a9d6c6ccff85e16df1d9608db092807064181d089984e05767606e",
+      "modified": "2025-11-03T20:04:19.787497"
+    },
+    {
+      "path": "vaultmind_forge/vaultmind_forge/forge_packaging/README.md",
+      "size": 1347,
+      "hash": "29e8707def1888793c8c16dd0c6d253ce3f3c1ae4dbd0157459bed5373f8f591",
+      "modified": "2025-11-03T20:04:40.432745"
+    },
+    {
+      "path": "vaultmind_forge/vaultmind_forge/forge_packaging/__init__.py",
+      "size": 524,
+      "hash": "79ffff7374f6d92842c90d757ac06960957a4d0a6bd105ceaada180558af38db",
+      "modified": "2025-11-03T20:04:20.237648"
+    },
+    {
+      "path": "vaultmind_forge/vaultmind_forge/forge_semantic/downrez.py",
+      "size": 12278,
+      "hash": "a50f50d7f9d942467605f1078feb1f7b98614136f6b9f1219501d8fe1e29dceb",
+      "modified": "2025-11-03T14:48:22.413511"
+    },
+    {
+      "path": "vaultmind_forge/vaultmind_forge/forge_semantic/README.md",
+      "size": 50,
+      "hash": "6d67c6711327388ca7011c98038ca475cf3246b74e15a919b35663bb95ff8b01",
+      "modified": "2025-10-28T07:42:48.780741"
+    },
+    {
+      "path": "vaultmind_forge/vaultmind_forge/forge_semantic/__init__.py",
+      "size": 900,
+      "hash": "9c43867fbba3989c92437641cdb4dc47b8aa3051d5f2dae1c894fc34d0927b7b",
+      "modified": "2025-11-03T14:48:46.735410"
+    },
+    {
+      "path": "vaultmind_forge/vaultmind_forge/forge_sr/README.md",
+      "size": 44,
+      "hash": "d76cdf776692f29a7138e1031c05d144d7a18bcb63fadfee1314c8939710c996",
+      "modified": "2025-10-28T07:42:48.777664"
+    },
+    {
+      "path": "vaultmind_forge/vaultmind_forge/forge_sr/upscaler.py",
+      "size": 12612,
+      "hash": "871ad2e2831900a29e8948307637d9d65f6cb84985f6183ff2063bf26e0996a2",
+      "modified": "2025-11-03T14:49:48.697833"
+    },
+    {
+      "path": "vaultmind_forge/vaultmind_forge/forge_sr/__init__.py",
+      "size": 946,
+      "hash": "cd807646fed8c665815b500e2a0bbbbed54fa06ea446762cf9a0e9390b90e395",
+      "modified": "2025-11-03T14:50:02.403706"
+    },
+    {
+      "path": "vaultmind_forge/vaultmind_forge/forge_validator/backends.py",
+      "size": 4305,
+      "hash": "c37cb6a24b21fb9e6f76c34e9773fcc15356feea97563eee0719aa1ce2e736fe",
+      "modified": "2025-11-03T20:01:14.038561"
+    },
+    {
+      "path": "vaultmind_forge/vaultmind_forge/forge_validator/evaluators.py",
+      "size": 3910,
+      "hash": "f144312cf7a850d452a95d19647a64c13d95f4f995e28cb5ca94bacc800372a1",
+      "modified": "2025-10-28T07:47:19.511635"
+    },
+    {
+      "path": "vaultmind_forge/vaultmind_forge/forge_validator/metrics.py",
+      "size": 10891,
+      "hash": "7d96f9d89b41a2b313a913707e3d9068445d4a42b5df34f1a9eae81fc50c6fa7",
+      "modified": "2025-11-02T20:07:07.791508"
+    },
+    {
+      "path": "vaultmind_forge/vaultmind_forge/forge_validator/metrics_advanced.py",
+      "size": 29740,
+      "hash": "bfa2fe9ad3ab59670c56d7f1caabdd62fb32074cec3d7971e1cec4b7a3d5435d",
+      "modified": "2025-11-02T20:06:39.108968"
+    },
+    {
+      "path": "vaultmind_forge/vaultmind_forge/forge_validator/README.md",
+      "size": 51,
+      "hash": "42fbbb48e7c678fdcf7451561de1d88791d0cecdfd86d5da8f0c1e90d04be665",
+      "modified": "2025-10-28T07:42:48.788399"
+    },
+    {
+      "path": "vaultmind_forge/vaultmind_forge/forge_validator/validator.py",
+      "size": 3756,
+      "hash": "76c30333ee3d0be3739ade48a64afbb26b781f0c9fbe9ae6728227a0620c3564",
+      "modified": "2025-11-03T20:00:47.326443"
+    },
+    {
+      "path": "vaultmind_forge/vaultmind_forge/forge_validator/__init__.py",
+      "size": 80,
+      "hash": "a43a2062f6caf406c473dd040f71f8e17c0a76ac367fd9a420714ea30da40897",
+      "modified": "2025-10-28T07:42:48.786867"
+    },
+    {
+      "path": "vaultmind_forge/vaultmind_forge/forge_validator/native_libs/vmf_validator_cpp.dll",
+      "size": 37376,
+      "hash": "78a01d5265024532044ecc743d6ee679cd0c97b03c2de022f70e3b7d96cbe51c",
+      "modified": "2025-11-02T20:49:15.165632"
+    },
+    {
+      "path": "vaultmind_forge/vaultmind_forge/forge_versioning/README.md",
+      "size": 52,
+      "hash": "e9a4ea16cd66e61f830e319de328f42b293fa6b8714d05f80b063ec7ac26e3d5",
+      "modified": "2025-10-28T07:42:48.789917"
+    },
+    {
+      "path": "vaultmind_forge/vaultmind_forge/forge_versioning/version_control.py",
+      "size": 13154,
+      "hash": "c2e2c919bdfb70fb75db1cf4a7f4f57ef14e9612cf5b701f2d0bba61d460eec4",
+      "modified": "2025-11-03T14:52:07.088172"
+    },
+    {
+      "path": "vaultmind_forge/vaultmind_forge/forge_versioning/__init__.py",
+      "size": 994,
+      "hash": "724f850e294dd8a4e26ed52c001867e6fc9c46da4f9ae47005e243edecdda5a7",
+      "modified": "2025-11-03T14:52:21.558983"
+    },
+    {
+      "path": "vaultmind_forge/vaultmind_forge/forge_video/generator.py",
+      "size": 12081,
+      "hash": "1c8dc12ca8956b4d20b90fb5eefe360c19d9cd9c936ec9e174061687cef61945",
+      "modified": "2025-11-03T14:50:58.883912"
+    },
+    {
+      "path": "vaultmind_forge/vaultmind_forge/forge_video/README.md",
+      "size": 47,
+      "hash": "1ac7c788270eecf70b17f2e6610bbc456dcbbba1045f66b03d27485b41b54da7",
+      "modified": "2025-10-28T07:42:48.779191"
+    },
+    {
+      "path": "vaultmind_forge/vaultmind_forge/forge_video/__init__.py",
+      "size": 975,
+      "hash": "916d1dadf7ab0623e25c8f518fec88458075e9156927147314e42da2ecd34018",
+      "modified": "2025-11-03T14:51:11.318708"
+    }
+  ]
+}

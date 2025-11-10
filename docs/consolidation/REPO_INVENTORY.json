@@ -1,0 +1,4770 @@
+{
+  "timestamp": "2025-11-09T21:09:44.489330",
+  "total_files": 794,
+  "files": [
+    {
+      "path": "AI_CONTROL_FRAMEWORK.md",
+      "size": 24474,
+      "hash": "536b3613fff6f84e",
+      "modified": "2025-11-04T20:35:10.217175"
+    },
+    {
+      "path": "ASSET_CONVERTER_SUMMARY.md",
+      "size": 11052,
+      "hash": "84c84d75fa15b4c4",
+      "modified": "2025-11-04T18:00:09.305658"
+    },
+    {
+      "path": "ASSET_REFERENCE_CATALOG.md",
+      "size": 10732,
+      "hash": "ddb78ba9792e9d2b",
+      "modified": "2025-11-04T10:23:26.875463"
+    },
+    {
+      "path": "BACKEND.py",
+      "size": 15250,
+      "hash": "4e4e9c634e5209f3",
+      "modified": "2025-11-04T10:19:34.327272"
+    },
+    {
+      "path": "BUILD_NATIVE.md",
+      "size": 1859,
+      "hash": "08e1581bd811a400",
+      "modified": "2025-10-28T07:53:18.354290"
+    },
+    {
+      "path": "CHANGELOG.md",
+      "size": 10737,
+      "hash": "db41346c9cea304e",
+      "modified": "2025-11-09T17:14:55.729312"
+    },
+    {
+      "path": "CMakeLists.txt",
+      "size": 2223,
+      "hash": "aa5e899c741004cc",
+      "modified": "2025-10-28T16:49:05.815779"
+    },
+    {
+      "path": "CMakeSettings.json",
+      "size": 405,
+      "hash": "fcda05f942af908f",
+      "modified": "2025-10-28T14:43:00.635412"
+    },
+    {
+      "path": "CONTRIBUTING.md",
+      "size": 17091,
+      "hash": "73b0ce86c84cfacc",
+      "modified": "2025-11-09T17:17:26.341893"
+    },
+    {
+      "path": "DOCS_QUICK_NAV.md",
+      "size": 5864,
+      "hash": "afd7f9679087f9ee",
+      "modified": "2025-11-09T17:27:39.327867"
+    },
+    {
+      "path": "DOCS_STATUS.md",
+      "size": 9127,
+      "hash": "0b93d5ab9bbeabd0",
+      "modified": "2025-11-09T17:29:02.176118"
+    },
+    {
+      "path": "DOCUMENTATION.md",
+      "size": 14467,
+      "hash": "fdeb3a5eafac544b",
+      "modified": "2025-11-09T17:21:00.819158"
+    },
+    {
+      "path": "FOR CURSOR .txt",
+      "size": 3392,
+      "hash": "8478e87b19fc0c2b",
+      "modified": "2025-10-28T09:29:32.659649"
+    },
+    {
+      "path": "FORGE_CONVERTER_DESIGN.md",
+      "size": 22979,
+      "hash": "9f993322ccc80ddc",
+      "modified": "2025-11-04T17:55:27.693680"
+    },
+    {
+      "path": "FORGE_CONVERTER_INTEGRATION_GUIDE.md",
+      "size": 16903,
+      "hash": "0aed3c8eb5b6dae5",
+      "modified": "2025-11-04T18:08:52.244953"
+    },
+    {
+      "path": "FORGE_DIFFUSION_SUMMARY.md",
+      "size": 23935,
+      "hash": "514ff46a9dbf4fa5",
+      "modified": "2025-10-30T06:55:49.301019"
+    },
+    {
+      "path": "INDUSTRY_STANDARDS_ANALYSIS.md",
+      "size": 21017,
+      "hash": "dca373bf4762fdff",
+      "modified": "2025-11-04T20:27:22.431569"
+    },
+    {
+      "path": "INTEGRATION_AUDIT.md",
+      "size": 16863,
+      "hash": "c31429d1a6d75ad9",
+      "modified": "2025-11-04T20:40:01.289036"
+    },
+    {
+      "path": "INTERACTIVE_TUTORIAL.md",
+      "size": 608,
+      "hash": "d9ed24dd2fc28939",
+      "modified": "2025-10-28T10:01:21.805041"
+    },
+    {
+      "path": "LICENSE.md",
+      "size": 4877,
+      "hash": "9a76dbf6550bbf0a",
+      "modified": "2025-11-09T17:15:30.467058"
+    },
+    {
+      "path": "lineage_logger.cpp",
+      "size": 1003,
+      "hash": "bcc804683c0a8e5e",
+      "modified": "2025-10-28T16:27:34.533737"
+    },
+    {
+      "path": "lineage_logger.h",
+      "size": 821,
+      "hash": "4ab566d71bcacfbf",
+      "modified": "2025-11-02T20:48:10.104893"
+    },
+    {
+      "path": "LINEAGE_VIEWER_DOCS.md",
+      "size": 16452,
+      "hash": "6799c7ee842605b5",
+      "modified": "2025-10-30T06:44:47.007017"
+    },
+    {
+      "path": "LINEAGE_VIEWER_SUMMARY.md",
+      "size": 13327,
+      "hash": "9e68ca7895d6e5b5",
+      "modified": "2025-10-30T06:46:01.551630"
+    },
+    {
+      "path": "NATIVE_HANDLER_EVALUATION.md",
+      "size": 21902,
+      "hash": "c33a978bfaf29269",
+      "modified": "2025-11-09T12:44:21.748395"
+    },
+    {
+      "path": "NODE_API_README.md",
+      "size": 14340,
+      "hash": "5922a74417847d37",
+      "modified": "2025-10-30T06:11:45.833034"
+    },
+    {
+      "path": "NODE_API_SUMMARY.md",
+      "size": 14195,
+      "hash": "3265aec7d795d7ab",
+      "modified": "2025-10-30T06:14:29.222214"
+    },
+    {
+      "path": "package.json",
+      "size": 1011,
+      "hash": "a5685a407c37bce8",
+      "modified": "2025-10-30T06:43:27.806649"
+    },
+    {
+      "path": "PROCEDURAL_ASSET_PIPELINE.md",
+      "size": 24269,
+      "hash": "d8033123077100e7",
+      "modified": "2025-11-04T17:58:32.514752"
+    },
+    {
+      "path": "PROCEDURAL_GENERATION_OVERVIEW.md",
+      "size": 4005,
+      "hash": "22d857c4d6f4fe78",
+      "modified": "2025-10-28T09:35:32.685204"
+    },
+    {
+      "path": "PROCEDURAL_LIBRARY_ANALYSIS.md",
+      "size": 11199,
+      "hash": "496ec02814a65211",
+      "modified": "2025-11-02T20:11:15.562790"
+    },
+    {
+      "path": "PROJECT_CONTEXT_COMPACT.md",
+      "size": 12415,
+      "hash": "1a93212cf67f7c20",
+      "modified": "2025-10-30T06:48:32.490562"
+    },
+    {
+      "path": "pyproject.toml",
+      "size": 950,
+      "hash": "88576f4be570f75b",
+      "modified": "2025-11-02T20:11:26.445311"
+    },
+    {
+      "path": "QUICKSTART_NODE_API.md",
+      "size": 7197,
+      "hash": "17d9bf9a14d1dd37",
+      "modified": "2025-10-30T06:13:27.732251"
+    },
+    {
+      "path": "QUICK_START.md",
+      "size": 7674,
+      "hash": "439ac67b7dac2cfc",
+      "modified": "2025-11-09T17:08:18.568291"
+    },
+    {
+      "path": "README.md",
+      "size": 19077,
+      "hash": "7a8da7a3612bbc06",
+      "modified": "2025-11-09T17:27:58.334858"
+    },
+    {
+      "path": "SESSION_SUMMARY.md",
+      "size": 12031,
+      "hash": "1f8cd6901fa1a74b",
+      "modified": "2025-11-04T18:10:53.229172"
+    },
+    {
+      "path": "STATE_OF_PROGRAM_REPORT.md",
+      "size": 20787,
+      "hash": "69f5f81b1787e105",
+      "modified": "2025-11-04T18:04:38.266506"
+    },
+    {
+      "path": "test_async_dag.py",
+      "size": 689,
+      "hash": "22d1b1f169e3effd",
+      "modified": "2025-11-03T20:00:46.823395"
+    },
+    {
+      "path": "test_forge_converter.py",
+      "size": 6385,
+      "hash": "6543dee224885bf3",
+      "modified": "2025-11-04T18:43:45.732832"
+    },
+    {
+      "path": "test_optimization_math.py",
+      "size": 10999,
+      "hash": "da42258c62989d17",
+      "modified": "2025-11-04T20:18:20.577443"
+    },
+    {
+      "path": "test_pipeline_paths.py",
+      "size": 3602,
+      "hash": "591513494bcd6b1f",
+      "modified": "2025-11-09T12:20:38.661235"
+    },
+    {
+      "path": "unit_tests.cpp",
+      "size": 717,
+      "hash": "0609432dbdc623ec",
+      "modified": "2025-11-02T20:47:50.208890"
+    },
+    {
+      "path": "UTILS_AMENDMENTS.md",
+      "size": 10692,
+      "hash": "1af222b023e530d6",
+      "modified": "2025-10-30T06:20:44.712507"
+    },
+    {
+      "path": "UTILS_GUIDE.md",
+      "size": 20812,
+      "hash": "a621a28ca0b68e5e",
+      "modified": "2025-10-30T06:19:50.734238"
+    },
+    {
+      "path": "validator.cpp",
+      "size": 1525,
+      "hash": "86534f2653000648",
+      "modified": "2025-10-28T16:27:49.237938"
+    },
+    {
+      "path": "validator.h",
+      "size": 517,
+      "hash": "fb88e5b1365d919b",
+      "modified": "2025-10-28T16:13:52.855615"
+    },
+    {
+      "path": "VALIDATOR_ENHANCEMENTS.md",
+      "size": 10777,
+      "hash": "fd713ccad24f94b1",
+      "modified": "2025-11-02T20:08:35.469209"
+    },
+    {
+      "path": "validator_test.cpp",
+      "size": 1318,
+      "hash": "6b386f5f4d4bd155",
+      "modified": "2025-10-28T16:16:48.003778"
+    },
+    {
+      "path": "VAULTMIND_FORGE_CURSOR_PROMPT.md",
+      "size": 9275,
+      "hash": "7ae5532a7563e852",
+      "modified": "2025-10-28T08:26:07.150138"
+    },
+    {
+      "path": "VAULTMIND_FORGE_PIPELINE.md",
+      "size": 17641,
+      "hash": "602349e439aea396",
+      "modified": "2025-11-09T17:06:29.103864"
+    },
+    {
+      "path": ".pytest_cache\\README.md",
+      "size": 310,
+      "hash": "420e808d79a6c25d",
+      "modified": "2025-10-28T16:43:08.917599"
+    },
+    {
+      "path": ".snapshots\\config.json",
+      "size": 2855,
+      "hash": "062cb76690bb6fc4",
+      "modified": "2025-10-28T13:18:29.705729"
+    },
+    {
+      "path": ".snapshots\\readme.md",
+      "size": 409,
+      "hash": "0ab695ae4c6c2bae",
+      "modified": "2025-10-28T13:18:29.705729"
+    },
+    {
+      "path": ".snapshots\\sponsors.md",
+      "size": 2391,
+      "hash": "b255d6d45f4f0f24",
+      "modified": "2025-10-28T13:18:29.705729"
+    },
+    {
+      "path": ".vs\\CMakeWorkspaceSettings.json",
+      "size": 92,
+      "hash": "d3b170b961f1206d",
+      "modified": "2025-10-28T13:45:54.540374"
+    },
+    {
+      "path": ".vs\\launch.vs.json",
+      "size": 293,
+      "hash": "143a21f250ef2a0f",
+      "modified": "2025-10-28T16:02:19.264137"
+    },
+    {
+      "path": ".vs\\ProjectSettings.json",
+      "size": 52,
+      "hash": "72e79300b7bd5bf2",
+      "modified": "2025-10-28T17:12:36.188917"
+    },
+    {
+      "path": ".vs\\PythonSettings.json",
+      "size": 33,
+      "hash": "ea65aac36fde8c4d",
+      "modified": "2025-10-28T17:12:08.668400"
+    },
+    {
+      "path": ".vs\\tasks.vs.json",
+      "size": 410,
+      "hash": "a703c06f1d0df300",
+      "modified": "2025-10-28T14:46:35.287732"
+    },
+    {
+      "path": ".vs\\VSWorkspaceState.json",
+      "size": 312,
+      "hash": "b1ece3842e7c5fbe",
+      "modified": "2025-10-28T15:04:20.753018"
+    },
+    {
+      "path": ".vs\\LPG\\v17\\DocumentLayout.backup.json",
+      "size": 1730,
+      "hash": "89095c18266f9139",
+      "modified": "2025-10-28T15:04:20.212580"
+    },
+    {
+      "path": ".vs\\LPG\\v17\\DocumentLayout.json",
+      "size": 1730,
+      "hash": "89095c18266f9139",
+      "modified": "2025-10-28T15:04:20.499987"
+    },
+    {
+      "path": ".vs\\LPG.slnx\\v18\\DocumentLayout.backup.json",
+      "size": 8290,
+      "hash": "e2a9312a2ca1412d",
+      "modified": "2025-10-28T16:27:49.936581"
+    },
+    {
+      "path": ".vs\\LPG.slnx\\v18\\DocumentLayout.json",
+      "size": 5243,
+      "hash": "01880042bffad270",
+      "modified": "2025-10-28T16:30:15.767482"
+    },
+    {
+      "path": ".vs\\vaultmind_forge\\native\\cpp\\validator\\VSWorkspaceState.json",
+      "size": 407,
+      "hash": "48a8c6d1d535f904",
+      "modified": "2025-10-28T14:44:25.086601"
+    },
+    {
+      "path": ".vscode\\extensions.json",
+      "size": 31,
+      "hash": "3cf2e0e2430e29a6",
+      "modified": "2025-10-28T14:22:21.794932"
+    },
+    {
+      "path": ".vscode\\sessions.json",
+      "size": 1425,
+      "hash": "3d30e6060feaac43",
+      "modified": "2025-10-28T14:01:15.219839"
+    },
+    {
+      "path": ".vscode\\settings.json",
+      "size": 177,
+      "hash": "4093d588e089c30e",
+      "modified": "2025-11-02T15:22:00.406320"
+    },
+    {
+      "path": "assets\\README.md",
+      "size": 948,
+      "hash": "392190109bf191e6",
+      "modified": "2025-11-04T18:16:01.167896"
+    },
+    {
+      "path": "assets\\generated\\README.md",
+      "size": 2770,
+      "hash": "a559355231d02d25",
+      "modified": "2025-11-04T18:21:44.871373"
+    },
+    {
+      "path": "assets\\input\\README.md",
+      "size": 1300,
+      "hash": "a74ac9692a2a587c",
+      "modified": "2025-11-04T18:20:55.458865"
+    },
+    {
+      "path": "assets\\lineage\\449c56497fec01b080d2c8c79a590c3daf28dc5e323227dc36c66d4e5dcca06b.json",
+      "size": 395,
+      "hash": "fbdc7bef5b249872",
+      "modified": "2025-11-04T21:02:26.269696"
+    },
+    {
+      "path": "assets\\lineage\\4cb244d414ed57a0a81ad808c62ff855a390b00b01f2f8591fcf8d035317ec78.json",
+      "size": 445,
+      "hash": "5a2bb6cd44334c2e",
+      "modified": "2025-11-04T21:02:26.269696"
+    },
+    {
+      "path": "assets\\lineage\\9dde3fa739ac97257c5102ef7f65ff13ebc1be4e8f6b88c3501756637f19516e.json",
+      "size": 468,
+      "hash": "21479ef8accbc336",
+      "modified": "2025-11-04T21:02:26.277292"
+    },
+    {
+      "path": "assets\\lineage\\e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.json",
+      "size": 655,
+      "hash": "9c3852c9e7257cc6",
+      "modified": "2025-11-09T12:21:20.852752"
+    },
+    {
+      "path": "assets\\output\\README.md",
+      "size": 5213,
+      "hash": "8937402c85a710f3",
+      "modified": "2025-11-04T18:21:52.217690"
+    },
+    {
+      "path": "assets\\output\\TestProject_index.json",
+      "size": 334,
+      "hash": "fc3b65887c9251fe",
+      "modified": "2025-11-09T12:05:25.930186"
+    },
+    {
+      "path": "assets\\output\\blender\\TestProject\\README.md",
+      "size": 502,
+      "hash": "251f606ca5812a33",
+      "modified": "2025-11-09T12:05:25.929673"
+    },
+    {
+      "path": "assets\\output\\godot\\TestProject\\README.md",
+      "size": 543,
+      "hash": "dd2b080057923dbd",
+      "modified": "2025-11-09T12:05:25.924567"
+    },
+    {
+      "path": "assets\\output\\unity\\TestProject\\README.md",
+      "size": 556,
+      "hash": "7f99539dce014c3d",
+      "modified": "2025-11-09T12:05:25.918442"
+    },
+    {
+      "path": "assets\\output\\unreal\\TestProject\\README.md",
+      "size": 619,
+      "hash": "d244891f474f6634",
+      "modified": "2025-11-09T12:05:25.921497"
+    },
+    {
+      "path": "assets\\output\\web\\TestProject\\README.md",
+      "size": 634,
+      "hash": "1362ba3119773b70",
+      "modified": "2025-11-09T12:05:25.927633"
+    },
+    {
+      "path": "assets\\source\\README.md",
+      "size": 1427,
+      "hash": "a6473d879f3c7fa3",
+      "modified": "2025-11-04T18:20:50.258309"
+    },
+    {
+      "path": "assets\\validated\\README.md",
+      "size": 2663,
+      "hash": "c167f676a8fcf772",
+      "modified": "2025-11-04T18:21:47.807002"
+    },
+    {
+      "path": "build\\CMakeCache.txt",
+      "size": 23284,
+      "hash": "a39d7577fc7c34b2",
+      "modified": "2025-11-02T20:18:13.480846"
+    },
+    {
+      "path": "build\\CMakeFiles\\CMakeConfigureLog.yaml",
+      "size": 12646,
+      "hash": "f063dd870a4aa7d6",
+      "modified": "2025-11-02T20:18:13.479325"
+    },
+    {
+      "path": "build\\CMakeFiles\\InstallScripts.json",
+      "size": 327,
+      "hash": "6295d2fd38f002bc",
+      "modified": "2025-11-02T20:18:13.587841"
+    },
+    {
+      "path": "build\\CMakeFiles\\TargetDirectories.txt",
+      "size": 1036,
+      "hash": "f84b32dffc75b8e5",
+      "modified": "2025-11-02T20:18:13.561888"
+    },
+    {
+      "path": "build\\CMakeFiles\\4.0.2\\VCTargetsPath.txt",
+      "size": 90,
+      "hash": "7bf0943f47fd89dd",
+      "modified": "2025-11-02T20:17:57.719865"
+    },
+    {
+      "path": "build\\CMakeFiles\\4.0.2\\CompilerIdCXX\\CMakeCXXCompilerId.cpp",
+      "size": 29505,
+      "hash": "d244ecbd7c2d941e",
+      "modified": "2025-11-02T20:17:57.933413"
+    },
+    {
+      "path": "build\\unit_tests.dir\\Release\\unit_tests.vcxproj.FileListAbsolute.txt",
+      "size": 0,
+      "hash": "e3b0c44298fc1c14",
+      "modified": "2025-11-02T20:47:04.895100"
+    },
+    {
+      "path": "build\\vmf_validator_cpp.dir\\Release\\vmf_validator_cpp.vcxproj.FileListAbsolute.txt",
+      "size": 0,
+      "hash": "e3b0c44298fc1c14",
+      "modified": "2025-11-02T20:47:04.779447"
+    },
+    {
+      "path": "build\\vmf_validator_test.dir\\Release\\vmf_validator_test.vcxproj.FileListAbsolute.txt",
+      "size": 0,
+      "hash": "e3b0c44298fc1c14",
+      "modified": "2025-11-02T20:47:04.799949"
+    },
+    {
+      "path": "build\\x64\\Release\\ZERO_CHECK\\ZERO_CHECK.vcxproj.FileListAbsolute.txt",
+      "size": 0,
+      "hash": "e3b0c44298fc1c14",
+      "modified": "2025-11-02T20:47:04.733461"
+    },
+    {
+      "path": "build\\_deps\\catch2-build\\src\\Catch2.dir\\Release\\Catch2.vcxproj.FileListAbsolute.txt",
+      "size": 0,
+      "hash": "e3b0c44298fc1c14",
+      "modified": "2025-11-02T20:47:04.835548"
+    },
+    {
+      "path": "build\\_deps\\catch2-build\\src\\Catch2WithMain.dir\\Release\\Catch2WithMain.vcxproj.FileListAbsolute.txt",
+      "size": 0,
+      "hash": "e3b0c44298fc1c14",
+      "modified": "2025-11-02T20:47:04.873654"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\appveyor.yml",
+      "size": 3103,
+      "hash": "7b9c608c136a161f",
+      "modified": "2025-11-02T20:18:11.265007"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\CMakeLists.txt",
+      "size": 7185,
+      "hash": "b586f85dc0bbbc23",
+      "modified": "2025-11-02T20:18:11.263487"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\CMakePresets.json",
+      "size": 920,
+      "hash": "f2bd57bb44305bd5",
+      "modified": "2025-11-02T20:18:11.263487"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\codecov.yml",
+      "size": 319,
+      "hash": "fba38a0cb7ecc7cd",
+      "modified": "2025-11-02T20:18:11.265007"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\CODE_OF_CONDUCT.md",
+      "size": 3261,
+      "hash": "c5926f455cd5b171",
+      "modified": "2025-11-02T20:18:11.264000"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\conanfile.py",
+      "size": 2592,
+      "hash": "24bebc71707ebbc6",
+      "modified": "2025-11-02T20:18:11.266542"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\LICENSE.txt",
+      "size": 1361,
+      "hash": "beb8e42e9d6b4284",
+      "modified": "2025-11-02T20:18:11.265007"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\mdsnippets.json",
+      "size": 148,
+      "hash": "0b1ff10e5c7d0831",
+      "modified": "2025-11-02T20:18:11.292084"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\meson_options.txt",
+      "size": 84,
+      "hash": "129859ff1b941a11",
+      "modified": "2025-11-02T20:18:11.292589"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\README.md",
+      "size": 4264,
+      "hash": "3182fa15c10a2b95",
+      "modified": "2025-11-02T20:18:11.265007"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\SECURITY.md",
+      "size": 705,
+      "hash": "cff21a97943b3781",
+      "modified": "2025-11-02T20:18:11.265007"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\.conan\\build.py",
+      "size": 3015,
+      "hash": "251a4e9be9ad1f0b",
+      "modified": "2025-11-02T20:18:11.254307"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\.conan\\test_package\\CMakeLists.txt",
+      "size": 366,
+      "hash": "923df7b568037396",
+      "modified": "2025-11-02T20:18:11.254307"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\.conan\\test_package\\conanfile.py",
+      "size": 592,
+      "hash": "1eb6be5c10ada371",
+      "modified": "2025-11-02T20:18:11.254307"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\.conan\\test_package\\test_package.cpp",
+      "size": 377,
+      "hash": "c930adec2eb5effa",
+      "modified": "2025-11-02T20:18:11.255834"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\.github\\FUNDING.yml",
+      "size": 62,
+      "hash": "fc7d62fd48851f8a",
+      "modified": "2025-11-02T20:18:11.255834"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\.github\\pull_request_template.md",
+      "size": 1094,
+      "hash": "871da13be37ff8a5",
+      "modified": "2025-11-02T20:18:11.257364"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\.github\\ISSUE_TEMPLATE\\bug_report.md",
+      "size": 740,
+      "hash": "c1a322b0ecdf58fe",
+      "modified": "2025-11-02T20:18:11.255834"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\.github\\ISSUE_TEMPLATE\\feature_request.md",
+      "size": 322,
+      "hash": "18804e556d1342e0",
+      "modified": "2025-11-02T20:18:11.257364"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\.github\\workflows\\linux-bazel-builds.yml",
+      "size": 564,
+      "hash": "0d54e57800870164",
+      "modified": "2025-11-02T20:18:11.257364"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\.github\\workflows\\linux-meson-builds.yml",
+      "size": 1193,
+      "hash": "6942b5354d19ed1b",
+      "modified": "2025-11-02T20:18:11.257364"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\.github\\workflows\\linux-other-builds.yml",
+      "size": 4008,
+      "hash": "5aa904c87cbd33f7",
+      "modified": "2025-11-02T20:18:11.257364"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\.github\\workflows\\linux-simple-builds.yml",
+      "size": 3684,
+      "hash": "249f7fd0c3933595",
+      "modified": "2025-11-02T20:18:11.258891"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\.github\\workflows\\mac-builds.yml",
+      "size": 1617,
+      "hash": "1a9ff9ff5a8f1a70",
+      "modified": "2025-11-02T20:18:11.258891"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\.github\\workflows\\validate-header-guards.yml",
+      "size": 1012,
+      "hash": "8d71614bedc0e851",
+      "modified": "2025-11-02T20:18:11.258891"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\.github\\workflows\\windows-simple-builds.yml",
+      "size": 1202,
+      "hash": "ade833c10a371108",
+      "modified": "2025-11-02T20:18:11.258891"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\docs\\assertions.md",
+      "size": 7016,
+      "hash": "8538a2e25f095b76",
+      "modified": "2025-11-02T20:18:11.268073"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\docs\\benchmarks.md",
+      "size": 11577,
+      "hash": "ccccd2c612ec4712",
+      "modified": "2025-11-02T20:18:11.269632"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\docs\\ci-and-misc.md",
+      "size": 5367,
+      "hash": "14d908bf6adf289d",
+      "modified": "2025-11-02T20:18:11.269632"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\docs\\cmake-integration.md",
+      "size": 14959,
+      "hash": "0406b22824094eab",
+      "modified": "2025-11-02T20:18:11.269632"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\docs\\command-line.md",
+      "size": 27963,
+      "hash": "cf3048cda7ea66c6",
+      "modified": "2025-11-02T20:18:11.269632"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\docs\\commercial-users.md",
+      "size": 593,
+      "hash": "6b2eb87277236e78",
+      "modified": "2025-11-02T20:18:11.269632"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\docs\\comparing-floating-point-numbers.md",
+      "size": 6780,
+      "hash": "2a920bf255990221",
+      "modified": "2025-11-02T20:18:11.271152"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\docs\\configuration.md",
+      "size": 13766,
+      "hash": "149cd0ef3b0ca261",
+      "modified": "2025-11-02T20:18:11.271152"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\docs\\contributing.md",
+      "size": 13807,
+      "hash": "c6875260e424a706",
+      "modified": "2025-11-02T20:18:11.271152"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\docs\\deprecations.md",
+      "size": 1818,
+      "hash": "481589fd1de466f4",
+      "modified": "2025-11-02T20:18:11.271152"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\docs\\event-listeners.md",
+      "size": 1538,
+      "hash": "eed3787542ca9a91",
+      "modified": "2025-11-02T20:18:11.271152"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\docs\\faq.md",
+      "size": 4078,
+      "hash": "7807ea8ff0633330",
+      "modified": "2025-11-02T20:18:11.272689"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\docs\\generators.md",
+      "size": 9495,
+      "hash": "bd15b56cc7ac40a9",
+      "modified": "2025-11-02T20:18:11.272689"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\docs\\limitations.md",
+      "size": 6485,
+      "hash": "f4e1dd154fc17dd6",
+      "modified": "2025-11-02T20:18:11.272689"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\docs\\list-of-examples.md",
+      "size": 2779,
+      "hash": "212dc7b1d0697c27",
+      "modified": "2025-11-02T20:18:11.272689"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\docs\\logging.md",
+      "size": 5113,
+      "hash": "31e3ce4614bac987",
+      "modified": "2025-11-02T20:18:11.272689"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\docs\\matchers.md",
+      "size": 16503,
+      "hash": "738fb50913d7b71e",
+      "modified": "2025-11-02T20:18:11.274216"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\docs\\migrate-v2-to-v3.md",
+      "size": 4368,
+      "hash": "b9c5bab48985387b",
+      "modified": "2025-11-02T20:18:11.274216"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\docs\\opensource-users.md",
+      "size": 7103,
+      "hash": "bffd2a92530f5a77",
+      "modified": "2025-11-02T20:18:11.274216"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\docs\\other-macros.md",
+      "size": 4347,
+      "hash": "75d6a590a0003114",
+      "modified": "2025-11-02T20:18:11.274216"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\docs\\own-main.md",
+      "size": 4269,
+      "hash": "a75b75c8de411ce4",
+      "modified": "2025-11-02T20:18:11.274216"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\docs\\Readme.md",
+      "size": 1747,
+      "hash": "2a2cdf0da3e79a5c",
+      "modified": "2025-11-02T20:18:11.268073"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\docs\\release-notes.md",
+      "size": 81321,
+      "hash": "74acbc5700da4379",
+      "modified": "2025-11-02T20:18:11.275759"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\docs\\release-process.md",
+      "size": 2888,
+      "hash": "1e1abeee1bf6aa5f",
+      "modified": "2025-11-02T20:18:11.275759"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\docs\\reporter-events.md",
+      "size": 6059,
+      "hash": "e80be197b7629aa8",
+      "modified": "2025-11-02T20:18:11.275759"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\docs\\reporters.md",
+      "size": 8628,
+      "hash": "aa2886718c7b5f72",
+      "modified": "2025-11-02T20:18:11.275759"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\docs\\skipping-passing-failing.md",
+      "size": 3946,
+      "hash": "c4a1df850a2d819b",
+      "modified": "2025-11-02T20:18:11.277292"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\docs\\test-cases-and-sections.md",
+      "size": 15960,
+      "hash": "a32575c64c1eca30",
+      "modified": "2025-11-02T20:18:11.277292"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\docs\\test-fixtures.md",
+      "size": 5830,
+      "hash": "8f0703abc93c8087",
+      "modified": "2025-11-02T20:18:11.277292"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\docs\\tostring.md",
+      "size": 4915,
+      "hash": "c27d61ba249ae782",
+      "modified": "2025-11-02T20:18:11.277292"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\docs\\tutorial.md",
+      "size": 8457,
+      "hash": "cce5a1c45a57288f",
+      "modified": "2025-11-02T20:18:11.277292"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\docs\\usage-tips.md",
+      "size": 4263,
+      "hash": "bb8d375a1da8e638",
+      "modified": "2025-11-02T20:18:11.278822"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\docs\\why-catch.md",
+      "size": 3051,
+      "hash": "fdacfc43b68c32c5",
+      "modified": "2025-11-02T20:18:11.278822"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\examples\\010-TestCase.cpp",
+      "size": 1355,
+      "hash": "3456e445a1ed346f",
+      "modified": "2025-11-02T20:18:11.278822"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\examples\\020-TestCase-1.cpp",
+      "size": 1060,
+      "hash": "5dc74e07276e3677",
+      "modified": "2025-11-02T20:18:11.278822"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\examples\\020-TestCase-2.cpp",
+      "size": 1220,
+      "hash": "a900a8a294c740d6",
+      "modified": "2025-11-02T20:18:11.280349"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\examples\\030-Asn-Require-Check.cpp",
+      "size": 2858,
+      "hash": "604bbd4ee9c0ce3d",
+      "modified": "2025-11-02T20:18:11.280349"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\examples\\100-Fix-Section.cpp",
+      "size": 2587,
+      "hash": "fd6240a25425c161",
+      "modified": "2025-11-02T20:18:11.280349"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\examples\\110-Fix-ClassFixture.cpp",
+      "size": 2200,
+      "hash": "c3660b2095c8ed7a",
+      "modified": "2025-11-02T20:18:11.280349"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\examples\\120-Bdd-ScenarioGivenWhenThen.cpp",
+      "size": 3101,
+      "hash": "9f6e6db8bd6993f1",
+      "modified": "2025-11-02T20:18:11.280349"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\examples\\210-Evt-EventListeners.cpp",
+      "size": 15269,
+      "hash": "c9dc1649ac665ac2",
+      "modified": "2025-11-02T20:18:11.281876"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\examples\\231-Cfg-OutputStreams.cpp",
+      "size": 1490,
+      "hash": "09d0e091e0d23354",
+      "modified": "2025-11-02T20:18:11.281876"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\examples\\300-Gen-OwnGenerator.cpp",
+      "size": 2251,
+      "hash": "d059346c7af0f572",
+      "modified": "2025-11-02T20:18:11.281876"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\examples\\301-Gen-MapTypeConversion.cpp",
+      "size": 1961,
+      "hash": "73a77236567c00f1",
+      "modified": "2025-11-02T20:18:11.281876"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\examples\\302-Gen-Table.cpp",
+      "size": 2237,
+      "hash": "95a58c625dfb2718",
+      "modified": "2025-11-02T20:18:11.281876"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\examples\\310-Gen-VariablesInGenerators.cpp",
+      "size": 1393,
+      "hash": "ca1dec057ae3d335",
+      "modified": "2025-11-02T20:18:11.281876"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\examples\\311-Gen-CustomCapture.cpp",
+      "size": 1665,
+      "hash": "ea8bd80b877f0bce",
+      "modified": "2025-11-02T20:18:11.283431"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\examples\\CMakeLists.txt",
+      "size": 1622,
+      "hash": "87d51a4aa93f9800",
+      "modified": "2025-11-02T20:18:11.283431"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\extras\\catch_amalgamated.cpp",
+      "size": 392833,
+      "hash": "6d9894784ec7fb50",
+      "modified": "2025-11-02T20:18:11.286470"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\fuzzing\\CMakeLists.txt",
+      "size": 773,
+      "hash": "ebfecdb6a84cba49",
+      "modified": "2025-11-02T20:18:11.289524"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\fuzzing\\fuzz_TestSpecParser.cpp",
+      "size": 389,
+      "hash": "72ca18f5a4ced9d3",
+      "modified": "2025-11-02T20:18:11.291076"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\fuzzing\\fuzz_textflow.cpp",
+      "size": 1174,
+      "hash": "e48872ec5dc4493b",
+      "modified": "2025-11-02T20:18:11.291076"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\fuzzing\\fuzz_XmlWriter.cpp",
+      "size": 343,
+      "hash": "7ebc19e428548058",
+      "modified": "2025-11-02T20:18:11.291076"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\fuzzing\\NullOStream.cpp",
+      "size": 243,
+      "hash": "f67d0040e45b3b54",
+      "modified": "2025-11-02T20:18:11.289524"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\fuzzing\\NullOStream.h",
+      "size": 471,
+      "hash": "57207f85e9125a1b",
+      "modified": "2025-11-02T20:18:11.289524"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\CMakeLists.txt",
+      "size": 21097,
+      "hash": "c0cb6f896bbb23a6",
+      "modified": "2025-11-02T20:18:11.292589"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\catch_approx.cpp",
+      "size": 2650,
+      "hash": "3e3f4cd172b59526",
+      "modified": "2025-11-02T20:18:11.300230"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\catch_assertion_result.cpp",
+      "size": 3503,
+      "hash": "9fadcc7a2e5f0cb2",
+      "modified": "2025-11-02T20:18:11.301757"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\catch_config.cpp",
+      "size": 10792,
+      "hash": "d21d93fedf4e393d",
+      "modified": "2025-11-02T20:18:11.301757"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\catch_get_random_seed.cpp",
+      "size": 501,
+      "hash": "eeba1f9a9ddc339d",
+      "modified": "2025-11-02T20:18:11.303579"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\catch_message.cpp",
+      "size": 4172,
+      "hash": "cdd3e969ad506513",
+      "modified": "2025-11-02T20:18:11.303579"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\catch_registry_hub.cpp",
+      "size": 4645,
+      "hash": "2dcaee909b055b05",
+      "modified": "2025-11-02T20:18:11.303579"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\catch_session.cpp",
+      "size": 13729,
+      "hash": "f45cee8e67efd5d5",
+      "modified": "2025-11-02T20:18:11.305111"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\catch_tag_alias_autoregistrar.cpp",
+      "size": 903,
+      "hash": "c770ae1cded8400b",
+      "modified": "2025-11-02T20:18:11.306657"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\catch_test_case_info.cpp",
+      "size": 10593,
+      "hash": "0516d1e998eda060",
+      "modified": "2025-11-02T20:18:11.306657"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\catch_test_spec.cpp",
+      "size": 4464,
+      "hash": "50ba68c8c5189fc7",
+      "modified": "2025-11-02T20:18:11.308185"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\catch_timer.cpp",
+      "size": 1232,
+      "hash": "14d92a62e2eca903",
+      "modified": "2025-11-02T20:18:11.308185"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\catch_tostring.cpp",
+      "size": 7751,
+      "hash": "c16533e176769df9",
+      "modified": "2025-11-02T20:18:11.308185"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\catch_totals.cpp",
+      "size": 2004,
+      "hash": "3114d2babf676d0b",
+      "modified": "2025-11-02T20:18:11.309711"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\catch_translate_exception.cpp",
+      "size": 679,
+      "hash": "e6574762279332aa",
+      "modified": "2025-11-02T20:18:11.309711"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\catch_version.cpp",
+      "size": 1329,
+      "hash": "f701e0b63f4a250b",
+      "modified": "2025-11-02T20:18:11.311239"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\benchmark\\catch_chronometer.cpp",
+      "size": 526,
+      "hash": "6376ab5d04ee3da3",
+      "modified": "2025-11-02T20:18:11.294116"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\benchmark\\detail\\catch_benchmark_function.cpp",
+      "size": 539,
+      "hash": "1a4509aeb8bb8ac3",
+      "modified": "2025-11-02T20:18:11.297175"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\benchmark\\detail\\catch_run_for_at_least.cpp",
+      "size": 984,
+      "hash": "9950b2883ccfa8fa",
+      "modified": "2025-11-02T20:18:11.298705"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\benchmark\\detail\\catch_stats.cpp",
+      "size": 14993,
+      "hash": "4a9ac7eaf57eccc1",
+      "modified": "2025-11-02T20:18:11.300230"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\generators\\catch_generators.cpp",
+      "size": 1413,
+      "hash": "e44645fc4226f85b",
+      "modified": "2025-11-02T20:18:11.312767"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\generators\\catch_generators_random.cpp",
+      "size": 436,
+      "hash": "b83336eed62ce4fe",
+      "modified": "2025-11-02T20:18:11.314291"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\generators\\catch_generator_exception.cpp",
+      "size": 452,
+      "hash": "cad18c2508142afe",
+      "modified": "2025-11-02T20:18:11.311239"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\interfaces\\catch_interfaces_capture.cpp",
+      "size": 383,
+      "hash": "64b754ecccd66a77",
+      "modified": "2025-11-02T20:18:11.315298"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\interfaces\\catch_interfaces_config.cpp",
+      "size": 368,
+      "hash": "02dc20e07e4e647b",
+      "modified": "2025-11-02T20:18:11.315804"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\interfaces\\catch_interfaces_exception.cpp",
+      "size": 475,
+      "hash": "a5f7c198f03b8c75",
+      "modified": "2025-11-02T20:18:11.315804"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\interfaces\\catch_interfaces_generatortracker.cpp",
+      "size": 933,
+      "hash": "ba7fdb4f1ae412d4",
+      "modified": "2025-11-02T20:18:11.317331"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\interfaces\\catch_interfaces_registry_hub.cpp",
+      "size": 444,
+      "hash": "e69fcb31ade87e94",
+      "modified": "2025-11-02T20:18:11.317331"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\interfaces\\catch_interfaces_reporter.cpp",
+      "size": 3841,
+      "hash": "c110616cc2ec062b",
+      "modified": "2025-11-02T20:18:11.318858"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\interfaces\\catch_interfaces_reporter_factory.cpp",
+      "size": 458,
+      "hash": "8a1110d5bf63c7b5",
+      "modified": "2025-11-02T20:18:11.318858"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\interfaces\\catch_interfaces_testcase.cpp",
+      "size": 390,
+      "hash": "c538258d90eb0f64",
+      "modified": "2025-11-02T20:18:11.320383"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\internal\\catch_assertion_handler.cpp",
+      "size": 3470,
+      "hash": "76c4bcd742960d14",
+      "modified": "2025-11-02T20:18:11.320383"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\internal\\catch_case_insensitive_comparisons.cpp",
+      "size": 1199,
+      "hash": "8d35b0e2efa08638",
+      "modified": "2025-11-02T20:18:11.321917"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\internal\\catch_clara.cpp",
+      "size": 17917,
+      "hash": "9f349ac040ddd2f2",
+      "modified": "2025-11-02T20:18:11.321917"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\internal\\catch_commandline.cpp",
+      "size": 15115,
+      "hash": "e9c11412362b7cee",
+      "modified": "2025-11-02T20:18:11.323445"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\internal\\catch_console_colour.cpp",
+      "size": 11197,
+      "hash": "3d30f56197a9439d",
+      "modified": "2025-11-02T20:18:11.326484"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\internal\\catch_context.cpp",
+      "size": 1230,
+      "hash": "c1f60fb03ca3f5dc",
+      "modified": "2025-11-02T20:18:11.328012"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\internal\\catch_debugger.cpp",
+      "size": 4536,
+      "hash": "b03b9ca89757de43",
+      "modified": "2025-11-02T20:18:11.328012"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\internal\\catch_debug_console.cpp",
+      "size": 1273,
+      "hash": "fd7e2a38f08bc897",
+      "modified": "2025-11-02T20:18:11.328012"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\internal\\catch_decomposer.cpp",
+      "size": 794,
+      "hash": "93ad4c7dc11945e1",
+      "modified": "2025-11-02T20:18:11.329540"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\internal\\catch_enforce.cpp",
+      "size": 1193,
+      "hash": "0a264b0b64e09296",
+      "modified": "2025-11-02T20:18:11.329540"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\internal\\catch_enum_values_registry.cpp",
+      "size": 2789,
+      "hash": "81a6ca7c1f411ccc",
+      "modified": "2025-11-02T20:18:11.329540"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\internal\\catch_errno_guard.cpp",
+      "size": 458,
+      "hash": "f8eb38230da9e91c",
+      "modified": "2025-11-02T20:18:11.331066"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\internal\\catch_exception_translator_registry.cpp",
+      "size": 3284,
+      "hash": "b7288ed3a6fc1bc2",
+      "modified": "2025-11-02T20:18:11.331066"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\internal\\catch_fatal_condition_handler.cpp",
+      "size": 9310,
+      "hash": "01f9bbd4f74ee274",
+      "modified": "2025-11-02T20:18:11.331066"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\internal\\catch_floating_point_helpers.cpp",
+      "size": 955,
+      "hash": "986ae393c01f17c8",
+      "modified": "2025-11-02T20:18:11.333281"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\internal\\catch_getenv.cpp",
+      "size": 970,
+      "hash": "938bfe102a69f5f8",
+      "modified": "2025-11-02T20:18:11.333281"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\internal\\catch_istream.cpp",
+      "size": 5378,
+      "hash": "b96f22ce330fb7ac",
+      "modified": "2025-11-02T20:18:11.334808"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\internal\\catch_lazy_expr.cpp",
+      "size": 942,
+      "hash": "7a85a5801fb7fda1",
+      "modified": "2025-11-02T20:18:11.334808"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\internal\\catch_leak_detector.cpp",
+      "size": 1182,
+      "hash": "81032b2260d96bb4",
+      "modified": "2025-11-02T20:18:11.334808"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\internal\\catch_list.cpp",
+      "size": 4451,
+      "hash": "d230bf3840ebec33",
+      "modified": "2025-11-02T20:18:11.336332"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\internal\\catch_main.cpp",
+      "size": 1446,
+      "hash": "a57523b94e55140e",
+      "modified": "2025-11-02T20:18:11.336332"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\internal\\catch_message_info.cpp",
+      "size": 778,
+      "hash": "9d886db30730727d",
+      "modified": "2025-11-02T20:18:11.337891"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\internal\\catch_output_redirect.cpp",
+      "size": 4344,
+      "hash": "75b2c5829444f0d8",
+      "modified": "2025-11-02T20:18:11.339409"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\internal\\catch_parse_numbers.cpp",
+      "size": 1823,
+      "hash": "318358e89c5784f6",
+      "modified": "2025-11-02T20:18:11.339409"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\internal\\catch_polyfills.cpp",
+      "size": 841,
+      "hash": "75cdbc064e34d7d7",
+      "modified": "2025-11-02T20:18:11.340929"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\internal\\catch_random_number_generator.cpp",
+      "size": 1939,
+      "hash": "a52fae712a4573ee",
+      "modified": "2025-11-02T20:18:11.342444"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\internal\\catch_random_seed_generation.cpp",
+      "size": 1054,
+      "hash": "9ca10b445ff83a33",
+      "modified": "2025-11-02T20:18:11.342444"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\internal\\catch_reporter_registry.cpp",
+      "size": 3838,
+      "hash": "0bf877b5eddeee51",
+      "modified": "2025-11-02T20:18:11.342444"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\internal\\catch_reporter_spec_parser.cpp",
+      "size": 6405,
+      "hash": "4ff7c2dfd32e39fe",
+      "modified": "2025-11-02T20:18:11.343969"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\internal\\catch_result_type.cpp",
+      "size": 1003,
+      "hash": "d568ebef14dd6472",
+      "modified": "2025-11-02T20:18:11.343969"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\internal\\catch_reusable_string_stream.cpp",
+      "size": 2090,
+      "hash": "4304eb05e679f192",
+      "modified": "2025-11-02T20:18:11.343969"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\internal\\catch_run_context.cpp",
+      "size": 29110,
+      "hash": "cff59277159f8ed2",
+      "modified": "2025-11-02T20:18:11.345495"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\internal\\catch_section.cpp",
+      "size": 2304,
+      "hash": "8abb91d7e2b24a63",
+      "modified": "2025-11-02T20:18:11.346502"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\internal\\catch_singletons.cpp",
+      "size": 1041,
+      "hash": "e1ef6a2c9ff51541",
+      "modified": "2025-11-02T20:18:11.347007"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\internal\\catch_source_line_info.cpp",
+      "size": 1214,
+      "hash": "2260e47835fa8b17",
+      "modified": "2025-11-02T20:18:11.347007"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\internal\\catch_startup_exception_registry.cpp",
+      "size": 1004,
+      "hash": "346545bfd21b576d",
+      "modified": "2025-11-02T20:18:11.347007"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\internal\\catch_stdstreams.cpp",
+      "size": 662,
+      "hash": "35d20e79b556ceb8",
+      "modified": "2025-11-02T20:18:11.348535"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\internal\\catch_stringref.cpp",
+      "size": 1964,
+      "hash": "fdc9edbab286991c",
+      "modified": "2025-11-02T20:18:11.350064"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\internal\\catch_string_manip.cpp",
+      "size": 3782,
+      "hash": "8eb97b3d287c89f1",
+      "modified": "2025-11-02T20:18:11.348535"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\internal\\catch_tag_alias_registry.cpp",
+      "size": 2314,
+      "hash": "6e999fde43962420",
+      "modified": "2025-11-02T20:18:11.350064"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\internal\\catch_test_case_info_hasher.cpp",
+      "size": 1322,
+      "hash": "eff4e64c03ef06d6",
+      "modified": "2025-11-02T20:18:11.351591"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\internal\\catch_test_case_registry_impl.cpp",
+      "size": 6525,
+      "hash": "1129be77f66d6e92",
+      "modified": "2025-11-02T20:18:11.351591"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\internal\\catch_test_case_tracker.cpp",
+      "size": 7832,
+      "hash": "b0118c7e5298c407",
+      "modified": "2025-11-02T20:18:11.351591"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\internal\\catch_test_failure_exception.cpp",
+      "size": 906,
+      "hash": "2ad4d58c2b6317e8",
+      "modified": "2025-11-02T20:18:11.353143"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\internal\\catch_test_registry.cpp",
+      "size": 3358,
+      "hash": "e0b6d0515aa5a6f8",
+      "modified": "2025-11-02T20:18:11.353143"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\internal\\catch_test_spec_parser.cpp",
+      "size": 7550,
+      "hash": "d9f546966e582280",
+      "modified": "2025-11-02T20:18:11.354669"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\internal\\catch_textflow.cpp",
+      "size": 8851,
+      "hash": "38a27ea32d27417a",
+      "modified": "2025-11-02T20:18:11.354669"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\internal\\catch_uncaught_exceptions.cpp",
+      "size": 814,
+      "hash": "6f518f9b81afbfa0",
+      "modified": "2025-11-02T20:18:11.356696"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\internal\\catch_wildcard_pattern.cpp",
+      "size": 1824,
+      "hash": "d2ffb9553c3247d7",
+      "modified": "2025-11-02T20:18:11.357700"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\internal\\catch_xmlwriter.cpp",
+      "size": 11565,
+      "hash": "ecfd8b83d1d48b38",
+      "modified": "2025-11-02T20:18:11.357700"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\matchers\\catch_matchers.cpp",
+      "size": 646,
+      "hash": "69e3485a55fe7fe2",
+      "modified": "2025-11-02T20:18:11.357700"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\matchers\\catch_matchers_container_properties.cpp",
+      "size": 896,
+      "hash": "53d0be6815681504",
+      "modified": "2025-11-02T20:18:11.359702"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\matchers\\catch_matchers_exception.cpp",
+      "size": 747,
+      "hash": "c9df961e5484fdb7",
+      "modified": "2025-11-02T20:18:11.361222"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\matchers\\catch_matchers_floating_point.cpp",
+      "size": 8033,
+      "hash": "65c5d89a1218b252",
+      "modified": "2025-11-02T20:18:11.361222"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\matchers\\catch_matchers_predicate.cpp",
+      "size": 546,
+      "hash": "900564e5bd1d3d2c",
+      "modified": "2025-11-02T20:18:11.361222"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\matchers\\catch_matchers_quantifiers.cpp",
+      "size": 875,
+      "hash": "52a604e405146eae",
+      "modified": "2025-11-02T20:18:11.362751"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\matchers\\catch_matchers_string.cpp",
+      "size": 4602,
+      "hash": "aaa6b74fd9da298d",
+      "modified": "2025-11-02T20:18:11.362751"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\matchers\\catch_matchers_templated.cpp",
+      "size": 1465,
+      "hash": "509662b71d841f09",
+      "modified": "2025-11-02T20:18:11.364281"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\matchers\\internal\\catch_matchers_impl.cpp",
+      "size": 1083,
+      "hash": "18fc4c75dd2b5e87",
+      "modified": "2025-11-02T20:18:11.364281"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\reporters\\catch_reporter_automake.cpp",
+      "size": 1312,
+      "hash": "7c6bbde8565b164a",
+      "modified": "2025-11-02T20:18:11.365809"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\reporters\\catch_reporter_common_base.cpp",
+      "size": 1739,
+      "hash": "c766ab8dfe8e279a",
+      "modified": "2025-11-02T20:18:11.367335"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\reporters\\catch_reporter_compact.cpp",
+      "size": 9272,
+      "hash": "f7ef4b52925edff0",
+      "modified": "2025-11-02T20:18:11.367335"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\reporters\\catch_reporter_console.cpp",
+      "size": 23540,
+      "hash": "6ff13c00348bd9ef",
+      "modified": "2025-11-02T20:18:11.368880"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\reporters\\catch_reporter_cumulative_base.cpp",
+      "size": 6162,
+      "hash": "4966efe652f1d572",
+      "modified": "2025-11-02T20:18:11.368880"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\reporters\\catch_reporter_event_listener.cpp",
+      "size": 1984,
+      "hash": "66e611cd3989d38c",
+      "modified": "2025-11-02T20:18:11.368880"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\reporters\\catch_reporter_helpers.cpp",
+      "size": 13692,
+      "hash": "8b61056ceca0d8d8",
+      "modified": "2025-11-02T20:18:11.370397"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\reporters\\catch_reporter_junit.cpp",
+      "size": 12643,
+      "hash": "ff7711f1f085312c",
+      "modified": "2025-11-02T20:18:11.370397"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\reporters\\catch_reporter_multi.cpp",
+      "size": 7227,
+      "hash": "d3b9f61bd21aa89f",
+      "modified": "2025-11-02T20:18:11.372141"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\reporters\\catch_reporter_registrars.cpp",
+      "size": 1285,
+      "hash": "b8747d8b8bbb1001",
+      "modified": "2025-11-02T20:18:11.372141"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\reporters\\catch_reporter_sonarqube.cpp",
+      "size": 6435,
+      "hash": "1aafe8dec17f92dd",
+      "modified": "2025-11-02T20:18:11.372141"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\reporters\\catch_reporter_streaming_base.cpp",
+      "size": 690,
+      "hash": "ebaae6cfa8977f2b",
+      "modified": "2025-11-02T20:18:11.373665"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\reporters\\catch_reporter_tap.cpp",
+      "size": 9118,
+      "hash": "46610665be224e55",
+      "modified": "2025-11-02T20:18:11.373665"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\reporters\\catch_reporter_teamcity.cpp",
+      "size": 6934,
+      "hash": "9e2e65eafdd497a5",
+      "modified": "2025-11-02T20:18:11.373665"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\src\\catch2\\reporters\\catch_reporter_xml.cpp",
+      "size": 15546,
+      "hash": "d07172b7bbf50af0",
+      "modified": "2025-11-02T20:18:11.375306"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\CMakeLists.txt",
+      "size": 26592,
+      "hash": "7dc06ba733ddd5b7",
+      "modified": "2025-11-02T20:18:11.375306"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\ExtraTests\\CMakeLists.txt",
+      "size": 20693,
+      "hash": "c584f4ca96fe630d",
+      "modified": "2025-11-02T20:18:11.376829"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\ExtraTests\\ToDo.txt",
+      "size": 634,
+      "hash": "3ad0eae568f1d235",
+      "modified": "2025-11-02T20:18:11.376829"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\ExtraTests\\X01-PrefixedMacros.cpp",
+      "size": 3709,
+      "hash": "09b9b29a18808e35",
+      "modified": "2025-11-02T20:18:11.377833"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\ExtraTests\\X02-DisabledMacros.cpp",
+      "size": 1734,
+      "hash": "ecab2109b9f77b37",
+      "modified": "2025-11-02T20:18:11.377833"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\ExtraTests\\X03-DisabledExceptions-DefaultHandler.cpp",
+      "size": 1230,
+      "hash": "1a58cc521453ede8",
+      "modified": "2025-11-02T20:18:11.378339"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\ExtraTests\\X04-DisabledExceptions-CustomHandler.cpp",
+      "size": 1101,
+      "hash": "ee406b49f3d4ddc7",
+      "modified": "2025-11-02T20:18:11.378339"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\ExtraTests\\X05-DeferredStaticChecks.cpp",
+      "size": 588,
+      "hash": "739698e0592b4393",
+      "modified": "2025-11-02T20:18:11.378339"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\ExtraTests\\X10-FallbackStringifier.cpp",
+      "size": 844,
+      "hash": "950b0565b24f8007",
+      "modified": "2025-11-02T20:18:11.378339"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\ExtraTests\\X11-DisableStringification.cpp",
+      "size": 673,
+      "hash": "312dbd590e86719a",
+      "modified": "2025-11-02T20:18:11.378339"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\ExtraTests\\X12-CustomDebugBreakMacro.cpp",
+      "size": 670,
+      "hash": "037d76aa16eabf3a",
+      "modified": "2025-11-02T20:18:11.378339"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\ExtraTests\\X20-AssertionStartingEventGoesBeforeAssertionIsEvaluated.cpp",
+      "size": 2495,
+      "hash": "5a54988e3b79dc5f",
+      "modified": "2025-11-02T20:18:11.379867"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\ExtraTests\\X21-PartialTestCaseEvents.cpp",
+      "size": 2548,
+      "hash": "ddeef38e948d7f1a",
+      "modified": "2025-11-02T20:18:11.379867"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\ExtraTests\\X22-BenchmarksInCumulativeReporter.cpp",
+      "size": 2441,
+      "hash": "f55bc76e939a0ad6",
+      "modified": "2025-11-02T20:18:11.379867"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\ExtraTests\\X23-CasingInReporterNames.cpp",
+      "size": 1223,
+      "hash": "50b7f03bc5c39692",
+      "modified": "2025-11-02T20:18:11.379867"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\ExtraTests\\X24-ListenerStdoutCaptureInMultireporter.cpp",
+      "size": 1370,
+      "hash": "dc8545c7249e83f5",
+      "modified": "2025-11-02T20:18:11.379867"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\ExtraTests\\X25-ListenerCanAskForCapturedStdout.cpp",
+      "size": 1526,
+      "hash": "74fac2b9a24ce025",
+      "modified": "2025-11-02T20:18:11.381392"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\ExtraTests\\X26-ReporterPreferencesForPassingAssertionsIsRespected.cpp",
+      "size": 1415,
+      "hash": "0e5aa8f095a67228",
+      "modified": "2025-11-02T20:18:11.381392"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\ExtraTests\\X27-CapturedStdoutInTestCaseEvents.cpp",
+      "size": 2919,
+      "hash": "e710b5942107f91f",
+      "modified": "2025-11-02T20:18:11.381392"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\ExtraTests\\X28-ListenersGetEventsBeforeReporters.cpp",
+      "size": 3334,
+      "hash": "62c43a2f17e2bc25",
+      "modified": "2025-11-02T20:18:11.381392"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\ExtraTests\\X29-CustomArgumentsForReporters.cpp",
+      "size": 1761,
+      "hash": "9c2acb30e7df0e24",
+      "modified": "2025-11-02T20:18:11.381392"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\ExtraTests\\X30-BazelReporter.cpp",
+      "size": 507,
+      "hash": "b7f7bad3730e7259",
+      "modified": "2025-11-02T20:18:11.381392"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\ExtraTests\\X31-DuplicatedTestCases.cpp",
+      "size": 538,
+      "hash": "9370321b234f5c12",
+      "modified": "2025-11-02T20:18:11.382919"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\ExtraTests\\X32-DuplicatedTestCasesDifferentTags.cpp",
+      "size": 568,
+      "hash": "2beddc8860fe84bc",
+      "modified": "2025-11-02T20:18:11.382919"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\ExtraTests\\X33-DuplicatedTestCaseMethods.cpp",
+      "size": 647,
+      "hash": "e9ce00a60c9832f9",
+      "modified": "2025-11-02T20:18:11.382919"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\ExtraTests\\X34-DuplicatedTestCaseMethodsDifferentFixtures.cpp",
+      "size": 732,
+      "hash": "38ac3e6307293314",
+      "modified": "2025-11-02T20:18:11.382919"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\ExtraTests\\X35-DuplicatedReporterNames.cpp",
+      "size": 1024,
+      "hash": "f8bfa46fe143c680",
+      "modified": "2025-11-02T20:18:11.384455"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\ExtraTests\\X90-WindowsHeaderInclusion.cpp",
+      "size": 590,
+      "hash": "5252c58dd8a60aa0",
+      "modified": "2025-11-02T20:18:11.384455"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\ExtraTests\\X91-AmalgamatedCatch.cpp",
+      "size": 988,
+      "hash": "98acd2530add3080",
+      "modified": "2025-11-02T20:18:11.384455"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\ExtraTests\\X92-NoTests.cpp",
+      "size": 332,
+      "hash": "87d30b8698442485",
+      "modified": "2025-11-02T20:18:11.384455"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\ExtraTests\\X93-AllSkipped.cpp",
+      "size": 489,
+      "hash": "6b5fa08ee19dfa7c",
+      "modified": "2025-11-02T20:18:11.384455"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\TestRegistrations.cpp",
+      "size": 6915,
+      "hash": "21b31c6f294628a1",
+      "modified": "2025-11-02T20:18:11.410460"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\Baselines\\automake.std.approved.txt",
+      "size": 9339,
+      "hash": "532f27b3586d6ed8",
+      "modified": "2025-11-02T20:18:11.385984"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\Baselines\\automake.sw.approved.txt",
+      "size": 25715,
+      "hash": "d1d7c9570460bd1f",
+      "modified": "2025-11-02T20:18:11.385984"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\Baselines\\automake.sw.multi.approved.txt",
+      "size": 25475,
+      "hash": "f05a2f330fcc290f",
+      "modified": "2025-11-02T20:18:11.387511"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\Baselines\\compact.sw.approved.txt",
+      "size": 225649,
+      "hash": "1be0164eae4fe65a",
+      "modified": "2025-11-02T20:18:11.389029"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\Baselines\\compact.sw.multi.approved.txt",
+      "size": 225409,
+      "hash": "b143c485fe2bc9c2",
+      "modified": "2025-11-02T20:18:11.389029"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\Baselines\\console.std.approved.txt",
+      "size": 57849,
+      "hash": "749c83a4ea166693",
+      "modified": "2025-11-02T20:18:11.389029"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\Baselines\\console.sw.approved.txt",
+      "size": 625383,
+      "hash": "ca239f83ae46dd9e",
+      "modified": "2025-11-02T20:18:11.390594"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\Baselines\\console.sw.multi.approved.txt",
+      "size": 625143,
+      "hash": "470f07209ec6c751",
+      "modified": "2025-11-02T20:18:11.392107"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\Baselines\\console.swa4.approved.txt",
+      "size": 34016,
+      "hash": "b3367df3f0262566",
+      "modified": "2025-11-02T20:18:11.392107"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\Baselines\\default.sw.multi.approved.txt",
+      "size": 240,
+      "hash": "cfa73661891a415c",
+      "modified": "2025-11-02T20:18:11.392107"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\Baselines\\junit.sw.approved.txt",
+      "size": 150798,
+      "hash": "9196720e4696ba01",
+      "modified": "2025-11-02T20:18:11.393636"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\Baselines\\junit.sw.multi.approved.txt",
+      "size": 150777,
+      "hash": "8fde721224fde23b",
+      "modified": "2025-11-02T20:18:11.393636"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\Baselines\\sonarqube.sw.approved.txt",
+      "size": 120789,
+      "hash": "f1a2f8a1949e3fb4",
+      "modified": "2025-11-02T20:18:11.395165"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\Baselines\\sonarqube.sw.multi.approved.txt",
+      "size": 120768,
+      "hash": "67ac59fb45d2edf7",
+      "modified": "2025-11-02T20:18:11.395165"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\Baselines\\tap.sw.approved.txt",
+      "size": 253988,
+      "hash": "dd4effb32930d1d1",
+      "modified": "2025-11-02T20:18:11.395165"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\Baselines\\tap.sw.multi.approved.txt",
+      "size": 253748,
+      "hash": "f169a941de220874",
+      "modified": "2025-11-02T20:18:11.396695"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\Baselines\\teamcity.sw.approved.txt",
+      "size": 126665,
+      "hash": "bc544d0c985c216f",
+      "modified": "2025-11-02T20:18:11.396695"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\Baselines\\teamcity.sw.multi.approved.txt",
+      "size": 126644,
+      "hash": "7d815088459a3be2",
+      "modified": "2025-11-02T20:18:11.398223"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\Baselines\\xml.sw.approved.txt",
+      "size": 881889,
+      "hash": "7016d4b4fe4ece0f",
+      "modified": "2025-11-02T20:18:11.399777"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\Baselines\\xml.sw.multi.approved.txt",
+      "size": 881868,
+      "hash": "8f19266bcfa01ab0",
+      "modified": "2025-11-02T20:18:11.401308"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\helpers\\parse_test_spec.cpp",
+      "size": 639,
+      "hash": "c56fecd6e514bb0f",
+      "modified": "2025-11-02T20:18:11.419639"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\IntrospectiveTests\\Algorithms.tests.cpp",
+      "size": 3646,
+      "hash": "a68d84a6384d38fa",
+      "modified": "2025-11-02T20:18:11.401308"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\IntrospectiveTests\\Clara.tests.cpp",
+      "size": 3066,
+      "hash": "fdbfb4feb1b131e2",
+      "modified": "2025-11-02T20:18:11.401308"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\IntrospectiveTests\\CmdLine.tests.cpp",
+      "size": 16411,
+      "hash": "eb477f287c77277c",
+      "modified": "2025-11-02T20:18:11.402838"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\IntrospectiveTests\\CmdLineHelpers.tests.cpp",
+      "size": 4989,
+      "hash": "c727749a89f4829f",
+      "modified": "2025-11-02T20:18:11.402838"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\IntrospectiveTests\\ColourImpl.tests.cpp",
+      "size": 2008,
+      "hash": "a552135ad82c3ffd",
+      "modified": "2025-11-02T20:18:11.402838"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\IntrospectiveTests\\Details.tests.cpp",
+      "size": 5901,
+      "hash": "67cdd7515d2d66ad",
+      "modified": "2025-11-02T20:18:11.402838"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\IntrospectiveTests\\FloatingPoint.tests.cpp",
+      "size": 3166,
+      "hash": "dfa161341814a8e9",
+      "modified": "2025-11-02T20:18:11.402838"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\IntrospectiveTests\\GeneratorsImpl.tests.cpp",
+      "size": 19552,
+      "hash": "9d5ca1f6c0dcc874",
+      "modified": "2025-11-02T20:18:11.404365"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\IntrospectiveTests\\InternalBenchmark.tests.cpp",
+      "size": 15133,
+      "hash": "586d7a60e31928a4",
+      "modified": "2025-11-02T20:18:11.404365"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\IntrospectiveTests\\Parse.tests.cpp",
+      "size": 1346,
+      "hash": "e6bf16c2eefcbe42",
+      "modified": "2025-11-02T20:18:11.404365"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\IntrospectiveTests\\PartTracker.tests.cpp",
+      "size": 8043,
+      "hash": "9b33e24ed5b78459",
+      "modified": "2025-11-02T20:18:11.404365"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\IntrospectiveTests\\RandomNumberGeneration.tests.cpp",
+      "size": 2140,
+      "hash": "a275166edb5d9d77",
+      "modified": "2025-11-02T20:18:11.404365"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\IntrospectiveTests\\Reporters.tests.cpp",
+      "size": 13693,
+      "hash": "1a041c218622690b",
+      "modified": "2025-11-02T20:18:11.405894"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\IntrospectiveTests\\Sharding.tests.cpp",
+      "size": 1427,
+      "hash": "d3bbb4299097f0c4",
+      "modified": "2025-11-02T20:18:11.405894"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\IntrospectiveTests\\Stream.tests.cpp",
+      "size": 1081,
+      "hash": "db5ea256a889914e",
+      "modified": "2025-11-02T20:18:11.405894"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\IntrospectiveTests\\String.tests.cpp",
+      "size": 6931,
+      "hash": "8ad14ab66d94925c",
+      "modified": "2025-11-02T20:18:11.405894"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\IntrospectiveTests\\StringManip.tests.cpp",
+      "size": 3469,
+      "hash": "d4b611bedf8b551a",
+      "modified": "2025-11-02T20:18:11.405894"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\IntrospectiveTests\\Tag.tests.cpp",
+      "size": 4794,
+      "hash": "9472569da6fad3b3",
+      "modified": "2025-11-02T20:18:11.405894"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\IntrospectiveTests\\TestCaseInfoHasher.tests.cpp",
+      "size": 2440,
+      "hash": "7eca82e81a0b94d7",
+      "modified": "2025-11-02T20:18:11.407423"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\IntrospectiveTests\\TestSpec.tests.cpp",
+      "size": 15757,
+      "hash": "57465ff8dada2cae",
+      "modified": "2025-11-02T20:18:11.407423"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\IntrospectiveTests\\TestSpecParser.tests.cpp",
+      "size": 1825,
+      "hash": "92e7bd92671e515f",
+      "modified": "2025-11-02T20:18:11.407423"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\IntrospectiveTests\\TextFlow.tests.cpp",
+      "size": 6806,
+      "hash": "2427a079903be599",
+      "modified": "2025-11-02T20:18:11.408429"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\IntrospectiveTests\\ToString.tests.cpp",
+      "size": 4113,
+      "hash": "94e312c869f31c7d",
+      "modified": "2025-11-02T20:18:11.408429"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\IntrospectiveTests\\Traits.tests.cpp",
+      "size": 2279,
+      "hash": "7e0460431ed8230f",
+      "modified": "2025-11-02T20:18:11.408934"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\IntrospectiveTests\\UniquePtr.tests.cpp",
+      "size": 4641,
+      "hash": "08707af6354fda4e",
+      "modified": "2025-11-02T20:18:11.408934"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\IntrospectiveTests\\Xml.tests.cpp",
+      "size": 7543,
+      "hash": "4270269f7646f316",
+      "modified": "2025-11-02T20:18:11.408934"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\TimingTests\\Sleep.tests.cpp",
+      "size": 656,
+      "hash": "23685496aafb0f71",
+      "modified": "2025-11-02T20:18:11.410460"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\UsageTests\\Approx.tests.cpp",
+      "size": 6904,
+      "hash": "7af00a3bbb161f5e",
+      "modified": "2025-11-02T20:18:11.410460"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\UsageTests\\BDD.tests.cpp",
+      "size": 3489,
+      "hash": "dd12bb48f9b525cc",
+      "modified": "2025-11-02T20:18:11.410460"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\UsageTests\\Benchmark.tests.cpp",
+      "size": 5317,
+      "hash": "8531f32c5376107d",
+      "modified": "2025-11-02T20:18:11.411972"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\UsageTests\\Class.tests.cpp",
+      "size": 4708,
+      "hash": "a31cebfad881d5fc",
+      "modified": "2025-11-02T20:18:11.411972"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\UsageTests\\Compilation.tests.cpp",
+      "size": 10505,
+      "hash": "3b9cdb0aaab653cc",
+      "modified": "2025-11-02T20:18:11.411972"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\UsageTests\\Condition.tests.cpp",
+      "size": 9488,
+      "hash": "f6294d9880753f49",
+      "modified": "2025-11-02T20:18:11.411972"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\UsageTests\\Decomposition.tests.cpp",
+      "size": 1035,
+      "hash": "91332d5d82d3368a",
+      "modified": "2025-11-02T20:18:11.413500"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\UsageTests\\EnumToString.tests.cpp",
+      "size": 3866,
+      "hash": "871b05f4440b675b",
+      "modified": "2025-11-02T20:18:11.413500"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\UsageTests\\Exception.tests.cpp",
+      "size": 6625,
+      "hash": "1851f6ee3e419817",
+      "modified": "2025-11-02T20:18:11.413500"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\UsageTests\\Generators.tests.cpp",
+      "size": 11266,
+      "hash": "32a2e54f5176100d",
+      "modified": "2025-11-02T20:18:11.413500"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\UsageTests\\Matchers.tests.cpp",
+      "size": 41421,
+      "hash": "1aed763a379db1a1",
+      "modified": "2025-11-02T20:18:11.413500"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\UsageTests\\MatchersRanges.tests.cpp",
+      "size": 35697,
+      "hash": "5035724ace2500c8",
+      "modified": "2025-11-02T20:18:11.415068"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\UsageTests\\Message.tests.cpp",
+      "size": 8970,
+      "hash": "c83bdea6e1f23a1a",
+      "modified": "2025-11-02T20:18:11.415068"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\UsageTests\\Misc.tests.cpp",
+      "size": 16570,
+      "hash": "81a24b8f4e7af9a3",
+      "modified": "2025-11-02T20:18:11.415068"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\UsageTests\\Skip.tests.cpp",
+      "size": 2988,
+      "hash": "078bade6ad4fb4f9",
+      "modified": "2025-11-02T20:18:11.415068"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\UsageTests\\ToStringByte.tests.cpp",
+      "size": 790,
+      "hash": "ba61bd0a39d6992b",
+      "modified": "2025-11-02T20:18:11.415068"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\UsageTests\\ToStringChrono.tests.cpp",
+      "size": 1961,
+      "hash": "952972f8a8e4df27",
+      "modified": "2025-11-02T20:18:11.415068"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\UsageTests\\ToStringGeneral.tests.cpp",
+      "size": 6197,
+      "hash": "ee911744fb784c49",
+      "modified": "2025-11-02T20:18:11.416595"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\UsageTests\\ToStringOptional.tests.cpp",
+      "size": 1207,
+      "hash": "0e68e25958739b64",
+      "modified": "2025-11-02T20:18:11.416595"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\UsageTests\\ToStringPair.tests.cpp",
+      "size": 1544,
+      "hash": "b26fa576b44f0f49",
+      "modified": "2025-11-02T20:18:11.416595"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\UsageTests\\ToStringTuple.tests.cpp",
+      "size": 1742,
+      "hash": "a88917bf0773dfae",
+      "modified": "2025-11-02T20:18:11.416595"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\UsageTests\\ToStringVariant.tests.cpp",
+      "size": 3546,
+      "hash": "88fe7d1cf5b76246",
+      "modified": "2025-11-02T20:18:11.416595"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\UsageTests\\ToStringVector.tests.cpp",
+      "size": 3527,
+      "hash": "4c3a3b5fcc2f66dd",
+      "modified": "2025-11-02T20:18:11.418121"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\UsageTests\\ToStringWhich.tests.cpp",
+      "size": 5420,
+      "hash": "52029a5927be8d34",
+      "modified": "2025-11-02T20:18:11.418121"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\UsageTests\\Tricky.tests.cpp",
+      "size": 9110,
+      "hash": "60345a3df6ad0420",
+      "modified": "2025-11-02T20:18:11.418633"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\SelfTest\\UsageTests\\VariadicMacros.tests.cpp",
+      "size": 599,
+      "hash": "1c50c9a24d880111",
+      "modified": "2025-11-02T20:18:11.418633"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\TestScripts\\ConfigureTestsCommon.py",
+      "size": 3039,
+      "hash": "2732188af0c74ec2",
+      "modified": "2025-11-02T20:18:11.421174"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\TestScripts\\testBazelReporter.py",
+      "size": 3048,
+      "hash": "c912794ec2b569d8",
+      "modified": "2025-11-02T20:18:11.421174"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\TestScripts\\testBazelSharding.py",
+      "size": 2238,
+      "hash": "118358f2da674d96",
+      "modified": "2025-11-02T20:18:11.421174"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\TestScripts\\testConfigureDefaultReporter.py",
+      "size": 1337,
+      "hash": "37734e89bea2dbd0",
+      "modified": "2025-11-02T20:18:11.421174"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\TestScripts\\testConfigureDisable.py",
+      "size": 1643,
+      "hash": "95c11e8d2e5329fb",
+      "modified": "2025-11-02T20:18:11.423571"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\TestScripts\\testConfigureDisableStringification.py",
+      "size": 1488,
+      "hash": "d15e17037daa9841",
+      "modified": "2025-11-02T20:18:11.423571"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\TestScripts\\testConfigureExperimentalRedirect.py",
+      "size": 1564,
+      "hash": "32ac6cdb045a94e7",
+      "modified": "2025-11-02T20:18:11.423571"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\TestScripts\\testPartialTestCaseEvent.py",
+      "size": 2368,
+      "hash": "9a00e136d43a4eac",
+      "modified": "2025-11-02T20:18:11.423571"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\TestScripts\\testRandomOrder.py",
+      "size": 2689,
+      "hash": "3fcd872e85c07772",
+      "modified": "2025-11-02T20:18:11.423571"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\TestScripts\\testSharding.py",
+      "size": 5608,
+      "hash": "7e7e97886bc0c7e7",
+      "modified": "2025-11-02T20:18:11.423571"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\TestScripts\\DiscoverTests\\CMakeLists.txt",
+      "size": 311,
+      "hash": "44df09ba3a5ba17c",
+      "modified": "2025-11-02T20:18:11.421174"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\TestScripts\\DiscoverTests\\register-tests.cpp",
+      "size": 694,
+      "hash": "aadd98588e85010f",
+      "modified": "2025-11-02T20:18:11.421174"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tests\\TestScripts\\DiscoverTests\\VerifyRegistration.py",
+      "size": 4066,
+      "hash": "09a018bb36f1039e",
+      "modified": "2025-11-02T20:18:11.421174"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tools\\misc\\appveyorMergeCoverageScript.py",
+      "size": 317,
+      "hash": "2444e08db47c6107",
+      "modified": "2025-11-02T20:18:11.426617"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tools\\misc\\CMakeLists.txt",
+      "size": 427,
+      "hash": "ca0bf1a24d0fc3da",
+      "modified": "2025-11-02T20:18:11.426617"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tools\\misc\\coverage-helper.cpp",
+      "size": 4139,
+      "hash": "005b2f859077fa4b",
+      "modified": "2025-11-02T20:18:11.428144"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tools\\scripts\\approvalTests.py",
+      "size": 8849,
+      "hash": "a30cc860f0d4cdb4",
+      "modified": "2025-11-02T20:18:11.428144"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tools\\scripts\\approve.py",
+      "size": 916,
+      "hash": "3d19263cdd85e490",
+      "modified": "2025-11-02T20:18:11.428144"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tools\\scripts\\checkConvenienceHeaders.py",
+      "size": 5030,
+      "hash": "2d3ccdd87c92583b",
+      "modified": "2025-11-02T20:18:11.429670"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tools\\scripts\\checkDuplicateFilenames.py",
+      "size": 288,
+      "hash": "84d23608a70d3d13",
+      "modified": "2025-11-02T20:18:11.429670"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tools\\scripts\\checkLicense.py",
+      "size": 1213,
+      "hash": "7318948df15c485c",
+      "modified": "2025-11-02T20:18:11.429670"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tools\\scripts\\developBuild.py",
+      "size": 196,
+      "hash": "796621860be83dcc",
+      "modified": "2025-11-02T20:18:11.429670"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tools\\scripts\\extractFeaturesFromReleaseNotes.py",
+      "size": 3542,
+      "hash": "b53533fbee95c24e",
+      "modified": "2025-11-02T20:18:11.431215"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tools\\scripts\\fixWhitespace.py",
+      "size": 1401,
+      "hash": "15c0f73d27df8955",
+      "modified": "2025-11-02T20:18:11.431215"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tools\\scripts\\generateAmalgamatedFiles.py",
+      "size": 5239,
+      "hash": "2f3e0dbbe003c4dc",
+      "modified": "2025-11-02T20:18:11.431215"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tools\\scripts\\majorRelease.py",
+      "size": 197,
+      "hash": "e9aec789cb79390f",
+      "modified": "2025-11-02T20:18:11.431215"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tools\\scripts\\minorRelease.py",
+      "size": 197,
+      "hash": "5126520b97fd5844",
+      "modified": "2025-11-02T20:18:11.431215"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tools\\scripts\\patchRelease.py",
+      "size": 196,
+      "hash": "59bf16e110016690",
+      "modified": "2025-11-02T20:18:11.431215"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tools\\scripts\\releaseCommon.py",
+      "size": 5725,
+      "hash": "1951322f1d70fafe",
+      "modified": "2025-11-02T20:18:11.432745"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tools\\scripts\\scriptCommon.py",
+      "size": 116,
+      "hash": "e5f136ea0a17f4fe",
+      "modified": "2025-11-02T20:18:11.432745"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tools\\scripts\\updateDocumentSnippets.py",
+      "size": 816,
+      "hash": "8cb6c56c35a86f1d",
+      "modified": "2025-11-02T20:18:11.432745"
+    },
+    {
+      "path": "build\\_deps\\catch2-src\\tools\\scripts\\updateDocumentToC.py",
+      "size": 13735,
+      "hash": "f9acb6c46d70c2ff",
+      "modified": "2025-11-02T20:18:11.432745"
+    },
+    {
+      "path": "build\\_deps\\catch2-subbuild\\CMakeCache.txt",
+      "size": 4465,
+      "hash": "19f18298b59224cf",
+      "modified": "2025-11-02T20:18:03.912827"
+    },
+    {
+      "path": "build\\_deps\\catch2-subbuild\\CMakeLists.txt",
+      "size": 1923,
+      "hash": "77c11d05621b6fd8",
+      "modified": "2025-11-02T20:18:03.330037"
+    },
+    {
+      "path": "build\\_deps\\catch2-subbuild\\catch2-populate-prefix\\src\\catch2-populate-stamp\\catch2-populate-gitclone-lastrun.txt",
+      "size": 739,
+      "hash": "c9baf32b6f728a68",
+      "modified": "2025-11-02T20:18:12.359115"
+    },
+    {
+      "path": "build\\_deps\\catch2-subbuild\\catch2-populate-prefix\\src\\catch2-populate-stamp\\catch2-populate-gitinfo.txt",
+      "size": 739,
+      "hash": "c9baf32b6f728a68",
+      "modified": "2025-11-02T20:18:03.879868"
+    },
+    {
+      "path": "build\\_deps\\catch2-subbuild\\catch2-populate-prefix\\src\\catch2-populate-stamp\\catch2-populate-patch-info.txt",
+      "size": 234,
+      "hash": "1b65ec9fcbbd17a6",
+      "modified": "2025-11-02T20:18:03.900666"
+    },
+    {
+      "path": "build\\_deps\\catch2-subbuild\\catch2-populate-prefix\\src\\catch2-populate-stamp\\catch2-populate-update-info.txt",
+      "size": 775,
+      "hash": "0dc4708ab9ecc5f6",
+      "modified": "2025-11-02T20:18:03.894597"
+    },
+    {
+      "path": "build\\_deps\\catch2-subbuild\\catch2-populate-prefix\\tmp\\catch2-populate-cfgcmd.txt",
+      "size": 8,
+      "hash": "4338c530a76441cd",
+      "modified": "2025-11-02T20:18:03.906770"
+    },
+    {
+      "path": "build\\_deps\\catch2-subbuild\\CMakeFiles\\CMakeConfigureLog.yaml",
+      "size": 271,
+      "hash": "271ac5fe163ac09c",
+      "modified": "2025-11-02T20:18:03.911321"
+    },
+    {
+      "path": "build\\_deps\\catch2-subbuild\\CMakeFiles\\InstallScripts.json",
+      "size": 155,
+      "hash": "2fad42e05588ce6f",
+      "modified": "2025-11-02T20:18:03.949717"
+    },
+    {
+      "path": "build\\_deps\\catch2-subbuild\\CMakeFiles\\TargetDirectories.txt",
+      "size": 301,
+      "hash": "623e7fc9b1a387fd",
+      "modified": "2025-11-02T20:18:03.935622"
+    },
+    {
+      "path": "build\\_deps\\catch2-subbuild\\CMakeFiles\\4.0.2\\VCTargetsPath.txt",
+      "size": 90,
+      "hash": "7bf0943f47fd89dd",
+      "modified": "2025-11-02T20:18:03.807455"
+    },
+    {
+      "path": "build\\_deps\\catch2-subbuild\\CMakeFiles\\catch2-populate.dir\\Labels.json",
+      "size": 1948,
+      "hash": "5b5582e9a0954352",
+      "modified": "2025-11-02T20:18:03.934098"
+    },
+    {
+      "path": "build\\_deps\\catch2-subbuild\\CMakeFiles\\catch2-populate.dir\\Labels.txt",
+      "size": 1614,
+      "hash": "9def3a16b7e81b54",
+      "modified": "2025-11-02T20:18:03.934098"
+    },
+    {
+      "path": "examples\\full_pipeline_example.py",
+      "size": 14304,
+      "hash": "d514dcba8c8c05da",
+      "modified": "2025-11-03T14:58:49.278661"
+    },
+    {
+      "path": "examples\\monitoring_integration_example.py",
+      "size": 10913,
+      "hash": "2c7624592d121482",
+      "modified": "2025-11-03T14:59:37.648379"
+    },
+    {
+      "path": "examples\\quickstart_examples.py",
+      "size": 8962,
+      "hash": "8a7f0437caf428af",
+      "modified": "2025-11-03T15:00:58.672712"
+    },
+    {
+      "path": "scripts\\compare_validators.py",
+      "size": 7162,
+      "hash": "658dc56554d3aff0",
+      "modified": "2025-11-02T20:09:06.663313"
+    },
+    {
+      "path": "scripts\\create_real_stubs.py",
+      "size": 1383,
+      "hash": "31d58bace5ce92c3",
+      "modified": "2025-10-28T16:40:00.650346"
+    },
+    {
+      "path": "scripts\\test_validators.py",
+      "size": 8278,
+      "hash": "d6df8d59c4e2b3c2",
+      "modified": "2025-11-02T20:32:55.440614"
+    },
+    {
+      "path": "Testing\\Temporary\\CTestCostData.txt",
+      "size": 5,
+      "hash": "c9c78478c97187be",
+      "modified": "2025-10-28T16:28:23.501191"
+    },
+    {
+      "path": "vaultmind_forge\\BEAST_MODE_ACTION_PLAN.md",
+      "size": 7686,
+      "hash": "2babfb927be1f520",
+      "modified": "2025-11-05T07:22:08.529321"
+    },
+    {
+      "path": "vaultmind_forge\\BOT_FRAMEWORK_COMPLETE.md",
+      "size": 20717,
+      "hash": "7a94a8e2ed0a8a6b",
+      "modified": "2025-11-05T07:08:29.625098"
+    },
+    {
+      "path": "vaultmind_forge\\executor.py",
+      "size": 4408,
+      "hash": "d3c3bf70bda62e20",
+      "modified": "2025-10-28T16:51:48"
+    },
+    {
+      "path": "vaultmind_forge\\forge_cli.py",
+      "size": 3216,
+      "hash": "635d5f6e3ec33987",
+      "modified": "2025-11-04T09:44:13.264564"
+    },
+    {
+      "path": "vaultmind_forge\\forge_loader.py",
+      "size": 16143,
+      "hash": "4bf3aa80db64ef8a",
+      "modified": "2025-11-04T11:12:14.642440"
+    },
+    {
+      "path": "vaultmind_forge\\OUTPUT_STRUCTURE_GUIDE.md",
+      "size": 11994,
+      "hash": "e82a05f15e20218b",
+      "modified": "2025-11-09T13:32:56.045942"
+    },
+    {
+      "path": "vaultmind_forge\\PHASE_1_AND_4_COMPLETE.md",
+      "size": 21011,
+      "hash": "10843d78a1748d1a",
+      "modified": "2025-11-05T06:45:52.283549"
+    },
+    {
+      "path": "vaultmind_forge\\PLACEHOLDER_AUDIT.md",
+      "size": 12734,
+      "hash": "0e1993fc3dfe2042",
+      "modified": "2025-11-05T07:19:11.606759"
+    },
+    {
+      "path": "vaultmind_forge\\PROTOCOL.md",
+      "size": 6905,
+      "hash": "fac74971359d4922",
+      "modified": "2025-10-28T07:43:37.822767"
+    },
+    {
+      "path": "vaultmind_forge\\QUICK_WIN_TRIO_COMPLETE.md",
+      "size": 17538,
+      "hash": "f3c38921d42ef581",
+      "modified": "2025-11-04T21:04:49.752770"
+    },
+    {
+      "path": "vaultmind_forge\\README.md",
+      "size": 503,
+      "hash": "302bda2b65f0df2d",
+      "modified": "2025-10-28T07:41:07.054794"
+    },
+    {
+      "path": "vaultmind_forge\\TASK_VERIFICATION_REPORT.md",
+      "size": 11939,
+      "hash": "708a536cf7b37f21",
+      "modified": "2025-11-05T07:16:29.541170"
+    },
+    {
+      "path": "vaultmind_forge\\__init__.py",
+      "size": 166,
+      "hash": "12b27644285018ee",
+      "modified": "2025-11-04T09:44:14.468285"
+    },
+    {
+      "path": "vaultmind_forge\\config\\presets\\ai_full_autonomy.json",
+      "size": 2935,
+      "hash": "89d9526b627058bf",
+      "modified": "2025-11-04T20:30:09.131732"
+    },
+    {
+      "path": "vaultmind_forge\\config\\presets\\fbx_to_gltf.json",
+      "size": 2853,
+      "hash": "d213156f75ceab70",
+      "modified": "2025-11-04T20:07:34.958600"
+    },
+    {
+      "path": "vaultmind_forge\\config\\presets\\mobile_optimization.json",
+      "size": 4307,
+      "hash": "715bc08bbe96c219",
+      "modified": "2025-11-04T20:07:58.262117"
+    },
+    {
+      "path": "vaultmind_forge\\config\\presets\\storyboard_example.json",
+      "size": 485,
+      "hash": "abb56a21fb721cf6",
+      "modified": "2025-10-28T07:43:05.340909"
+    },
+    {
+      "path": "vaultmind_forge\\config\\presets\\unity_export.json",
+      "size": 4626,
+      "hash": "fbae43304e4e225c",
+      "modified": "2025-11-04T20:07:51.222242"
+    },
+    {
+      "path": "vaultmind_forge\\config\\schemas\\ai_control.schema.json",
+      "size": 7464,
+      "hash": "7a37761685dc52c9",
+      "modified": "2025-11-04T20:29:45.843718"
+    },
+    {
+      "path": "vaultmind_forge\\config\\schemas\\asset_metadata.schema.json",
+      "size": 4557,
+      "hash": "ef022c0f1086bc58",
+      "modified": "2025-11-09T16:44:25.698603"
+    },
+    {
+      "path": "vaultmind_forge\\config\\schemas\\engine_export.schema.json",
+      "size": 12845,
+      "hash": "a7dba662aba223ec",
+      "modified": "2025-11-04T18:52:54.771206"
+    },
+    {
+      "path": "vaultmind_forge\\config\\schemas\\evaluation.schema.json",
+      "size": 1702,
+      "hash": "5a5c7626a94b7edf",
+      "modified": "2025-10-28T07:47:19.511635"
+    },
+    {
+      "path": "vaultmind_forge\\config\\schemas\\format_conversion.schema.json",
+      "size": 7896,
+      "hash": "93ddcd3538e016e5",
+      "modified": "2025-11-04T18:51:59.490710"
+    },
+    {
+      "path": "vaultmind_forge\\config\\schemas\\job.schema.json",
+      "size": 1187,
+      "hash": "6e6c99f16a9d0de5",
+      "modified": "2025-10-28T07:43:05.339381"
+    },
+    {
+      "path": "vaultmind_forge\\config\\schemas\\optimization.schema.json",
+      "size": 13112,
+      "hash": "32421484c6620303",
+      "modified": "2025-11-04T18:53:56.435305"
+    },
+    {
+      "path": "vaultmind_forge\\config\\schemas\\vaf_catalog.schema.json",
+      "size": 6309,
+      "hash": "cfea66b8067bf268",
+      "modified": "2025-11-09T16:48:47.417730"
+    },
+    {
+      "path": "vaultmind_forge\\config\\schemas\\VAF_SYSTEM_DESIGN.md",
+      "size": 10710,
+      "hash": "33f91ef8066dc202",
+      "modified": "2025-11-09T16:48:17.498088"
+    },
+    {
+      "path": "vaultmind_forge\\config\\schemas\\vaultmind_asset_format.schema.json",
+      "size": 13921,
+      "hash": "8d02e97a10d9a7be",
+      "modified": "2025-11-09T16:45:37.566670"
+    },
+    {
+      "path": "vaultmind_forge\\examples\\bot_deployment_example.py",
+      "size": 9581,
+      "hash": "27d638712e0a88b9",
+      "modified": "2025-11-05T07:05:09.952065"
+    },
+    {
+      "path": "vaultmind_forge\\forge_agent\\agent.py",
+      "size": 484,
+      "hash": "bc7d8a7c269aa1e5",
+      "modified": "2025-10-28T16:43:50"
+    },
+    {
+      "path": "vaultmind_forge\\forge_agent\\planner.py",
+      "size": 14232,
+      "hash": "e5f889b8ea8b0d43",
+      "modified": "2025-11-04T09:43:29.719343"
+    },
+    {
+      "path": "vaultmind_forge\\forge_agent\\schemas.py",
+      "size": 11802,
+      "hash": "2cd5a329e186d521",
+      "modified": "2025-11-04T09:43:29.735056"
+    },
+    {
+      "path": "vaultmind_forge\\forge_agent\\styles.py",
+      "size": 9999,
+      "hash": "16600c3cbe5a88fc",
+      "modified": "2025-11-04T09:43:29.749816"
+    },
+    {
+      "path": "vaultmind_forge\\forge_agent\\__init__.py",
+      "size": 2501,
+      "hash": "884769d85f018c1f",
+      "modified": "2025-11-04T09:43:29.763527"
+    },
+    {
+      "path": "vaultmind_forge\\forge_batch\\batch_processor.py",
+      "size": 17631,
+      "hash": "d6dbdac4649ff810",
+      "modified": "2025-11-05T06:41:03.089742"
+    },
+    {
+      "path": "vaultmind_forge\\forge_batch\\BATCH_SYSTEM_DESIGN.md",
+      "size": 14689,
+      "hash": "55c233a5306603fd",
+      "modified": "2025-11-04T21:25:12.598359"
+    },
+    {
+      "path": "vaultmind_forge\\forge_batch\\job_queue.py",
+      "size": 15541,
+      "hash": "9fbfe66289e6775d",
+      "modified": "2025-11-05T06:38:44.415222"
+    },
+    {
+      "path": "vaultmind_forge\\forge_batch\\resource_manager.py",
+      "size": 16771,
+      "hash": "60c0bf3c55c534b6",
+      "modified": "2025-11-05T06:39:54.633573"
+    },
+    {
+      "path": "vaultmind_forge\\forge_batch\\__init__.py",
+      "size": 784,
+      "hash": "cd63813fad64d5c9",
+      "modified": "2025-11-05T06:41:14.738148"
+    },
+    {
+      "path": "vaultmind_forge\\forge_bots\\base_bot.py",
+      "size": 11927,
+      "hash": "bf7b20cc08de3ad5",
+      "modified": "2025-11-05T06:59:54.302863"
+    },
+    {
+      "path": "vaultmind_forge\\forge_bots\\lineage_bot.py",
+      "size": 7533,
+      "hash": "2c09e9b2abeae35d",
+      "modified": "2025-11-05T07:02:07.928826"
+    },
+    {
+      "path": "vaultmind_forge\\forge_bots\\monitor_bot.py",
+      "size": 10732,
+      "hash": "3cf6b76da7a693e1",
+      "modified": "2025-11-05T07:00:36.606480"
+    },
+    {
+      "path": "vaultmind_forge\\forge_bots\\native_bridge.py",
+      "size": 15088,
+      "hash": "1bf225654ccf09fb",
+      "modified": "2025-11-09T12:50:17.602064"
+    },
+    {
+      "path": "vaultmind_forge\\forge_bots\\optimizer_bot.py",
+      "size": 7887,
+      "hash": "4685204e695379eb",
+      "modified": "2025-11-05T07:01:05.976111"
+    },
+    {
+      "path": "vaultmind_forge\\forge_bots\\qa_bot.py",
+      "size": 10125,
+      "hash": "90eceffa6384b418",
+      "modified": "2025-11-09T12:58:39.646955"
+    },
+    {
+      "path": "vaultmind_forge\\forge_bots\\README.md",
+      "size": 14201,
+      "hash": "25d2a2863eaca54c",
+      "modified": "2025-11-05T07:06:28.067001"
+    },
+    {
+      "path": "vaultmind_forge\\forge_bots\\scheduler.py",
+      "size": 16453,
+      "hash": "2d0a3152c4a5e916",
+      "modified": "2025-11-05T07:03:31.666837"
+    },
+    {
+      "path": "vaultmind_forge\\forge_bots\\__init__.py",
+      "size": 1129,
+      "hash": "5222756cab2e7172",
+      "modified": "2025-11-05T06:58:52.293561"
+    },
+    {
+      "path": "vaultmind_forge\\forge_cli\\html_report.py",
+      "size": 2720,
+      "hash": "6af832b72c3605db",
+      "modified": "2025-11-04T09:44:12.079221"
+    },
+    {
+      "path": "vaultmind_forge\\forge_converter\\ai_control.py",
+      "size": 21210,
+      "hash": "0e32e7c5db010ffd",
+      "modified": "2025-11-04T20:31:27.808177"
+    },
+    {
+      "path": "vaultmind_forge\\forge_converter\\converter.py",
+      "size": 14684,
+      "hash": "bb7f087d9c49b27e",
+      "modified": "2025-11-04T17:56:52.104846"
+    },
+    {
+      "path": "vaultmind_forge\\forge_converter\\README.md",
+      "size": 2947,
+      "hash": "73582ccbd3d1e83e",
+      "modified": "2025-11-04T18:31:08.426720"
+    },
+    {
+      "path": "vaultmind_forge\\forge_converter\\__init__.py",
+      "size": 2142,
+      "hash": "fc41aa7aa55e22b0",
+      "modified": "2025-11-04T17:56:48.872611"
+    },
+    {
+      "path": "vaultmind_forge\\forge_converter\\engines\\structure_builder.py",
+      "size": 15789,
+      "hash": "6fb12ed52f46f3a4",
+      "modified": "2025-11-04T18:43:25.631156"
+    },
+    {
+      "path": "vaultmind_forge\\forge_converter\\engines\\__init__.py",
+      "size": 202,
+      "hash": "cdaa4756b2cec485",
+      "modified": "2025-11-04T18:31:05.903807"
+    },
+    {
+      "path": "vaultmind_forge\\forge_converter\\formats\\dds_handler.py",
+      "size": 16637,
+      "hash": "bb2722e409796ab5",
+      "modified": "2025-11-04T21:09:03.896320"
+    },
+    {
+      "path": "vaultmind_forge\\forge_converter\\formats\\fbx_handler.py",
+      "size": 14190,
+      "hash": "c0548e261b9378f0",
+      "modified": "2025-11-04T21:07:24.008618"
+    },
+    {
+      "path": "vaultmind_forge\\forge_converter\\formats\\format_registry.py",
+      "size": 17573,
+      "hash": "d21f107d2b733c4b",
+      "modified": "2025-11-04T18:23:14.698562"
+    },
+    {
+      "path": "vaultmind_forge\\forge_converter\\formats\\materialx_handler.py",
+      "size": 20356,
+      "hash": "31c58096d557493f",
+      "modified": "2025-11-04T21:11:30.961805"
+    },
+    {
+      "path": "vaultmind_forge\\forge_converter\\formats\\usd_handler.py",
+      "size": 22328,
+      "hash": "e94cab43e4fab7db",
+      "modified": "2025-11-04T21:13:05.292746"
+    },
+    {
+      "path": "vaultmind_forge\\forge_converter\\formats\\__init__.py",
+      "size": 2353,
+      "hash": "e75a6c88c8aa0a6f",
+      "modified": "2025-11-04T21:13:49.131542"
+    },
+    {
+      "path": "vaultmind_forge\\forge_converter\\optimization\\math_utils.py",
+      "size": 16524,
+      "hash": "b9a7069955c80529",
+      "modified": "2025-11-04T20:12:42.015863"
+    },
+    {
+      "path": "vaultmind_forge\\forge_converter\\optimization\\__init__.py",
+      "size": 614,
+      "hash": "200cfbaa9d92a4cb",
+      "modified": "2025-11-04T20:17:05.353566"
+    },
+    {
+      "path": "vaultmind_forge\\forge_diffusion\\generator.py",
+      "size": 20686,
+      "hash": "9254d317fcd9f56a",
+      "modified": "2025-11-04T09:43:36.310333"
+    },
+    {
+      "path": "vaultmind_forge\\forge_diffusion\\__init__.py",
+      "size": 704,
+      "hash": "7e34a489adc88d88",
+      "modified": "2025-11-04T09:43:36.325607"
+    },
+    {
+      "path": "vaultmind_forge\\forge_executor\\executor.py",
+      "size": 3111,
+      "hash": "b7ea88f2a7a31007",
+      "modified": "2025-11-09T12:05:08.593005"
+    },
+    {
+      "path": "vaultmind_forge\\forge_executor\\pipeline.py",
+      "size": 25929,
+      "hash": "2a8cdd5cd0f97cbf",
+      "modified": "2025-11-09T12:16:53.406222"
+    },
+    {
+      "path": "vaultmind_forge\\forge_executor\\__init__.py",
+      "size": 234,
+      "hash": "269ca654fea43407",
+      "modified": "2025-11-04T09:43:52.312232"
+    },
+    {
+      "path": "vaultmind_forge\\forge_intake\\batch_ingest.py",
+      "size": 19121,
+      "hash": "10b5705942ae3f8e",
+      "modified": "2025-11-09T16:57:17.828937"
+    },
+    {
+      "path": "vaultmind_forge\\forge_intake\\batch_ingest_v2.py",
+      "size": 9241,
+      "hash": "c62d301708b081e0",
+      "modified": "2025-11-09T16:57:29.797529"
+    },
+    {
+      "path": "vaultmind_forge\\forge_intake\\drop_folder_monitor.py",
+      "size": 14836,
+      "hash": "95a67acbec0f1beb",
+      "modified": "2025-11-09T17:04:34.940756"
+    },
+    {
+      "path": "vaultmind_forge\\forge_intake\\forge_daemon.py",
+      "size": 13464,
+      "hash": "36aa2117ed1d3339",
+      "modified": "2025-11-09T17:07:19.592412"
+    },
+    {
+      "path": "vaultmind_forge\\forge_intake\\format_registry.py",
+      "size": 18507,
+      "hash": "786a09c849dc7b0c",
+      "modified": "2025-11-09T16:46:45.909004"
+    },
+    {
+      "path": "vaultmind_forge\\forge_intake\\multi_version_handler.py",
+      "size": 14356,
+      "hash": "f779f909a80c5bae",
+      "modified": "2025-11-09T16:56:19.232217"
+    },
+    {
+      "path": "vaultmind_forge\\forge_intake\\README.md",
+      "size": 15723,
+      "hash": "8bdb8156693d2e86",
+      "modified": "2025-11-09T17:18:53.080763"
+    },
+    {
+      "path": "vaultmind_forge\\forge_intake\\unified_converter.py",
+      "size": 21275,
+      "hash": "f68d41234805efdb",
+      "modified": "2025-11-09T16:54:46.943850"
+    },
+    {
+      "path": "vaultmind_forge\\forge_intake\\__init__.py",
+      "size": 3008,
+      "hash": "b0b0f869146c60b7",
+      "modified": "2025-11-09T16:15:16.874332"
+    },
+    {
+      "path": "vaultmind_forge\\forge_lineage\\lineage.py",
+      "size": 758,
+      "hash": "a583a8073b8f706b",
+      "modified": "2025-10-28T16:39:15"
+    },
+    {
+      "path": "vaultmind_forge\\forge_lineage\\lineage_tracker.py",
+      "size": 17592,
+      "hash": "ab44c81823961b14",
+      "modified": "2025-11-04T20:45:16.516001"
+    },
+    {
+      "path": "vaultmind_forge\\forge_lineage\\logger.py",
+      "size": 1799,
+      "hash": "6d0737b8a7e0d008",
+      "modified": "2025-11-04T09:43:34.107573"
+    },
+    {
+      "path": "vaultmind_forge\\forge_lineage\\__init__.py",
+      "size": 350,
+      "hash": "7ee3bf994006b9dd",
+      "modified": "2025-11-04T20:45:33.887046"
+    },
+    {
+      "path": "vaultmind_forge\\forge_monitor\\metrics.py",
+      "size": 11328,
+      "hash": "9128065ad0ab3420",
+      "modified": "2025-11-04T09:43:53.900389"
+    },
+    {
+      "path": "vaultmind_forge\\forge_monitor\\monitor.py",
+      "size": 18299,
+      "hash": "65a82cc101ac3fbd",
+      "modified": "2025-11-04T09:43:53.909571"
+    },
+    {
+      "path": "vaultmind_forge\\forge_monitor\\README.md",
+      "size": 11700,
+      "hash": "ce5a99f9705e3328",
+      "modified": "2025-11-04T09:43:53.923297"
+    },
+    {
+      "path": "vaultmind_forge\\forge_monitor\\__init__.py",
+      "size": 1414,
+      "hash": "aa4ffda70fef9dfd",
+      "modified": "2025-11-04T09:43:53.889749"
+    },
+    {
+      "path": "vaultmind_forge\\forge_packaging\\packager.py",
+      "size": 15385,
+      "hash": "e0e7b44f12a9d6c6",
+      "modified": "2025-11-04T09:43:38.517128"
+    },
+    {
+      "path": "vaultmind_forge\\forge_packaging\\__init__.py",
+      "size": 524,
+      "hash": "79ffff7374f6d928",
+      "modified": "2025-11-04T09:43:38.531893"
+    },
+    {
+      "path": "vaultmind_forge\\forge_procedural\\billboard_generator.py",
+      "size": 24128,
+      "hash": "b69c27b691a77118",
+      "modified": "2025-11-09T14:25:29.165441"
+    },
+    {
+      "path": "vaultmind_forge\\forge_procedural\\generator.py",
+      "size": 13440,
+      "hash": "98d9c966d9133498",
+      "modified": "2025-11-09T13:20:56.476316"
+    },
+    {
+      "path": "vaultmind_forge\\forge_procedural\\noise_types.py",
+      "size": 4390,
+      "hash": "24e6b137c8e12c89",
+      "modified": "2025-11-09T12:59:37.382597"
+    },
+    {
+      "path": "vaultmind_forge\\forge_procedural\\output_structure.py",
+      "size": 23515,
+      "hash": "28a1e3d598c0a3b6",
+      "modified": "2025-11-09T14:21:17.966884"
+    },
+    {
+      "path": "vaultmind_forge\\forge_procedural\\__init__.py",
+      "size": 1094,
+      "hash": "c1754137a90c758d",
+      "modified": "2025-11-09T14:46:15.798705"
+    },
+    {
+      "path": "vaultmind_forge\\forge_semantic\\downrez.py",
+      "size": 12278,
+      "hash": "a50f50d7f9d94246",
+      "modified": "2025-11-04T09:43:58.681715"
+    },
+    {
+      "path": "vaultmind_forge\\forge_semantic\\README.md",
+      "size": 8473,
+      "hash": "afdcff581ed1044c",
+      "modified": "2025-11-04T10:13:04.554721"
+    },
+    {
+      "path": "vaultmind_forge\\forge_semantic\\__init__.py",
+      "size": 900,
+      "hash": "9c43867fbba3989c",
+      "modified": "2025-11-04T09:43:58.672570"
+    },
+    {
+      "path": "vaultmind_forge\\forge_sr\\README.md",
+      "size": 12158,
+      "hash": "34f839b9d16f02e2",
+      "modified": "2025-11-04T10:14:29.810680"
+    },
+    {
+      "path": "vaultmind_forge\\forge_sr\\upscaler.py",
+      "size": 12612,
+      "hash": "871ad2e2831900a2",
+      "modified": "2025-11-04T09:43:55.516877"
+    },
+    {
+      "path": "vaultmind_forge\\forge_sr\\__init__.py",
+      "size": 946,
+      "hash": "cd807646fed8c665",
+      "modified": "2025-11-04T09:43:55.498612"
+    },
+    {
+      "path": "vaultmind_forge\\forge_validator\\ai_validator.py",
+      "size": 16047,
+      "hash": "f7f9023d3c776de3",
+      "modified": "2025-11-04T21:00:03.431359"
+    },
+    {
+      "path": "vaultmind_forge\\forge_validator\\backends.py",
+      "size": 5179,
+      "hash": "476b828e1f0c93ce",
+      "modified": "2025-11-09T12:45:59.972832"
+    },
+    {
+      "path": "vaultmind_forge\\forge_validator\\evaluators.py",
+      "size": 3910,
+      "hash": "f144312cf7a850d4",
+      "modified": "2025-11-04T09:43:02.109649"
+    },
+    {
+      "path": "vaultmind_forge\\forge_validator\\metrics.py",
+      "size": 10891,
+      "hash": "7d96f9d89b41a2b3",
+      "modified": "2025-11-04T09:43:02.094886"
+    },
+    {
+      "path": "vaultmind_forge\\forge_validator\\metrics_advanced.py",
+      "size": 29740,
+      "hash": "bfa2fe9ad3ab5967",
+      "modified": "2025-11-04T09:42:57.795468"
+    },
+    {
+      "path": "vaultmind_forge\\forge_validator\\validator.py",
+      "size": 3756,
+      "hash": "76c30333ee3d0be3",
+      "modified": "2025-11-04T09:42:59.017800"
+    },
+    {
+      "path": "vaultmind_forge\\forge_validator\\__init__.py",
+      "size": 530,
+      "hash": "88a0acf6b8fc9205",
+      "modified": "2025-11-04T20:44:18.264940"
+    },
+    {
+      "path": "vaultmind_forge\\forge_versioning\\README.md",
+      "size": 14179,
+      "hash": "5426fd841534e2b5",
+      "modified": "2025-11-04T10:15:59.283746"
+    },
+    {
+      "path": "vaultmind_forge\\forge_versioning\\version_control.py",
+      "size": 13154,
+      "hash": "c2e2c919bdfb70fb",
+      "modified": "2025-11-04T09:44:00.267027"
+    },
+    {
+      "path": "vaultmind_forge\\forge_versioning\\__init__.py",
+      "size": 994,
+      "hash": "724f850e294dd8a4",
+      "modified": "2025-11-04T09:44:00.246161"
+    },
+    {
+      "path": "vaultmind_forge\\forge_video\\generator.py",
+      "size": 12081,
+      "hash": "1c8dc12ca8956b4d",
+      "modified": "2025-11-04T09:43:57.104173"
+    },
+    {
+      "path": "vaultmind_forge\\forge_video\\README.md",
+      "size": 15307,
+      "hash": "59d9c3c3c8bd7ef4",
+      "modified": "2025-11-04T10:18:01.096545"
+    },
+    {
+      "path": "vaultmind_forge\\forge_video\\__init__.py",
+      "size": 975,
+      "hash": "916d1dadf7ab0623",
+      "modified": "2025-11-04T09:43:57.095046"
+    },
+    {
+      "path": "vaultmind_forge\\native\\cpp\\validator\\CMakeLists.txt",
+      "size": 156,
+      "hash": "3b11e4407ad54b17",
+      "modified": "2025-10-28T07:47:19.519568"
+    },
+    {
+      "path": "vaultmind_forge\\native\\cpp\\validator\\validator.cpp",
+      "size": 459,
+      "hash": "aa1f2e6517f79f94",
+      "modified": "2025-10-28T07:50:12.392131"
+    },
+    {
+      "path": "vaultmind_forge\\native\\cpp\\validator\\out\\build\\x64-Debug\\CMakeCache.txt",
+      "size": 17433,
+      "hash": "fee2f91171849e39",
+      "modified": "2025-10-28T15:28:41.823129"
+    },
+    {
+      "path": "vaultmind_forge\\native\\cpp\\validator\\out\\build\\x64-Debug\\VSInheritEnvironments.txt",
+      "size": 12,
+      "hash": "bd88d8f71d8e59cd",
+      "modified": "2025-10-28T15:28:39.054814"
+    },
+    {
+      "path": "vaultmind_forge\\native\\cpp\\validator\\out\\build\\x64-Debug\\.cmake\\api\\v1\\query\\client-MicrosoftVS\\query.json",
+      "size": 144,
+      "hash": "bee52e09162fa02e",
+      "modified": "2025-10-28T15:28:39.060906"
+    },
+    {
+      "path": "vaultmind_forge\\native\\cpp\\validator\\out\\build\\x64-Debug\\.cmake\\api\\v1\\reply\\cache-v2-af70cf233d55ed736322.json",
+      "size": 28759,
+      "hash": "a1cffae25b97bfcb",
+      "modified": "2025-10-28T15:28:41.908632"
+    },
+    {
+      "path": "vaultmind_forge\\native\\cpp\\validator\\out\\build\\x64-Debug\\.cmake\\api\\v1\\reply\\cmakeFiles-v1-c7977b7d8130c0c79ece.json",
+      "size": 23558,
+      "hash": "ce079f1fe6768c35",
+      "modified": "2025-10-28T15:28:41.917775"
+    },
+    {
+      "path": "vaultmind_forge\\native\\cpp\\validator\\out\\build\\x64-Debug\\.cmake\\api\\v1\\reply\\codemodel-v2-00c44804372606967fb3.json",
+      "size": 1142,
+      "hash": "b5808763f6a187e3",
+      "modified": "2025-10-28T15:28:41.934547"
+    },
+    {
+      "path": "vaultmind_forge\\native\\cpp\\validator\\out\\build\\x64-Debug\\.cmake\\api\\v1\\reply\\directory-.-Debug-d0094a50bb2071803777.json",
+      "size": 168,
+      "hash": "7934b0ebd3c2643b",
+      "modified": "2025-10-28T15:28:41.933039"
+    },
+    {
+      "path": "vaultmind_forge\\native\\cpp\\validator\\out\\build\\x64-Debug\\.cmake\\api\\v1\\reply\\index-2025-10-28T20-28-41-0951.json",
+      "size": 2648,
+      "hash": "f4e0b76c295ccb84",
+      "modified": "2025-10-28T15:28:41.949821"
+    },
+    {
+      "path": "vaultmind_forge\\native\\cpp\\validator\\out\\build\\x64-Debug\\.cmake\\api\\v1\\reply\\target-vmf_validator_cpp-Debug-619ecead8e9f718d6256.json",
+      "size": 1884,
+      "hash": "f1abcc428368fee4",
+      "modified": "2025-10-28T15:28:41.925409"
+    },
+    {
+      "path": "vaultmind_forge\\native\\cpp\\validator\\out\\build\\x64-Debug\\.cmake\\api\\v1\\reply\\toolchains-v1-35fe54066a89ddb6f78b.json",
+      "size": 961,
+      "hash": "6c89efa47678aea9",
+      "modified": "2025-10-28T15:28:41.942188"
+    },
+    {
+      "path": "vaultmind_forge\\native\\cpp\\validator\\out\\build\\x64-Debug\\CMakeFiles\\CMakeConfigureLog.yaml",
+      "size": 627785,
+      "hash": "73b34429eedc5c04",
+      "modified": "2025-10-28T15:28:41.823129"
+    },
+    {
+      "path": "vaultmind_forge\\native\\cpp\\validator\\out\\build\\x64-Debug\\CMakeFiles\\InstallScripts.json",
+      "size": 184,
+      "hash": "cb1da843ade8ebdb",
+      "modified": "2025-10-28T15:28:41.905576"
+    },
+    {
+      "path": "vaultmind_forge\\native\\cpp\\validator\\out\\build\\x64-Debug\\CMakeFiles\\TargetDirectories.txt",
+      "size": 394,
+      "hash": "b0141ca6b53a8c5b",
+      "modified": "2025-10-28T15:28:41.833897"
+    },
+    {
+      "path": "vaultmind_forge\\native\\cpp\\validator\\out\\build\\x64-Debug\\CMakeFiles\\4.1.1-msvc1\\CompilerIdCXX\\CMakeCXXCompilerId.cpp",
+      "size": 30429,
+      "hash": "9e26b0f20786a2d5",
+      "modified": "2025-10-28T15:28:39.822458"
+    },
+    {
+      "path": "vaultmind_forge\\native\\cpp\\validator\\out\\build\\x64-Debug\\CMakeFiles\\ShowIncludes\\foo.h",
+      "size": 2,
+      "hash": "7eb70257593da06f",
+      "modified": "2025-10-28T15:28:40.242209"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\Cargo.toml",
+      "size": 509,
+      "hash": "22c4ad044e7453e6",
+      "modified": "2025-11-02T20:11:27.199493"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\src.lib.rs",
+      "size": 251,
+      "hash": "c6cc175f57e44d42",
+      "modified": "2025-10-28T07:47:19.519568"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\src\\lib.rs",
+      "size": 14428,
+      "hash": "072c160746f7fdce",
+      "modified": "2025-11-09T12:35:27.067367"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\.rustc_info.json",
+      "size": 1121,
+      "hash": "5ef9d06c88b5a369",
+      "modified": "2025-11-09T12:39:21.223124"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\adler2-f3b5018eb6d01661\\lib-adler2.json",
+      "size": 402,
+      "hash": "4f13b21496b86e18",
+      "modified": "2025-11-09T12:38:43.348606"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\aho-corasick-7703c3a69e51d101\\lib-aho_corasick.json",
+      "size": 493,
+      "hash": "13ff87824c7d3798",
+      "modified": "2025-11-09T12:38:48.093552"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\aligned-vec-f24757115f7b5842\\lib-aligned_vec.json",
+      "size": 469,
+      "hash": "836a19dd5bbe2f71",
+      "modified": "2025-11-09T12:38:47.742509"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\anyhow-1a699f51ab60b149\\build-script-build-script-build.json",
+      "size": 428,
+      "hash": "113a7e5fc589c132",
+      "modified": "2025-11-09T12:38:43.616761"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\anyhow-64b4edb0412c7acb\\run-build-script-build-script-build.json",
+      "size": 395,
+      "hash": "f71596b20b9bef42",
+      "modified": "2025-11-09T12:38:43.956176"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\anyhow-ca4d8349dda36b2e\\lib-anyhow.json",
+      "size": 473,
+      "hash": "7726489e4b8a3773",
+      "modified": "2025-11-09T12:38:44.763513"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\arg_enum_proc_macro-a3e237104db4265f\\lib-arg_enum_proc_macro.json",
+      "size": 552,
+      "hash": "27554588c28714b8",
+      "modified": "2025-11-09T12:38:47.274952"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\arrayvec-a3ae1d0a76af162d\\lib-arrayvec.json",
+      "size": 430,
+      "hash": "89b44057c79916aa",
+      "modified": "2025-11-09T12:38:43.510006"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\autocfg-df65181c0ed721d0\\lib-autocfg.json",
+      "size": 352,
+      "hash": "33c94f4a3000e731",
+      "modified": "2025-11-09T12:38:43.706562"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\av1-grain-ca186da67a86c842\\lib-av1_grain.json",
+      "size": 946,
+      "hash": "12e078474bf57581",
+      "modified": "2025-11-09T12:38:49.457623"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\avif-serialize-3a77e519df0ca542\\lib-avif_serialize.json",
+      "size": 425,
+      "hash": "4575a3cf5ced43c9",
+      "modified": "2025-11-09T12:38:44.326486"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\bitflags-9d44da13322ad7b2\\lib-bitflags.json",
+      "size": 440,
+      "hash": "bbe20000ca606f04",
+      "modified": "2025-11-09T12:38:44.011553"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\bitstream-io-5bae30f4f135c0d1\\lib-bitstream_io.json",
+      "size": 424,
+      "hash": "02afeb40a92d9880",
+      "modified": "2025-11-09T12:38:43.656166"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\bit_field-ac84236455c7f8f3\\lib-bit_field.json",
+      "size": 356,
+      "hash": "d8c454455e58fc5b",
+      "modified": "2025-11-09T12:38:43.731222"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\built-3807d08c5b9864a4\\lib-built.json",
+      "size": 417,
+      "hash": "553bcb2143db947c",
+      "modified": "2025-11-09T12:38:43.756430"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\bytemuck-d0a20be53b1a0529\\lib-bytemuck.json",
+      "size": 913,
+      "hash": "285672d846ef0ede",
+      "modified": "2025-11-09T12:38:43.833173"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\byteorder-lite-8256969b5ee87b49\\lib-byteorder_lite.json",
+      "size": 406,
+      "hash": "b85cb4b827036bfe",
+      "modified": "2025-11-09T12:38:43.841398"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\cfg-if-32b48d25f7ed61ab\\lib-cfg_if.json",
+      "size": 381,
+      "hash": "088d5f11f0bdf867",
+      "modified": "2025-11-09T12:38:43.223530"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\color_quant-7eba8c1d30f05189\\lib-color_quant.json",
+      "size": 361,
+      "hash": "b5a9bf46b26341c8",
+      "modified": "2025-11-09T12:38:43.852191"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\crc32fast-6d1c8262a2e4e7ec\\lib-crc32fast.json",
+      "size": 535,
+      "hash": "206c7eba2215e67b",
+      "modified": "2025-11-09T12:38:44.285957"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\crc32fast-730d35961a35cb0c\\build-script-build-script-build.json",
+      "size": 428,
+      "hash": "2e0e5012bccf5ffe",
+      "modified": "2025-11-09T12:38:43.582675"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\crc32fast-807a2b008bbc192f\\run-build-script-build-script-build.json",
+      "size": 256,
+      "hash": "33835c9bfda71fe0",
+      "modified": "2025-11-09T12:38:43.771887"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\crossbeam-deque-2e736d389d07b183\\lib-crossbeam_deque.json",
+      "size": 541,
+      "hash": "a0e818135235d905",
+      "modified": "2025-11-09T12:38:44.887309"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\crossbeam-epoch-9b66ba488bbe9941\\lib-crossbeam_epoch.json",
+      "size": 520,
+      "hash": "261fb3d19c360677",
+      "modified": "2025-11-09T12:38:44.918484"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\crossbeam-utils-2e13f4800024bf6d\\build-script-build-script-build.json",
+      "size": 444,
+      "hash": "050e5ccd865627b5",
+      "modified": "2025-11-09T12:38:43.545663"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\crossbeam-utils-9be4cfbe598a8303\\run-build-script-build-script-build.json",
+      "size": 343,
+      "hash": "44a54d2e4ecf656a",
+      "modified": "2025-11-09T12:38:43.664086"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\crossbeam-utils-b27e0f9577d0d4aa\\lib-crossbeam_utils.json",
+      "size": 499,
+      "hash": "f70f5b9510995329",
+      "modified": "2025-11-09T12:38:44.669041"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\either-aaa3bfa2220fde3e\\lib-either.json",
+      "size": 414,
+      "hash": "b036a961830c44e4",
+      "modified": "2025-11-09T12:38:43.472666"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\equator-e5bb03a8698fc34a\\lib-equator.json",
+      "size": 415,
+      "hash": "7327617cc14b106b",
+      "modified": "2025-11-09T12:38:47.641098"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\equator-macro-0a2d572af4de4fec\\lib-equator_macro.json",
+      "size": 541,
+      "hash": "7dcffbf6e1974118",
+      "modified": "2025-11-09T12:38:47.417398"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\exr-15fc19f46dd67b5f\\lib-exr.json",
+      "size": 762,
+      "hash": "d37a074ee502a206",
+      "modified": "2025-11-09T12:38:53.752237"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\fax-f0d25d35a52df53e\\lib-fax.json",
+      "size": 414,
+      "hash": "1d92b572ec5195d7",
+      "modified": "2025-11-09T12:38:47.658016"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\fax_derive-38ae378605da7161\\lib-fax_derive.json",
+      "size": 534,
+      "hash": "caa6beab64da5416",
+      "modified": "2025-11-09T12:38:47.297115"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\fdeflate-d830e732a984777e\\lib-fdeflate.json",
+      "size": 415,
+      "hash": "e9fed901f25ce26f",
+      "modified": "2025-11-09T12:38:44.385747"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\flate2-7e887af01cda2eb6\\lib-flate2.json",
+      "size": 788,
+      "hash": "eb59f782cea024ce",
+      "modified": "2025-11-09T12:38:44.695301"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\getrandom-e77556a9a87903bd\\lib-getrandom.json",
+      "size": 593,
+      "hash": "560d71aebd7b31df",
+      "modified": "2025-11-09T12:38:43.489738"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\gif-0b2811e634cf8a55\\lib-gif.json",
+      "size": 574,
+      "hash": "a5e8d46263281b14",
+      "modified": "2025-11-09T12:38:45.311577"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\half-e69a56381671d9a2\\lib-half.json",
+      "size": 654,
+      "hash": "758983fc510f8b87",
+      "modified": "2025-11-09T12:38:49.303447"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\heck-ac1c3b91b6c69173\\lib-heck.json",
+      "size": 346,
+      "hash": "8695eb212c669626",
+      "modified": "2025-11-09T12:38:43.532417"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\image-7ff99a3a5d68760e\\lib-image.json",
+      "size": 1723,
+      "hash": "133cc64f5001b9d2",
+      "modified": "2025-11-09T12:39:13.497174"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\image-webp-c86ba653aefd73ce\\lib-image_webp.json",
+      "size": 500,
+      "hash": "d9c5cad611b5c7d2",
+      "modified": "2025-11-09T12:38:46.518430"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\imgref-fc328831bef1d6c8\\lib-imgref.json",
+      "size": 403,
+      "hash": "9f00ca4aaf9cd626",
+      "modified": "2025-11-09T12:38:43.535522"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\indoc-b956077f19fc0ae9\\lib-indoc.json",
+      "size": 348,
+      "hash": "cd7e5fba2faaf4fe",
+      "modified": "2025-11-09T12:38:44.494265"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\itertools-284a5ab228ad53e1\\lib-itertools.json",
+      "size": 491,
+      "hash": "80a20b2fdbec3f0a",
+      "modified": "2025-11-09T12:38:45.065316"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\itoa-5b54b0e02977bdc3\\lib-itoa.json",
+      "size": 358,
+      "hash": "9d9a6a5483cbbdf9",
+      "modified": "2025-11-09T12:38:44.446353"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\lebe-3965c921c855a24d\\lib-lebe.json",
+      "size": 345,
+      "hash": "84d7c9534a2d57a9",
+      "modified": "2025-11-09T12:38:43.799738"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\libc-0d825d0d2ba7a457\\build-script-build-script-build.json",
+      "size": 525,
+      "hash": "e32aeaadda504837",
+      "modified": "2025-11-09T12:38:43.649978"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\libc-371425df3c4001e4\\run-build-script-build-script-build.json",
+      "size": 720,
+      "hash": "409edfe4f723fc7a",
+      "modified": "2025-11-09T12:38:43.946932"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\libc-5ddcfb7bd433ec55\\lib-libc.json",
+      "size": 571,
+      "hash": "2c5eb5fe77e21a69",
+      "modified": "2025-11-09T12:38:44.301028"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\log-723cff60c1f5652e\\lib-log.json",
+      "size": 822,
+      "hash": "386a505a58ae814c",
+      "modified": "2025-11-09T12:38:43.459100"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\loop9-8755dd7f9991dc69\\lib-loop9.json",
+      "size": 405,
+      "hash": "d572bc4928b5f65f",
+      "modified": "2025-11-09T12:38:43.664086"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\matrixmultiply-106f2e24c70323e0\\lib-matrixmultiply.json",
+      "size": 621,
+      "hash": "bd4f352787c654ec",
+      "modified": "2025-11-09T12:38:46.876286"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\matrixmultiply-b29b8f5ba85228ae\\build-script-build-script-build.json",
+      "size": 563,
+      "hash": "f1bafc4c90d09072",
+      "modified": "2025-11-09T12:38:44.333137"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\matrixmultiply-be316e0c8f6b83a3\\run-build-script-build-script-build.json",
+      "size": 340,
+      "hash": "c7bf919a238e5b37",
+      "modified": "2025-11-09T12:38:44.551236"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\maybe-rayon-48c121c94f694955\\lib-maybe_rayon.json",
+      "size": 532,
+      "hash": "434937a6f21aee85",
+      "modified": "2025-11-09T12:38:46.808778"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\memchr-5dfe7a262a667b02\\lib-memchr.json",
+      "size": 468,
+      "hash": "ab2ba6ec4f16d7a7",
+      "modified": "2025-11-09T12:38:44.357700"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\memoffset-3cc84a9fc02cd5ee\\run-build-script-build-script-build.json",
+      "size": 257,
+      "hash": "89a7dedc92895288",
+      "modified": "2025-11-09T12:38:44.502113"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\memoffset-eb19274109cefebf\\lib-memoffset.json",
+      "size": 491,
+      "hash": "c8ad43cb2ba06529",
+      "modified": "2025-11-09T12:38:44.627917"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\memoffset-eb337366c2f5d27f\\build-script-build-script-build.json",
+      "size": 501,
+      "hash": "9258ed5455a0c612",
+      "modified": "2025-11-09T12:38:44.298785"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\miniz_oxide-fd5f0eebfad65358\\lib-miniz_oxide.json",
+      "size": 672,
+      "hash": "ec320c6ce09684d6",
+      "modified": "2025-11-09T12:38:44.808245"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\moxcms-0ed427a5975740fb\\lib-moxcms.json",
+      "size": 571,
+      "hash": "12d03adfe83ec114",
+      "modified": "2025-11-09T12:39:05.682639"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\ndarray-00df7774e5ca7964\\lib-ndarray.json",
+      "size": 852,
+      "hash": "4f7fc9906aee97b4",
+      "modified": "2025-11-09T12:38:48.369196"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\new_debug_unreachable-b5b54959a4aa6d0a\\lib-debug_unreachable.json",
+      "size": 375,
+      "hash": "dee259970d6550b0",
+      "modified": "2025-11-09T12:38:43.334724"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\noise-e5cfb8bff41f88fe\\lib-noise.json",
+      "size": 584,
+      "hash": "b827b9c0953176c3",
+      "modified": "2025-11-09T12:38:50.754120"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\nom-d60482fea12dca45\\lib-nom.json",
+      "size": 474,
+      "hash": "487a2e13bcdbae9b",
+      "modified": "2025-11-09T12:38:46.449585"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\noop_proc_macro-6fe8c75dfe33486a\\lib-noop_proc_macro.json",
+      "size": 368,
+      "hash": "fddefaa8e961ae29",
+      "modified": "2025-11-09T12:38:43.546191"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\num-bigint-ad7a4383225f5d20\\lib-num_bigint.json",
+      "size": 560,
+      "hash": "b83092c80fe30d9c",
+      "modified": "2025-11-09T12:38:47.654953"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\num-complex-f94406443b9a373e\\lib-num_complex.json",
+      "size": 512,
+      "hash": "e7b1a47b6aa9714d",
+      "modified": "2025-11-09T12:38:45.360287"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\num-derive-245c5de72d2929f2\\lib-num_derive.json",
+      "size": 534,
+      "hash": "3d25c4fe3f3a9b59",
+      "modified": "2025-11-09T12:38:47.614984"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\num-integer-b61c2dc170c93ebb\\lib-num_integer.json",
+      "size": 468,
+      "hash": "27df44f76907560e",
+      "modified": "2025-11-09T12:38:45.415739"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\num-rational-82904850791446c9\\lib-num_rational.json",
+      "size": 652,
+      "hash": "04a48ddc4713db41",
+      "modified": "2025-11-09T12:38:47.056407"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\num-traits-943008e47f9a030f\\build-script-build-script-build.json",
+      "size": 504,
+      "hash": "1ceba38dc3ad864d",
+      "modified": "2025-11-09T12:38:44.268971"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\num-traits-c7ceb26cd0c43cf3\\lib-num_traits.json",
+      "size": 496,
+      "hash": "a976501c9045acef",
+      "modified": "2025-11-09T12:38:45.123809"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\num-traits-d1c6b4afbd565ff3\\run-build-script-build-script-build.json",
+      "size": 334,
+      "hash": "47b4c57da2362dac",
+      "modified": "2025-11-09T12:38:44.492713"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\once_cell-1ee12cc6919f106c\\lib-once_cell.json",
+      "size": 534,
+      "hash": "eeaede2e63333647",
+      "modified": "2025-11-09T12:38:43.453053"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\once_cell-f461b98d2110071d\\lib-once_cell.json",
+      "size": 533,
+      "hash": "6cd223fe9f424204",
+      "modified": "2025-11-09T12:38:43.483411"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\paste-0e385f3705c3a5df\\build-script-build-script-build.json",
+      "size": 370,
+      "hash": "e95b8bda19b3b2cb",
+      "modified": "2025-11-09T12:38:43.547203"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\paste-4fe4132337cb3e46\\run-build-script-build-script-build.json",
+      "size": 330,
+      "hash": "5276fc1e70182720",
+      "modified": "2025-11-09T12:38:43.728141"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\paste-c6113be94db0beec\\lib-paste.json",
+      "size": 420,
+      "hash": "2e790a1d31da261b",
+      "modified": "2025-11-09T12:38:44.478333"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\png-e18d492960878f0e\\lib-png.json",
+      "size": 683,
+      "hash": "5961452911a2716c",
+      "modified": "2025-11-09T12:38:46.484557"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\ppv-lite86-a0691eb162594314\\lib-ppv_lite86.json",
+      "size": 477,
+      "hash": "5287c84486001969",
+      "modified": "2025-11-09T12:38:49.215178"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\proc-macro2-0bb91878618122ec\\lib-proc_macro2.json",
+      "size": 580,
+      "hash": "06e0d9d1a30734ac",
+      "modified": "2025-11-09T12:38:44.591386"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\proc-macro2-69b0cf7f11446abb\\build-script-build-script-build.json",
+      "size": 463,
+      "hash": "914b77b61272cb51",
+      "modified": "2025-11-09T12:38:43.543027"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\proc-macro2-e8844dae11ba17cd\\run-build-script-build-script-build.json",
+      "size": 492,
+      "hash": "3107bd45b5c4e56f",
+      "modified": "2025-11-09T12:38:43.829079"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\profiling-8c585b0b18d2dbb1\\lib-profiling.json",
+      "size": 757,
+      "hash": "459ab67649835d5f",
+      "modified": "2025-11-09T12:38:47.344936"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\profiling-procmacros-440bddb83afa6fe8\\lib-profiling_procmacros.json",
+      "size": 620,
+      "hash": "8e11fa21b0af03a6",
+      "modified": "2025-11-09T12:38:47.199336"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\pxfm-4a1380f6e83a31d2\\lib-pxfm.json",
+      "size": 406,
+      "hash": "6724ce208546382c",
+      "modified": "2025-11-09T12:38:52.301541"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\pyo3-build-config-1af5ef9f37247e77\\build-script-build-script-build.json",
+      "size": 675,
+      "hash": "63213a2140ff7725",
+      "modified": "2025-11-09T12:38:44.989236"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\pyo3-build-config-1f3b3107c11f4a38\\run-build-script-build-script-build.json",
+      "size": 3269,
+      "hash": "74e0cf8574e77e1f",
+      "modified": "2025-11-09T12:38:45.171498"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\pyo3-build-config-a6aa8bb47b966e0a\\lib-pyo3_build_config.json",
+      "size": 794,
+      "hash": "51fcdd372d65f778",
+      "modified": "2025-11-09T12:38:45.631268"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\pyo3-d2c5e8c05fd247c6\\lib-pyo3.json",
+      "size": 1535,
+      "hash": "645ca0fdf9ef5225",
+      "modified": "2025-11-09T12:38:51.992110"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\pyo3-dc083f83ecc221c9\\build-script-build-script-build.json",
+      "size": 1084,
+      "hash": "e8fc4a000097e94d",
+      "modified": "2025-11-09T12:38:45.844234"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\pyo3-eb55de84f61b2893\\run-build-script-build-script-build.json",
+      "size": 322,
+      "hash": "07931c0d046fefe7",
+      "modified": "2025-11-09T12:38:46.036165"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\pyo3-ffi-545b2793f262b222\\build-script-build-script-build.json",
+      "size": 635,
+      "hash": "721a90670c36e812",
+      "modified": "2025-11-09T12:38:45.865729"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\pyo3-ffi-8c78be54f1e7c34a\\lib-pyo3_ffi.json",
+      "size": 671,
+      "hash": "2a8626a1cef6e3f7",
+      "modified": "2025-11-09T12:38:46.120728"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\pyo3-ffi-a4341e26a9e3da8b\\run-build-script-build-script-build.json",
+      "size": 627,
+      "hash": "e39b50ffed9c794a",
+      "modified": "2025-11-09T12:38:45.947214"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\pyo3-macros-24a2234431d499b0\\lib-pyo3_macros.json",
+      "size": 667,
+      "hash": "24220259424bd4d6",
+      "modified": "2025-11-09T12:38:48.734842"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\pyo3-macros-backend-30fe0486e83da2f7\\build-script-build-script-build.json",
+      "size": 488,
+      "hash": "5507d4a76a41dc3f",
+      "modified": "2025-11-09T12:38:45.836523"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\pyo3-macros-backend-50c9c75a42dcffba\\lib-pyo3_macros_backend.json",
+      "size": 780,
+      "hash": "1fcf66b4db9fab13",
+      "modified": "2025-11-09T12:38:48.469570"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\pyo3-macros-backend-a70facd5ca1c57df\\run-build-script-build-script-build.json",
+      "size": 256,
+      "hash": "51bb056ef9aac76e",
+      "modified": "2025-11-09T12:38:45.893422"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\qoi-3c5863b5c6980046\\lib-qoi.json",
+      "size": 468,
+      "hash": "20bf7b9ab5f25804",
+      "modified": "2025-11-09T12:38:44.360809"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\quick-error-ae1b6d8bf2b135c0\\lib-quick_error.json",
+      "size": 359,
+      "hash": "e680095cfc4ecd99",
+      "modified": "2025-11-09T12:38:43.341294"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\quote-ba3f22ddd198a3ad\\run-build-script-build-script-build.json",
+      "size": 330,
+      "hash": "88de35d96b06181a",
+      "modified": "2025-11-09T12:38:43.571334"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\quote-c06403ce54c5d2f6\\lib-quote.json",
+      "size": 536,
+      "hash": "47501a9686ff493e",
+      "modified": "2025-11-09T12:38:44.769703"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\quote-f69d4686955fae71\\build-script-build-script-build.json",
+      "size": 426,
+      "hash": "12d6ed44f31b2d24",
+      "modified": "2025-11-09T12:38:43.433268"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\rand-f8bc993030ff5c6f\\lib-rand.json",
+      "size": 755,
+      "hash": "3a8eae883e39158f",
+      "modified": "2025-11-09T12:38:49.769415"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\rand_chacha-5d3652eabb47622c\\lib-rand_chacha.json",
+      "size": 556,
+      "hash": "3e2d3b512259e53e",
+      "modified": "2025-11-09T12:38:49.663452"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\rand_core-e550a329927b9808\\lib-rand_core.json",
+      "size": 502,
+      "hash": "5616c9f1685c3ed3",
+      "modified": "2025-11-09T12:38:43.708102"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\rand_xorshift-df8f9c627fa19fff\\lib-rand_xorshift.json",
+      "size": 444,
+      "hash": "857a80baa3a6c1fe",
+      "modified": "2025-11-09T12:38:44.336695"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\rav1e-428bcfda688a4e28\\build-script-build-script-build.json",
+      "size": 1097,
+      "hash": "d2a7f8f71bf61b74",
+      "modified": "2025-11-09T12:38:44.326486"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\rav1e-b8ef334511789979\\lib-rav1e.json",
+      "size": 2253,
+      "hash": "fe032cdab84d6b4c",
+      "modified": "2025-11-09T12:38:53.396814"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\rav1e-c7d1f951da111fca\\run-build-script-build-script-build.json",
+      "size": 256,
+      "hash": "fff8f3a3b2d5cbad",
+      "modified": "2025-11-09T12:38:44.578026"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\ravif-668353a13f13f98e\\lib-ravif.json",
+      "size": 808,
+      "hash": "1752c8c5113d1d97",
+      "modified": "2025-11-09T12:39:07.316524"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\rawpointer-9e9d7bf55a8dbefa\\lib-rawpointer.json",
+      "size": 357,
+      "hash": "6bc4c922ca063d49",
+      "modified": "2025-11-09T12:38:43.453053"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\rayon-8095a121415abb7b\\lib-rayon.json",
+      "size": 483,
+      "hash": "f880c2712606c5a4",
+      "modified": "2025-11-09T12:38:46.928548"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\rayon-core-8fe3e8789a6cf35e\\run-build-script-build-script-build.json",
+      "size": 334,
+      "hash": "2936452cd709d339",
+      "modified": "2025-11-09T12:38:43.453053"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\rayon-core-fd0fe815a2a86a66\\lib-rayon_core.json",
+      "size": 576,
+      "hash": "77084207807455a2",
+      "modified": "2025-11-09T12:38:45.890338"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\rayon-core-feae328afcfca301\\build-script-build-script-build.json",
+      "size": 393,
+      "hash": "9cb7f85a324bd927",
+      "modified": "2025-11-09T12:38:43.386427"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\regex-09e2c8fc015622ae\\lib-regex.json",
+      "size": 1226,
+      "hash": "c344b64a2b3b22f5",
+      "modified": "2025-11-09T12:38:47.900826"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\regex-automata-4e93d549399f4de8\\lib-regex_automata.json",
+      "size": 1473,
+      "hash": "a73bb231518bf486",
+      "modified": "2025-11-09T12:38:52.427002"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\regex-syntax-fdab65a89045629f\\lib-regex_syntax.json",
+      "size": 706,
+      "hash": "536e7caa4dd989a1",
+      "modified": "2025-11-09T12:38:49.091007"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\rgb-0dfa9a741c2c6a4e\\lib-rgb.json",
+      "size": 471,
+      "hash": "421ddf69a2c8a6d0",
+      "modified": "2025-11-09T12:38:43.881469"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\ryu-4a3c016d1e6b859a\\lib-ryu.json",
+      "size": 366,
+      "hash": "6fe0190e67aaa754",
+      "modified": "2025-11-09T12:38:44.471113"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\serde-9448e84472a751f4\\lib-serde.json",
+      "size": 679,
+      "hash": "e9e3576c429627ed",
+      "modified": "2025-11-09T12:38:49.029592"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\serde-cbdbc5f821787281\\run-build-script-build-script-build.json",
+      "size": 331,
+      "hash": "7bbfa8b025ccc66d",
+      "modified": "2025-11-09T12:38:44.328085"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\serde-fff405382eebc36e\\build-script-build-script-build.json",
+      "size": 503,
+      "hash": "2ee533f133ccba28",
+      "modified": "2025-11-09T12:38:44.205532"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\serde_core-7ec07744c9d9c8b1\\lib-serde_core.json",
+      "size": 511,
+      "hash": "0ee297144dae33a2",
+      "modified": "2025-11-09T12:38:45.974881"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\serde_core-806575247ad02548\\build-script-build-script-build.json",
+      "size": 460,
+      "hash": "b62b02a2f22d75d6",
+      "modified": "2025-11-09T12:38:43.617273"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\serde_core-fe1f4b9204744608\\run-build-script-build-script-build.json",
+      "size": 336,
+      "hash": "85f858e1033ef3e2",
+      "modified": "2025-11-09T12:38:43.821327"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\serde_derive-742259d762be7de8\\lib-serde_derive.json",
+      "size": 586,
+      "hash": "9aa8905d4c9b10ab",
+      "modified": "2025-11-09T12:38:48.539921"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\serde_json-0695195ae7f2c067\\build-script-build-script-build.json",
+      "size": 542,
+      "hash": "0fcf6c42448e5a70",
+      "modified": "2025-11-09T12:38:43.882984"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\serde_json-088ad51df97f7260\\lib-serde_json.json",
+      "size": 823,
+      "hash": "9a5e2c988635bdb0",
+      "modified": "2025-11-09T12:38:47.550427"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\serde_json-1168ce211c5fd716\\run-build-script-build-script-build.json",
+      "size": 336,
+      "hash": "b41b55a21d4b3493",
+      "modified": "2025-11-09T12:38:44.157017"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\simd-adler32-e88d35b2db2af28c\\lib-simd_adler32.json",
+      "size": 455,
+      "hash": "009d1b447c5155d3",
+      "modified": "2025-11-09T12:38:43.521001"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\simd_helpers-a869e8ed01192f69\\lib-simd_helpers.json",
+      "size": 421,
+      "hash": "21a7c73bea947302",
+      "modified": "2025-11-09T12:38:44.992307"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\smallvec-72482e6eea8b419a\\lib-smallvec.json",
+      "size": 595,
+      "hash": "3d162b203055df63",
+      "modified": "2025-11-09T12:38:44.207550"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\syn-b4806478c26a85de\\lib-syn.json",
+      "size": 797,
+      "hash": "3dd50d05e8eeeeb2",
+      "modified": "2025-11-09T12:38:46.913193"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\target-lexicon-489521eb06bfc395\\build-script-build-script-build.json",
+      "size": 457,
+      "hash": "a4dcf6887889da19",
+      "modified": "2025-11-09T12:38:43.698352"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\target-lexicon-7f4aa074aca29179\\lib-target_lexicon.json",
+      "size": 513,
+      "hash": "076335495266d3be",
+      "modified": "2025-11-09T12:38:44.508251"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\target-lexicon-83f42d194a4d9c8d\\run-build-script-build-script-build.json",
+      "size": 257,
+      "hash": "cc0cd4ab5aaad707",
+      "modified": "2025-11-09T12:38:44.051098"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\thiserror-08f563ed4d8ce90b\\build-script-build-script-build.json",
+      "size": 375,
+      "hash": "9bfe9c4509b4565a",
+      "modified": "2025-11-09T12:38:43.617273"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\thiserror-47082f9da196c921\\lib-thiserror.json",
+      "size": 491,
+      "hash": "6eb36fef351a9d34",
+      "modified": "2025-11-09T12:38:47.733301"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\thiserror-474d1f453bff4344\\run-build-script-build-script-build.json",
+      "size": 398,
+      "hash": "9c5dda859a37d41c",
+      "modified": "2025-11-09T12:38:43.892265"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\thiserror-impl-0d27cf7cd768a611\\lib-thiserror_impl.json",
+      "size": 542,
+      "hash": "9b0ca605a91011e9",
+      "modified": "2025-11-09T12:38:47.604202"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\tiff-5fc3aab8076a24da\\lib-tiff.json",
+      "size": 809,
+      "hash": "fe88bd5eb295a380",
+      "modified": "2025-11-09T12:38:50.943148"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\unicode-ident-b519fc4dd33a18cd\\lib-unicode_ident.json",
+      "size": 365,
+      "hash": "c2eaad37e29ea032",
+      "modified": "2025-11-09T12:38:43.271988"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\unindent-b596ca7e7f964f3e\\lib-unindent.json",
+      "size": 354,
+      "hash": "77eb54e4c7addeb2",
+      "modified": "2025-11-09T12:38:44.435462"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\vmf-validator-36bb10dd1cda6c0d\\lib-vmf_validator.json",
+      "size": 946,
+      "hash": "95c953cd5fc1f074",
+      "modified": "2025-11-09T12:39:21.221081"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\v_frame-2a85045aaf8786f3\\lib-v_frame.json",
+      "size": 529,
+      "hash": "fed08c2b2261c12a",
+      "modified": "2025-11-09T12:38:47.874662"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\weezl-73daba2543d0456c\\lib-weezl.json",
+      "size": 433,
+      "hash": "0479390cf71f8a5e",
+      "modified": "2025-11-09T12:38:44.285957"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\zerocopy-a0922493bc020f7a\\run-build-script-build-script-build.json",
+      "size": 346,
+      "hash": "d1260cf6869b0820",
+      "modified": "2025-11-09T12:38:43.990060"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\zerocopy-d2048daee2ad3e81\\build-script-build-script-build.json",
+      "size": 567,
+      "hash": "f36e4b226b928246",
+      "modified": "2025-11-09T12:38:43.657715"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\zerocopy-derive-c40e7c189b75ef68\\lib-zerocopy_derive.json",
+      "size": 545,
+      "hash": "e7af636db41112f4",
+      "modified": "2025-11-09T12:38:47.744043"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\zerocopy-e1be52f81aaf43ef\\lib-zerocopy.json",
+      "size": 680,
+      "hash": "ef958c9a5e4edb4c",
+      "modified": "2025-11-09T12:38:49.041435"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\zune-core-43dfe18f7642ab52\\lib-zune_core.json",
+      "size": 390,
+      "hash": "f82877f83f2ebf93",
+      "modified": "2025-11-09T12:38:43.589055"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\zune-inflate-790fe9806887efb0\\lib-zune_inflate.json",
+      "size": 509,
+      "hash": "7ae38bfd3a2cf4ce",
+      "modified": "2025-11-09T12:38:43.943845"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\zune-jpeg-fb8838718d650322\\lib-zune_jpeg.json",
+      "size": 504,
+      "hash": "3324f80861caabce",
+      "modified": "2025-11-09T12:38:44.815943"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\build\\pyo3-build-config-1f3b3107c11f4a38\\out\\pyo3-build-config-file.txt",
+      "size": 0,
+      "hash": "e3b0c44298fc1c14",
+      "modified": "2025-11-09T12:38:45.051785"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\build\\pyo3-build-config-1f3b3107c11f4a38\\out\\pyo3-build-config.txt",
+      "size": 205,
+      "hash": "88c6550205233460",
+      "modified": "2025-11-09T12:38:45.168417"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\build\\rav1e-c7d1f951da111fca\\out\\built.rs",
+      "size": 4458,
+      "hash": "1e2dd0bf596c3018",
+      "modified": "2025-11-09T12:38:44.571429"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\build\\serde-cbdbc5f821787281\\out\\private.rs",
+      "size": 142,
+      "hash": "f8e9470772811a1b",
+      "modified": "2025-11-09T12:38:44.298182"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\build\\serde_core-fe1f4b9204744608\\out\\private.rs",
+      "size": 90,
+      "hash": "27ad1b5fb4eebeb1",
+      "modified": "2025-11-09T12:38:43.795058"
+    },
+    {
+      "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\build\\target-lexicon-83f42d194a4d9c8d\\out\\host.rs",
+      "size": 1797,
+      "hash": "9a7b8ab20b5b719c",
+      "modified": "2025-11-09T12:38:44.023843"
+    },
+    {
+      "path": "vaultmind_forge\\tests\\test_batch_processing.py",
+      "size": 12978,
+      "hash": "0446c358286a0d1e",
+      "modified": "2025-11-05T06:42:38.899603"
+    },
+    {
+      "path": "vaultmind_forge\\tests\\test_billboard_generator.py",
+      "size": 12213,
+      "hash": "5719ede52e9cbcb3",
+      "modified": "2025-11-09T14:27:11.185147"
+    },
+    {
+      "path": "vaultmind_forge\\tests\\test_format_handlers.py",
+      "size": 12905,
+      "hash": "6b8eeb64d0d593d4",
+      "modified": "2025-11-04T21:21:22.912501"
+    },
+    {
+      "path": "vaultmind_forge\\tests\\test_integrated_pipeline.py",
+      "size": 13424,
+      "hash": "de1cb0925f8a81dc",
+      "modified": "2025-11-04T20:53:01.797168"
+    },
+    {
+      "path": "vaultmind_forge\\tests\\test_output_structure.py",
+      "size": 9121,
+      "hash": "4c1ad7eea4809f3a",
+      "modified": "2025-11-09T13:21:48.245426"
+    },
+    {
+      "path": "vaultmind_forge\\tests\\test_procedural_generation.py",
+      "size": 10111,
+      "hash": "29d5b4fd6fe704b2",
+      "modified": "2025-11-09T13:16:25.137396"
+    },
+    {
+      "path": "vaultmind_forge\\tests\\batch_test\\queue_state.json",
+      "size": 1663,
+      "hash": "00805459db5cef2a",
+      "modified": "2025-11-05T06:42:47.421294"
+    },
+    {
+      "path": "vaultmind_forge\\tests\\format_test\\output\\materialx\\material_unity.json",
+      "size": 277,
+      "hash": "01596cd55733d935",
+      "modified": "2025-11-04T21:21:28.018177"
+    },
+    {
+      "path": "vaultmind_forge\\tests\\format_test\\output\\materialx\\material_unreal.json",
+      "size": 277,
+      "hash": "6177038c7b9a8691",
+      "modified": "2025-11-04T21:21:28.018177"
+    },
+    {
+      "path": "vaultmind_forge\\tests\\output\\genealogy.json",
+      "size": 743,
+      "hash": "11d8328ceb18cd7c",
+      "modified": "2025-11-04T21:02:26.294051"
+    },
+    {
+      "path": "vaultmind_forge\\vaultmind_forge\\forge_cli.py",
+      "size": 3216,
+      "hash": "635d5f6e3ec33987",
+      "modified": "2025-10-28T07:58:42.380296"
+    },
+    {
+      "path": "vaultmind_forge\\vaultmind_forge\\__init__.py",
+      "size": 166,
+      "hash": "12b27644285018ee",
+      "modified": "2025-10-28T07:42:16.055421"
+    },
+    {
+      "path": "vaultmind_forge\\vaultmind_forge\\forge_agent\\planner.py",
+      "size": 14232,
+      "hash": "e5f889b8ea8b0d43",
+      "modified": "2025-11-03T14:41:12.477055"
+    },
+    {
+      "path": "vaultmind_forge\\vaultmind_forge\\forge_agent\\README.md",
+      "size": 6245,
+      "hash": "4f31a6679c1e8ed6",
+      "modified": "2025-11-03T14:45:31.038763"
+    },
+    {
+      "path": "vaultmind_forge\\vaultmind_forge\\forge_agent\\schemas.py",
+      "size": 11802,
+      "hash": "2cd5a329e186d521",
+      "modified": "2025-11-03T14:35:24.548198"
+    },
+    {
+      "path": "vaultmind_forge\\vaultmind_forge\\forge_agent\\styles.py",
+      "size": 9999,
+      "hash": "16600c3cbe5a88fc",
+      "modified": "2025-11-03T14:42:58.047042"
+    },
+    {
+      "path": "vaultmind_forge\\vaultmind_forge\\forge_agent\\__init__.py",
+      "size": 2501,
+      "hash": "884769d85f018c1f",
+      "modified": "2025-11-03T14:43:18.070086"
+    },
+    {
+      "path": "vaultmind_forge\\vaultmind_forge\\forge_cli\\html_report.py",
+      "size": 2720,
+      "hash": "6af832b72c3605db",
+      "modified": "2025-10-28T07:58:42.378766"
+    },
+    {
+      "path": "vaultmind_forge\\vaultmind_forge\\forge_diffusion\\generator.py",
+      "size": 20686,
+      "hash": "9254d317fcd9f56a",
+      "modified": "2025-11-03T20:01:50.723046"
+    },
+    {
+      "path": "vaultmind_forge\\vaultmind_forge\\forge_diffusion\\README.md",
+      "size": 6533,
+      "hash": "8bea6dda159c23be",
+      "modified": "2025-11-03T20:02:44.145796"
+    },
+    {
+      "path": "vaultmind_forge\\vaultmind_forge\\forge_diffusion\\__init__.py",
+      "size": 704,
+      "hash": "7e34a489adc88d88",
+      "modified": "2025-11-03T20:02:43.626265"
+    },
+    {
+      "path": "vaultmind_forge\\vaultmind_forge\\forge_executor\\executor.py",
+      "size": 3071,
+      "hash": "c8d7193b658816ca",
+      "modified": "2025-11-03T20:00:45.890215"
+    },
+    {
+      "path": "vaultmind_forge\\vaultmind_forge\\forge_executor\\README.md",
+      "size": 960,
+      "hash": "14ad9f83b52e1cd5",
+      "modified": "2025-11-03T20:00:46.354563"
+    },
+    {
+      "path": "vaultmind_forge\\vaultmind_forge\\forge_executor\\__init__.py",
+      "size": 234,
+      "hash": "269ca654fea43407",
+      "modified": "2025-11-03T20:00:45.428825"
+    },
+    {
+      "path": "vaultmind_forge\\vaultmind_forge\\forge_lineage\\logger.py",
+      "size": 1799,
+      "hash": "6d0737b8a7e0d008",
+      "modified": "2025-10-28T07:56:27.465703"
+    },
+    {
+      "path": "vaultmind_forge\\vaultmind_forge\\forge_lineage\\README.md",
+      "size": 49,
+      "hash": "45633e2d8293decb",
+      "modified": "2025-10-28T07:42:48.791674"
+    },
+    {
+      "path": "vaultmind_forge\\vaultmind_forge\\forge_lineage\\__init__.py",
+      "size": 80,
+      "hash": "a43a2062f6caf406",
+      "modified": "2025-10-28T07:42:48.791674"
+    },
+    {
+      "path": "vaultmind_forge\\vaultmind_forge\\forge_monitor\\metrics.py",
+      "size": 11328,
+      "hash": "9128065ad0ab3420",
+      "modified": "2025-11-03T14:30:37.845169"
+    },
+    {
+      "path": "vaultmind_forge\\vaultmind_forge\\forge_monitor\\monitor.py",
+      "size": 18299,
+      "hash": "65a82cc101ac3fbd",
+      "modified": "2025-11-03T14:29:55.309248"
+    },
+    {
+      "path": "vaultmind_forge\\vaultmind_forge\\forge_monitor\\README.md",
+      "size": 11700,
+      "hash": "ce5a99f9705e3328",
+      "modified": "2025-11-03T14:33:36.208477"
+    },
+    {
+      "path": "vaultmind_forge\\vaultmind_forge\\forge_monitor\\__init__.py",
+      "size": 1414,
+      "hash": "aa4ffda70fef9dfd",
+      "modified": "2025-11-03T14:30:53.177596"
+    },
+    {
+      "path": "vaultmind_forge\\vaultmind_forge\\forge_packaging\\packager.py",
+      "size": 15385,
+      "hash": "e0e7b44f12a9d6c6",
+      "modified": "2025-11-03T20:04:19.787497"
+    },
+    {
+      "path": "vaultmind_forge\\vaultmind_forge\\forge_packaging\\README.md",
+      "size": 1347,
+      "hash": "29e8707def188879",
+      "modified": "2025-11-03T20:04:40.432745"
+    },
+    {
+      "path": "vaultmind_forge\\vaultmind_forge\\forge_packaging\\__init__.py",
+      "size": 524,
+      "hash": "79ffff7374f6d928",
+      "modified": "2025-11-03T20:04:20.237648"
+    },
+    {
+      "path": "vaultmind_forge\\vaultmind_forge\\forge_semantic\\downrez.py",
+      "size": 12278,
+      "hash": "a50f50d7f9d94246",
+      "modified": "2025-11-03T14:48:22.413511"
+    },
+    {
+      "path": "vaultmind_forge\\vaultmind_forge\\forge_semantic\\README.md",
+      "size": 50,
+      "hash": "6d67c6711327388c",
+      "modified": "2025-10-28T07:42:48.780741"
+    },
+    {
+      "path": "vaultmind_forge\\vaultmind_forge\\forge_semantic\\__init__.py",
+      "size": 900,
+      "hash": "9c43867fbba3989c",
+      "modified": "2025-11-03T14:48:46.735410"
+    },
+    {
+      "path": "vaultmind_forge\\vaultmind_forge\\forge_sr\\README.md",
+      "size": 44,
+      "hash": "d76cdf776692f29a",
+      "modified": "2025-10-28T07:42:48.777664"
+    },
+    {
+      "path": "vaultmind_forge\\vaultmind_forge\\forge_sr\\upscaler.py",
+      "size": 12612,
+      "hash": "871ad2e2831900a2",
+      "modified": "2025-11-03T14:49:48.697833"
+    },
+    {
+      "path": "vaultmind_forge\\vaultmind_forge\\forge_sr\\__init__.py",
+      "size": 946,
+      "hash": "cd807646fed8c665",
+      "modified": "2025-11-03T14:50:02.403706"
+    },
+    {
+      "path": "vaultmind_forge\\vaultmind_forge\\forge_validator\\backends.py",
+      "size": 4305,
+      "hash": "c37cb6a24b21fb9e",
+      "modified": "2025-11-03T20:01:14.038561"
+    },
+    {
+      "path": "vaultmind_forge\\vaultmind_forge\\forge_validator\\evaluators.py",
+      "size": 3910,
+      "hash": "f144312cf7a850d4",
+      "modified": "2025-10-28T07:47:19.511635"
+    },
+    {
+      "path": "vaultmind_forge\\vaultmind_forge\\forge_validator\\metrics.py",
+      "size": 10891,
+      "hash": "7d96f9d89b41a2b3",
+      "modified": "2025-11-02T20:07:07.791508"
+    },
+    {
+      "path": "vaultmind_forge\\vaultmind_forge\\forge_validator\\metrics_advanced.py",
+      "size": 29740,
+      "hash": "bfa2fe9ad3ab5967",
+      "modified": "2025-11-02T20:06:39.108968"
+    },
+    {
+      "path": "vaultmind_forge\\vaultmind_forge\\forge_validator\\README.md",
+      "size": 51,
+      "hash": "42fbbb48e7c678fd",
+      "modified": "2025-10-28T07:42:48.788399"
+    },
+    {
+      "path": "vaultmind_forge\\vaultmind_forge\\forge_validator\\validator.py",
+      "size": 3756,
+      "hash": "76c30333ee3d0be3",
+      "modified": "2025-11-03T20:00:47.326443"
+    },
+    {
+      "path": "vaultmind_forge\\vaultmind_forge\\forge_validator\\__init__.py",
+      "size": 80,
+      "hash": "a43a2062f6caf406",
+      "modified": "2025-10-28T07:42:48.786867"
+    },
+    {
+      "path": "vaultmind_forge\\vaultmind_forge\\forge_versioning\\README.md",
+      "size": 52,
+      "hash": "e9a4ea16cd66e61f",
+      "modified": "2025-10-28T07:42:48.789917"
+    },
+    {
+      "path": "vaultmind_forge\\vaultmind_forge\\forge_versioning\\version_control.py",
+      "size": 13154,
+      "hash": "c2e2c919bdfb70fb",
+      "modified": "2025-11-03T14:52:07.088172"
+    },
+    {
+      "path": "vaultmind_forge\\vaultmind_forge\\forge_versioning\\__init__.py",
+      "size": 994,
+      "hash": "724f850e294dd8a4",
+      "modified": "2025-11-03T14:52:21.558983"
+    },
+    {
+      "path": "vaultmind_forge\\vaultmind_forge\\forge_video\\generator.py",
+      "size": 12081,
+      "hash": "1c8dc12ca8956b4d",
+      "modified": "2025-11-03T14:50:58.883912"
+    },
+    {
+      "path": "vaultmind_forge\\vaultmind_forge\\forge_video\\README.md",
+      "size": 47,
+      "hash": "1ac7c788270eecf7",
+      "modified": "2025-10-28T07:42:48.779191"
+    },
+    {
+      "path": "vaultmind_forge\\vaultmind_forge\\forge_video\\__init__.py",
+      "size": 975,
+      "hash": "916d1dadf7ab0623",
+      "modified": "2025-11-03T14:51:11.318708"
+    },
+    {
+      "path": "vaultmind_forge\\vaultmind_forge.egg-info\\dependency_links.txt",
+      "size": 1,
+      "hash": "01ba4719c80b6fe9",
+      "modified": "2025-11-02T20:31:46.091321"
+    },
+    {
+      "path": "vaultmind_forge\\vaultmind_forge.egg-info\\entry_points.txt",
+      "size": 56,
+      "hash": "701031ba4f650b34",
+      "modified": "2025-11-02T20:31:46.091321"
+    },
+    {
+      "path": "vaultmind_forge\\vaultmind_forge.egg-info\\requires.txt",
+      "size": 252,
+      "hash": "7d8fc08a282b688f",
+      "modified": "2025-11-02T20:31:46.092843"
+    },
+    {
+      "path": "vaultmind_forge\\vaultmind_forge.egg-info\\SOURCES.txt",
+      "size": 1644,
+      "hash": "3eec51c894f1969e",
+      "modified": "2025-11-02T20:31:46.127481"
+    },
+    {
+      "path": "vaultmind_forge\\vaultmind_forge.egg-info\\top_level.txt",
+      "size": 212,
+      "hash": "4b817ec675763dfa",
+      "modified": "2025-11-02T20:31:46.092843"
+    }
+  ]
+}

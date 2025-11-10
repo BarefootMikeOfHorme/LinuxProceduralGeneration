@@ -1,0 +1,46 @@
+{
+  "archive_name": "milestone_reports_20251109.zip",
+  "created": "2025-11-09T21:21:36.391629",
+  "description": "Development milestone completion reports (archival documentation)",
+  "reason": "Historical development documentation - moved to archives for cleaner root",
+  "total_files": 6,
+  "total_size": 91625,
+  "files": [
+    {
+      "path": "vaultmind_forge/BOT_FRAMEWORK_COMPLETE.md",
+      "size": 20717,
+      "hash": "7a94a8e2ed0a8a6b1f415f4c9eae326be7b28b4ebf1c29ff31dcadbc66ea0307",
+      "modified": "2025-11-05T07:08:29.625098"
+    },
+    {
+      "path": "vaultmind_forge/PHASE_1_AND_4_COMPLETE.md",
+      "size": 21011,
+      "hash": "10843d78a1748d1a9cf322a24254b6616e72507e6f9242fb24f9dea5e6909148",
+      "modified": "2025-11-05T06:45:52.283549"
+    },
+    {
+      "path": "vaultmind_forge/QUICK_WIN_TRIO_COMPLETE.md",
+      "size": 17538,
+      "hash": "f3c38921d42ef58106cede0f41670c59d3bf5cc420d7c4c01a5938c20402b04b",
+      "modified": "2025-11-04T21:04:49.752770"
+    },
+    {
+      "path": "vaultmind_forge/TASK_VERIFICATION_REPORT.md",
+      "size": 11939,
+      "hash": "708a536cf7b37f2152561637937209de9c89bd75956bc3db94ca61a6a6c2f134",
+      "modified": "2025-11-05T07:16:29.541170"
+    },
+    {
+      "path": "vaultmind_forge/BEAST_MODE_ACTION_PLAN.md",
+      "size": 7686,
+      "hash": "2babfb927be1f5203638c556cf7468b2cc1c01aaa995d7b7a4c53f81b955bd9d",
+      "modified": "2025-11-05T07:22:08.529321"
+    },
+    {
+      "path": "vaultmind_forge/PLACEHOLDER_AUDIT.md",
+      "size": 12734,
+      "hash": "0e1993fc3dfe20428535987e2f2ad51d35cc7fe12814d098489d396da3d920f6",
+      "modified": "2025-11-05T07:19:11.606759"
+    }
+  ]
+}

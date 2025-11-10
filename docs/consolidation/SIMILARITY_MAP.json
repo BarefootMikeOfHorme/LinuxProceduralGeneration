@@ -1,0 +1,1798 @@
+{
+  "by_filename": {
+    "CMakeLists.txt": [
+      {
+        "path": "CMakeLists.txt",
+        "size": 2223,
+        "hash": "aa5e899c741004cc",
+        "modified": "2025-10-28T16:49:05.815779"
+      },
+      {
+        "path": "build\\_deps\\catch2-src\\CMakeLists.txt",
+        "size": 7185,
+        "hash": "b586f85dc0bbbc23",
+        "modified": "2025-11-02T20:18:11.263487"
+      },
+      {
+        "path": "build\\_deps\\catch2-src\\.conan\\test_package\\CMakeLists.txt",
+        "size": 366,
+        "hash": "923df7b568037396",
+        "modified": "2025-11-02T20:18:11.254307"
+      },
+      {
+        "path": "build\\_deps\\catch2-src\\examples\\CMakeLists.txt",
+        "size": 1622,
+        "hash": "87d51a4aa93f9800",
+        "modified": "2025-11-02T20:18:11.283431"
+      },
+      {
+        "path": "build\\_deps\\catch2-src\\fuzzing\\CMakeLists.txt",
+        "size": 773,
+        "hash": "ebfecdb6a84cba49",
+        "modified": "2025-11-02T20:18:11.289524"
+      },
+      {
+        "path": "build\\_deps\\catch2-src\\src\\CMakeLists.txt",
+        "size": 21097,
+        "hash": "c0cb6f896bbb23a6",
+        "modified": "2025-11-02T20:18:11.292589"
+      },
+      {
+        "path": "build\\_deps\\catch2-src\\tests\\CMakeLists.txt",
+        "size": 26592,
+        "hash": "7dc06ba733ddd5b7",
+        "modified": "2025-11-02T20:18:11.375306"
+      },
+      {
+        "path": "build\\_deps\\catch2-src\\tests\\ExtraTests\\CMakeLists.txt",
+        "size": 20693,
+        "hash": "c584f4ca96fe630d",
+        "modified": "2025-11-02T20:18:11.376829"
+      },
+      {
+        "path": "build\\_deps\\catch2-src\\tests\\TestScripts\\DiscoverTests\\CMakeLists.txt",
+        "size": 311,
+        "hash": "44df09ba3a5ba17c",
+        "modified": "2025-11-02T20:18:11.421174"
+      },
+      {
+        "path": "build\\_deps\\catch2-src\\tools\\misc\\CMakeLists.txt",
+        "size": 427,
+        "hash": "ca0bf1a24d0fc3da",
+        "modified": "2025-11-02T20:18:11.426617"
+      },
+      {
+        "path": "build\\_deps\\catch2-subbuild\\CMakeLists.txt",
+        "size": 1923,
+        "hash": "77c11d05621b6fd8",
+        "modified": "2025-11-02T20:18:03.330037"
+      },
+      {
+        "path": "vaultmind_forge\\native\\cpp\\validator\\CMakeLists.txt",
+        "size": 156,
+        "hash": "3b11e4407ad54b17",
+        "modified": "2025-10-28T07:47:19.519568"
+      }
+    ],
+    "README.md": [
+      {
+        "path": "README.md",
+        "size": 19077,
+        "hash": "7a8da7a3612bbc06",
+        "modified": "2025-11-09T17:27:58.334858"
+      },
+      {
+        "path": ".pytest_cache\\README.md",
+        "size": 310,
+        "hash": "420e808d79a6c25d",
+        "modified": "2025-10-28T16:43:08.917599"
+      },
+      {
+        "path": "assets\\README.md",
+        "size": 948,
+        "hash": "392190109bf191e6",
+        "modified": "2025-11-04T18:16:01.167896"
+      },
+      {
+        "path": "assets\\generated\\README.md",
+        "size": 2770,
+        "hash": "a559355231d02d25",
+        "modified": "2025-11-04T18:21:44.871373"
+      },
+      {
+        "path": "assets\\input\\README.md",
+        "size": 1300,
+        "hash": "a74ac9692a2a587c",
+        "modified": "2025-11-04T18:20:55.458865"
+      },
+      {
+        "path": "assets\\output\\README.md",
+        "size": 5213,
+        "hash": "8937402c85a710f3",
+        "modified": "2025-11-04T18:21:52.217690"
+      },
+      {
+        "path": "assets\\output\\blender\\TestProject\\README.md",
+        "size": 502,
+        "hash": "251f606ca5812a33",
+        "modified": "2025-11-09T12:05:25.929673"
+      },
+      {
+        "path": "assets\\output\\godot\\TestProject\\README.md",
+        "size": 543,
+        "hash": "dd2b080057923dbd",
+        "modified": "2025-11-09T12:05:25.924567"
+      },
+      {
+        "path": "assets\\output\\unity\\TestProject\\README.md",
+        "size": 556,
+        "hash": "7f99539dce014c3d",
+        "modified": "2025-11-09T12:05:25.918442"
+      },
+      {
+        "path": "assets\\output\\unreal\\TestProject\\README.md",
+        "size": 619,
+        "hash": "d244891f474f6634",
+        "modified": "2025-11-09T12:05:25.921497"
+      },
+      {
+        "path": "assets\\output\\web\\TestProject\\README.md",
+        "size": 634,
+        "hash": "1362ba3119773b70",
+        "modified": "2025-11-09T12:05:25.927633"
+      },
+      {
+        "path": "assets\\source\\README.md",
+        "size": 1427,
+        "hash": "a6473d879f3c7fa3",
+        "modified": "2025-11-04T18:20:50.258309"
+      },
+      {
+        "path": "assets\\validated\\README.md",
+        "size": 2663,
+        "hash": "c167f676a8fcf772",
+        "modified": "2025-11-04T18:21:47.807002"
+      },
+      {
+        "path": "build\\_deps\\catch2-src\\README.md",
+        "size": 4264,
+        "hash": "3182fa15c10a2b95",
+        "modified": "2025-11-02T20:18:11.265007"
+      },
+      {
+        "path": "vaultmind_forge\\README.md",
+        "size": 503,
+        "hash": "302bda2b65f0df2d",
+        "modified": "2025-10-28T07:41:07.054794"
+      },
+      {
+        "path": "vaultmind_forge\\forge_bots\\README.md",
+        "size": 14201,
+        "hash": "25d2a2863eaca54c",
+        "modified": "2025-11-05T07:06:28.067001"
+      },
+      {
+        "path": "vaultmind_forge\\forge_converter\\README.md",
+        "size": 2947,
+        "hash": "73582ccbd3d1e83e",
+        "modified": "2025-11-04T18:31:08.426720"
+      },
+      {
+        "path": "vaultmind_forge\\forge_intake\\README.md",
+        "size": 15723,
+        "hash": "8bdb8156693d2e86",
+        "modified": "2025-11-09T17:18:53.080763"
+      },
+      {
+        "path": "vaultmind_forge\\forge_monitor\\README.md",
+        "size": 11700,
+        "hash": "ce5a99f9705e3328",
+        "modified": "2025-11-04T09:43:53.923297"
+      },
+      {
+        "path": "vaultmind_forge\\forge_semantic\\README.md",
+        "size": 8473,
+        "hash": "afdcff581ed1044c",
+        "modified": "2025-11-04T10:13:04.554721"
+      },
+      {
+        "path": "vaultmind_forge\\forge_sr\\README.md",
+        "size": 12158,
+        "hash": "34f839b9d16f02e2",
+        "modified": "2025-11-04T10:14:29.810680"
+      },
+      {
+        "path": "vaultmind_forge\\forge_versioning\\README.md",
+        "size": 14179,
+        "hash": "5426fd841534e2b5",
+        "modified": "2025-11-04T10:15:59.283746"
+      },
+      {
+        "path": "vaultmind_forge\\forge_video\\README.md",
+        "size": 15307,
+        "hash": "59d9c3c3c8bd7ef4",
+        "modified": "2025-11-04T10:18:01.096545"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_agent\\README.md",
+        "size": 6245,
+        "hash": "4f31a6679c1e8ed6",
+        "modified": "2025-11-03T14:45:31.038763"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_diffusion\\README.md",
+        "size": 6533,
+        "hash": "8bea6dda159c23be",
+        "modified": "2025-11-03T20:02:44.145796"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_executor\\README.md",
+        "size": 960,
+        "hash": "14ad9f83b52e1cd5",
+        "modified": "2025-11-03T20:00:46.354563"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_lineage\\README.md",
+        "size": 49,
+        "hash": "45633e2d8293decb",
+        "modified": "2025-10-28T07:42:48.791674"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_monitor\\README.md",
+        "size": 11700,
+        "hash": "ce5a99f9705e3328",
+        "modified": "2025-11-03T14:33:36.208477"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_packaging\\README.md",
+        "size": 1347,
+        "hash": "29e8707def188879",
+        "modified": "2025-11-03T20:04:40.432745"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_semantic\\README.md",
+        "size": 50,
+        "hash": "6d67c6711327388c",
+        "modified": "2025-10-28T07:42:48.780741"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_sr\\README.md",
+        "size": 44,
+        "hash": "d76cdf776692f29a",
+        "modified": "2025-10-28T07:42:48.777664"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_validator\\README.md",
+        "size": 51,
+        "hash": "42fbbb48e7c678fd",
+        "modified": "2025-10-28T07:42:48.788399"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_versioning\\README.md",
+        "size": 52,
+        "hash": "e9a4ea16cd66e61f",
+        "modified": "2025-10-28T07:42:48.789917"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_video\\README.md",
+        "size": 47,
+        "hash": "1ac7c788270eecf7",
+        "modified": "2025-10-28T07:42:48.779191"
+      }
+    ],
+    "validator.cpp": [
+      {
+        "path": "validator.cpp",
+        "size": 1525,
+        "hash": "86534f2653000648",
+        "modified": "2025-10-28T16:27:49.237938"
+      },
+      {
+        "path": "vaultmind_forge\\native\\cpp\\validator\\validator.cpp",
+        "size": 459,
+        "hash": "aa1f2e6517f79f94",
+        "modified": "2025-10-28T07:50:12.392131"
+      }
+    ],
+    "VSWorkspaceState.json": [
+      {
+        "path": ".vs\\VSWorkspaceState.json",
+        "size": 312,
+        "hash": "b1ece3842e7c5fbe",
+        "modified": "2025-10-28T15:04:20.753018"
+      },
+      {
+        "path": ".vs\\vaultmind_forge\\native\\cpp\\validator\\VSWorkspaceState.json",
+        "size": 407,
+        "hash": "48a8c6d1d535f904",
+        "modified": "2025-10-28T14:44:25.086601"
+      }
+    ],
+    "DocumentLayout.backup.json": [
+      {
+        "path": ".vs\\LPG\\v17\\DocumentLayout.backup.json",
+        "size": 1730,
+        "hash": "89095c18266f9139",
+        "modified": "2025-10-28T15:04:20.212580"
+      },
+      {
+        "path": ".vs\\LPG.slnx\\v18\\DocumentLayout.backup.json",
+        "size": 8290,
+        "hash": "e2a9312a2ca1412d",
+        "modified": "2025-10-28T16:27:49.936581"
+      }
+    ],
+    "DocumentLayout.json": [
+      {
+        "path": ".vs\\LPG\\v17\\DocumentLayout.json",
+        "size": 1730,
+        "hash": "89095c18266f9139",
+        "modified": "2025-10-28T15:04:20.499987"
+      },
+      {
+        "path": ".vs\\LPG.slnx\\v18\\DocumentLayout.json",
+        "size": 5243,
+        "hash": "01880042bffad270",
+        "modified": "2025-10-28T16:30:15.767482"
+      }
+    ],
+    "CMakeCache.txt": [
+      {
+        "path": "build\\CMakeCache.txt",
+        "size": 23284,
+        "hash": "a39d7577fc7c34b2",
+        "modified": "2025-11-02T20:18:13.480846"
+      },
+      {
+        "path": "build\\_deps\\catch2-subbuild\\CMakeCache.txt",
+        "size": 4465,
+        "hash": "19f18298b59224cf",
+        "modified": "2025-11-02T20:18:03.912827"
+      },
+      {
+        "path": "vaultmind_forge\\native\\cpp\\validator\\out\\build\\x64-Debug\\CMakeCache.txt",
+        "size": 17433,
+        "hash": "fee2f91171849e39",
+        "modified": "2025-10-28T15:28:41.823129"
+      }
+    ],
+    "CMakeConfigureLog.yaml": [
+      {
+        "path": "build\\CMakeFiles\\CMakeConfigureLog.yaml",
+        "size": 12646,
+        "hash": "f063dd870a4aa7d6",
+        "modified": "2025-11-02T20:18:13.479325"
+      },
+      {
+        "path": "build\\_deps\\catch2-subbuild\\CMakeFiles\\CMakeConfigureLog.yaml",
+        "size": 271,
+        "hash": "271ac5fe163ac09c",
+        "modified": "2025-11-02T20:18:03.911321"
+      },
+      {
+        "path": "vaultmind_forge\\native\\cpp\\validator\\out\\build\\x64-Debug\\CMakeFiles\\CMakeConfigureLog.yaml",
+        "size": 627785,
+        "hash": "73b34429eedc5c04",
+        "modified": "2025-10-28T15:28:41.823129"
+      }
+    ],
+    "InstallScripts.json": [
+      {
+        "path": "build\\CMakeFiles\\InstallScripts.json",
+        "size": 327,
+        "hash": "6295d2fd38f002bc",
+        "modified": "2025-11-02T20:18:13.587841"
+      },
+      {
+        "path": "build\\_deps\\catch2-subbuild\\CMakeFiles\\InstallScripts.json",
+        "size": 155,
+        "hash": "2fad42e05588ce6f",
+        "modified": "2025-11-02T20:18:03.949717"
+      },
+      {
+        "path": "vaultmind_forge\\native\\cpp\\validator\\out\\build\\x64-Debug\\CMakeFiles\\InstallScripts.json",
+        "size": 184,
+        "hash": "cb1da843ade8ebdb",
+        "modified": "2025-10-28T15:28:41.905576"
+      }
+    ],
+    "TargetDirectories.txt": [
+      {
+        "path": "build\\CMakeFiles\\TargetDirectories.txt",
+        "size": 1036,
+        "hash": "f84b32dffc75b8e5",
+        "modified": "2025-11-02T20:18:13.561888"
+      },
+      {
+        "path": "build\\_deps\\catch2-subbuild\\CMakeFiles\\TargetDirectories.txt",
+        "size": 301,
+        "hash": "623e7fc9b1a387fd",
+        "modified": "2025-11-02T20:18:03.935622"
+      },
+      {
+        "path": "vaultmind_forge\\native\\cpp\\validator\\out\\build\\x64-Debug\\CMakeFiles\\TargetDirectories.txt",
+        "size": 394,
+        "hash": "b0141ca6b53a8c5b",
+        "modified": "2025-10-28T15:28:41.833897"
+      }
+    ],
+    "VCTargetsPath.txt": [
+      {
+        "path": "build\\CMakeFiles\\4.0.2\\VCTargetsPath.txt",
+        "size": 90,
+        "hash": "7bf0943f47fd89dd",
+        "modified": "2025-11-02T20:17:57.719865"
+      },
+      {
+        "path": "build\\_deps\\catch2-subbuild\\CMakeFiles\\4.0.2\\VCTargetsPath.txt",
+        "size": 90,
+        "hash": "7bf0943f47fd89dd",
+        "modified": "2025-11-02T20:18:03.807455"
+      }
+    ],
+    "CMakeCXXCompilerId.cpp": [
+      {
+        "path": "build\\CMakeFiles\\4.0.2\\CompilerIdCXX\\CMakeCXXCompilerId.cpp",
+        "size": 29505,
+        "hash": "d244ecbd7c2d941e",
+        "modified": "2025-11-02T20:17:57.933413"
+      },
+      {
+        "path": "vaultmind_forge\\native\\cpp\\validator\\out\\build\\x64-Debug\\CMakeFiles\\4.1.1-msvc1\\CompilerIdCXX\\CMakeCXXCompilerId.cpp",
+        "size": 30429,
+        "hash": "9e26b0f20786a2d5",
+        "modified": "2025-10-28T15:28:39.822458"
+      }
+    ],
+    "conanfile.py": [
+      {
+        "path": "build\\_deps\\catch2-src\\conanfile.py",
+        "size": 2592,
+        "hash": "24bebc71707ebbc6",
+        "modified": "2025-11-02T20:18:11.266542"
+      },
+      {
+        "path": "build\\_deps\\catch2-src\\.conan\\test_package\\conanfile.py",
+        "size": 592,
+        "hash": "1eb6be5c10ada371",
+        "modified": "2025-11-02T20:18:11.254307"
+      }
+    ],
+    "executor.py": [
+      {
+        "path": "vaultmind_forge\\executor.py",
+        "size": 4408,
+        "hash": "d3c3bf70bda62e20",
+        "modified": "2025-10-28T16:51:48"
+      },
+      {
+        "path": "vaultmind_forge\\forge_executor\\executor.py",
+        "size": 3111,
+        "hash": "b7ea88f2a7a31007",
+        "modified": "2025-11-09T12:05:08.593005"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_executor\\executor.py",
+        "size": 3071,
+        "hash": "c8d7193b658816ca",
+        "modified": "2025-11-03T20:00:45.890215"
+      }
+    ],
+    "forge_cli.py": [
+      {
+        "path": "vaultmind_forge\\forge_cli.py",
+        "size": 3216,
+        "hash": "635d5f6e3ec33987",
+        "modified": "2025-11-04T09:44:13.264564"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_cli.py",
+        "size": 3216,
+        "hash": "635d5f6e3ec33987",
+        "modified": "2025-10-28T07:58:42.380296"
+      }
+    ],
+    "__init__.py": [
+      {
+        "path": "vaultmind_forge\\__init__.py",
+        "size": 166,
+        "hash": "12b27644285018ee",
+        "modified": "2025-11-04T09:44:14.468285"
+      },
+      {
+        "path": "vaultmind_forge\\forge_agent\\__init__.py",
+        "size": 2501,
+        "hash": "884769d85f018c1f",
+        "modified": "2025-11-04T09:43:29.763527"
+      },
+      {
+        "path": "vaultmind_forge\\forge_batch\\__init__.py",
+        "size": 784,
+        "hash": "cd63813fad64d5c9",
+        "modified": "2025-11-05T06:41:14.738148"
+      },
+      {
+        "path": "vaultmind_forge\\forge_bots\\__init__.py",
+        "size": 1129,
+        "hash": "5222756cab2e7172",
+        "modified": "2025-11-05T06:58:52.293561"
+      },
+      {
+        "path": "vaultmind_forge\\forge_converter\\__init__.py",
+        "size": 2142,
+        "hash": "fc41aa7aa55e22b0",
+        "modified": "2025-11-04T17:56:48.872611"
+      },
+      {
+        "path": "vaultmind_forge\\forge_converter\\engines\\__init__.py",
+        "size": 202,
+        "hash": "cdaa4756b2cec485",
+        "modified": "2025-11-04T18:31:05.903807"
+      },
+      {
+        "path": "vaultmind_forge\\forge_converter\\formats\\__init__.py",
+        "size": 2353,
+        "hash": "e75a6c88c8aa0a6f",
+        "modified": "2025-11-04T21:13:49.131542"
+      },
+      {
+        "path": "vaultmind_forge\\forge_converter\\optimization\\__init__.py",
+        "size": 614,
+        "hash": "200cfbaa9d92a4cb",
+        "modified": "2025-11-04T20:17:05.353566"
+      },
+      {
+        "path": "vaultmind_forge\\forge_diffusion\\__init__.py",
+        "size": 704,
+        "hash": "7e34a489adc88d88",
+        "modified": "2025-11-04T09:43:36.325607"
+      },
+      {
+        "path": "vaultmind_forge\\forge_executor\\__init__.py",
+        "size": 234,
+        "hash": "269ca654fea43407",
+        "modified": "2025-11-04T09:43:52.312232"
+      },
+      {
+        "path": "vaultmind_forge\\forge_intake\\__init__.py",
+        "size": 3008,
+        "hash": "b0b0f869146c60b7",
+        "modified": "2025-11-09T16:15:16.874332"
+      },
+      {
+        "path": "vaultmind_forge\\forge_lineage\\__init__.py",
+        "size": 350,
+        "hash": "7ee3bf994006b9dd",
+        "modified": "2025-11-04T20:45:33.887046"
+      },
+      {
+        "path": "vaultmind_forge\\forge_monitor\\__init__.py",
+        "size": 1414,
+        "hash": "aa4ffda70fef9dfd",
+        "modified": "2025-11-04T09:43:53.889749"
+      },
+      {
+        "path": "vaultmind_forge\\forge_packaging\\__init__.py",
+        "size": 524,
+        "hash": "79ffff7374f6d928",
+        "modified": "2025-11-04T09:43:38.531893"
+      },
+      {
+        "path": "vaultmind_forge\\forge_procedural\\__init__.py",
+        "size": 1094,
+        "hash": "c1754137a90c758d",
+        "modified": "2025-11-09T14:46:15.798705"
+      },
+      {
+        "path": "vaultmind_forge\\forge_semantic\\__init__.py",
+        "size": 900,
+        "hash": "9c43867fbba3989c",
+        "modified": "2025-11-04T09:43:58.672570"
+      },
+      {
+        "path": "vaultmind_forge\\forge_sr\\__init__.py",
+        "size": 946,
+        "hash": "cd807646fed8c665",
+        "modified": "2025-11-04T09:43:55.498612"
+      },
+      {
+        "path": "vaultmind_forge\\forge_validator\\__init__.py",
+        "size": 530,
+        "hash": "88a0acf6b8fc9205",
+        "modified": "2025-11-04T20:44:18.264940"
+      },
+      {
+        "path": "vaultmind_forge\\forge_versioning\\__init__.py",
+        "size": 994,
+        "hash": "724f850e294dd8a4",
+        "modified": "2025-11-04T09:44:00.246161"
+      },
+      {
+        "path": "vaultmind_forge\\forge_video\\__init__.py",
+        "size": 975,
+        "hash": "916d1dadf7ab0623",
+        "modified": "2025-11-04T09:43:57.095046"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\__init__.py",
+        "size": 166,
+        "hash": "12b27644285018ee",
+        "modified": "2025-10-28T07:42:16.055421"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_agent\\__init__.py",
+        "size": 2501,
+        "hash": "884769d85f018c1f",
+        "modified": "2025-11-03T14:43:18.070086"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_diffusion\\__init__.py",
+        "size": 704,
+        "hash": "7e34a489adc88d88",
+        "modified": "2025-11-03T20:02:43.626265"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_executor\\__init__.py",
+        "size": 234,
+        "hash": "269ca654fea43407",
+        "modified": "2025-11-03T20:00:45.428825"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_lineage\\__init__.py",
+        "size": 80,
+        "hash": "a43a2062f6caf406",
+        "modified": "2025-10-28T07:42:48.791674"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_monitor\\__init__.py",
+        "size": 1414,
+        "hash": "aa4ffda70fef9dfd",
+        "modified": "2025-11-03T14:30:53.177596"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_packaging\\__init__.py",
+        "size": 524,
+        "hash": "79ffff7374f6d928",
+        "modified": "2025-11-03T20:04:20.237648"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_semantic\\__init__.py",
+        "size": 900,
+        "hash": "9c43867fbba3989c",
+        "modified": "2025-11-03T14:48:46.735410"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_sr\\__init__.py",
+        "size": 946,
+        "hash": "cd807646fed8c665",
+        "modified": "2025-11-03T14:50:02.403706"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_validator\\__init__.py",
+        "size": 80,
+        "hash": "a43a2062f6caf406",
+        "modified": "2025-10-28T07:42:48.786867"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_versioning\\__init__.py",
+        "size": 994,
+        "hash": "724f850e294dd8a4",
+        "modified": "2025-11-03T14:52:21.558983"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_video\\__init__.py",
+        "size": 975,
+        "hash": "916d1dadf7ab0623",
+        "modified": "2025-11-03T14:51:11.318708"
+      }
+    ],
+    "planner.py": [
+      {
+        "path": "vaultmind_forge\\forge_agent\\planner.py",
+        "size": 14232,
+        "hash": "e5f889b8ea8b0d43",
+        "modified": "2025-11-04T09:43:29.719343"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_agent\\planner.py",
+        "size": 14232,
+        "hash": "e5f889b8ea8b0d43",
+        "modified": "2025-11-03T14:41:12.477055"
+      }
+    ],
+    "schemas.py": [
+      {
+        "path": "vaultmind_forge\\forge_agent\\schemas.py",
+        "size": 11802,
+        "hash": "2cd5a329e186d521",
+        "modified": "2025-11-04T09:43:29.735056"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_agent\\schemas.py",
+        "size": 11802,
+        "hash": "2cd5a329e186d521",
+        "modified": "2025-11-03T14:35:24.548198"
+      }
+    ],
+    "styles.py": [
+      {
+        "path": "vaultmind_forge\\forge_agent\\styles.py",
+        "size": 9999,
+        "hash": "16600c3cbe5a88fc",
+        "modified": "2025-11-04T09:43:29.749816"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_agent\\styles.py",
+        "size": 9999,
+        "hash": "16600c3cbe5a88fc",
+        "modified": "2025-11-03T14:42:58.047042"
+      }
+    ],
+    "html_report.py": [
+      {
+        "path": "vaultmind_forge\\forge_cli\\html_report.py",
+        "size": 2720,
+        "hash": "6af832b72c3605db",
+        "modified": "2025-11-04T09:44:12.079221"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_cli\\html_report.py",
+        "size": 2720,
+        "hash": "6af832b72c3605db",
+        "modified": "2025-10-28T07:58:42.378766"
+      }
+    ],
+    "format_registry.py": [
+      {
+        "path": "vaultmind_forge\\forge_converter\\formats\\format_registry.py",
+        "size": 17573,
+        "hash": "d21f107d2b733c4b",
+        "modified": "2025-11-04T18:23:14.698562"
+      },
+      {
+        "path": "vaultmind_forge\\forge_intake\\format_registry.py",
+        "size": 18507,
+        "hash": "786a09c849dc7b0c",
+        "modified": "2025-11-09T16:46:45.909004"
+      }
+    ],
+    "generator.py": [
+      {
+        "path": "vaultmind_forge\\forge_diffusion\\generator.py",
+        "size": 20686,
+        "hash": "9254d317fcd9f56a",
+        "modified": "2025-11-04T09:43:36.310333"
+      },
+      {
+        "path": "vaultmind_forge\\forge_procedural\\generator.py",
+        "size": 13440,
+        "hash": "98d9c966d9133498",
+        "modified": "2025-11-09T13:20:56.476316"
+      },
+      {
+        "path": "vaultmind_forge\\forge_video\\generator.py",
+        "size": 12081,
+        "hash": "1c8dc12ca8956b4d",
+        "modified": "2025-11-04T09:43:57.104173"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_diffusion\\generator.py",
+        "size": 20686,
+        "hash": "9254d317fcd9f56a",
+        "modified": "2025-11-03T20:01:50.723046"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_video\\generator.py",
+        "size": 12081,
+        "hash": "1c8dc12ca8956b4d",
+        "modified": "2025-11-03T14:50:58.883912"
+      }
+    ],
+    "logger.py": [
+      {
+        "path": "vaultmind_forge\\forge_lineage\\logger.py",
+        "size": 1799,
+        "hash": "6d0737b8a7e0d008",
+        "modified": "2025-11-04T09:43:34.107573"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_lineage\\logger.py",
+        "size": 1799,
+        "hash": "6d0737b8a7e0d008",
+        "modified": "2025-10-28T07:56:27.465703"
+      }
+    ],
+    "metrics.py": [
+      {
+        "path": "vaultmind_forge\\forge_monitor\\metrics.py",
+        "size": 11328,
+        "hash": "9128065ad0ab3420",
+        "modified": "2025-11-04T09:43:53.900389"
+      },
+      {
+        "path": "vaultmind_forge\\forge_validator\\metrics.py",
+        "size": 10891,
+        "hash": "7d96f9d89b41a2b3",
+        "modified": "2025-11-04T09:43:02.094886"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_monitor\\metrics.py",
+        "size": 11328,
+        "hash": "9128065ad0ab3420",
+        "modified": "2025-11-03T14:30:37.845169"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_validator\\metrics.py",
+        "size": 10891,
+        "hash": "7d96f9d89b41a2b3",
+        "modified": "2025-11-02T20:07:07.791508"
+      }
+    ],
+    "monitor.py": [
+      {
+        "path": "vaultmind_forge\\forge_monitor\\monitor.py",
+        "size": 18299,
+        "hash": "65a82cc101ac3fbd",
+        "modified": "2025-11-04T09:43:53.909571"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_monitor\\monitor.py",
+        "size": 18299,
+        "hash": "65a82cc101ac3fbd",
+        "modified": "2025-11-03T14:29:55.309248"
+      }
+    ],
+    "packager.py": [
+      {
+        "path": "vaultmind_forge\\forge_packaging\\packager.py",
+        "size": 15385,
+        "hash": "e0e7b44f12a9d6c6",
+        "modified": "2025-11-04T09:43:38.517128"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_packaging\\packager.py",
+        "size": 15385,
+        "hash": "e0e7b44f12a9d6c6",
+        "modified": "2025-11-03T20:04:19.787497"
+      }
+    ],
+    "downrez.py": [
+      {
+        "path": "vaultmind_forge\\forge_semantic\\downrez.py",
+        "size": 12278,
+        "hash": "a50f50d7f9d94246",
+        "modified": "2025-11-04T09:43:58.681715"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_semantic\\downrez.py",
+        "size": 12278,
+        "hash": "a50f50d7f9d94246",
+        "modified": "2025-11-03T14:48:22.413511"
+      }
+    ],
+    "upscaler.py": [
+      {
+        "path": "vaultmind_forge\\forge_sr\\upscaler.py",
+        "size": 12612,
+        "hash": "871ad2e2831900a2",
+        "modified": "2025-11-04T09:43:55.516877"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_sr\\upscaler.py",
+        "size": 12612,
+        "hash": "871ad2e2831900a2",
+        "modified": "2025-11-03T14:49:48.697833"
+      }
+    ],
+    "backends.py": [
+      {
+        "path": "vaultmind_forge\\forge_validator\\backends.py",
+        "size": 5179,
+        "hash": "476b828e1f0c93ce",
+        "modified": "2025-11-09T12:45:59.972832"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_validator\\backends.py",
+        "size": 4305,
+        "hash": "c37cb6a24b21fb9e",
+        "modified": "2025-11-03T20:01:14.038561"
+      }
+    ],
+    "evaluators.py": [
+      {
+        "path": "vaultmind_forge\\forge_validator\\evaluators.py",
+        "size": 3910,
+        "hash": "f144312cf7a850d4",
+        "modified": "2025-11-04T09:43:02.109649"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_validator\\evaluators.py",
+        "size": 3910,
+        "hash": "f144312cf7a850d4",
+        "modified": "2025-10-28T07:47:19.511635"
+      }
+    ],
+    "metrics_advanced.py": [
+      {
+        "path": "vaultmind_forge\\forge_validator\\metrics_advanced.py",
+        "size": 29740,
+        "hash": "bfa2fe9ad3ab5967",
+        "modified": "2025-11-04T09:42:57.795468"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_validator\\metrics_advanced.py",
+        "size": 29740,
+        "hash": "bfa2fe9ad3ab5967",
+        "modified": "2025-11-02T20:06:39.108968"
+      }
+    ],
+    "validator.py": [
+      {
+        "path": "vaultmind_forge\\forge_validator\\validator.py",
+        "size": 3756,
+        "hash": "76c30333ee3d0be3",
+        "modified": "2025-11-04T09:42:59.017800"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_validator\\validator.py",
+        "size": 3756,
+        "hash": "76c30333ee3d0be3",
+        "modified": "2025-11-03T20:00:47.326443"
+      }
+    ],
+    "version_control.py": [
+      {
+        "path": "vaultmind_forge\\forge_versioning\\version_control.py",
+        "size": 13154,
+        "hash": "c2e2c919bdfb70fb",
+        "modified": "2025-11-04T09:44:00.267027"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_versioning\\version_control.py",
+        "size": 13154,
+        "hash": "c2e2c919bdfb70fb",
+        "modified": "2025-11-03T14:52:07.088172"
+      }
+    ],
+    "build-script-build-script-build.json": [
+      {
+        "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\anyhow-1a699f51ab60b149\\build-script-build-script-build.json",
+        "size": 428,
+        "hash": "113a7e5fc589c132",
+        "modified": "2025-11-09T12:38:43.616761"
+      },
+      {
+        "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\crc32fast-730d35961a35cb0c\\build-script-build-script-build.json",
+        "size": 428,
+        "hash": "2e0e5012bccf5ffe",
+        "modified": "2025-11-09T12:38:43.582675"
+      },
+      {
+        "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\crossbeam-utils-2e13f4800024bf6d\\build-script-build-script-build.json",
+        "size": 444,
+        "hash": "050e5ccd865627b5",
+        "modified": "2025-11-09T12:38:43.545663"
+      },
+      {
+        "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\libc-0d825d0d2ba7a457\\build-script-build-script-build.json",
+        "size": 525,
+        "hash": "e32aeaadda504837",
+        "modified": "2025-11-09T12:38:43.649978"
+      },
+      {
+        "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\matrixmultiply-b29b8f5ba85228ae\\build-script-build-script-build.json",
+        "size": 563,
+        "hash": "f1bafc4c90d09072",
+        "modified": "2025-11-09T12:38:44.333137"
+      },
+      {
+        "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\memoffset-eb337366c2f5d27f\\build-script-build-script-build.json",
+        "size": 501,
+        "hash": "9258ed5455a0c612",
+        "modified": "2025-11-09T12:38:44.298785"
+      },
+      {
+        "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\num-traits-943008e47f9a030f\\build-script-build-script-build.json",
+        "size": 504,
+        "hash": "1ceba38dc3ad864d",
+        "modified": "2025-11-09T12:38:44.268971"
+      },
+      {
+        "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\paste-0e385f3705c3a5df\\build-script-build-script-build.json",
+        "size": 370,
+        "hash": "e95b8bda19b3b2cb",
+        "modified": "2025-11-09T12:38:43.547203"
+      },
+      {
+        "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\proc-macro2-69b0cf7f11446abb\\build-script-build-script-build.json",
+        "size": 463,
+        "hash": "914b77b61272cb51",
+        "modified": "2025-11-09T12:38:43.543027"
+      },
+      {
+        "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\pyo3-build-config-1af5ef9f37247e77\\build-script-build-script-build.json",
+        "size": 675,
+        "hash": "63213a2140ff7725",
+        "modified": "2025-11-09T12:38:44.989236"
+      },
+      {
+        "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\pyo3-dc083f83ecc221c9\\build-script-build-script-build.json",
+        "size": 1084,
+        "hash": "e8fc4a000097e94d",
+        "modified": "2025-11-09T12:38:45.844234"
+      },
+      {
+        "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\pyo3-ffi-545b2793f262b222\\build-script-build-script-build.json",
+        "size": 635,
+        "hash": "721a90670c36e812",
+        "modified": "2025-11-09T12:38:45.865729"
+      },
+      {
+        "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\pyo3-macros-backend-30fe0486e83da2f7\\build-script-build-script-build.json",
+        "size": 488,
+        "hash": "5507d4a76a41dc3f",
+        "modified": "2025-11-09T12:38:45.836523"
+      },
+      {
+        "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\quote-f69d4686955fae71\\build-script-build-script-build.json",
+        "size": 426,
+        "hash": "12d6ed44f31b2d24",
+        "modified": "2025-11-09T12:38:43.433268"
+      },
+      {
+        "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\rav1e-428bcfda688a4e28\\build-script-build-script-build.json",
+        "size": 1097,
+        "hash": "d2a7f8f71bf61b74",
+        "modified": "2025-11-09T12:38:44.326486"
+      },
+      {
+        "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\rayon-core-feae328afcfca301\\build-script-build-script-build.json",
+        "size": 393,
+        "hash": "9cb7f85a324bd927",
+        "modified": "2025-11-09T12:38:43.386427"
+      },
+      {
+        "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\serde-fff405382eebc36e\\build-script-build-script-build.json",
+        "size": 503,
+        "hash": "2ee533f133ccba28",
+        "modified": "2025-11-09T12:38:44.205532"
+      },
+      {
+        "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\serde_core-806575247ad02548\\build-script-build-script-build.json",
+        "size": 460,
+        "hash": "b62b02a2f22d75d6",
+        "modified": "2025-11-09T12:38:43.617273"
+      },
+      {
+        "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\serde_json-0695195ae7f2c067\\build-script-build-script-build.json",
+        "size": 542,
+        "hash": "0fcf6c42448e5a70",
+        "modified": "2025-11-09T12:38:43.882984"
+      },
+      {
+        "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\target-lexicon-489521eb06bfc395\\build-script-build-script-build.json",
+        "size": 457,
+        "hash": "a4dcf6887889da19",
+        "modified": "2025-11-09T12:38:43.698352"
+      },
+      {
+        "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\thiserror-08f563ed4d8ce90b\\build-script-build-script-build.json",
+        "size": 375,
+        "hash": "9bfe9c4509b4565a",
+        "modified": "2025-11-09T12:38:43.617273"
+      },
+      {
+        "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\zerocopy-d2048daee2ad3e81\\build-script-build-script-build.json",
+        "size": 567,
+        "hash": "f36e4b226b928246",
+        "modified": "2025-11-09T12:38:43.657715"
+      }
+    ],
+    "run-build-script-build-script-build.json": [
+      {
+        "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\anyhow-64b4edb0412c7acb\\run-build-script-build-script-build.json",
+        "size": 395,
+        "hash": "f71596b20b9bef42",
+        "modified": "2025-11-09T12:38:43.956176"
+      },
+      {
+        "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\crc32fast-807a2b008bbc192f\\run-build-script-build-script-build.json",
+        "size": 256,
+        "hash": "33835c9bfda71fe0",
+        "modified": "2025-11-09T12:38:43.771887"
+      },
+      {
+        "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\crossbeam-utils-9be4cfbe598a8303\\run-build-script-build-script-build.json",
+        "size": 343,
+        "hash": "44a54d2e4ecf656a",
+        "modified": "2025-11-09T12:38:43.664086"
+      },
+      {
+        "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\libc-371425df3c4001e4\\run-build-script-build-script-build.json",
+        "size": 720,
+        "hash": "409edfe4f723fc7a",
+        "modified": "2025-11-09T12:38:43.946932"
+      },
+      {
+        "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\matrixmultiply-be316e0c8f6b83a3\\run-build-script-build-script-build.json",
+        "size": 340,
+        "hash": "c7bf919a238e5b37",
+        "modified": "2025-11-09T12:38:44.551236"
+      },
+      {
+        "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\memoffset-3cc84a9fc02cd5ee\\run-build-script-build-script-build.json",
+        "size": 257,
+        "hash": "89a7dedc92895288",
+        "modified": "2025-11-09T12:38:44.502113"
+      },
+      {
+        "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\num-traits-d1c6b4afbd565ff3\\run-build-script-build-script-build.json",
+        "size": 334,
+        "hash": "47b4c57da2362dac",
+        "modified": "2025-11-09T12:38:44.492713"
+      },
+      {
+        "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\paste-4fe4132337cb3e46\\run-build-script-build-script-build.json",
+        "size": 330,
+        "hash": "5276fc1e70182720",
+        "modified": "2025-11-09T12:38:43.728141"
+      },
+      {
+        "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\proc-macro2-e8844dae11ba17cd\\run-build-script-build-script-build.json",
+        "size": 492,
+        "hash": "3107bd45b5c4e56f",
+        "modified": "2025-11-09T12:38:43.829079"
+      },
+      {
+        "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\pyo3-build-config-1f3b3107c11f4a38\\run-build-script-build-script-build.json",
+        "size": 3269,
+        "hash": "74e0cf8574e77e1f",
+        "modified": "2025-11-09T12:38:45.171498"
+      },
+      {
+        "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\pyo3-eb55de84f61b2893\\run-build-script-build-script-build.json",
+        "size": 322,
+        "hash": "07931c0d046fefe7",
+        "modified": "2025-11-09T12:38:46.036165"
+      },
+      {
+        "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\pyo3-ffi-a4341e26a9e3da8b\\run-build-script-build-script-build.json",
+        "size": 627,
+        "hash": "e39b50ffed9c794a",
+        "modified": "2025-11-09T12:38:45.947214"
+      },
+      {
+        "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\pyo3-macros-backend-a70facd5ca1c57df\\run-build-script-build-script-build.json",
+        "size": 256,
+        "hash": "51bb056ef9aac76e",
+        "modified": "2025-11-09T12:38:45.893422"
+      },
+      {
+        "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\quote-ba3f22ddd198a3ad\\run-build-script-build-script-build.json",
+        "size": 330,
+        "hash": "88de35d96b06181a",
+        "modified": "2025-11-09T12:38:43.571334"
+      },
+      {
+        "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\rav1e-c7d1f951da111fca\\run-build-script-build-script-build.json",
+        "size": 256,
+        "hash": "fff8f3a3b2d5cbad",
+        "modified": "2025-11-09T12:38:44.578026"
+      },
+      {
+        "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\rayon-core-8fe3e8789a6cf35e\\run-build-script-build-script-build.json",
+        "size": 334,
+        "hash": "2936452cd709d339",
+        "modified": "2025-11-09T12:38:43.453053"
+      },
+      {
+        "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\serde-cbdbc5f821787281\\run-build-script-build-script-build.json",
+        "size": 331,
+        "hash": "7bbfa8b025ccc66d",
+        "modified": "2025-11-09T12:38:44.328085"
+      },
+      {
+        "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\serde_core-fe1f4b9204744608\\run-build-script-build-script-build.json",
+        "size": 336,
+        "hash": "85f858e1033ef3e2",
+        "modified": "2025-11-09T12:38:43.821327"
+      },
+      {
+        "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\serde_json-1168ce211c5fd716\\run-build-script-build-script-build.json",
+        "size": 336,
+        "hash": "b41b55a21d4b3493",
+        "modified": "2025-11-09T12:38:44.157017"
+      },
+      {
+        "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\target-lexicon-83f42d194a4d9c8d\\run-build-script-build-script-build.json",
+        "size": 257,
+        "hash": "cc0cd4ab5aaad707",
+        "modified": "2025-11-09T12:38:44.051098"
+      },
+      {
+        "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\thiserror-474d1f453bff4344\\run-build-script-build-script-build.json",
+        "size": 398,
+        "hash": "9c5dda859a37d41c",
+        "modified": "2025-11-09T12:38:43.892265"
+      },
+      {
+        "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\zerocopy-a0922493bc020f7a\\run-build-script-build-script-build.json",
+        "size": 346,
+        "hash": "d1260cf6869b0820",
+        "modified": "2025-11-09T12:38:43.990060"
+      }
+    ],
+    "lib-once_cell.json": [
+      {
+        "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\once_cell-1ee12cc6919f106c\\lib-once_cell.json",
+        "size": 534,
+        "hash": "eeaede2e63333647",
+        "modified": "2025-11-09T12:38:43.453053"
+      },
+      {
+        "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\.fingerprint\\once_cell-f461b98d2110071d\\lib-once_cell.json",
+        "size": 533,
+        "hash": "6cd223fe9f424204",
+        "modified": "2025-11-09T12:38:43.483411"
+      }
+    ],
+    "private.rs": [
+      {
+        "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\build\\serde-cbdbc5f821787281\\out\\private.rs",
+        "size": 142,
+        "hash": "f8e9470772811a1b",
+        "modified": "2025-11-09T12:38:44.298182"
+      },
+      {
+        "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\build\\serde_core-fe1f4b9204744608\\out\\private.rs",
+        "size": 90,
+        "hash": "27ad1b5fb4eebeb1",
+        "modified": "2025-11-09T12:38:43.795058"
+      }
+    ]
+  },
+  "by_hash": {
+    "89095c18266f9139": [
+      {
+        "path": ".vs\\LPG\\v17\\DocumentLayout.backup.json",
+        "size": 1730,
+        "hash": "89095c18266f9139",
+        "modified": "2025-10-28T15:04:20.212580"
+      },
+      {
+        "path": ".vs\\LPG\\v17\\DocumentLayout.json",
+        "size": 1730,
+        "hash": "89095c18266f9139",
+        "modified": "2025-10-28T15:04:20.499987"
+      }
+    ],
+    "7bf0943f47fd89dd": [
+      {
+        "path": "build\\CMakeFiles\\4.0.2\\VCTargetsPath.txt",
+        "size": 90,
+        "hash": "7bf0943f47fd89dd",
+        "modified": "2025-11-02T20:17:57.719865"
+      },
+      {
+        "path": "build\\_deps\\catch2-subbuild\\CMakeFiles\\4.0.2\\VCTargetsPath.txt",
+        "size": 90,
+        "hash": "7bf0943f47fd89dd",
+        "modified": "2025-11-02T20:18:03.807455"
+      }
+    ],
+    "e3b0c44298fc1c14": [
+      {
+        "path": "build\\unit_tests.dir\\Release\\unit_tests.vcxproj.FileListAbsolute.txt",
+        "size": 0,
+        "hash": "e3b0c44298fc1c14",
+        "modified": "2025-11-02T20:47:04.895100"
+      },
+      {
+        "path": "build\\vmf_validator_cpp.dir\\Release\\vmf_validator_cpp.vcxproj.FileListAbsolute.txt",
+        "size": 0,
+        "hash": "e3b0c44298fc1c14",
+        "modified": "2025-11-02T20:47:04.779447"
+      },
+      {
+        "path": "build\\vmf_validator_test.dir\\Release\\vmf_validator_test.vcxproj.FileListAbsolute.txt",
+        "size": 0,
+        "hash": "e3b0c44298fc1c14",
+        "modified": "2025-11-02T20:47:04.799949"
+      },
+      {
+        "path": "build\\x64\\Release\\ZERO_CHECK\\ZERO_CHECK.vcxproj.FileListAbsolute.txt",
+        "size": 0,
+        "hash": "e3b0c44298fc1c14",
+        "modified": "2025-11-02T20:47:04.733461"
+      },
+      {
+        "path": "build\\_deps\\catch2-build\\src\\Catch2.dir\\Release\\Catch2.vcxproj.FileListAbsolute.txt",
+        "size": 0,
+        "hash": "e3b0c44298fc1c14",
+        "modified": "2025-11-02T20:47:04.835548"
+      },
+      {
+        "path": "build\\_deps\\catch2-build\\src\\Catch2WithMain.dir\\Release\\Catch2WithMain.vcxproj.FileListAbsolute.txt",
+        "size": 0,
+        "hash": "e3b0c44298fc1c14",
+        "modified": "2025-11-02T20:47:04.873654"
+      },
+      {
+        "path": "vaultmind_forge\\native\\rust\\validator\\target\\release\\build\\pyo3-build-config-1f3b3107c11f4a38\\out\\pyo3-build-config-file.txt",
+        "size": 0,
+        "hash": "e3b0c44298fc1c14",
+        "modified": "2025-11-09T12:38:45.051785"
+      }
+    ],
+    "c9baf32b6f728a68": [
+      {
+        "path": "build\\_deps\\catch2-subbuild\\catch2-populate-prefix\\src\\catch2-populate-stamp\\catch2-populate-gitclone-lastrun.txt",
+        "size": 739,
+        "hash": "c9baf32b6f728a68",
+        "modified": "2025-11-02T20:18:12.359115"
+      },
+      {
+        "path": "build\\_deps\\catch2-subbuild\\catch2-populate-prefix\\src\\catch2-populate-stamp\\catch2-populate-gitinfo.txt",
+        "size": 739,
+        "hash": "c9baf32b6f728a68",
+        "modified": "2025-11-02T20:18:03.879868"
+      }
+    ],
+    "635d5f6e3ec33987": [
+      {
+        "path": "vaultmind_forge\\forge_cli.py",
+        "size": 3216,
+        "hash": "635d5f6e3ec33987",
+        "modified": "2025-11-04T09:44:13.264564"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_cli.py",
+        "size": 3216,
+        "hash": "635d5f6e3ec33987",
+        "modified": "2025-10-28T07:58:42.380296"
+      }
+    ],
+    "12b27644285018ee": [
+      {
+        "path": "vaultmind_forge\\__init__.py",
+        "size": 166,
+        "hash": "12b27644285018ee",
+        "modified": "2025-11-04T09:44:14.468285"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\__init__.py",
+        "size": 166,
+        "hash": "12b27644285018ee",
+        "modified": "2025-10-28T07:42:16.055421"
+      }
+    ],
+    "e5f889b8ea8b0d43": [
+      {
+        "path": "vaultmind_forge\\forge_agent\\planner.py",
+        "size": 14232,
+        "hash": "e5f889b8ea8b0d43",
+        "modified": "2025-11-04T09:43:29.719343"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_agent\\planner.py",
+        "size": 14232,
+        "hash": "e5f889b8ea8b0d43",
+        "modified": "2025-11-03T14:41:12.477055"
+      }
+    ],
+    "2cd5a329e186d521": [
+      {
+        "path": "vaultmind_forge\\forge_agent\\schemas.py",
+        "size": 11802,
+        "hash": "2cd5a329e186d521",
+        "modified": "2025-11-04T09:43:29.735056"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_agent\\schemas.py",
+        "size": 11802,
+        "hash": "2cd5a329e186d521",
+        "modified": "2025-11-03T14:35:24.548198"
+      }
+    ],
+    "16600c3cbe5a88fc": [
+      {
+        "path": "vaultmind_forge\\forge_agent\\styles.py",
+        "size": 9999,
+        "hash": "16600c3cbe5a88fc",
+        "modified": "2025-11-04T09:43:29.749816"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_agent\\styles.py",
+        "size": 9999,
+        "hash": "16600c3cbe5a88fc",
+        "modified": "2025-11-03T14:42:58.047042"
+      }
+    ],
+    "884769d85f018c1f": [
+      {
+        "path": "vaultmind_forge\\forge_agent\\__init__.py",
+        "size": 2501,
+        "hash": "884769d85f018c1f",
+        "modified": "2025-11-04T09:43:29.763527"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_agent\\__init__.py",
+        "size": 2501,
+        "hash": "884769d85f018c1f",
+        "modified": "2025-11-03T14:43:18.070086"
+      }
+    ],
+    "6af832b72c3605db": [
+      {
+        "path": "vaultmind_forge\\forge_cli\\html_report.py",
+        "size": 2720,
+        "hash": "6af832b72c3605db",
+        "modified": "2025-11-04T09:44:12.079221"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_cli\\html_report.py",
+        "size": 2720,
+        "hash": "6af832b72c3605db",
+        "modified": "2025-10-28T07:58:42.378766"
+      }
+    ],
+    "9254d317fcd9f56a": [
+      {
+        "path": "vaultmind_forge\\forge_diffusion\\generator.py",
+        "size": 20686,
+        "hash": "9254d317fcd9f56a",
+        "modified": "2025-11-04T09:43:36.310333"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_diffusion\\generator.py",
+        "size": 20686,
+        "hash": "9254d317fcd9f56a",
+        "modified": "2025-11-03T20:01:50.723046"
+      }
+    ],
+    "7e34a489adc88d88": [
+      {
+        "path": "vaultmind_forge\\forge_diffusion\\__init__.py",
+        "size": 704,
+        "hash": "7e34a489adc88d88",
+        "modified": "2025-11-04T09:43:36.325607"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_diffusion\\__init__.py",
+        "size": 704,
+        "hash": "7e34a489adc88d88",
+        "modified": "2025-11-03T20:02:43.626265"
+      }
+    ],
+    "269ca654fea43407": [
+      {
+        "path": "vaultmind_forge\\forge_executor\\__init__.py",
+        "size": 234,
+        "hash": "269ca654fea43407",
+        "modified": "2025-11-04T09:43:52.312232"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_executor\\__init__.py",
+        "size": 234,
+        "hash": "269ca654fea43407",
+        "modified": "2025-11-03T20:00:45.428825"
+      }
+    ],
+    "6d0737b8a7e0d008": [
+      {
+        "path": "vaultmind_forge\\forge_lineage\\logger.py",
+        "size": 1799,
+        "hash": "6d0737b8a7e0d008",
+        "modified": "2025-11-04T09:43:34.107573"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_lineage\\logger.py",
+        "size": 1799,
+        "hash": "6d0737b8a7e0d008",
+        "modified": "2025-10-28T07:56:27.465703"
+      }
+    ],
+    "9128065ad0ab3420": [
+      {
+        "path": "vaultmind_forge\\forge_monitor\\metrics.py",
+        "size": 11328,
+        "hash": "9128065ad0ab3420",
+        "modified": "2025-11-04T09:43:53.900389"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_monitor\\metrics.py",
+        "size": 11328,
+        "hash": "9128065ad0ab3420",
+        "modified": "2025-11-03T14:30:37.845169"
+      }
+    ],
+    "65a82cc101ac3fbd": [
+      {
+        "path": "vaultmind_forge\\forge_monitor\\monitor.py",
+        "size": 18299,
+        "hash": "65a82cc101ac3fbd",
+        "modified": "2025-11-04T09:43:53.909571"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_monitor\\monitor.py",
+        "size": 18299,
+        "hash": "65a82cc101ac3fbd",
+        "modified": "2025-11-03T14:29:55.309248"
+      }
+    ],
+    "ce5a99f9705e3328": [
+      {
+        "path": "vaultmind_forge\\forge_monitor\\README.md",
+        "size": 11700,
+        "hash": "ce5a99f9705e3328",
+        "modified": "2025-11-04T09:43:53.923297"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_monitor\\README.md",
+        "size": 11700,
+        "hash": "ce5a99f9705e3328",
+        "modified": "2025-11-03T14:33:36.208477"
+      }
+    ],
+    "aa4ffda70fef9dfd": [
+      {
+        "path": "vaultmind_forge\\forge_monitor\\__init__.py",
+        "size": 1414,
+        "hash": "aa4ffda70fef9dfd",
+        "modified": "2025-11-04T09:43:53.889749"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_monitor\\__init__.py",
+        "size": 1414,
+        "hash": "aa4ffda70fef9dfd",
+        "modified": "2025-11-03T14:30:53.177596"
+      }
+    ],
+    "e0e7b44f12a9d6c6": [
+      {
+        "path": "vaultmind_forge\\forge_packaging\\packager.py",
+        "size": 15385,
+        "hash": "e0e7b44f12a9d6c6",
+        "modified": "2025-11-04T09:43:38.517128"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_packaging\\packager.py",
+        "size": 15385,
+        "hash": "e0e7b44f12a9d6c6",
+        "modified": "2025-11-03T20:04:19.787497"
+      }
+    ],
+    "79ffff7374f6d928": [
+      {
+        "path": "vaultmind_forge\\forge_packaging\\__init__.py",
+        "size": 524,
+        "hash": "79ffff7374f6d928",
+        "modified": "2025-11-04T09:43:38.531893"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_packaging\\__init__.py",
+        "size": 524,
+        "hash": "79ffff7374f6d928",
+        "modified": "2025-11-03T20:04:20.237648"
+      }
+    ],
+    "a50f50d7f9d94246": [
+      {
+        "path": "vaultmind_forge\\forge_semantic\\downrez.py",
+        "size": 12278,
+        "hash": "a50f50d7f9d94246",
+        "modified": "2025-11-04T09:43:58.681715"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_semantic\\downrez.py",
+        "size": 12278,
+        "hash": "a50f50d7f9d94246",
+        "modified": "2025-11-03T14:48:22.413511"
+      }
+    ],
+    "9c43867fbba3989c": [
+      {
+        "path": "vaultmind_forge\\forge_semantic\\__init__.py",
+        "size": 900,
+        "hash": "9c43867fbba3989c",
+        "modified": "2025-11-04T09:43:58.672570"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_semantic\\__init__.py",
+        "size": 900,
+        "hash": "9c43867fbba3989c",
+        "modified": "2025-11-03T14:48:46.735410"
+      }
+    ],
+    "871ad2e2831900a2": [
+      {
+        "path": "vaultmind_forge\\forge_sr\\upscaler.py",
+        "size": 12612,
+        "hash": "871ad2e2831900a2",
+        "modified": "2025-11-04T09:43:55.516877"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_sr\\upscaler.py",
+        "size": 12612,
+        "hash": "871ad2e2831900a2",
+        "modified": "2025-11-03T14:49:48.697833"
+      }
+    ],
+    "cd807646fed8c665": [
+      {
+        "path": "vaultmind_forge\\forge_sr\\__init__.py",
+        "size": 946,
+        "hash": "cd807646fed8c665",
+        "modified": "2025-11-04T09:43:55.498612"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_sr\\__init__.py",
+        "size": 946,
+        "hash": "cd807646fed8c665",
+        "modified": "2025-11-03T14:50:02.403706"
+      }
+    ],
+    "f144312cf7a850d4": [
+      {
+        "path": "vaultmind_forge\\forge_validator\\evaluators.py",
+        "size": 3910,
+        "hash": "f144312cf7a850d4",
+        "modified": "2025-11-04T09:43:02.109649"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_validator\\evaluators.py",
+        "size": 3910,
+        "hash": "f144312cf7a850d4",
+        "modified": "2025-10-28T07:47:19.511635"
+      }
+    ],
+    "7d96f9d89b41a2b3": [
+      {
+        "path": "vaultmind_forge\\forge_validator\\metrics.py",
+        "size": 10891,
+        "hash": "7d96f9d89b41a2b3",
+        "modified": "2025-11-04T09:43:02.094886"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_validator\\metrics.py",
+        "size": 10891,
+        "hash": "7d96f9d89b41a2b3",
+        "modified": "2025-11-02T20:07:07.791508"
+      }
+    ],
+    "bfa2fe9ad3ab5967": [
+      {
+        "path": "vaultmind_forge\\forge_validator\\metrics_advanced.py",
+        "size": 29740,
+        "hash": "bfa2fe9ad3ab5967",
+        "modified": "2025-11-04T09:42:57.795468"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_validator\\metrics_advanced.py",
+        "size": 29740,
+        "hash": "bfa2fe9ad3ab5967",
+        "modified": "2025-11-02T20:06:39.108968"
+      }
+    ],
+    "76c30333ee3d0be3": [
+      {
+        "path": "vaultmind_forge\\forge_validator\\validator.py",
+        "size": 3756,
+        "hash": "76c30333ee3d0be3",
+        "modified": "2025-11-04T09:42:59.017800"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_validator\\validator.py",
+        "size": 3756,
+        "hash": "76c30333ee3d0be3",
+        "modified": "2025-11-03T20:00:47.326443"
+      }
+    ],
+    "c2e2c919bdfb70fb": [
+      {
+        "path": "vaultmind_forge\\forge_versioning\\version_control.py",
+        "size": 13154,
+        "hash": "c2e2c919bdfb70fb",
+        "modified": "2025-11-04T09:44:00.267027"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_versioning\\version_control.py",
+        "size": 13154,
+        "hash": "c2e2c919bdfb70fb",
+        "modified": "2025-11-03T14:52:07.088172"
+      }
+    ],
+    "724f850e294dd8a4": [
+      {
+        "path": "vaultmind_forge\\forge_versioning\\__init__.py",
+        "size": 994,
+        "hash": "724f850e294dd8a4",
+        "modified": "2025-11-04T09:44:00.246161"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_versioning\\__init__.py",
+        "size": 994,
+        "hash": "724f850e294dd8a4",
+        "modified": "2025-11-03T14:52:21.558983"
+      }
+    ],
+    "1c8dc12ca8956b4d": [
+      {
+        "path": "vaultmind_forge\\forge_video\\generator.py",
+        "size": 12081,
+        "hash": "1c8dc12ca8956b4d",
+        "modified": "2025-11-04T09:43:57.104173"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_video\\generator.py",
+        "size": 12081,
+        "hash": "1c8dc12ca8956b4d",
+        "modified": "2025-11-03T14:50:58.883912"
+      }
+    ],
+    "916d1dadf7ab0623": [
+      {
+        "path": "vaultmind_forge\\forge_video\\__init__.py",
+        "size": 975,
+        "hash": "916d1dadf7ab0623",
+        "modified": "2025-11-04T09:43:57.095046"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_video\\__init__.py",
+        "size": 975,
+        "hash": "916d1dadf7ab0623",
+        "modified": "2025-11-03T14:51:11.318708"
+      }
+    ],
+    "a43a2062f6caf406": [
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_lineage\\__init__.py",
+        "size": 80,
+        "hash": "a43a2062f6caf406",
+        "modified": "2025-10-28T07:42:48.791674"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_validator\\__init__.py",
+        "size": 80,
+        "hash": "a43a2062f6caf406",
+        "modified": "2025-10-28T07:42:48.786867"
+      }
+    ]
+  },
+  "hotspots": {
+    "executor.py vs forge_executor": [
+      {
+        "path": "vaultmind_forge\\executor.py",
+        "size": 4408,
+        "hash": "d3c3bf70bda62e20",
+        "modified": "2025-10-28T16:51:48"
+      },
+      {
+        "path": "vaultmind_forge\\forge_executor\\executor.py",
+        "size": 3111,
+        "hash": "b7ea88f2a7a31007",
+        "modified": "2025-11-09T12:05:08.593005"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_executor\\executor.py",
+        "size": 3071,
+        "hash": "c8d7193b658816ca",
+        "modified": "2025-11-03T20:00:45.890215"
+      }
+    ],
+    "forge_cli.py vs forge_cli": [
+      {
+        "path": "vaultmind_forge\\forge_cli.py",
+        "size": 3216,
+        "hash": "635d5f6e3ec33987",
+        "modified": "2025-11-04T09:44:13.264564"
+      },
+      {
+        "path": "vaultmind_forge\\vaultmind_forge\\forge_cli.py",
+        "size": 3216,
+        "hash": "635d5f6e3ec33987",
+        "modified": "2025-10-28T07:58:42.380296"
+      }
+    ]
+  }
+}

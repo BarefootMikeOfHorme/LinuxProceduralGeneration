@@ -1,0 +1,38 @@
+{
+  "manifest_version": "1.0",
+  "created": "2025-11-09T21:20:11.743795",
+  "repository": "LPG VaultMind Forge",
+  "archives": [
+    {
+      "name": "nested_package_snapshot_20251109.zip",
+      "description": "Historical snapshot of vaultmind_forge package before major development",
+      "reason": "Obsolete code snapshot - missing 6 modules, outdated implementations",
+      "source_path": "vaultmind_forge/vaultmind_forge/",
+      "destination": "docs/archives/code_snapshots/",
+      "type": "code_snapshot"
+    },
+    {
+      "name": "deprecated_executor_prototype.zip",
+      "description": "Original executor.py prototype before package refactor",
+      "reason": "Superseded by forge_executor package",
+      "source_path": "vaultmind_forge/executor.py",
+      "destination": "docs/archives/code_snapshots/",
+      "type": "deprecated_code"
+    },
+    {
+      "name": "milestone_reports_20251109.zip",
+      "description": "Development milestone completion reports",
+      "reason": "Historical development documentation - archival",
+      "source_paths": [
+        "vaultmind_forge/BOT_FRAMEWORK_COMPLETE.md",
+        "vaultmind_forge/PHASE_1_AND_4_COMPLETE.md",
+        "vaultmind_forge/QUICK_WIN_TRIO_COMPLETE.md",
+        "vaultmind_forge/TASK_VERIFICATION_REPORT.md",
+        "vaultmind_forge/BEAST_MODE_ACTION_PLAN.md",
+        "vaultmind_forge/PLACEHOLDER_AUDIT.md"
+      ],
+      "destination": "docs/archives/milestones/",
+      "type": "milestone_docs"
+    }
+  ]
+}

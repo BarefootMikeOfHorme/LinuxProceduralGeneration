@@ -1,0 +1,15 @@
+{
+  "archive_name": "deprecated_executor_prototype.zip",
+  "created": "2025-11-09T21:21:36.390659",
+  "description": "Original DAG executor prototype (simple async implementation)",
+  "reason": "Superseded by forge_executor package with enhanced pipeline support",
+  "canonical_replacement": "vaultmind_forge/forge_executor/executor.py",
+  "files": [
+    {
+      "path": "vaultmind_forge/executor.py",
+      "size": 4408,
+      "hash": "d3c3bf70bda62e20676ff6a79fbacf305a58a3ebbd832ea86f93373a1614cdae",
+      "modified": "2025-10-28T16:51:48"
+    }
+  ]
+}

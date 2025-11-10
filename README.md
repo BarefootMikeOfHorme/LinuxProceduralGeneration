@@ -4,6 +4,8 @@
 
 VaultMind Forge is a production-ready framework for generating game assets, characters, storyboards, and visual content using SDXL diffusion models. Built on a philosophy of **precision, reproducibility, and complete lineage tracking** over raw speed.
 
+> **📖 Documentation:** [Quick Navigation](./docs/guides/QUICK_NAV.md) | [Complete Index](./DOCUMENTATION.md) | [Quick Start](./QUICK_START.md) | [API Docs](./docs/api/NODE_API_README.md)
+
 ---
 
 ## 🎯 Core Philosophy
@@ -43,6 +45,14 @@ VaultMind Forge is a production-ready framework for generating game assets, char
 - Extensible custom metrics system
 - Batch validation support
 - Quality scoring: sharpness, anatomy, prompt alignment, consistency, color fidelity
+
+### 📥 Asset Intake & Processing (NEW!)
+- **Multi-Version Asset Detection**: Automatically groups different format versions (e.g., robot.fbx + robot.obj + robot.glb)
+- **40+ Format Support**: glTF, FBX, OBJ, USD, COLLADA, Blender, textures, archives
+- **Intelligent Merging**: Combines best data from each variant (geometry, materials, rigging, animations)
+- **Drop Folder Monitoring**: Real-time file watching with auto-processing
+- **Daemon Service**: Persistent background processing that survives reboots
+- **VAF (VaultMind Asset Format)**: Unified multi-tier format system with 6 specialized variants
 
 ### 🖼️ LineageViewer React Component
 - **3 View Modes**: Grid, List, Timeline
@@ -230,6 +240,50 @@ function App() {
   return <LineageViewer apiBaseUrl="http://localhost:3000/api" />;
 }
 ```
+
+### Asset Intake & Processing (NEW!)
+
+```python
+from vaultmind_forge.forge_intake.batch_ingest_v2 import AssetIngestorV2
+
+# Batch process existing downloads
+ingestor = AssetIngestorV2(
+    downloads_dir="C:/Users/Me/Downloads",
+    project_root="C:/Projects/GameAssets"
+)
+summary = ingestor.batch_process()
+
+print(f"Processed {summary['processed']} assets")
+print(f"Multi-version merges: {summary['multi_version_merges']}")
+```
+
+```python
+# Real-time drop folder monitoring
+from vaultmind_forge.forge_intake.drop_folder_monitor import DropFolderMonitor
+
+monitor = DropFolderMonitor(
+    drop_folder="C:/AssetDropFolder",
+    output_folder="C:/ProcessedAssets",
+    batch_size=10,
+    batch_timeout=30.0
+)
+monitor.run_interactive()  # Press Ctrl+C to stop
+```
+
+```bash
+# Background daemon service
+python -m vaultmind_forge.forge_intake.forge_daemon start \
+    "C:/AssetDropFolder" \
+    "C:/ProcessedAssets"
+
+# Check status
+python -m vaultmind_forge.forge_intake.forge_daemon status
+```
+
+**See Also:**
+- [Complete Pipeline Documentation](./VAULTMIND_FORGE_PIPELINE.md)
+- [Quick Start Guide](./QUICK_START.md)
+- [VAF Format Specification](./vaultmind_forge/config/schemas/VAF_SYSTEM_DESIGN.md)
 
 ---
 

@@ -1,0 +1,390 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://vaultmind-forge.io/schemas/vaultmind-asset-format.json",
+  "title": "VaultMind Asset Format (VAF)",
+  "description": "Unified intermediate format for all ingested assets - the single source of truth for asset representation across all pipelines",
+  "type": "object",
+  "required": ["vaf_version", "asset", "geometry", "materials", "metadata", "lineage"],
+
+  "properties": {
+    "vaf_version": {
+      "type": "string",
+      "description": "VAF schema version for compatibility tracking",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "default": "1.0.0"
+    },
+
+    "asset": {
+      "type": "object",
+      "description": "Core asset identity and classification",
+      "required": ["id", "name", "type", "category"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique SHA256 identifier derived from source file",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable asset name"
+        },
+        "type": {
+          "type": "string",
+          "description": "Primary asset type",
+          "enum": ["model_3d", "texture", "material", "animation", "scene", "composite"]
+        },
+        "category": {
+          "type": "string",
+          "description": "Semantic category for organization",
+          "enum": [
+            "characters", "vehicles", "weapons", "buildings",
+            "nature", "props", "environments", "effects",
+            "animals", "architecture", "furniture", "uncategorized"
+          ]
+        },
+        "subcategory": {
+          "type": "string",
+          "description": "Optional refined subcategory (e.g., 'sci-fi vehicle', 'medieval weapon')"
+        },
+        "tags": {
+          "type": "array",
+          "description": "Semantic tags for search and discovery",
+          "items": {"type": "string"}
+        },
+        "description": {
+          "type": "string",
+          "description": "AI-generated or manual description of the asset"
+        }
+      }
+    },
+
+    "geometry": {
+      "type": "object",
+      "description": "Unified geometry representation - the core 3D data",
+      "properties": {
+        "meshes": {
+          "type": "array",
+          "description": "Collection of mesh objects",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {"type": "string"},
+              "vertices": {
+                "type": "object",
+                "description": "Vertex data in standardized format",
+                "properties": {
+                  "count": {"type": "integer"},
+                  "positions": {
+                    "type": "string",
+                    "description": "Reference to binary buffer or embedded data URI"
+                  },
+                  "normals": {"type": "string"},
+                  "uvs": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "Multiple UV channels supported"
+                  },
+                  "colors": {"type": "string"}
+                }
+              },
+              "indices": {
+                "type": "object",
+                "properties": {
+                  "count": {"type": "integer"},
+                  "data": {"type": "string"}
+                }
+              },
+              "bounds": {
+                "type": "object",
+                "description": "Bounding box for optimization",
+                "properties": {
+                  "min": {"type": "array", "items": {"type": "number"}, "minItems": 3, "maxItems": 3},
+                  "max": {"type": "array", "items": {"type": "number"}, "minItems": 3, "maxItems": 3}
+                }
+              }
+            }
+          }
+        },
+        "lod_levels": {
+          "type": "array",
+          "description": "Level-of-detail variants",
+          "items": {
+            "type": "object",
+            "properties": {
+              "level": {"type": "integer", "minimum": 0},
+              "distance": {"type": "number", "description": "Camera distance for this LOD"},
+              "mesh_indices": {"type": "array", "items": {"type": "integer"}}
+            }
+          }
+        },
+        "statistics": {
+          "type": "object",
+          "description": "Geometry metrics",
+          "properties": {
+            "total_vertices": {"type": "integer"},
+            "total_triangles": {"type": "integer"},
+            "polycount_category": {
+              "type": "string",
+              "enum": ["very-low", "low", "medium", "high", "very-high", "extreme"]
+            },
+            "has_normals": {"type": "boolean"},
+            "has_uvs": {"type": "boolean"},
+            "has_vertex_colors": {"type": "boolean"}
+          }
+        }
+      }
+    },
+
+    "materials": {
+      "type": "object",
+      "description": "Unified material and texture representation",
+      "properties": {
+        "definitions": {
+          "type": "array",
+          "description": "Material definitions in PBR-compatible format",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {"type": "string"},
+              "shader_model": {
+                "type": "string",
+                "description": "Shader/material model",
+                "enum": ["pbr_metallic_roughness", "pbr_specular_glossiness", "phong", "blinn", "unlit", "custom"]
+              },
+              "parameters": {
+                "type": "object",
+                "description": "Material parameters (color, metallic, roughness, etc.)",
+                "additionalProperties": true
+              },
+              "textures": {
+                "type": "object",
+                "description": "Texture maps",
+                "properties": {
+                  "base_color": {"$ref": "#/definitions/texture_reference"},
+                  "normal": {"$ref": "#/definitions/texture_reference"},
+                  "metallic_roughness": {"$ref": "#/definitions/texture_reference"},
+                  "occlusion": {"$ref": "#/definitions/texture_reference"},
+                  "emissive": {"$ref": "#/definitions/texture_reference"},
+                  "height": {"$ref": "#/definitions/texture_reference"}
+                },
+                "additionalProperties": {"$ref": "#/definitions/texture_reference"}
+              }
+            }
+          }
+        },
+        "textures": {
+          "type": "array",
+          "description": "Texture asset references",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {"type": "string"},
+              "name": {"type": "string"},
+              "path": {"type": "string", "description": "Relative path within asset package"},
+              "format": {"type": "string", "enum": [".png", ".jpg", ".tga", ".exr", ".hdr", ".dds"]},
+              "resolution": {
+                "type": "object",
+                "properties": {
+                  "width": {"type": "integer"},
+                  "height": {"type": "integer"}
+                }
+              },
+              "color_space": {
+                "type": "string",
+                "enum": ["srgb", "linear", "normal"]
+              },
+              "usage": {
+                "type": "string",
+                "enum": ["base_color", "normal", "roughness", "metallic", "occlusion", "emissive", "height", "other"]
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "rigging": {
+      "type": "object",
+      "description": "Skeletal rigging and deformation data",
+      "properties": {
+        "skeleton": {
+          "type": "object",
+          "properties": {
+            "bones": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {"type": "string"},
+                  "parent": {"type": "string"},
+                  "transform": {
+                    "type": "object",
+                    "properties": {
+                      "position": {"type": "array", "items": {"type": "number"}},
+                      "rotation": {"type": "array", "items": {"type": "number"}},
+                      "scale": {"type": "array", "items": {"type": "number"}}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "skin_weights": {
+          "type": "array",
+          "description": "Vertex skin weights per mesh",
+          "items": {
+            "type": "object",
+            "properties": {
+              "mesh_index": {"type": "integer"},
+              "weights": {"type": "string", "description": "Reference to binary weight data"}
+            }
+          }
+        }
+      }
+    },
+
+    "animations": {
+      "type": "array",
+      "description": "Animation clips",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {"type": "string"},
+          "duration": {"type": "number", "description": "Duration in seconds"},
+          "framerate": {"type": "number"},
+          "loop": {"type": "boolean"},
+          "channels": {
+            "type": "array",
+            "description": "Animation channels (bone transforms, etc.)",
+            "items": {
+              "type": "object",
+              "properties": {
+                "target": {"type": "string", "description": "Bone or object name"},
+                "property": {"type": "string", "enum": ["position", "rotation", "scale"]},
+                "keyframes": {"type": "string", "description": "Reference to keyframe data"}
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "metadata": {
+      "type": "object",
+      "description": "Asset metadata and provenance",
+      "required": ["created", "modified", "stage", "quality"],
+      "properties": {
+        "created": {"type": "string", "format": "date-time"},
+        "modified": {"type": "string", "format": "date-time"},
+        "stage": {
+          "type": "string",
+          "enum": ["raw", "extracted", "classified", "validated", "enhanced", "converted", "cataloged"]
+        },
+        "quality": {
+          "type": "string",
+          "enum": ["unknown", "low", "medium", "high", "ultra"]
+        },
+        "source": {
+          "type": "object",
+          "description": "Original source information",
+          "properties": {
+            "format": {"type": "string", "description": "Original file format"},
+            "filename": {"type": "string"},
+            "path": {"type": "string"},
+            "size_bytes": {"type": "integer"},
+            "url": {"type": "string", "format": "uri"}
+          }
+        },
+        "engine_compatibility": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["unity", "unreal", "godot", "blender", "generic"]
+          }
+        },
+        "usage_rights": {
+          "type": "object",
+          "properties": {
+            "license": {"type": "string"},
+            "attribution": {"type": "string"},
+            "commercial_use": {"type": "boolean"}
+          }
+        }
+      }
+    },
+
+    "lineage": {
+      "type": "object",
+      "description": "Complete provenance chain",
+      "required": ["origin_hash", "transformations"],
+      "properties": {
+        "origin_hash": {
+          "type": "string",
+          "description": "SHA256 of original source file",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "transformations": {
+          "type": "array",
+          "description": "Ordered list of transformations applied",
+          "items": {
+            "type": "object",
+            "properties": {
+              "timestamp": {"type": "string", "format": "date-time"},
+              "operation": {"type": "string"},
+              "tool": {"type": "string"},
+              "parameters": {"type": "object"},
+              "result_hash": {"type": "string"}
+            }
+          }
+        },
+        "parent_assets": {
+          "type": "array",
+          "description": "If asset was merged/combined from multiple sources",
+          "items": {"type": "string"}
+        }
+      }
+    },
+
+    "export_cache": {
+      "type": "object",
+      "description": "Cached exports for different target formats",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "format": {"type": "string"},
+          "path": {"type": "string"},
+          "hash": {"type": "string"},
+          "generated": {"type": "string", "format": "date-time"}
+        }
+      }
+    }
+  },
+
+  "definitions": {
+    "texture_reference": {
+      "type": "object",
+      "properties": {
+        "texture_id": {"type": "string"},
+        "sampler": {
+          "type": "object",
+          "properties": {
+            "wrap_s": {"type": "string", "enum": ["repeat", "clamp", "mirror"]},
+            "wrap_t": {"type": "string", "enum": ["repeat", "clamp", "mirror"]},
+            "filter_min": {"type": "string", "enum": ["nearest", "linear", "mipmap"]},
+            "filter_mag": {"type": "string", "enum": ["nearest", "linear"]}
+          }
+        },
+        "transform": {
+          "type": "object",
+          "description": "UV transform",
+          "properties": {
+            "offset": {"type": "array", "items": {"type": "number"}},
+            "scale": {"type": "array", "items": {"type": "number"}},
+            "rotation": {"type": "number"}
+          }
+        }
+      }
+    }
+  }
+}
