@@ -1,0 +1,68 @@
+{
+  "jobs": {
+    "j_e8581b940c5a": {
+      "id": "j_e8581b940c5a",
+      "prompt": "job 1",
+      "output_type": "standard",
+      "target_engines": [
+        "unity"
+      ],
+      "generation_params": {},
+      "priority": 70,
+      "status": "pending",
+      "tags": {},
+      "created_at": "2025-11-09T22:03:26.911876",
+      "started_at": null,
+      "completed_at": null,
+      "result": null,
+      "error": null,
+      "retry_count": 0,
+      "max_retries": 3,
+      "dependencies": [],
+      "is_hero_asset": false
+    },
+    "j_074a57ff79ed": {
+      "id": "j_074a57ff79ed",
+      "prompt": "job 2",
+      "output_type": "standard",
+      "target_engines": [
+        "unity"
+      ],
+      "generation_params": {},
+      "priority": 50,
+      "status": "pending",
+      "tags": {},
+      "created_at": "2025-11-09T22:03:26.911885",
+      "started_at": null,
+      "completed_at": null,
+      "result": null,
+      "error": null,
+      "retry_count": 0,
+      "max_retries": 3,
+      "dependencies": [],
+      "is_hero_asset": false
+    },
+    "j_c88871e7305f": {
+      "id": "j_c88871e7305f",
+      "prompt": "job 3",
+      "output_type": "standard",
+      "target_engines": [
+        "unity"
+      ],
+      "generation_params": {},
+      "priority": 30,
+      "status": "pending",
+      "tags": {},
+      "created_at": "2025-11-09T22:03:26.911889",
+      "started_at": null,
+      "completed_at": null,
+      "result": null,
+      "error": null,
+      "retry_count": 0,
+      "max_retries": 3,
+      "dependencies": [],
+      "is_hero_asset": false
+    }
+  },
+  "completed_jobs": []
+}

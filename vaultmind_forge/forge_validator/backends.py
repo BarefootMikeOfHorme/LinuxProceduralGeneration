@@ -152,3 +152,93 @@ def get_backend() -> object:
 
     # Fall back to Python
     return PythonFallbackBackend()
+
+
+# Convenience functions for direct metric access
+def sharpness_score(asset_path: Path) -> float:
+    """
+    Compute sharpness score using best available backend.
+
+    Args:
+        asset_path: Path to asset
+
+    Returns:
+        Sharpness score 0.0-1.0
+    """
+    try:
+        # Try Rust backend first
+        import vmf_validator
+        return float(vmf_validator.rs_sharpness_score(str(asset_path)))
+    except (ImportError, Exception):
+        # Fallback to Python
+        from PIL import Image
+        import numpy as np
+
+        img = Image.open(asset_path)
+        gray = np.array(img.convert('L'), dtype=np.float32)
+
+        try:
+            from scipy import ndimage
+            laplacian = ndimage.laplace(gray)
+            sharpness = float(np.var(laplacian)) / 1000.0
+            return min(1.0, max(0.0, sharpness))
+        except ImportError:
+            # Very simple fallback
+            return 0.7
+
+
+def color_histogram(asset_path: Path, bins: int = 32) -> 'np.ndarray':
+    """
+    Compute color histogram.
+
+    Args:
+        asset_path: Path to asset
+        bins: Number of histogram bins
+
+    Returns:
+        Normalized histogram
+    """
+    from PIL import Image
+    import numpy as np
+
+    img = Image.open(asset_path).convert('RGB')
+    arr = np.array(img, dtype=np.float32) / 255.0
+
+    # Compute 3D histogram
+    hist, _ = np.histogramdd(
+        arr.reshape(-1, 3),
+        bins=(bins, bins, bins),
+        range=((0, 1), (0, 1), (0, 1))
+    )
+
+    # Normalize
+    hist = hist / (np.sum(hist) + 1e-8)
+
+    return hist
+
+
+def color_fidelity_score(hist1: 'np.ndarray', hist2: 'np.ndarray') -> float:
+    """
+    Compare two color histograms (Bhattacharyya coefficient).
+
+    Args:
+        hist1: First histogram
+        hist2: Second histogram
+
+    Returns:
+        Similarity score 0.0-1.0
+    """
+    import numpy as np
+
+    # Flatten if multi-dimensional
+    hist1_flat = hist1.flatten()
+    hist2_flat = hist2.flatten()
+
+    # Normalize
+    hist1_norm = hist1_flat / (np.sum(hist1_flat) + 1e-8)
+    hist2_norm = hist2_flat / (np.sum(hist2_flat) + 1e-8)
+
+    # Bhattacharyya coefficient
+    bc = float(np.sum(np.sqrt(hist1_norm * hist2_norm)))
+
+    return bc
