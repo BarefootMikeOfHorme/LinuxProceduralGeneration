@@ -235,8 +235,12 @@ class AssetPipeline:
                 'materials': self.base_path / "generated" / "diffusion" / "materials",
                 'animations': self.base_path / "generated" / "diffusion" / "animations",
                 'environments': self.base_path / "generated" / "diffusion" / "environments",
+                'environment': self.base_path / "generated" / "diffusion" / "environments",  # Alias
                 'characters': self.base_path / "generated" / "diffusion" / "characters",
+                'character': self.base_path / "generated" / "diffusion" / "characters",  # Alias
                 'props': self.base_path / "generated" / "diffusion" / "props",
+                'weapons': self.base_path / "generated" / "diffusion" / "weapons",
+                'weapon': self.base_path / "generated" / "diffusion" / "weapons",  # Alias
                 'effects': self.base_path / "generated" / "diffusion" / "effects",
                 'audio': self.base_path / "generated" / "diffusion" / "audio",
                 'standard': self.base_path / "generated" / "diffusion" / "standard"

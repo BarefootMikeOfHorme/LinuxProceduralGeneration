@@ -245,7 +245,8 @@ class JobQueue:
             job = self.jobs[job_id]
 
             if job.is_ready_to_run(self.completed_jobs):
-                job.status = JobStatus.READY
+                # Don't change status here - will be changed when marked running
+                # This prevents job from disappearing on next rebuild
                 return job
             elif job.dependencies:
                 # Put back in queue (blocked by dependencies)
