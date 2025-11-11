@@ -99,6 +99,13 @@ class SDXLGenerator:
                 logger.warning("CUDA not available, falling back to CPU")
                 self.device = "cpu"
 
+            # Enable TF32 for RTX 30xx/40xx GPUs (3x speedup for AI operations)
+            if self.device == "cuda":
+                torch.backends.cuda.matmul.allow_tf32 = True
+                torch.backends.cudnn.allow_tf32 = True
+                torch.backends.cudnn.benchmark = True  # Auto-tune convolutions
+                logger.info("Enabled TF32 and cuDNN optimizations")
+
             logger.info(f"Loading SDXL base model (this may take a few minutes first time)...")
 
             # Load base pipeline
