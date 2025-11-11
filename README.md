@@ -67,6 +67,16 @@ VaultMind Forge is a production-ready framework for generating game assets, char
 - JSON Schema validation with AJV
 - Structured error handling and logging
 
+### 🎭 CLI Orchestration System (NEW!)
+- **Multi-Language Orchestration**: Python, Rust, C++, Node.js
+- **DAG Workflow Engine**: Parallel task execution with dependency resolution
+- **Agent Collaboration Network**: Multi-agent autonomous coordination
+- **GPU/CUDA Monitoring**: Real-time VRAM, utilization, temperature tracking
+- **Process Management**: Spawn, monitor, and control multi-language processes
+- **Beautiful Terminal UI**: Rich-based interface with tables, progress bars, panels
+- **Checkpoint/Recovery**: Never lose workflow progress
+- **Interactive Shell**: REPL-style command interface
+
 ---
 
 ## 🏗️ Architecture
@@ -284,6 +294,32 @@ python -m vaultmind_forge.forge_intake.forge_daemon status
 - [Complete Pipeline Documentation](./VAULTMIND_FORGE_PIPELINE.md)
 - [Quick Start Guide](./QUICK_START.md)
 - [VAF Format Specification](./vaultmind_forge/config/schemas/VAF_SYSTEM_DESIGN.md)
+
+### CLI Orchestration (NEW!)
+
+```bash
+# Interactive shell
+python vaultmind_cli.py interactive
+
+# Agent management
+python vaultmind_cli.py agents
+python vaultmind_cli.py agent quality_guardian
+
+# System monitoring
+python vaultmind_cli.py stats
+python vaultmind_cli.py monitor --watch
+
+# Process orchestration
+python vaultmind_cli.py run python scripts/test.py
+python vaultmind_cli.py run rust ./target/release/terrain_gen
+
+# Image generation
+python vaultmind_cli.py generate "futuristic cityscape" --width 1024 --height 1024
+```
+
+**See Also:**
+- [CLI Orchestration Documentation](./docs/CLI_ORCHESTRATION.md)
+- [CUDA Setup Guide](./docs/CUDA_EVALUATION.md)
 
 ---
 
