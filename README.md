@@ -315,6 +315,17 @@ python vaultmind_cli.py run rust ./target/release/terrain_gen
 
 # Image generation
 python vaultmind_cli.py generate "futuristic cityscape" --width 1024 --height 1024
+
+# Stage 2: AI Orchestration
+# AI task decomposition
+python vaultmind_cli.py decompose "Generate character with validation"
+
+# Checkpoint management
+python vaultmind_cli.py checkpoints                # List all checkpoints
+python vaultmind_cli.py checkpoints -c ckpt_abc123 # Restore from checkpoint
+
+# Distributed worker pool
+python vaultmind_cli.py workers --workers 8
 ```
 
 **See Also:**
