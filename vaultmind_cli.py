@@ -28,16 +28,28 @@ from vaultmind_forge.cli.terminal_ui import TerminalUI, command_history
 from vaultmind_forge.cli.agent_manager import AgentManager, AgentStatus
 from vaultmind_forge.cli.process_orchestrator import ProcessOrchestrator
 from vaultmind_forge.cli.stats_monitor import StatsMonitor
+from vaultmind_forge.cli.workflow_engine import WorkflowEngine
+from vaultmind_forge.cli.task_decomposer import IntelligentTaskDecomposer
+from vaultmind_forge.cli.multi_modal_pipeline import MultiModalPipeline
+from vaultmind_forge.cli.distributed_executor import DistributedExecutor
+from vaultmind_forge.cli.checkpoint_manager import CheckpointManager
 
 console = Console()
 
 # Global context
 class CLIContext:
-    """CLI context holding managers"""
+    """CLI context holding managers and Stage 2 systems"""
     def __init__(self):
         self.agent_manager = AgentManager()
         self.process_orchestrator = ProcessOrchestrator(project_root=PROJECT_ROOT)
         self.stats_monitor = StatsMonitor(self.agent_manager, self.process_orchestrator)
+
+        # Stage 2: Advanced orchestration systems
+        self.workflow_engine = WorkflowEngine(self.agent_manager, self.process_orchestrator)
+        self.task_decomposer = IntelligentTaskDecomposer(self.workflow_engine)
+        self.multi_modal_pipeline = MultiModalPipeline(self.workflow_engine, self.agent_manager)
+        self.distributed_executor = None  # Initialized on demand
+        self.checkpoint_manager = CheckpointManager(PROJECT_ROOT / "checkpoints")
 
 
 @click.group()
@@ -257,6 +269,112 @@ def run(ctx, language, script_path, args):
 
 
 @cli.command()
+@click.argument('description')
+@click.pass_context
+def decompose(ctx, description):
+    """
+    Decompose task into workflow
+
+    Uses AI to analyze task and generate optimized workflow.
+
+    Example: vaultmind decompose "Generate character with validation"
+    """
+    cli_ctx: CLIContext = ctx.obj['context']
+
+    import asyncio
+
+    async def run_decompose():
+        result = await cli_ctx.task_decomposer.decompose(description)
+        cli_ctx.task_decomposer.visualize_decomposition(result)
+        TerminalUI.wait_for_key()
+
+    asyncio.run(run_decompose())
+
+
+@cli.command()
+@click.option('--checkpoint-id', '-c', help='Checkpoint ID to restore from')
+@click.pass_context
+def checkpoints(ctx, checkpoint_id):
+    """
+    Manage workflow checkpoints
+
+    List checkpoints or restore from a specific checkpoint.
+    """
+    cli_ctx: CLIContext = ctx.obj['context']
+
+    if checkpoint_id:
+        # Restore from checkpoint
+        import asyncio
+
+        async def restore():
+            workflow = await cli_ctx.checkpoint_manager.restore_checkpoint(checkpoint_id)
+            if workflow:
+                TerminalUI.success(f"Restored workflow: {workflow.name}")
+            else:
+                TerminalUI.error("Failed to restore checkpoint")
+
+        asyncio.run(restore())
+    else:
+        # List all checkpoints
+        checkpoints = cli_ctx.checkpoint_manager.list_checkpoints()
+
+        TerminalUI.clear()
+        TerminalUI.header("Checkpoints", f"{len(checkpoints)} saved")
+
+        if not checkpoints:
+            console.print("[yellow]No checkpoints found[/yellow]")
+        else:
+            from rich.table import Table
+            table = Table(show_header=True)
+            table.add_column("ID", style="cyan")
+            table.add_column("Workflow", style="green")
+            table.add_column("Type", style="yellow")
+            table.add_column("Tasks", style="magenta")
+            table.add_column("Version", style="blue")
+
+            for ckpt in sorted(checkpoints, key=lambda c: c.timestamp, reverse=True)[:10]:
+                table.add_row(
+                    ckpt.checkpoint_id[:12],
+                    ckpt.workflow_id[:20],
+                    ckpt.checkpoint_type.value,
+                    f"{ckpt.completed_tasks}/{ckpt.total_tasks}",
+                    f"v{ckpt.version}"
+                )
+
+            console.print(table)
+
+        TerminalUI.wait_for_key()
+
+
+@cli.command()
+@click.option('--workers', '-w', default=None, type=int, help='Number of workers')
+@click.pass_context
+def workers(ctx, workers):
+    """
+    Manage distributed worker pool
+
+    Initialize and view worker pool status.
+    """
+    cli_ctx: CLIContext = ctx.obj['context']
+
+    import asyncio
+
+    async def manage_workers():
+        if not cli_ctx.distributed_executor:
+            from vaultmind_forge.cli.distributed_executor import LoadBalancingStrategy
+            cli_ctx.distributed_executor = DistributedExecutor(
+                num_workers=workers,
+                strategy=LoadBalancingStrategy.RESOURCE_AWARE
+            )
+            await cli_ctx.distributed_executor.initialize()
+
+        cli_ctx.distributed_executor.visualize_workers()
+        TerminalUI.wait_for_key()
+
+    asyncio.run(manage_workers())
+
+
+@cli.command()
 @click.pass_context
 def interactive(ctx):
     """
@@ -334,6 +452,11 @@ def _print_help():
 
     console.print("\n[bold cyan]Generation:[/bold cyan]")
     console.print("  generate <prompt> - Generate image with SDXL")
+
+    console.print("\n[bold yellow]Stage 2 - AI Orchestration:[/bold yellow]")
+    console.print("  decompose <task> - AI task decomposition")
+    console.print("  checkpoints     - Manage workflow checkpoints")
+    console.print("  workers         - Distributed worker pool")
 
     console.print("\n[bold cyan]Monitoring:[/bold cyan]")
     console.print("  stats           - System statistics")
