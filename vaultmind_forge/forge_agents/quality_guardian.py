@@ -171,6 +171,7 @@ class QualityGuardianAgent(BaseAgent):
         use_advanced_metrics: bool = True,
         max_fix_attempts: int = 3,
         save_before_after: bool = False,
+        confidence_threshold: float = 0.5,
     ):
         """
         Initialize Quality Guardian Agent.
@@ -182,6 +183,7 @@ class QualityGuardianAgent(BaseAgent):
             use_advanced_metrics: Use advanced ML-based metrics if available
             max_fix_attempts: Maximum number of fix iterations
             save_before_after: Save before/after images for review
+            confidence_threshold: Confidence threshold for escalation (0.0-1.0), default 0.5
         """
         super().__init__(
             name="QualityGuardian",
@@ -189,6 +191,7 @@ class QualityGuardianAgent(BaseAgent):
         )
 
         self.min_quality_threshold = min_quality_threshold
+        self.confidence_threshold = confidence_threshold  # Override base class default
         self.auto_fix_enabled = auto_fix_enabled
         self.aggressive_fixing = aggressive_fixing
         self.use_advanced_metrics = use_advanced_metrics and ADVANCED_METRICS_AVAILABLE
