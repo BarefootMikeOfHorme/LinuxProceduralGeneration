@@ -17,6 +17,13 @@ from .generator import (
     GenerationFailedError,
 )
 
+from .agent_pipeline import (
+    AgentIntegratedPipeline,
+    AgentPipelineConfig,
+    AgentPipelineResult,
+    create_quick_pipeline,
+)
+
 __all__ = [
     "DiffusionGenerator",
     "GenerationBackend",
@@ -27,6 +34,10 @@ __all__ = [
     "ModelNotLoadedError",
     "InvalidConfigurationError",
     "GenerationFailedError",
+    "AgentIntegratedPipeline",
+    "AgentPipelineConfig",
+    "AgentPipelineResult",
+    "create_quick_pipeline",
 ]
 
 __version__ = "1.0.0"

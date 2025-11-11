@@ -40,6 +40,26 @@ from .prompt_refiner import (
     PromptRefinement,
 )
 
+from .parameter_optimizer import (
+    ParameterOptimizerAgent,
+    ParameterOptimization,
+)
+
+from .material_suggester import (
+    MaterialSuggesterAgent,
+    MaterialSuggestion,
+    MaterialComplexity,
+    TextureType,
+)
+
+from .resolution_advisor import (
+    ResolutionAdvisorAgent,
+    ResolutionRecommendation,
+    Platform,
+    AssetImportance,
+    ResolutionMethod,
+)
+
 __all__ = [
     # Base
     'BaseAgent',
@@ -67,6 +87,23 @@ __all__ = [
     # Prompt Refiner
     'PromptRefinerAgent',
     'PromptRefinement',
+
+    # Parameter Optimizer
+    'ParameterOptimizerAgent',
+    'ParameterOptimization',
+
+    # Material Suggester
+    'MaterialSuggesterAgent',
+    'MaterialSuggestion',
+    'MaterialComplexity',
+    'TextureType',
+
+    # Resolution Advisor
+    'ResolutionAdvisorAgent',
+    'ResolutionRecommendation',
+    'Platform',
+    'AssetImportance',
+    'ResolutionMethod',
 ]
 
 __version__ = "1.0.0"
