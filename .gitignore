@@ -7,6 +7,7 @@ Thumbs.db
 __pycache__/
 *.py[cod]
 .venv/
+.venv312/
 
 # Node (if used)
 node_modules/
@@ -33,6 +34,7 @@ vaultmind_forge/**/.gitkeep
 output/
 demo_output*/
 lineage/
+examples/test_output/
 
 # Native builds
 vaultmind_forge/native/cpp/validator/build/

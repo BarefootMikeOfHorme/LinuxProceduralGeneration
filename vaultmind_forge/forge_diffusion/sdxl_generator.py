@@ -188,7 +188,7 @@ class SDXLGenerator:
                 negative_prompt=config.negative_prompt,
                 width=config.width,
                 height=config.height,
-                num_inference_steps=config.num_inference_steps,
+                num_inference_steps=config.steps,
                 guidance_scale=config.guidance_scale,
                 num_images_per_prompt=config.batch_size,
                 generator=generator,
@@ -205,7 +205,7 @@ class SDXLGenerator:
                     refined = self.refiner(
                         prompt=config.prompt,
                         image=img,
-                        num_inference_steps=config.num_inference_steps // 2,
+                        num_inference_steps=config.steps // 2,
                         strength=0.3,  # Low strength for refinement
                         generator=generator,
                     )

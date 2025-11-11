@@ -48,13 +48,13 @@ def test_sdxl():
             negative_prompt="blurry, low quality",
             width=512,   # Small size for quick test
             height=512,
-            num_inference_steps=20,  # Few steps for speed
+            steps=20,  # Few steps for speed
             batch_size=1,
         )
 
         print(f"Prompt: {config.prompt}")
         print(f"Size: {config.width}x{config.height}")
-        print(f"Steps: {config.num_inference_steps}")
+        print(f"Steps: {config.steps}")
         print()
 
         # Generate
