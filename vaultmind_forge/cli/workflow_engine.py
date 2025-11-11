@@ -491,7 +491,7 @@ class WorkflowEngine:
         await asyncio.sleep(1)  # Simulated work
         return {"status": "generated", "output": "image.png"}
 
-    async def_execute_validation_task(self, task: Task) -> Any:
+    async def _execute_validation_task(self, task: Task) -> Any:
         """Execute validation task"""
         # Integrate with Quality Guardian
         await asyncio.sleep(0.5)  # Simulated work
