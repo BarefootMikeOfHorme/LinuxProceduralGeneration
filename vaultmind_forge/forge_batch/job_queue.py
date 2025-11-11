@@ -104,7 +104,7 @@ class BatchJob:
 
     def is_ready_to_run(self, completed_jobs: set[str]) -> bool:
         """Check if job is ready to run (dependencies met)"""
-        if self.status != JobStatus.PENDING:
+        if self.status not in [JobStatus.PENDING, JobStatus.BLOCKED]:
             return False
 
         # Check if all dependencies are completed
@@ -236,22 +236,31 @@ class JobQueue:
         self._rebuild_priority_queue()
 
         # Find first ready job
+        checked_jobs = set()
         while self._priority_queue:
             priority_score, job_id = heapq.heappop(self._priority_queue)
+
+            # Avoid infinite loops
+            if job_id in checked_jobs:
+                continue
+            checked_jobs.add(job_id)
 
             if job_id not in self.jobs:
                 continue  # Job was cancelled
 
             job = self.jobs[job_id]
 
+            # Skip jobs that are no longer eligible
+            if job.status not in [JobStatus.PENDING, JobStatus.BLOCKED, JobStatus.RETRY]:
+                continue  # Job status changed since queue rebuild
+
             if job.is_ready_to_run(self.completed_jobs):
-                # Don't change status here - will be changed when marked running
-                # This prevents job from disappearing on next rebuild
+                # Mark as READY to prevent re-selection
+                job.status = JobStatus.READY
                 return job
             elif job.dependencies:
-                # Put back in queue (blocked by dependencies)
-                heapq.heappush(self._priority_queue, (priority_score, job_id))
-                break
+                # Blocked by dependencies - skip for now
+                job.status = JobStatus.BLOCKED
 
         return None
 
@@ -465,7 +474,7 @@ class JobQueue:
         self._priority_queue = []
 
         for job_id, job in self.jobs.items():
-            if job.status in [JobStatus.PENDING, JobStatus.BLOCKED, JobStatus.RETRY]:
+            if job.status in [JobStatus.PENDING, JobStatus.BLOCKED, JobStatus.RETRY, JobStatus.READY]:
                 priority_score = -job.calculate_priority_score()
                 heapq.heappush(self._priority_queue, (priority_score, job_id))
 

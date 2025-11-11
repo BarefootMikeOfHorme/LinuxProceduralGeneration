@@ -461,7 +461,13 @@ class AssetPipeline:
         output_path = output_dir / f"job_{timestamp}_{id(job_config)}{ext}"
 
         # Placeholder: simulate generation
-        output_path.touch()  # Create placeholder file
+        # For image types, create a valid placeholder image
+        if ext == '.png':
+            from PIL import Image
+            img = Image.new('RGB', (512, 512), color='gray')
+            img.save(output_path)
+        else:
+            output_path.touch()  # Create placeholder file for non-image types
 
         # Record lineage
         if self.lineage_tracker:

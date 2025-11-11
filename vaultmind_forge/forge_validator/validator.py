@@ -18,6 +18,7 @@ class ValidationResult(BaseModel):
     score: float
     status: str
     checks: Dict[str, float] = {}
+    error_message: Optional[str] = None
 
 
 class Validator:
@@ -87,7 +88,8 @@ class Validator:
                 file=str(p),
                 score=0.0,
                 status="error",
-                checks={"error": 0.0, "error_message": str(e)}
+                checks={"error": 0.0},
+                error_message=str(e)
             )
 
     def validate_batch(self, paths: list[Path | str]) -> list[ValidationResult]:

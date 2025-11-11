@@ -248,7 +248,7 @@ class CheckpointManager:
         # Save index
         self._save_checkpoint_index()
 
-        console.print(f"[green]✓[/green] Checkpoint created: {checkpoint_id} (v{version}, {checkpoint_type.value})")
+        console.print(f"[green][OK][/green] Checkpoint created: {checkpoint_id} (v{version}, {checkpoint_type.value})")
 
         return checkpoint_id
 
@@ -259,7 +259,6 @@ class CheckpointManager:
             "name": workflow.name,
             "description": workflow.description,
             "status": workflow.status,
-            "created_at": workflow.created_at,
             "start_time": workflow.start_time,
             "end_time": workflow.end_time,
             "max_parallel": workflow.max_parallel,
@@ -279,9 +278,8 @@ class CheckpointManager:
             "estimated_duration": task.estimated_duration,
             "requires_gpu": task.requires_gpu,
             "requires_agent": task.requires_agent,
-            "created_at": task.created_at,
-            "started_at": task.started_at,
-            "completed_at": task.completed_at,
+            "start_time": task.start_time,
+            "end_time": task.end_time,
             "error": task.error,
             "retry_count": task.retry_count,
             "max_retries": task.max_retries,
@@ -464,7 +462,7 @@ class CheckpointManager:
                     task.error = None
                     task.retry_count = 0
 
-        console.print(f"[green]✓ Workflow restored from checkpoint (v{checkpoint_data.metadata.version})[/green]")
+        console.print(f"[green][OK] Workflow restored from checkpoint (v{checkpoint_data.metadata.version})[/green]")
 
         return workflow
 
