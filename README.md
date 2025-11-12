@@ -519,6 +519,16 @@ npm run dev
 
 ## 🧪 Testing
 
+**Current Status:** 209/268 tests passing (78%) | [Detailed Test Report](./docs/TEST_STATUS.md)
+
+VaultMind Forge maintains comprehensive test coverage across all modules:
+- ✅ **Checkpoint Manager:** 41/41 passing (100%)
+- ✅ **Quality Guardian:** 8/8 passing (100%)
+- ✅ **Batch Processing:** 6/6 passing (100%)
+- 🔄 **CLI Orchestration:** Ongoing async migration (trio compatibility)
+
+See [TEST_STATUS.md](./docs/TEST_STATUS.md) for complete breakdown, known issues, and progress tracking.
+
 ### Generate Test Data
 
 ```bash
