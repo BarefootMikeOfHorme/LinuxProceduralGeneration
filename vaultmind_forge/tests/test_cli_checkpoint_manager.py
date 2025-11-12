@@ -317,11 +317,12 @@ class TestCheckpointListing:
     @pytest.mark.anyio
     async def test_get_latest_checkpoint(self, checkpoint_manager, sample_workflow):
         """Test getting latest checkpoint"""
+        import anyio
         # Create multiple checkpoints
         await checkpoint_manager.create_checkpoint(sample_workflow)
-        await asyncio.sleep(0.01)  # Small delay to ensure different timestamps
+        await anyio.sleep(0.01)  # Small delay to ensure different timestamps
         id2 = await checkpoint_manager.create_checkpoint(sample_workflow)
-        await asyncio.sleep(0.01)
+        await anyio.sleep(0.01)
         id3 = await checkpoint_manager.create_checkpoint(sample_workflow)
 
         latest = checkpoint_manager.get_latest_checkpoint(sample_workflow.id)
@@ -374,6 +375,7 @@ class TestCheckpointDeletion:
     @pytest.mark.anyio
     async def test_cleanup_old_checkpoints(self, checkpoint_manager, sample_workflow):
         """Test automatic cleanup of old checkpoints"""
+        import anyio
         # Create more checkpoints than max_checkpoints
         checkpoint_manager.max_checkpoints = 3
 
@@ -381,7 +383,7 @@ class TestCheckpointDeletion:
         for i in range(5):
             checkpoint_id = await checkpoint_manager.create_checkpoint(sample_workflow)
             checkpoint_ids.append(checkpoint_id)
-            await asyncio.sleep(0.01)
+            await anyio.sleep(0.01)
 
         # Trigger cleanup
         await checkpoint_manager._cleanup_old_checkpoints(sample_workflow.id)

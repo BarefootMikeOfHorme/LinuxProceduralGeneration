@@ -478,7 +478,6 @@ class CheckpointManager:
         )
 
         workflow.status = state["status"]
-        workflow.created_at = state["created_at"]
         workflow.start_time = state.get("start_time")
         workflow.end_time = state.get("end_time")
         workflow.checkpoint_interval = state["checkpoint_interval"]
@@ -502,9 +501,8 @@ class CheckpointManager:
         )
 
         task.status = TaskStatus(state["status"])
-        task.created_at = state["created_at"]
-        task.started_at = state.get("started_at")
-        task.completed_at = state.get("completed_at")
+        task.start_time = state.get("start_time")
+        task.end_time = state.get("end_time")
         task.error = state.get("error")
         task.retry_count = state["retry_count"]
         task.max_retries = state["max_retries"]
@@ -633,6 +631,22 @@ class CheckpointManager:
             return [self.checkpoints[cid] for cid in checkpoint_ids if cid in self.checkpoints]
         else:
             return list(self.checkpoints.values())
+
+    def get_latest_checkpoint(self, workflow_id: str) -> Optional[CheckpointMetadata]:
+        """Get the latest checkpoint for a workflow"""
+        checkpoints = self.list_checkpoints(workflow_id)
+        if not checkpoints:
+            return None
+        return max(checkpoints, key=lambda c: c.version)
+
+    async def delete_checkpoint(self, checkpoint_id: str) -> bool:
+        """Delete a specific checkpoint"""
+        try:
+            await self._remove_checkpoint(checkpoint_id)
+            return True
+        except Exception as e:
+            console.print(f"[red]Failed to delete checkpoint: {e}[/red]")
+            return False
 
     def visualize_checkpoint_history(self, workflow_id: str) -> None:
         """Visualize checkpoint history for workflow"""

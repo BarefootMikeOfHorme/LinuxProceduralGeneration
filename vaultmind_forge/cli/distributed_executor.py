@@ -244,7 +244,7 @@ class DistributedExecutor:
         # Start health monitoring
         asyncio.create_task(self._health_monitor_loop())
 
-        console.print(f"[green]✓ {len(self.workers)} workers initialized[/green]")
+        console.print(f"[green][OK] {len(self.workers)} workers initialized[/green]")
 
     def _detect_system_capabilities(self) -> Dict[str, Any]:
         """Detect system capabilities"""
@@ -333,7 +333,7 @@ class DistributedExecutor:
             self.workers[worker_id] = worker
             self.worker_types[worker.type].append(worker_id)
 
-        console.print(f"  [green]✓[/green] Spawned {worker.name} ({worker.type.value})")
+        console.print(f"  [green][OK][/green] Spawned {worker.name} ({worker.type.value})")
 
         return worker
 
@@ -494,7 +494,7 @@ class DistributedExecutor:
             # Add to worker's queue
             worker.task_queue.append(task.id)
 
-        console.print(f"  [cyan]→[/cyan] Task {task.name} assigned to {worker.name}")
+        console.print(f"  [cyan]->[/cyan] Task {task.name} assigned to {worker.name}")
 
     async def _execute_task_on_worker(self, worker: Worker, task: Task) -> None:
         """
@@ -518,7 +518,7 @@ class DistributedExecutor:
             task.completed_at = time.time()
             success = True
 
-            console.print(f"  [green]✓[/green] Task {task.name} completed by {worker.name}")
+            console.print(f"  [green][OK][/green] Task {task.name} completed by {worker.name}")
 
         except Exception as e:
             task.status = TaskStatus.FAILED
@@ -568,7 +568,7 @@ class DistributedExecutor:
                     time_since_heartbeat = current_time - worker.metrics.last_heartbeat
 
                     if time_since_heartbeat > 30 and worker.status != WorkerStatus.ERROR:
-                        console.print(f"[yellow]⚠[/yellow] Worker {worker.name} heartbeat timeout")
+                        console.print(f"[yellow][WARN][/yellow] Worker {worker.name} heartbeat timeout")
                         worker.status = WorkerStatus.ERROR
 
                         # Attempt recovery
@@ -577,7 +577,7 @@ class DistributedExecutor:
                     # Check if overloaded
                     if worker.load_score() > 1.5:
                         worker.status = WorkerStatus.OVERLOADED
-                        console.print(f"[yellow]⚠[/yellow] Worker {worker.name} overloaded")
+                        console.print(f"[yellow][WARN][/yellow] Worker {worker.name} overloaded")
 
     async def _recover_worker(self, worker: Worker) -> None:
         """Recover failed worker"""
@@ -594,7 +594,7 @@ class DistributedExecutor:
         worker.status = WorkerStatus.IDLE
         worker.metrics.last_heartbeat = time.time()
 
-        console.print(f"[green]✓ {worker.name} recovered[/green]")
+        console.print(f"[green][OK] {worker.name} recovered[/green]")
 
     async def shutdown(self) -> None:
         """Graceful shutdown"""
@@ -609,7 +609,7 @@ class DistributedExecutor:
                     worker.process.terminate()
                     worker.process.join(timeout=5)
 
-        console.print("[green]✓ All workers shut down[/green]")
+        console.print("[green][OK] All workers shut down[/green]")
 
     def get_stats(self) -> Dict[str, Any]:
         """Get executor statistics"""
