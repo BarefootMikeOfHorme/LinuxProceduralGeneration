@@ -13,6 +13,7 @@ Features:
 from __future__ import annotations
 
 import asyncio
+import anyio
 import time
 import uuid
 from typing import Dict, List, Any, Optional, Set
@@ -348,7 +349,7 @@ class AgentNetwork:
             agent = self.agent_manager.get_agent(agent_id)
 
             # Simulate agent work
-            await asyncio.sleep(0.5)
+            await anyio.sleep(0.5)
 
             # Agent produces result
             result = await self._execute_agent_role(agent, task)

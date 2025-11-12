@@ -13,6 +13,7 @@ Features:
 from __future__ import annotations
 
 import asyncio
+import anyio
 import uuid
 import time
 import json
@@ -408,7 +409,7 @@ class WorkflowEngine:
 
             # Wait a bit before checking again
             if self.running_tasks:
-                await asyncio.sleep(0.1)
+                await anyio.sleep(0.1)
             else:
                 # No tasks running and none ready - check for deadlock
                 if pending_tasks:
@@ -488,24 +489,24 @@ class WorkflowEngine:
     async def _execute_generation_task(self, task: Task) -> Any:
         """Execute image/audio generation task"""
         # Integrate with SDXL generator or other generators
-        await asyncio.sleep(1)  # Simulated work
+        await anyio.sleep(1)  # Simulated work
         return {"status": "generated", "output": "image.png"}
 
     async def _execute_validation_task(self, task: Task) -> Any:
         """Execute validation task"""
         # Integrate with Quality Guardian
-        await asyncio.sleep(0.5)  # Simulated work
+        await anyio.sleep(0.5)  # Simulated work
         return {"status": "validated", "score": 0.95}
 
     async def _execute_enhancement_task(self, task: Task) -> Any:
         """Execute enhancement task (prompt/parameter optimization)"""
         # Integrate with Prompt Refiner or Parameter Optimizer
-        await asyncio.sleep(0.5)  # Simulated work
+        await anyio.sleep(0.5)  # Simulated work
         return {"status": "enhanced", "improvements": []}
 
     async def _execute_generic_task(self, task: Task) -> Any:
         """Execute generic task via process orchestrator"""
-        await asyncio.sleep(1)  # Simulated work
+        await anyio.sleep(1)  # Simulated work
         return {"status": "completed"}
 
     def _get_progress_info(self, workflow: Workflow) -> Dict[str, Any]:

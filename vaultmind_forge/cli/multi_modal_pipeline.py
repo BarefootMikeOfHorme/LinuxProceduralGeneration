@@ -13,6 +13,7 @@ Rembrandt-level sophistication:
 from __future__ import annotations
 
 import asyncio
+import anyio
 import time
 import uuid
 from typing import Dict, List, Any, Optional, Set, Callable
@@ -428,7 +429,7 @@ class MultiModalPipeline:
 
         # Simulate generation (in production, this calls actual generators)
         # For image: SDXL, for audio: MusicGen, for text: GPT, etc.
-        await asyncio.sleep(spec.estimated_duration / 10)  # Simulated for demo
+        await anyio.sleep(spec.estimated_duration / 10)  # Simulated for demo
 
         # Mock result
         result = ModalResult(
@@ -527,7 +528,7 @@ class MultiModalPipeline:
 
             # Re-generate with enhancement context
             # In production: pass enhancement_context to generator
-            await asyncio.sleep(1)  # Simulated refinement
+            await anyio.sleep(1)  # Simulated refinement
 
             # Mock refined result with improved quality
             original = existing_results[modality]
