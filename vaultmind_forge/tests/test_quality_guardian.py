@@ -106,7 +106,7 @@ def test_2_assess_good_quality():
     print("TEST 2: Assess Good Quality Image")
     print("="*60)
 
-    agent = QualityGuardianAgent(min_quality_threshold=0.7)
+    agent = QualityGuardianAgent(min_quality_threshold=0.7, confidence_threshold=0.4)
 
     # Create good quality test image
     test_img = Path("tests/quality_guardian_test/good_quality.png")

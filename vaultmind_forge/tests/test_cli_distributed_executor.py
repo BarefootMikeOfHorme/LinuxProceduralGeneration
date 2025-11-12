@@ -392,8 +392,8 @@ class TestTaskSubmission:
             for i in range(5)
         ]
 
-        for task in tasks:
-            await executor.submit_task(task, priority=i)
+        for idx, task in enumerate(tasks):
+            await executor.submit_task(task, priority=idx)
 
         # All tasks should be queued or assigned
         total_handled = len(executor.task_queue) + len(executor.task_assignments)

@@ -208,7 +208,11 @@ class IntelligentTaskDecomposer:
             task_types.append(TaskType.ANALYSIS)
 
         # Detect requirements
-        requires_gpu = any(word in description_lower for word in ['image', 'render', 'generate', 'sdxl', 'diffusion'])
+        # GPU is needed for generation/rendering, but not validation/analysis
+        requires_gpu = (
+            any(word in description_lower for word in ['render', 'generate', 'sdxl', 'diffusion', 'create']) and
+            not any(word in description_lower for word in ['validate', 'check', 'assess', 'analyze', 'inspect'])
+        )
         requires_internet = any(word in description_lower for word in ['download', 'fetch', 'api', 'cloud'])
 
         # Estimate complexity
