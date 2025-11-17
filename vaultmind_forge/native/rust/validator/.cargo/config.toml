@@ -1,0 +1,6 @@
+# Cargo configuration for multi-Python version support
+
+[env]
+# Enable PyO3 ABI3 forward compatibility for Python 3.14+
+# Set to "1" to force, or let build.rs auto-detect
+PYO3_USE_ABI3_FORWARD_COMPATIBILITY = "1"

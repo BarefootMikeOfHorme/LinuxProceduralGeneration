@@ -1,5 +1,5 @@
 use pyo3::prelude::*;
-use image::{GenericImageView, Luma, ImageBuffer};
+use image::{Luma, ImageBuffer};
 use ndarray::Array2;
 use rayon::prelude::*;
 
