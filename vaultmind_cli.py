@@ -24,6 +24,10 @@ sys.path.insert(0, str(PROJECT_ROOT))
 import click
 from rich.console import Console
 
+# Load configuration system
+from vaultmind_forge.config import get_config
+config = get_config()
+
 from vaultmind_forge.cli.terminal_ui import TerminalUI, command_history
 from vaultmind_forge.cli.agent_manager import AgentManager, AgentStatus
 from vaultmind_forge.cli.process_orchestrator import ProcessOrchestrator
@@ -49,7 +53,7 @@ class CLIContext:
         self.task_decomposer = IntelligentTaskDecomposer(self.workflow_engine)
         self.multi_modal_pipeline = MultiModalPipeline(self.workflow_engine, self.agent_manager)
         self.distributed_executor = None  # Initialized on demand
-        self.checkpoint_manager = CheckpointManager(PROJECT_ROOT / "checkpoints")
+        self.checkpoint_manager = CheckpointManager(config.paths.checkpoints_dir)
 
 
 @click.group()
@@ -128,10 +132,10 @@ def stats(ctx):
 
 @cli.command()
 @click.argument('prompt', nargs=-1, required=True)
-@click.option('--width', '-w', default=1024, help="Image width")
-@click.option('--height', '-h', default=1024, help="Image height")
-@click.option('--steps', '-s', default=30, help="Inference steps")
-@click.option('--batch', '-b', default=1, help="Batch size")
+@click.option('--width', '-w', default=None, help=f"Image width (default: {config.runtime.default_width})")
+@click.option('--height', '-h', default=None, help=f"Image height (default: {config.runtime.default_height})")
+@click.option('--steps', '-s', default=None, help=f"Inference steps (default: {config.runtime.default_steps})")
+@click.option('--batch', '-b', default=None, help=f"Batch size (default: {config.runtime.default_batch_size})")
 @click.option('--output', '-o', default=None, help="Output directory")
 @click.pass_context
 def generate(ctx, prompt, width, height, steps, batch, output):
@@ -145,6 +149,12 @@ def generate(ctx, prompt, width, height, steps, batch, output):
     """
     cli_ctx: CLIContext = ctx.obj['context']
 
+    # Use config defaults if not specified
+    width = width or config.runtime.default_width
+    height = height or config.runtime.default_height
+    steps = steps or config.runtime.default_steps
+    batch = batch or config.runtime.default_batch_size
+
     prompt_text = ' '.join(prompt)
 
     TerminalUI.header("SDXL Generation", f"Prompt: {prompt_text[:50]}...")
@@ -155,7 +165,7 @@ def generate(ctx, prompt, width, height, steps, batch, output):
     console.print()
 
     # Execute Python SDXL generation script
-    script_path = PROJECT_ROOT / "examples" / "generate_sdxl.py"
+    script_path = config.paths.examples_dir / "generate_sdxl.py"
 
     with TerminalUI.loading("Generating with SDXL"):
         # Note: We'll create this script to wrap SDXL generation
@@ -174,8 +184,8 @@ def generate(ctx, prompt, width, height, steps, batch, output):
         result = cli_ctx.process_orchestrator.execute_python(
             script_path=script_path,
             args=args,
-            venv_path=PROJECT_ROOT / ".venv312",
-            timeout=300,
+            venv_path=config.paths.venv_path,
+            timeout=config.runtime.generation_timeout,
         )
 
     if result.success:
@@ -238,7 +248,7 @@ def run(ctx, language, script_path, args):
             result = cli_ctx.process_orchestrator.execute_python(
                 script_path=script,
                 args=list(args) if args else None,
-                venv_path=PROJECT_ROOT / ".venv312",
+                venv_path=config.paths.venv_path,
             )
         elif language == 'rust':
             result = cli_ctx.process_orchestrator.execute_rust(
