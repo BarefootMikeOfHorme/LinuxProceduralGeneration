@@ -1,0 +1,267 @@
+# *** NEW: BROWSER-LIKE HEADERS FOR REQUESTS ***
+HEADERS = {
+    "User-Agent": (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/124.0.6367.139 Safari/537.36"
+    ),
+    "Accept-Language": "en-US,en;q=0.9",
+    "Accept": (
+        "text/html,application/xhtml+xml,application/xml;"
+        "q=0.8,image/webp,*/*;q=0.6"
+    )
+}
+
+# *** IMPROVED DOWNLOAD COUNTS ***
+class MediaDownloader:
+    """Handles downloading of images and videos with better error tracking."""
+    
+    def download_all(self, records: List[Dict[str, Any]]) -> int:
+        downloaded = 0
+        failures = 0
+        
+        for i, rec in enumerate(records, 1):
+            print(f"📥 {rec['record_type'].upper()}: {rec.get('title', 'no title')[:50]}")
+            
+            success = False
+            if rec["record_type"] == "video":
+                success = self.download_video(rec["original_url"], rec["safe_path"])
+            else:
+                success = self.download_image(rec["original_url"], rec["safe_path"])
+            
+            if success:
+                downloaded += 1
+                print("   ✅ Downloaded")
+            else:
+                failures += 1
+                print("   ⚠️  Failed")
+            
+            if i % 25 == 0 or i == len(records):
+                print(f"--- Progress: {downloaded} succeeded, {failures} failed ---")
+        
+        return downloaded
+    
+    def download_image(self, url: str, dest_path: str) -> bool:
+        """Download image with timeout and headers."""
+        try:
+            resp = requests.get(url, stream=True, timeout=60, headers=HEADERS)
+            
+            if resp.status_code == 200:
+                os.makedirs(os.path.dirname(dest_path), exist_ok=True)
+                with open(dest_path, "wb") as f:
+                    for chunk in resp.iter_content(64 * 1024):
+                        if chunk:
+                            f.write(chunk)
+                return True
+        except Exception as e:
+            print(f"    Error: {e}")
+        
+        return False
+    
+    def download_video(self, url: str, dest_path: str) -> bool:
+        """Download video with longer timeout and headers."""
+        try:
+            resp = requests.get(url, stream=True, timeout=300, headers=HEADERS)
+            
+            if resp.status_code == 200:
+                os.makedirs(os.path.dirname(dest_path), exist_ok=True)
+                with open(dest_path, "wb") as f:
+                    for chunk in resp.iter_content(256 * 1024):
+                        if chunk:
+                            f.write(chunk)
+                return True
+        except Exception as e:
+            print(f"    Video error: {e}")
+        
+        return False
+
+# *** NEW: VERBOSE MANIFEST CHECK BEFORE DOWNLOADING ***
+class DeviantArtScraper:
+    """Extracts artwork metadata from individual pages."""
+    
+    def scrape_post(self, post_url: str, index: int) -> Dict[str, Any]:
+        """Scrape a single deviantart post with detailed logging."""
+        try:
+            print(f"🔍 Scraping: {post_url}")
+            
+            resp = requests.get(post_url, timeout=60, headers=HEADERS)
+            
+            if resp.status_code != 200:
+                print("   ⚠️  Failed to fetch page")
+                return {"record_type": "failed", "index": index}
+            
+            soup = BeautifulSoup(resp.text, "html.parser")
+            
+            # Attempt video detection first
+            record = self._detect_video(soup, post_url, index)
+            if record["record_type"] == "video":
+                print("   📹 Video detected")
+                return record
+            
+            # If no video, process as image
+            record = self._process_image(soup, post_url, index)
+            if record["record_type"] == "image":
+                print("   🖼️ Image detected")
+            
+            return record
+        
+        except Exception as e:
+            print(f"  ⚠️ Error: {e}")
+            return {"record_type": "error", "index": index}
+    
+    def _detect_video(self, soup: BeautifulSoup, post_url: str, index: int) -> Dict[str, Any]:
+        """Detect video with multiple strategies and detailed logs."""
+        # 1. Video tag detection
+        video_tag = soup.find("video")
+        if video_tag:
+            source = video_tag.find("source")
+            if source and source.get("src"):
+                print("   Found <video> tag")
+                return self._create_record(
+                    original_url=source["src"],
+                    post_type="video",
+                    file_type=self._get_file_extension(source["src"]),
+                    title=self._extract_title(soup),
+                    author=self._extract_author(soup),
+                    tags=self._extract_tags(soup),
+                    license_info=self._extract_license(soup),
+                    source_url=post_url
+                )
+        
+        # 2. Iframe player detection
+        iframe = soup.find("iframe", src=re.compile(r"deviantart\.com/v/"))
+        if iframe:
+            print("   Found video <iframe>")
+            video_url = self._extract_video_from_iframe(iframe["src"])
+            if video_url:
+                return self._create_record(
+                    original_url=video_url,
+                    post_type="video",
+                    file_type=self._get_file_extension(video_url),
+                    title=self._extract_title(soup),
+                    author=self._extract_author(soup),
+                    tags=self._extract_tags(soup),
+                    license_info=self._extract_license(soup),
+                    source_url=post_url
+                )
+        
+        # 3. Data attributes
+        for tag in soup.find_all(attrs={"data-video-url": True}):
+            vid_url = tag["data-video-url"]
+            print(f"   Found video in data attribute: {vid_url}")
+            return self._create_record(
+                original_url=vid_url,
+                post_type="video",
+                file_type=self._get_file_extension(vid_url),
+                title=self._extract_title(soup),
+                author=self._extract_author(soup),
+                tags=self._extract_tags(soup),
+                license_info=self._extract_license(soup),
+                source_url=post_url
+            )
+        
+        # 4. Direct video extensions in src attributes
+        for tag in soup.find_all(src=True):
+            src = tag["src"]
+            if any(ext in src.lower() for ext in self.VIDEO_EXTENSIONS):
+                print(f"   Detected video URL: {src}")
+                return self._create_record(
+                    original_url=src,
+                    post_type="video",
+                    file_type=self._get_file_extension(src),
+                    title=self._extract_title(soup),
+                    author=self._extract_author(soup),
+                    tags=self._extract_tags(soup),
+                    license_info=self._extract_license(soup),
+                    source_url=post_url
+                )
+        
+        # Default to image detection
+        return {
+            "record_type": "image_detected",
+            "original_url": None,
+            "hash_id": None,
+            "safe_path": None,
+            "license": None,
+            "license_url": None,
+            "source": None,
+            "title": None,
+            "author": None,
+            "tags": [],
+            "metadata_extracted_at": None,
+            "identity": {"gender_expression": "unknown"},
+            "fantasy_genre_world": {"species_type": "human"},
+            "style_aesthetics": {"environment": "studio"},
+            "index": index
+        }
+
+    def _process_image(self, soup: BeautifulSoup, post_url: str, index: int) -> Dict[str, Any]:
+        """Process image with detailed logging."""
+        img_el = soup.find("img", class_="dev-content-full")
+        if not img_el:
+            img_el = soup.find("img")
+        
+        if not img_el or not img_el.get("src"):
+            print("   ⚠️ No image found")
+            return {"record_type": "no_image", "index": index}
+        
+        img_url = img_el["src"]
+        print(f"   Image URL: {img_url}")
+        
+        record = self._create_record(
+            original_url=img_url,
+            post_type="image",
+            file_type="jpg",
+            title=self._extract_title(soup),
+            author=self._extract_author(soup),
+            tags=self._extract_tags(soup),
+            license_info=self._extract_license(soup),
+            source_url=post_url
+        )
+        
+        return record
+
+    def generate_manifests(self, records: List[Dict[str, Any]], downloaded_count: int):
+        """Generate or append to manifests with detailed reporting."""
+        # Count before adding
+        existing_before = self._jsonl_count()
+        
+        self._append_jsonl(records)
+        self._append_csv(records, header_needed=not os.path.exists("manifest.csv"))
+        
+        existing_after = self._jsonl_count()
+        new_added = existing_after - existing_before
+        
+        print(f"\n📑 Manifest update:")
+        print(f"  ✅ New records added: {new_added}")
+        print(f"  🎯 Total records: {existing_after}")
+        print(f"  💾 Items attempted to download: {len(records)}")
+        print(f"  📥 Downloaded: {downloaded_count}\n")
+        
+    def _jsonl_count(self) -> int:
+        """Count JSONL records."""
+        if not os.path.exists("manifest.jsonl"):
+            return 0
+        with open("manifest.jsonl", "r", encoding="utf-8") as f:
+            return sum(1 for _ in f)
+
+# *** NEW: SUMMARY AFTER RUN ***
+def main():
+    # ... (existing initialization)
+    
+    bot.run(batch_size=500)  # Will print detailed progress
+    
+    # After running, you can check:
+    print("\n🔎 Final Check:")
+    print(f"Assets folder location: {os.path.abspath('assets')}")
+    print(f"Manifest.csv exists: {'✅' if os.path.exists('manifest.csv') else '❌'}")
+    print(f"Manifest.jsonl exists: {'✅' if os.path.exists('manifest.jsonl') else '❌'}")
+    
+    # Quick file count
+    if os.path.exists("assets"):
+        file_count = len(os.listdir("assets"))
+        print(f"📦 Assets folder contains: {file_count} files")
+    else:
+        print("⚠️  No assets/ directory created")
+
+    return 0
