@@ -22,6 +22,13 @@ from vaultmind_forge.config import get_config
 # Load configuration for agent autonomy levels
 config = get_config()
 
+# Import actual agent implementations
+from vaultmind_forge.forge_agents.quality_guardian import QualityGuardianAgent
+from vaultmind_forge.forge_agents.prompt_refiner import PromptRefinerAgent
+from vaultmind_forge.forge_agents.parameter_optimizer import ParameterOptimizerAgent
+from vaultmind_forge.forge_agents.material_suggester import MaterialSuggesterAgent
+from vaultmind_forge.forge_agents.resolution_advisor import ResolutionAdvisorAgent
+
 
 class AgentStatus(str, Enum):
     """Agent status states"""
@@ -92,11 +99,19 @@ class AgentManager:
 
     def __init__(self):
         self.agents: Dict[str, Agent] = {}
+        self.agent_implementations: Dict[str, Any] = {}  # Actual agent instances
         self._load_agents()
 
     def _load_agents(self) -> None:
         """Load VaultMind Forge specialist agents"""
         # Quality Guardian
+        quality_guardian_impl = QualityGuardianAgent(
+            min_quality_threshold=0.7,
+            auto_fix_enabled=True,
+            confidence_threshold=config.runtime.agent_quality_guardian_autonomy
+        )
+        self.agent_implementations["quality_guardian"] = quality_guardian_impl
+
         self.agents["quality_guardian"] = Agent(
             id="quality_guardian",
             name="Quality Guardian",
@@ -107,10 +122,17 @@ class AgentManager:
                 "description": "Autonomous quality validation and error detection",
                 "capabilities": ["artifact_detection", "composition_check", "technical_validation"],
                 "autonomous_level": config.runtime.agent_quality_guardian_autonomy,
+                "implementation": quality_guardian_impl,  # Store reference
             }
         )
 
         # Prompt Refiner
+        prompt_refiner_impl = PromptRefinerAgent(
+            min_confidence_threshold=config.runtime.agent_prompt_refiner_autonomy,
+            learning_enabled=True
+        )
+        self.agent_implementations["prompt_refiner"] = prompt_refiner_impl
+
         self.agents["prompt_refiner"] = Agent(
             id="prompt_refiner",
             name="Prompt Refiner",
@@ -121,10 +143,17 @@ class AgentManager:
                 "description": "Autonomous prompt enhancement and optimization",
                 "capabilities": ["clarity_enhancement", "specificity_boost", "negative_prompt_generation"],
                 "autonomous_level": config.runtime.agent_prompt_refiner_autonomy,
+                "implementation": prompt_refiner_impl,
             }
         )
 
         # Parameter Optimizer
+        parameter_optimizer_impl = ParameterOptimizerAgent(
+            min_confidence_threshold=config.runtime.agent_parameter_optimizer_autonomy,
+            learning_enabled=True
+        )
+        self.agent_implementations["parameter_optimizer"] = parameter_optimizer_impl
+
         self.agents["parameter_optimizer"] = Agent(
             id="parameter_optimizer",
             name="Parameter Optimizer",
@@ -135,10 +164,16 @@ class AgentManager:
                 "description": "Autonomous parameter selection and optimization",
                 "capabilities": ["step_optimization", "cfg_tuning", "seed_management"],
                 "autonomous_level": config.runtime.agent_parameter_optimizer_autonomy,
+                "implementation": parameter_optimizer_impl,
             }
         )
 
         # Material Specialist
+        material_specialist_impl = MaterialSuggesterAgent(
+            min_confidence_threshold=config.runtime.agent_material_specialist_autonomy
+        )
+        self.agent_implementations["material_specialist"] = material_specialist_impl
+
         self.agents["material_specialist"] = Agent(
             id="material_specialist",
             name="Material Specialist",
@@ -149,10 +184,16 @@ class AgentManager:
                 "description": "Material and texture analysis expert",
                 "capabilities": ["material_detection", "style_analysis", "texture_enhancement"],
                 "autonomous_level": config.runtime.agent_material_specialist_autonomy,
+                "implementation": material_specialist_impl,
             }
         )
 
         # Resolution Expert
+        resolution_expert_impl = ResolutionAdvisorAgent(
+            min_confidence_threshold=config.runtime.agent_resolution_expert_autonomy
+        )
+        self.agent_implementations["resolution_expert"] = resolution_expert_impl
+
         self.agents["resolution_expert"] = Agent(
             id="resolution_expert",
             name="Resolution Expert",
@@ -163,6 +204,7 @@ class AgentManager:
                 "description": "Resolution and aspect ratio specialist",
                 "capabilities": ["resolution_selection", "aspect_ratio_optimization"],
                 "autonomous_level": config.runtime.agent_resolution_expert_autonomy,
+                "implementation": resolution_expert_impl,
             }
         )
 
@@ -182,6 +224,55 @@ class AgentManager:
     def get_agent(self, agent_id: str) -> Optional[Agent]:
         """Get agent by ID"""
         return self.agents.get(agent_id)
+
+    def get_agent_implementation(self, agent_id: str) -> Optional[Any]:
+        """
+        Get actual agent implementation (QualityGuardianAgent, etc.)
+
+        Returns:
+            Agent implementation instance or None
+        """
+        return self.agent_implementations.get(agent_id)
+
+    def invoke_agent(self, agent_id: str, context: Dict[str, Any]) -> Optional[Any]:
+        """
+        Invoke agent to make a decision
+
+        Args:
+            agent_id: Agent identifier
+            context: Decision context
+
+        Returns:
+            AgentDecision or None if agent not found
+        """
+        agent_impl = self.get_agent_implementation(agent_id)
+        if not agent_impl:
+            console.print(f"[red]Agent not found: {agent_id}[/red]")
+            return None
+
+        try:
+            # Update status
+            agent = self.get_agent(agent_id)
+            if agent:
+                agent.status = AgentStatus.RUNNING
+
+            # Invoke agent
+            decision = agent_impl.make_decision(context)
+
+            # Update status and metrics
+            if agent:
+                agent.status = AgentStatus.IDLE
+                agent.task_count += 1
+                if decision.action != "ESCALATE":
+                    agent.success_count += 1
+
+            return decision
+
+        except Exception as e:
+            console.print(f"[red]Agent {agent_id} error: {e}[/red]")
+            if agent:
+                agent.status = AgentStatus.ERROR
+            return None
 
     def update_agent_status(self, agent_id: str, status: AgentStatus) -> bool:
         """Update agent status"""
