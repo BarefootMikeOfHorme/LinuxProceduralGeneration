@@ -175,6 +175,32 @@ class AIControlConfig:
 
 
 @dataclass
+class LoggingConfig:
+    """Logging configuration"""
+
+    log_level: str = "INFO"
+    log_to_file: bool = False
+    log_file_path: Optional[Path] = None
+    log_to_syslog: bool = False
+    syslog_address: str = "/dev/log"  # Unix socket, Windows: ('localhost', 514)
+
+    def __post_init__(self):
+        """Load from environment variables"""
+        if level := os.getenv("VAULTMIND_LOG_LEVEL"):
+            self.log_level = level.upper()
+
+        if log_file := os.getenv("VAULTMIND_LOG_FILE"):
+            self.log_to_file = True
+            self.log_file_path = Path(log_file)
+
+        if syslog := os.getenv("VAULTMIND_LOG_SYSLOG"):
+            self.log_to_syslog = syslog.lower() in ("true", "1", "yes")
+
+        if syslog_addr := os.getenv("VAULTMIND_SYSLOG_ADDRESS"):
+            self.syslog_address = syslog_addr
+
+
+@dataclass
 class VaultMindConfig:
     """
     Complete VaultMind Forge configuration
@@ -188,6 +214,7 @@ class VaultMindConfig:
 
     paths: PathConfig = field(default_factory=PathConfig)
     runtime: RuntimeConfig = field(default_factory=RuntimeConfig)
+    logging: LoggingConfig = field(default_factory=LoggingConfig)
     ai_control: Optional[AIControlConfig] = None
 
     # Model paths from YAML
