@@ -15,7 +15,7 @@ import numpy as np
 
 # Add project to path
 project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root / "vaultmind_forge"))
+sys.path.insert(0, str(project_root))
 
 def create_test_image(output_path: Path):
     """Create a simple test image with patterns"""
