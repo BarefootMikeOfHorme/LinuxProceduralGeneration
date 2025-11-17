@@ -203,6 +203,294 @@ fn sobel_y(arr: &Array2<f32>, x: usize, y: usize) -> f32 {
 }
 
 // ============================================================================
+// Color Fidelity and Quality Metrics
+// ============================================================================
+
+/// Analyze color distribution and vibrancy for generated images
+///
+/// Returns a color fidelity score based on:
+/// - Saturation distribution (avoiding washed-out colors)
+/// - Color space coverage (utilizing full RGB spectrum)
+/// - Hue diversity (varied color palette)
+/// - Brightness distribution (avoiding over/under exposure)
+///
+/// Optimized for AI-generated imagery validation
+#[pyfunction]
+fn rs_color_fidelity(path: &str) -> PyResult<f32> {
+    let img = image::open(path)
+        .map_err(|e| PyErr::new::<pyo3::exceptions::PyIOError, _>(
+            format!("Failed to open image: {}", e)
+        ))?;
+
+    let rgb_img = img.to_rgb8();
+    let (width, height) = rgb_img.dimensions();
+    let total_pixels = (width * height) as f32;
+
+    if total_pixels == 0.0 {
+        return Err(PyErr::new::<pyo3::exceptions::PyValueError, _>(
+            "Image has no pixels"
+        ));
+    }
+
+    // Collect HSV statistics for color analysis
+    let mut saturation_values = Vec::with_capacity(total_pixels as usize);
+    let mut brightness_values = Vec::with_capacity(total_pixels as usize);
+    let mut hue_histogram = vec![0u32; 360]; // 360 degree hue bins
+
+    for pixel in rgb_img.pixels() {
+        let (h, s, v) = rgb_to_hsv(pixel[0], pixel[1], pixel[2]);
+
+        saturation_values.push(s);
+        brightness_values.push(v);
+
+        // Bin hue into 360 degrees (skip grayscale pixels with s < 0.1)
+        if s > 0.1 {
+            let hue_bin = (h * 360.0) as usize % 360;
+            hue_histogram[hue_bin] += 1;
+        }
+    }
+
+    // Metric 1: Saturation score (prefer vibrant colors, penalize washed-out)
+    let saturation_score = compute_saturation_quality(&saturation_values);
+
+    // Metric 2: Brightness distribution (balanced exposure)
+    let brightness_score = compute_brightness_quality(&brightness_values);
+
+    // Metric 3: Hue diversity (varied color palette)
+    let hue_diversity_score = compute_hue_diversity(&hue_histogram);
+
+    // Metric 4: Color space coverage (full RGB spectrum usage)
+    let coverage_score = compute_color_coverage(&rgb_img);
+
+    // Weighted combination for overall color fidelity
+    let combined_score =
+        saturation_score * 0.35 +
+        brightness_score * 0.25 +
+        hue_diversity_score * 0.25 +
+        coverage_score * 0.15;
+
+    Ok(combined_score.max(0.0).min(1.0))
+}
+
+/// RGB to HSV conversion
+fn rgb_to_hsv(r: u8, g: u8, b: u8) -> (f32, f32, f32) {
+    let r = r as f32 / 255.0;
+    let g = g as f32 / 255.0;
+    let b = b as f32 / 255.0;
+
+    let max = r.max(g).max(b);
+    let min = r.min(g).min(b);
+    let delta = max - min;
+
+    // Value (brightness)
+    let v = max;
+
+    // Saturation
+    let s = if max == 0.0 { 0.0 } else { delta / max };
+
+    // Hue
+    let h = if delta == 0.0 {
+        0.0
+    } else if max == r {
+        ((g - b) / delta) % 6.0
+    } else if max == g {
+        ((b - r) / delta) + 2.0
+    } else {
+        ((r - g) / delta) + 4.0
+    };
+
+    let h = (h / 6.0 + 1.0) % 1.0; // Normalize to [0, 1]
+
+    (h, s, v)
+}
+
+/// Saturation quality - prefer vibrant, avoid washed-out
+fn compute_saturation_quality(saturation_values: &[f32]) -> f32 {
+    if saturation_values.is_empty() {
+        return 0.0;
+    }
+
+    let mean_saturation: f32 = saturation_values.iter().sum::<f32>() / saturation_values.len() as f32;
+
+    // Count pixels with good saturation (>0.3)
+    let vibrant_pixels = saturation_values.iter().filter(|&&s| s > 0.3).count() as f32;
+    let vibrant_ratio = vibrant_pixels / saturation_values.len() as f32;
+
+    // Combine mean saturation with vibrant pixel ratio
+    (mean_saturation * 0.6 + vibrant_ratio * 0.4).min(1.0)
+}
+
+/// Brightness quality - balanced exposure, avoid clipping
+fn compute_brightness_quality(brightness_values: &[f32]) -> f32 {
+    if brightness_values.is_empty() {
+        return 0.0;
+    }
+
+    // Count overexposed (>0.95) and underexposed (<0.05) pixels
+    let overexposed = brightness_values.iter().filter(|&&v| v > 0.95).count() as f32;
+    let underexposed = brightness_values.iter().filter(|&&v| v < 0.05).count() as f32;
+    let total = brightness_values.len() as f32;
+
+    let clipping_ratio = (overexposed + underexposed) / total;
+
+    // Penalize excessive clipping
+    let clipping_score = (1.0 - clipping_ratio * 2.0).max(0.0);
+
+    // Check for balanced histogram distribution
+    let mean_brightness: f32 = brightness_values.iter().sum::<f32>() / total;
+    let balance_score = 1.0 - (mean_brightness - 0.5).abs() * 2.0;
+
+    (clipping_score * 0.6 + balance_score * 0.4).min(1.0)
+}
+
+/// Hue diversity - varied color palette
+fn compute_hue_diversity(hue_histogram: &[u32]) -> f32 {
+    let total_colored_pixels: u32 = hue_histogram.iter().sum();
+
+    if total_colored_pixels == 0 {
+        return 0.5; // Grayscale image - neutral score
+    }
+
+    // Count non-empty hue bins
+    let occupied_bins = hue_histogram.iter().filter(|&&count| count > 0).count() as f32;
+
+    // Diversity score based on bin occupation (more bins = more diverse)
+    let diversity = occupied_bins / 360.0;
+
+    // Calculate entropy for distribution uniformity
+    let entropy = hue_histogram.iter()
+        .filter(|&&count| count > 0)
+        .map(|&count| {
+            let p = count as f32 / total_colored_pixels as f32;
+            -p * p.log2()
+        })
+        .sum::<f32>();
+
+    // Normalize entropy (max ~8.5 for uniform 360-bin distribution)
+    let entropy_score = (entropy / 8.5).min(1.0);
+
+    (diversity * 0.5 + entropy_score * 0.5).min(1.0)
+}
+
+/// Color space coverage - full RGB spectrum usage
+fn compute_color_coverage(img: &image::RgbImage) -> f32 {
+    let mut r_bins = vec![0u32; 16];
+    let mut g_bins = vec![0u32; 16];
+    let mut b_bins = vec![0u32; 16];
+
+    for pixel in img.pixels() {
+        r_bins[(pixel[0] / 16) as usize] += 1;
+        g_bins[(pixel[1] / 16) as usize] += 1;
+        b_bins[(pixel[2] / 16) as usize] += 1;
+    }
+
+    // Count occupied bins in each channel
+    let r_coverage = r_bins.iter().filter(|&&c| c > 0).count() as f32 / 16.0;
+    let g_coverage = g_bins.iter().filter(|&&c| c > 0).count() as f32 / 16.0;
+    let b_coverage = b_bins.iter().filter(|&&c| c > 0).count() as f32 / 16.0;
+
+    ((r_coverage + g_coverage + b_coverage) / 3.0).min(1.0)
+}
+
+/// Analyze image contrast using histogram and edge statistics
+///
+/// Returns contrast quality score based on:
+/// - Histogram spread (dynamic range usage)
+/// - Local contrast (edge strength)
+/// - Tonal distribution (avoiding flat regions)
+#[pyfunction]
+fn rs_contrast_score(path: &str) -> PyResult<f32> {
+    let img = image::open(path)
+        .map_err(|e| PyErr::new::<pyo3::exceptions::PyIOError, _>(
+            format!("Failed to open image: {}", e)
+        ))?;
+
+    let gray_img = img.to_luma8();
+    let (width, height) = gray_img.dimensions();
+
+    // Build histogram
+    let mut histogram = vec![0u32; 256];
+    for pixel in gray_img.pixels() {
+        histogram[pixel[0] as usize] += 1;
+    }
+
+    // Metric 1: Global contrast (histogram spread)
+    let global_contrast = compute_global_contrast(&histogram, (width * height) as u32);
+
+    // Metric 2: Local contrast (edge strength from gradient variance)
+    let arr = image_to_array(&gray_img);
+    let local_contrast = compute_local_contrast(&arr, width as usize, height as usize);
+
+    // Metric 3: Dynamic range (actual luminance range used)
+    let dynamic_range = compute_dynamic_range(&histogram);
+
+    // Weighted combination
+    let combined_score =
+        global_contrast * 0.40 +
+        local_contrast * 0.35 +
+        dynamic_range * 0.25;
+
+    Ok(combined_score.max(0.0).min(1.0))
+}
+
+/// Global contrast from histogram spread
+fn compute_global_contrast(histogram: &[u32], total_pixels: u32) -> f32 {
+    // Find effective min/max (exclude outliers <1% and >99%)
+    let threshold_low = (total_pixels as f32 * 0.01) as u32;
+    let threshold_high = (total_pixels as f32 * 0.99) as u32;
+
+    let mut cumulative = 0u32;
+    let mut min_val = 0usize;
+    let mut max_val = 255usize;
+
+    for (i, &count) in histogram.iter().enumerate() {
+        cumulative += count;
+        if cumulative >= threshold_low && min_val == 0 {
+            min_val = i;
+        }
+        if cumulative >= threshold_high {
+            max_val = i;
+            break;
+        }
+    }
+
+    let range = (max_val - min_val) as f32;
+    (range / 255.0).min(1.0)
+}
+
+/// Local contrast from gradient statistics
+fn compute_local_contrast(arr: &Array2<f32>, width: usize, height: usize) -> f32 {
+    let mut gradient_magnitudes = Vec::with_capacity((width - 2) * (height - 2));
+
+    for y in 1..(height - 1) {
+        for x in 1..(width - 1) {
+            let gx = sobel_x(arr, x, y);
+            let gy = sobel_y(arr, x, y);
+            let magnitude = (gx * gx + gy * gy).sqrt();
+            gradient_magnitudes.push(magnitude);
+        }
+    }
+
+    if gradient_magnitudes.is_empty() {
+        return 0.0;
+    }
+
+    let mean: f32 = gradient_magnitudes.iter().sum::<f32>() / gradient_magnitudes.len() as f32;
+
+    // Normalize mean gradient (typical range 0-0.5 for normalized images)
+    (mean * 4.0).min(1.0)
+}
+
+/// Dynamic range - actual luminance range used
+fn compute_dynamic_range(histogram: &[u32]) -> f32 {
+    let min_val = histogram.iter().position(|&c| c > 0).unwrap_or(0);
+    let max_val = histogram.iter().rposition(|&c| c > 0).unwrap_or(255);
+
+    let range = (max_val - min_val) as f32;
+    (range / 255.0).min(1.0)
+}
+
+// ============================================================================
 // Procedural Generation Functions
 // ============================================================================
 
@@ -435,8 +723,10 @@ fn generate_perlin_advanced(
 
 #[pymodule]
 fn vmf_validator(m: &Bound<'_, PyModule>) -> PyResult<()> {
-    // Validation functions
+    // Image quality validation functions
     m.add_function(wrap_pyfunction!(rs_sharpness_score, m)?)?;
+    m.add_function(wrap_pyfunction!(rs_color_fidelity, m)?)?;
+    m.add_function(wrap_pyfunction!(rs_contrast_score, m)?)?;
 
     // Procedural generation functions
     m.add_function(wrap_pyfunction!(generate_perlin_texture, m)?)?;
