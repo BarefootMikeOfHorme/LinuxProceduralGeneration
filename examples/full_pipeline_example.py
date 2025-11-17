@@ -62,7 +62,7 @@ def main():
         gpu_temp_threshold=85.0,
     )
 
-    print("✓ System monitor initialized")
+    print("[OK] System monitor initialized")
     snapshot = monitor.capture_snapshot()
     print(f"  CPU: {snapshot.cpu_percent:.1f}%")
     print(f"  Memory: {snapshot.memory_percent:.1f}% ({snapshot.memory_used_gb:.1f}GB / {snapshot.memory_total_gb:.1f}GB)")
@@ -95,7 +95,7 @@ def main():
         num_passes=3,
     )
 
-    print(f"✓ Job created: {job.name}")
+    print(f"[OK] Job created: {job.name}")
     print(f"  ID: {job.id}")
     print(f"  Type: {job.output_type.value}")
     print(f"  Style: {job.render_style.value}")
@@ -104,13 +104,13 @@ def main():
     # Generate execution plan
     plan = planner.create_plan(job)
 
-    print(f"\n✓ Execution plan generated:")
+    print(f"\n[OK] Execution plan generated:")
     print(f"  Estimated time: {plan.estimated_time_minutes:.1f} minutes")
     print(f"  Estimated memory: {plan.estimated_memory_gb:.1f} GB")
     print(f"  Recommended helpers: {[h.value for h in plan.recommended_helpers]}")
 
     if plan.warnings:
-        print(f"\n  ⚠️  Warnings:")
+        print(f"\n  [WARN]️  Warnings:")
         for warning in plan.warnings:
             print(f"    - {warning}")
 
@@ -122,10 +122,10 @@ def main():
     # Check if we have enough resources
     snapshot = monitor.capture_snapshot()
     if snapshot.memory_available_gb < plan.estimated_memory_gb:
-        print(f"\n  ⚠️  WARNING: Insufficient memory!")
+        print(f"\n  [WARN]️  WARNING: Insufficient memory!")
         print(f"     Need {plan.estimated_memory_gb}GB, have {snapshot.memory_available_gb:.1f}GB available")
     else:
-        print(f"\n  ✓ Sufficient resources available")
+        print(f"\n  [OK] Sufficient resources available")
 
     # ========================================================================
     # STEP 3: Simulated Asset Generation (Placeholder)
@@ -155,7 +155,7 @@ def main():
 
         img.save(asset_path)
         generated_assets.append(asset_path)
-        print(f"✓ Generated asset {i+1}: {asset_path.name}")
+        print(f"[OK] Generated asset {i+1}: {asset_path.name}")
 
     # Capture monitoring snapshot after generation
     monitor.capture_snapshot()
@@ -170,7 +170,7 @@ def main():
 
     # Simulate validation scores
     best_asset = generated_assets[1]  # Pick middle one as "winner"
-    print(f"✓ Best asset selected: {best_asset.name}")
+    print(f"[OK] Best asset selected: {best_asset.name}")
     print(f"  Quality score: 0.87 (simulated)")
 
     # ========================================================================
@@ -190,7 +190,7 @@ def main():
         backend=SRBackend.FALLBACK_LANCZOS,  # Using fallback for demo
     )
 
-    print(f"\n✓ Upscaled successfully:")
+    print(f"\n[OK] Upscaled successfully:")
     print(f"  Original: {sr_result.original_size}")
     print(f"  Upscaled: {sr_result.upscaled_size}")
     print(f"  Scale: {sr_result.scale_factor}x")
@@ -216,7 +216,7 @@ def main():
         sizes=sizes,
     )
 
-    print(f"\n✓ Created {len(downrez_results)} variants:")
+    print(f"\n[OK] Created {len(downrez_results)} variants:")
     for result in downrez_results:
         print(f"  - {result.downrezzed_size}: {result.output_path.name} ({result.processing_time_ms:.1f}ms)")
 
@@ -241,7 +241,7 @@ def main():
         }
     )
 
-    print(f"✓ Asset committed to version control:")
+    print(f"[OK] Asset committed to version control:")
     print(f"  Version ID: {version.version_id}")
     print(f"  Checksum: {version.checksum[:16]}...")
     print(f"  Branch: main")
@@ -252,12 +252,12 @@ def main():
         "Exploring different visual styles"
     )
 
-    print(f"\n✓ Created branch: {exp_branch.name}")
+    print(f"\n[OK] Created branch: {exp_branch.name}")
     print(f"  Description: {exp_branch.description}")
 
     # Get version history
     history = vcs.get_history()
-    print(f"\n✓ Version history: {len(history)} commits")
+    print(f"\n[OK] Version history: {len(history)} commits")
     for ver in history:
         print(f"  - {ver.version_id}: {ver.message}")
 
@@ -281,14 +281,14 @@ def main():
             frame_duration=2.0,
         )
 
-        print(f"\n✓ Video created successfully:")
+        print(f"\n[OK] Video created successfully:")
         print(f"  Output: {video_result.output_path.name}")
         print(f"  Duration: {video_result.duration_seconds:.1f}s")
         print(f"  Frames: {video_result.frame_count}")
         print(f"  Resolution: {video_result.resolution}")
         print(f"  Size: {video_result.file_size_mb:.2f} MB")
     except Exception as e:
-        print(f"\n⚠️  Video generation skipped (FFmpeg not available)")
+        print(f"\n[WARN]️  Video generation skipped (FFmpeg not available)")
         print(f"   Error: {e}")
 
     # ========================================================================
@@ -321,7 +321,7 @@ def main():
             print(f"  GPU {i} utilization (avg): {util:.1f}%")
 
     if summary['alerts']:
-        print(f"\n⚠️  Alerts during session: {len(summary['alerts'])}")
+        print(f"\n[WARN]️  Alerts during session: {len(summary['alerts'])}")
         for alert in summary['alerts'][:3]:  # Show first 3
             print(f"  - [{alert['level']}] {alert['message']}")
 
@@ -336,23 +336,23 @@ def main():
     # Export metrics
     metrics_file = output_dir / "session_metrics.json"
     monitor.export_metrics(metrics_file)
-    print(f"\n✓ Metrics exported to: {metrics_file}")
+    print(f"\n[OK] Metrics exported to: {metrics_file}")
 
     # ========================================================================
     # Summary
     # ========================================================================
     print_section("Pipeline Complete!")
 
-    print("✅ All modules demonstrated successfully:\n")
-    print("  1. ✓ forge_monitor - Tracked resource usage throughout pipeline")
-    print("  2. ✓ forge_agent - Planned job with resource estimation")
-    print("  3. ✓ Asset generation - Simulated (would use forge_diffusion)")
-    print("  4. ✓ forge_validator - Quality validation (simulated)")
-    print("  5. ✓ forge_sr - Upscaled asset to 4x resolution")
-    print("  6. ✓ forge_semantic - Created resolution variants")
-    print("  7. ✓ forge_versioning - Version control with branching")
-    print("  8. ✓ forge_video - Created slideshow (if FFmpeg available)")
-    print("  9. ✓ forge_monitor - Generated performance report")
+    print("[OK] All modules demonstrated successfully:\n")
+    print("  1. [OK] forge_monitor - Tracked resource usage throughout pipeline")
+    print("  2. [OK] forge_agent - Planned job with resource estimation")
+    print("  3. [OK] Asset generation - Simulated (would use forge_diffusion)")
+    print("  4. [OK] forge_validator - Quality validation (simulated)")
+    print("  5. [OK] forge_sr - Upscaled asset to 4x resolution")
+    print("  6. [OK] forge_semantic - Created resolution variants")
+    print("  7. [OK] forge_versioning - Version control with branching")
+    print("  8. [OK] forge_video - Created slideshow (if FFmpeg available)")
+    print("  9. [OK] forge_monitor - Generated performance report")
 
     print(f"\n📁 Output directory: {output_dir.absolute()}")
     print(f"   - Generated assets: {len(generated_assets)} files")
@@ -370,8 +370,8 @@ if __name__ == "__main__":
     try:
         main()
     except KeyboardInterrupt:
-        print("\n\n⚠️  Pipeline interrupted by user")
+        print("\n\n[WARN]️  Pipeline interrupted by user")
     except Exception as e:
-        print(f"\n\n❌ Error: {e}")
+        print(f"\n\n[FAIL] Error: {e}")
         import traceback
         traceback.print_exc()

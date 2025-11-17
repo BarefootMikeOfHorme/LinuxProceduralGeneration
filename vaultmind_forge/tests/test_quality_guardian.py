@@ -360,11 +360,11 @@ def run_all_tests():
     if passed == total:
         print("\n[SUCCESS] All tests passed!")
         print("\nQuality Guardian Agent is ready to:")
-        print("  ✅ Autonomously assess asset quality")
-        print("  ✅ Auto-fix 80%+ of common issues")
-        print("  ✅ Provide detailed diagnostic reports")
-        print("  ✅ Learn from experience")
-        print("  ✅ Escalate only when uncertain")
+        print("  [OK] Autonomously assess asset quality")
+        print("  [OK] Auto-fix 80%+ of common issues")
+        print("  [OK] Provide detailed diagnostic reports")
+        print("  [OK] Learn from experience")
+        print("  [OK] Escalate only when uncertain")
         return 0
     else:
         print(f"\n[FAILURE] {total - passed} test(s) failed")

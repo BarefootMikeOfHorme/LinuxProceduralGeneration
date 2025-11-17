@@ -301,7 +301,7 @@ def main():
         try:
             example()
         except Exception as e:
-            print(f"\n  ⚠️  Example failed: {e}")
+            print(f"\n  [WARN]️  Example failed: {e}")
 
     print("\n" + "="*70)
     print("  All examples complete!")
@@ -312,4 +312,4 @@ if __name__ == "__main__":
     try:
         main()
     except KeyboardInterrupt:
-        print("\n\n⚠️  Interrupted by user")
+        print("\n\n[WARN]️  Interrupted by user")

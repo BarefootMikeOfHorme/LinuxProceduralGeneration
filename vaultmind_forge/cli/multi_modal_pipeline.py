@@ -444,7 +444,7 @@ class MultiModalPipeline:
             generation_time=time.time() - start_time,
         )
 
-        console.print(f"  [green]✓[/green] {spec.modality.value} complete (quality: {result.quality_score:.2%})")
+        console.print(f"  [green][OK][/green] {spec.modality.value} complete (quality: {result.quality_score:.2%})")
 
         return result
 
@@ -541,7 +541,7 @@ class MultiModalPipeline:
                 generation_time=original.generation_time + 1.0,
             )
 
-            console.print(f"  [green]✓[/green] {modality.value} refined (quality: {refined_results[modality].quality_score:.2%})")
+            console.print(f"  [green][OK][/green] {modality.value} refined (quality: {refined_results[modality].quality_score:.2%})")
 
         return refined_results
 
@@ -592,5 +592,5 @@ class MultiModalPipeline:
         if pipeline["results"]:
             console.print("[green]Results:[/green]")
             for modality, result in pipeline["results"].items():
-                status = "✓" if result.success else "✗"
+                status = "[OK]" if result.success else "[X]"
                 console.print(f"  [{('green' if result.success else 'red')}]{status}[/] {modality.value}: {result.quality_score:.2%} quality")

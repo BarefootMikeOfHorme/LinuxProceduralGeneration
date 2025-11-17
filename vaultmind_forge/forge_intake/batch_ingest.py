@@ -419,15 +419,15 @@ class AssetIngestor:
                 json.dump(vaf_catalog, f, indent=2)
 
             self.processed_count += 1
-            print(f"  ✅ Metadata saved: {metadata_path.name}")
-            print(f"  ✅ VAF-Catalog created: {vaf_catalog_path.name}")
+            print(f"  [OK] Metadata saved: {metadata_path.name}")
+            print(f"  [OK] VAF-Catalog created: {vaf_catalog_path.name}")
 
             return metadata
 
         except Exception as e:
             self.error_count += 1
             error_msg = f"Error processing {filepath.name}: {e}"
-            print(f"  ❌ {error_msg}")
+            print(f"  [FAIL] {error_msg}")
             self.errors.append(error_msg)
             return None
 

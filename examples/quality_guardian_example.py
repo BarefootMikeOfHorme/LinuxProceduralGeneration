@@ -56,9 +56,9 @@ def example_1_basic_usage():
     print(f"\n[RESULT] Processing time: {report.processing_time_ms:.2f}ms")
 
     if report.escalated:
-        print(f"\n⚠️  [ESCALATED] Reason: {report.escalation_reason}")
+        print(f"\n[WARN]️  [ESCALATED] Reason: {report.escalation_reason}")
     else:
-        print(f"\n✅ [APPROVED] Quality Guardian handled autonomously!")
+        print(f"\n[OK] [APPROVED] Quality Guardian handled autonomously!")
 
 
 def example_2_batch_monitoring():
@@ -101,7 +101,7 @@ def example_2_batch_monitoring():
         })
         results.append(report)
 
-        status = "✅ APPROVED" if not report.escalated else "⚠️ ESCALATED"
+        status = "[OK] APPROVED" if not report.escalated else "[WARN]️ ESCALATED"
         print(f"{status} - {asset_path.name}: Quality={report.overall_quality:.3f}, Fixes={len(report.fixes_applied)}")
 
     # Print batch summary
@@ -155,16 +155,16 @@ def example_3_integration_with_generation():
 
         # Step 3: Decide what to do based on Quality Guardian's decision
         if report.escalated:
-            print(f"[PIPELINE] ⚠️  Quality Guardian escalated - regeneration recommended")
+            print(f"[PIPELINE] [WARN]️  Quality Guardian escalated - regeneration recommended")
             return "RETRY_GENERATION"
 
         elif report.fixes_applied:
-            print(f"[PIPELINE] ✅ Quality Guardian auto-fixed ({len(report.fixes_applied)} fixes)")
+            print(f"[PIPELINE] [OK] Quality Guardian auto-fixed ({len(report.fixes_applied)} fixes)")
             print(f"[PIPELINE] Quality improved: {report.before_quality:.3f} → {report.after_quality:.3f}")
             return "APPROVED_WITH_FIXES"
 
         else:
-            print(f"[PIPELINE] ✅ Quality Guardian approved (no fixes needed)")
+            print(f"[PIPELINE] [OK] Quality Guardian approved (no fixes needed)")
             return "APPROVED"
 
     # Run pipeline
@@ -327,7 +327,7 @@ def main():
     print("\n" + "="*80)
     print("EXAMPLES COMPLETED")
     print("="*80)
-    print("\n✅ Quality Guardian Agent is ready to use!")
+    print("\n[OK] Quality Guardian Agent is ready to use!")
     print("\nKey Takeaways:")
     print("  • Guardian autonomously assesses quality (no main AI needed)")
     print("  • Auto-fixes 80%+ of common issues (sharpening, contrast, etc.)")

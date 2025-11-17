@@ -45,17 +45,17 @@ class TerminalUI:
     @staticmethod
     def success(message: str) -> None:
         """Display success message"""
-        console.print(f"[bold green on black] ✓ {message} [/bold green on black]")
+        console.print(f"[bold green on black] [OK] {message} [/bold green on black]")
 
     @staticmethod
     def error(message: str) -> None:
         """Display error message"""
-        console.print(f"[bold red on black] ✗ {message} [/bold red on black]")
+        console.print(f"[bold red on black] [FAIL] {message} [/bold red on black]")
 
     @staticmethod
     def warning(message: str) -> None:
         """Display warning message"""
-        console.print(f"[bold yellow on black] ⚠ {message} [/bold yellow on black]")
+        console.print(f"[bold yellow on black] [WARN] {message} [/bold yellow on black]")
 
     @staticmethod
     def info(message: str) -> None:
@@ -193,8 +193,8 @@ class TerminalUI:
         filled = int((percent / 100) * width)
         empty = width - filled
 
-        bar = "[green]" + "█" * filled + "[/green]"
-        bar += "[dim]" + "░" * empty + "[/dim]"
+        bar = "[green]" + "#" * filled + "[/green]"
+        bar += "[dim]" + "." * empty + "[/dim]"
         bar += f" {percent}%"
 
         return bar

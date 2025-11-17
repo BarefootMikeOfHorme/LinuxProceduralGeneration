@@ -494,7 +494,7 @@ async def test_end_to_end_checkpoint_and_recovery():
         assert restored is not None
         assert restored.id == workflow.id
 
-        print(f"\n✅ End-to-end checkpoint test passed!")
+        print(f"\n[OK] End-to-end checkpoint test passed!")
         print(f"   Checkpoint ID: {checkpoint_id}")
         print(f"   Workflow: {workflow.name}")
         print(f"   Tasks: {len(workflow.tasks)}")

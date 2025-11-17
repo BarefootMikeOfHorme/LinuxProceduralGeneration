@@ -58,7 +58,7 @@ def example_1_simple_workflow():
     texture_path.parent.mkdir(exist_ok=True)
     result_2d.images[0].save(texture_path)
 
-    print(f"  ✓ Texture generated: {texture_path}")
+    print(f"  [OK] Texture generated: {texture_path}")
 
     # Step 2: Convert to 3D mesh
     print("\nStep 2: Converting to 3D mesh...")
@@ -76,7 +76,7 @@ def example_1_simple_workflow():
 
     result_3d = mesh_gen.generate(config_3d)
 
-    print(f"\n  ✓ 3D mesh generated:")
+    print(f"\n  [OK] 3D mesh generated:")
     print(f"    - Full mesh: {result_3d.full_mesh}")
     print(f"    - Body: {result_3d.body_mesh}")
     print(f"    - Clothes: {result_3d.clothes_mesh}")
@@ -153,7 +153,7 @@ def example_2_ai_guided_workflow():
     texture_path.parent.mkdir(exist_ok=True)
     result_2d.images[0].save(texture_path)
 
-    print(f"  ✓ Texture generated: {texture_path}")
+    print(f"  [OK] Texture generated: {texture_path}")
 
     # Step 4: AI evaluates texture quality
     print("\nStep 4: AI evaluating texture quality...")
@@ -186,7 +186,7 @@ def example_2_ai_guided_workflow():
 
     result_3d = mesh_gen.generate(config_3d)
 
-    print(f"\n  ✓ 3D mesh generated:")
+    print(f"\n  [OK] 3D mesh generated:")
     print(f"    - Full mesh: {result_3d.full_mesh}")
     print(f"    - Components: body, clothes, hair (separated)")
     print(f"    - Time: {result_3d.generation_time:.1f}s")
@@ -296,7 +296,7 @@ def example_3_batch_processing():
             "time": result_3d.generation_time,
         })
 
-        print(f"  ✓ Complete: {result_3d.full_mesh} ({result_3d.generation_time:.1f}s)\n")
+        print(f"  [OK] Complete: {result_3d.full_mesh} ({result_3d.generation_time:.1f}s)\n")
 
     # Summary
     total_time = sum(r["time"] for r in results)
@@ -444,11 +444,11 @@ WORKFLOW:
   5. Export → Game engine ready assets
 
 FEATURES:
-  ✓ Prompt → 3D mesh in single workflow
-  ✓ Three-tier AI (96% cost savings)
-  ✓ Autonomous agents (75% decisions)
-  ✓ Semantic decomposition (body/clothes/hair)
-  ✓ Multi-format export (OBJ, GLB, FBX)
+  [OK] Prompt → 3D mesh in single workflow
+  [OK] Three-tier AI (96% cost savings)
+  [OK] Autonomous agents (75% decisions)
+  [OK] Semantic decomposition (body/clothes/hair)
+  [OK] Multi-format export (OBJ, GLB, FBX)
 
 PERFORMANCE:
   - 2D texture: ~5-10s (SDXL, 1024x1024)
@@ -482,11 +482,11 @@ PERFORMANCE:
     print("=" * 70)
     print("""
 COMPLETE SYSTEM READY:
-  ✓ Three-tier AI (Helper/Executive/Planner)
-  ✓ Agent system (5 specialized agents)
-  ✓ 2D diffusion (FLUX + SDXL)
-  ✓ 3D mesh generation (mesh-xl-1.3b + StdGEN)
-  ✓ Model manager (thread-safe sequencing)
+  [OK] Three-tier AI (Helper/Executive/Planner)
+  [OK] Agent system (5 specialized agents)
+  [OK] 2D diffusion (FLUX + SDXL)
+  [OK] 3D mesh generation (mesh-xl-1.3b + StdGEN)
+  [OK] Model manager (thread-safe sequencing)
 
 CAPABILITIES:
   - Prompt → 3D game-ready asset

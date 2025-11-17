@@ -21,7 +21,7 @@ from vaultmind_forge.forge_sr import SuperResolutionUpscaler, SRBackend
 def alert_handler(alert):
     """Handle system alerts"""
     timestamp = alert.timestamp.strftime("%H:%M:%S")
-    print(f"  ⚠️  [{timestamp}] {alert.level.value.upper()}: {alert.message}")
+    print(f"  [WARN]️  [{timestamp}] {alert.level.value.upper()}: {alert.message}")
 
     if alert.level == AlertLevel.CRITICAL:
         print(f"      → Taking action: pausing generation")
@@ -45,7 +45,7 @@ def main():
         alert_callback=alert_handler,
     )
 
-    print("✓ Monitor initialized with thresholds:")
+    print("[OK] Monitor initialized with thresholds:")
     print(f"  - CPU: 80%")
     print(f"  - Memory: 85%")
     print(f"  - GPU Temperature: 80°C\n")
@@ -88,7 +88,7 @@ def main():
 
     # Get planning phase summary
     planning_summary = monitor.get_session_summary()
-    print(f"\n✓ Planning phase complete:")
+    print(f"\n[OK] Planning phase complete:")
     print(f"  Duration: {planning_summary['duration_seconds']:.2f}s")
     print(f"  Avg CPU: {planning_summary['cpu']['avg']:.1f}%")
     print(f"  Peak memory: {planning_summary['memory']['max']:.1f}%\n")
@@ -148,7 +148,7 @@ def main():
 
     # Get batch processing summary
     batch_summary = monitor.get_session_summary()
-    print(f"\n✓ Batch processing complete:")
+    print(f"\n[OK] Batch processing complete:")
     print(f"  Images processed: {len(test_images)}")
     print(f"  Total duration: {batch_summary['duration_seconds']:.2f}s")
     print(f"  Avg CPU: {batch_summary['cpu']['avg']:.1f}%")
@@ -213,12 +213,12 @@ def main():
     # Export to JSON
     json_path = output_dir / "monitoring_metrics.json"
     monitor.export_metrics(json_path)
-    print(f"✓ Exported JSON metrics: {json_path}")
+    print(f"[OK] Exported JSON metrics: {json_path}")
 
     # Export to CSV
     csv_path = output_dir / "monitoring_metrics.csv"
     MetricsAggregator.export_csv(monitor.snapshots, csv_path)
-    print(f"✓ Exported CSV metrics: {csv_path}")
+    print(f"[OK] Exported CSV metrics: {csv_path}")
 
     print(f"\nMetrics can now be analyzed with:")
     print(f"  - Excel/LibreOffice (CSV)")
@@ -237,19 +237,19 @@ def main():
 
     cpu_avg = report['cpu']['stats']['mean']
     if cpu_avg > 70:
-        print("  ⚠️  High average CPU usage ({:.1f}%)".format(cpu_avg))
+        print("  [WARN]️  High average CPU usage ({:.1f}%)".format(cpu_avg))
         print("     → Consider reducing concurrent jobs")
         print("     → Enable CPU affinity for better scheduling")
     else:
-        print("  ✓ CPU usage is healthy ({:.1f}%)".format(cpu_avg))
+        print("  [OK] CPU usage is healthy ({:.1f}%)".format(cpu_avg))
 
     mem_avg = report['memory']['stats']['mean']
     if mem_avg > 80:
-        print(f"\n  ⚠️  High average memory usage ({mem_avg:.1f}%)")
+        print(f"\n  [WARN]️  High average memory usage ({mem_avg:.1f}%)")
         print("     → Consider reducing batch size")
         print("     → Enable memory monitoring alerts")
     else:
-        print(f"\n  ✓ Memory usage is healthy ({mem_avg:.1f}%)")
+        print(f"\n  [OK] Memory usage is healthy ({mem_avg:.1f}%)")
 
     if report['cpu']['anomaly_count'] > 0:
         print(f"\n  📊 Detected {report['cpu']['anomaly_count']} CPU anomalies")
@@ -278,8 +278,8 @@ if __name__ == "__main__":
     try:
         main()
     except KeyboardInterrupt:
-        print("\n\n⚠️  Demo interrupted by user")
+        print("\n\n[WARN]️  Demo interrupted by user")
     except Exception as e:
-        print(f"\n\n❌ Error: {e}")
+        print(f"\n\n[FAIL] Error: {e}")
         import traceback
         traceback.print_exc()

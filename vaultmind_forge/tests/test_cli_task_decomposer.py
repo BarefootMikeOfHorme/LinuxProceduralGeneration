@@ -499,7 +499,7 @@ async def test_end_to_end_decomposition(agent_manager, process_orchestrator):
     is_valid, error = result.workflow.validate_dag()
     assert is_valid, f"Generated workflow should be valid: {error}"
 
-    print(f"\n✅ End-to-end decomposition test passed!")
+    print(f"\n[OK] End-to-end decomposition test passed!")
     print(f"   Workflow: {result.workflow.name}")
     print(f"   Tasks: {len(result.tasks)}")
     print(f"   Duration: {result.estimated_duration:.1f}s")

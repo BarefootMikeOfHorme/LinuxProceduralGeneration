@@ -136,15 +136,15 @@ class QualityGuardianAgent(BaseAgent):
     - Saves you time and improves quality
 
     Capabilities:
-    ✅ Sharpness assessment and auto-sharpening
-    ✅ Color fidelity checking and auto-correction
-    ✅ Contrast optimization
-    ✅ Brightness balancing
-    ✅ Noise reduction
-    ✅ Artifact detection and removal
-    ✅ Anatomy checking (for characters)
-    ✅ Prompt alignment scoring
-    ✅ Real-time processing statistics
+    [OK] Sharpness assessment and auto-sharpening
+    [OK] Color fidelity checking and auto-correction
+    [OK] Contrast optimization
+    [OK] Brightness balancing
+    [OK] Noise reduction
+    [OK] Artifact detection and removal
+    [OK] Anatomy checking (for characters)
+    [OK] Prompt alignment scoring
+    [OK] Real-time processing statistics
 
     Example:
         guardian = QualityGuardianAgent(
@@ -157,10 +157,10 @@ class QualityGuardianAgent(BaseAgent):
         decision = guardian.assess_and_fix("output/character.png")
 
         if decision.action == "APPROVE":
-            print(f"✅ Quality approved! Score: {decision.overall_quality}")
+            print(f"[OK] Quality approved! Score: {decision.overall_quality}")
             print(f"Fixes applied: {decision.fixes_to_apply}")
         elif decision.action == "ESCALATE":
-            print(f"⚠️ Quality Guardian needs help: {decision.reasoning}")
+            print(f"[WARN]️ Quality Guardian needs help: {decision.reasoning}")
     """
 
     def __init__(
@@ -251,7 +251,7 @@ class QualityGuardianAgent(BaseAgent):
         if initial_decision.action == "APPROVE":
             report.processing_time_ms = (time.time() - start_time) * 1000
             self.reports.append(report)
-            logger.info(f"✅ Quality Guardian APPROVED: {asset_path.name} (score={initial_decision.confidence:.3f})")
+            logger.info(f"[OK] Quality Guardian APPROVED: {asset_path.name} (score={initial_decision.confidence:.3f})")
             return report
 
         # If should escalate, do so
@@ -260,7 +260,7 @@ class QualityGuardianAgent(BaseAgent):
             report.escalation_reason = initial_decision.escalation_reason.value if initial_decision.escalation_reason else "unknown"
             report.processing_time_ms = (time.time() - start_time) * 1000
             self.reports.append(report)
-            logger.warning(f"⚠️ Quality Guardian ESCALATING: {asset_path.name} - {report.escalation_reason}")
+            logger.warning(f"[WARN]️ Quality Guardian ESCALATING: {asset_path.name} - {report.escalation_reason}")
             return report
 
         # Auto-fix if enabled
@@ -289,7 +289,7 @@ class QualityGuardianAgent(BaseAgent):
             self.reports = self.reports[-self.max_reports:]
 
         logger.info(
-            f"✅ Quality Guardian completed: {asset_path.name} - "
+            f"[OK] Quality Guardian completed: {asset_path.name} - "
             f"Quality improved {report.before_quality:.3f} → {report.after_quality:.3f} "
             f"({len(report.fixes_applied)} fixes)"
         )

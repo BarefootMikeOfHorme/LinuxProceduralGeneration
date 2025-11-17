@@ -694,7 +694,7 @@ async def test_end_to_end_multi_modal_generation(agent_manager, process_orchestr
     assert result.consistency_score > 0.0
     assert result.total_duration > 0.0
 
-    print(f"\n✅ End-to-end multi-modal pipeline test passed!")
+    print(f"\n[OK] End-to-end multi-modal pipeline test passed!")
     print(f"   Pipeline ID: {pipeline_id}")
     print(f"   Modalities: {len(result.modal_results)}")
     print(f"   Overall Quality: {result.overall_quality:.2%}")

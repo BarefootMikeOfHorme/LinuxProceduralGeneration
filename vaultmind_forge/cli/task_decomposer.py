@@ -99,36 +99,172 @@ class IntelligentTaskDecomposer:
 
     def _load_task_patterns(self) -> Dict[str, Dict[str, Any]]:
         """
-        Load common task patterns
+        🔮 Ceremonial Task Patterns - Sacred Techniques
 
         These are Rembrandt's "techniques" - learned patterns that produce
-        masterpiece workflows
+        masterpiece workflows with real module execution paths.
         """
+        from pathlib import Path
+        project_root = Path(__file__).parent.parent.parent
+
         return {
             "image_generation": {
-                "stages": ["enhance_prompt", "optimize_params", "generate", "validate", "post_process"],
-                "agents": [AgentType.PROMPT, AgentType.PARAMETER, AgentType.QUALITY],
+                "stages": ["enhance_prompt", "generate", "validate", "package"],
+                "executors": {
+                    "enhance_prompt": {
+                        "type": TaskType.ENHANCEMENT,
+                        "executor": "prompt_refiner",
+                        "requires_agent": "prompt_refiner",
+                    },
+                    "generate": {
+                        "type": TaskType.GENERATION,
+                        "command": str(project_root / "vaultmind_cli.py"),
+                        "executor": "python",
+                        "params": {
+                            "cli_command": "generate",
+                            "default_width": 1024,
+                            "default_height": 1024
+                        },
+                        "requires_gpu": True,
+                        "estimated_duration": 60.0
+                    },
+                    "validate": {
+                        "type": TaskType.VALIDATION,
+                        "command": str(project_root / "vaultmind_forge" / "forge_validator" / "validator.py"),
+                        "executor": "python",
+                        "params": {
+                            "backend": "basic"
+                        },
+                        "estimated_duration": 5.0
+                    },
+                    "package": {
+                        "type": TaskType.PROCESSING,
+                        "command": str(project_root / "vaultmind_forge" / "forge_packaging" / "packager.py"),
+                        "executor": "python",
+                        "estimated_duration": 3.0
+                    }
+                },
+                "agents": [AgentType.PROMPT, AgentType.QUALITY],
                 "requires_gpu": True,
                 "complexity": TaskComplexity.MODERATE,
             },
+
             "character_creation": {
                 "stages": ["concept", "prompt_design", "generate_variations", "select_best", "refine", "validate"],
+                "executors": {
+                    "concept": {
+                        "type": TaskType.ANALYSIS,
+                        "requires_agent": "style_profiler",
+                        "estimated_duration": 10.0
+                    },
+                    "prompt_design": {
+                        "type": TaskType.ENHANCEMENT,
+                        "requires_agent": "prompt_refiner",
+                        "estimated_duration": 15.0
+                    },
+                    "generate_variations": {
+                        "type": TaskType.GENERATION,
+                        "command": str(project_root / "vaultmind_cli.py"),
+                        "executor": "python",
+                        "params": {
+                            "cli_command": "generate",
+                            "batch": 5
+                        },
+                        "requires_gpu": True,
+                        "estimated_duration": 180.0
+                    },
+                    "select_best": {
+                        "type": TaskType.VALIDATION,
+                        "requires_agent": "quality_guardian",
+                        "estimated_duration": 10.0
+                    },
+                    "refine": {
+                        "type": TaskType.ENHANCEMENT,
+                        "command": str(project_root / "vaultmind_forge" / "forge_sr" / "upscaler.py"),
+                        "executor": "python",
+                        "requires_gpu": True,
+                        "estimated_duration": 45.0
+                    },
+                    "validate": {
+                        "type": TaskType.VALIDATION,
+                        "command": str(project_root / "vaultmind_forge" / "forge_validator" / "validator.py"),
+                        "executor": "python",
+                        "estimated_duration": 5.0
+                    }
+                },
                 "agents": [AgentType.PROMPT, AgentType.PARAMETER, AgentType.QUALITY, AgentType.MATERIAL],
                 "requires_gpu": True,
                 "complexity": TaskComplexity.COMPLEX,
             },
-            "terrain_generation": {
-                "stages": ["heightmap_gen", "texture_gen", "vegetation", "validate", "export"],
-                "agents": [AgentType.PARAMETER],
-                "requires_gpu": True,
-                "complexity": TaskComplexity.EPIC,
-            },
+
             "batch_validation": {
-                "stages": ["collect_assets", "parallel_validate", "aggregate_results", "report"],
+                "stages": ["collect_assets", "parallel_validate", "aggregate_results"],
+                "executors": {
+                    "collect_assets": {
+                        "type": TaskType.PROCESSING,
+                        "executor": "python",
+                        "estimated_duration": 2.0
+                    },
+                    "parallel_validate": {
+                        "type": TaskType.VALIDATION,
+                        "command": str(project_root / "vaultmind_forge" / "forge_validator" / "validator.py"),
+                        "executor": "python",
+                        "params": {
+                            "batch_mode": True
+                        },
+                        "estimated_duration": 15.0
+                    },
+                    "aggregate_results": {
+                        "type": TaskType.ANALYSIS,
+                        "executor": "python",
+                        "estimated_duration": 1.0
+                    }
+                },
                 "agents": [AgentType.QUALITY],
                 "requires_gpu": False,
                 "complexity": TaskComplexity.SIMPLE,
             },
+
+            # 🔥 NEW: Multi-language terrain pipeline
+            "terrain_generation": {
+                "stages": ["rust_heightmap", "python_texture", "cpp_validate", "package"],
+                "executors": {
+                    "rust_heightmap": {
+                        "type": TaskType.GENERATION,
+                        "command": str(project_root / "target" / "release" / "terrain_gen"),
+                        "executor": "rust",
+                        "params": {
+                            "resolution": 2048
+                        },
+                        "estimated_duration": 30.0
+                    },
+                    "python_texture": {
+                        "type": TaskType.GENERATION,
+                        "command": str(project_root / "vaultmind_cli.py"),
+                        "executor": "python",
+                        "params": {
+                            "cli_command": "generate"
+                        },
+                        "requires_gpu": True,
+                        "estimated_duration": 120.0
+                    },
+                    "cpp_validate": {
+                        "type": TaskType.VALIDATION,
+                        "command": str(project_root / "build" / "terrain_validator"),
+                        "executor": "cpp",
+                        "estimated_duration": 10.0
+                    },
+                    "package": {
+                        "type": TaskType.PROCESSING,
+                        "command": str(project_root / "vaultmind_forge" / "forge_packaging" / "packager.py"),
+                        "executor": "python",
+                        "estimated_duration": 5.0
+                    }
+                },
+                "agents": [AgentType.PARAMETER],
+                "requires_gpu": True,
+                "complexity": TaskComplexity.EPIC,
+            }
         }
 
     async def decompose(self, description: str, context: Optional[TaskContext] = None) -> DecompositionResult:

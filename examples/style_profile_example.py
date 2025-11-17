@@ -42,7 +42,7 @@ def example_1_auto_detection():
     for prompt in test_prompts:
         detected_style = quick_style_detection(prompt)
         print(f"\nPrompt: {prompt[:60]}...")
-        print(f"✓ Detected style: {detected_style}")
+        print(f"[OK] Detected style: {detected_style}")
 
 
 def example_2_get_params():
@@ -87,7 +87,7 @@ def example_3_style_aware_guardian():
         print(f"\n{style_name.upper()} Guardian:")
         print(f"  Min quality threshold: {guardian.min_quality_threshold:.2f}")
         print(f"  Expected: {expected_threshold:.2f}")
-        print(f"  ✓ Configured for {profile.name} style")
+        print(f"  [OK] Configured for {profile.name} style")
 
 
 def example_4_prompt_enhancement():
@@ -137,7 +137,7 @@ def example_5_complete_pipeline():
             user_params=None,
         )
 
-        print(f"\n✓ Pipeline created:")
+        print(f"\n[OK] Pipeline created:")
         print(f"  Enhanced prompt: {enhanced_prompt}")
         print(f"  Generation params:")
         print(f"    - Steps: {params['steps']}")
@@ -166,7 +166,7 @@ def example_6_parameter_validation():
     print(f"  Valid: {is_valid}")
     if warnings:
         for warning in warnings:
-            print(f"  ⚠️  {warning}")
+            print(f"  [WARN]️  {warning}")
 
     # Test invalid params
     print("\nTesting INVALID anime parameters (missing clip_skip):")
@@ -179,7 +179,7 @@ def example_6_parameter_validation():
     print(f"  Valid: {is_valid}")
     if warnings:
         for warning in warnings:
-            print(f"  ⚠️  {warning}")
+            print(f"  [WARN]️  {warning}")
 
     # Test excessive CFG
     print("\nTesting EXCESSIVE CFG (too high):")
@@ -192,7 +192,7 @@ def example_6_parameter_validation():
     print(f"  Valid: {is_valid}")
     if warnings:
         for warning in warnings:
-            print(f"  ⚠️  {warning}")
+            print(f"  [WARN]️  {warning}")
 
 
 def example_7_generation_with_retry():
@@ -258,9 +258,9 @@ def example_8_user_overrides():
     if warnings:
         print("\nWarnings:")
         for warning in warnings:
-            print(f"  ⚠️  {warning}")
+            print(f"  [WARN]️  {warning}")
     else:
-        print("\n✓ All overrides within valid ranges")
+        print("\n[OK] All overrides within valid ranges")
 
 
 def example_9_all_profiles_overview():
@@ -309,7 +309,7 @@ def example_10_integration_simulation():
         from PIL import Image
         img = Image.new('RGB', (512, 512), color=(150, 150, 150))
         img.save(output_path)
-        print(f"    ✓ Generated: {output_path}")
+        print(f"    [OK] Generated: {output_path}")
 
         # Step 3: Quality Guardian checks
         print(f"\n[3] Quality Guardian assessing...")
@@ -319,10 +319,10 @@ def example_10_integration_simulation():
         print(f"    Fixes applied: {len(report.fixes_applied)}")
 
         if report.escalated:
-            print(f"    ⚠️  Escalated: {report.escalation_reason}")
+            print(f"    [WARN]️  Escalated: {report.escalation_reason}")
             return "RETRY"
         else:
-            print(f"    ✓ Approved!")
+            print(f"    [OK] Approved!")
             return "SUCCESS"
 
     # Test workflow with different prompts
@@ -367,7 +367,7 @@ def main():
     print("\n" + "="*80)
     print("EXAMPLES COMPLETED")
     print("="*80)
-    print("\n✅ Style Profile System is ready to use!")
+    print("\n[OK] Style Profile System is ready to use!")
     print("\nKey Features:")
     print("  • Auto-detects style from prompts (anime, photorealistic, etc.)")
     print("  • Research-backed generation parameters per style")

@@ -270,7 +270,7 @@ class JobPlanner:
         if (job_config.aspect_ratio.width % 64 != 0 or
             job_config.aspect_ratio.height % 64 != 0):
             notes.append(
-                "⚠️ Resolution is not a multiple of 64. Consider adjusting for "
+                "[WARN]️ Resolution is not a multiple of 64. Consider adjusting for "
                 "optimal performance (e.g., 512x512, 768x768, 1024x1024)"
             )
 
@@ -313,7 +313,7 @@ class JobPlanner:
             val_req.min_prompt_alignment > 0.85
         ]):
             notes.append(
-                "⚠️ Very high validation thresholds (>0.85) may result in many "
+                "[WARN]️ Very high validation thresholds (>0.85) may result in many "
                 "rejections. Consider relaxing thresholds or increasing pass count."
             )
 
@@ -327,7 +327,7 @@ class JobPlanner:
         pixels = job_config.aspect_ratio.width * job_config.aspect_ratio.height
         if pixels > 1024 * 1024:  # > 1 megapixel
             warnings.append(
-                "⚠️ High resolution (>1MP) may cause out-of-memory errors. "
+                "[WARN]️ High resolution (>1MP) may cause out-of-memory errors. "
                 "Ensure adequate GPU memory available."
             )
 

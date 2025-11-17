@@ -526,7 +526,7 @@ class DistributedExecutor:
         except Exception as e:
             task.status = TaskStatus.FAILED
             task.error = str(e)
-            console.print(f"  [red]✗[/red] Task {task.name} failed on {worker.name}: {e}")
+            console.print(f"  [red][X][/red] Task {task.name} failed on {worker.name}: {e}")
 
         finally:
             duration = time.time() - start_time
@@ -654,6 +654,6 @@ class DistributedExecutor:
                 WorkerStatus.ERROR: "red",
             }.get(worker.status, "white")
 
-            console.print(f"  [{status_color}]●[/{status_color}] {worker.name} ({worker.type.value})")
+            console.print(f"  [{status_color}]*[/{status_color}] {worker.name} ({worker.type.value})")
             console.print(f"      Status: {worker.status.value} | Load: {worker.load_score():.2f} | Efficiency: {worker.metrics.efficiency_score():.2%}")
             console.print(f"      Completed: {worker.metrics.tasks_completed} | Failed: {worker.metrics.tasks_failed}")

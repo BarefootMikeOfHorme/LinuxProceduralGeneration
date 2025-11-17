@@ -237,7 +237,7 @@ class AssetMonitorBot(BaseBot):
         print(f"\nFOLDERS:")
 
         for folder in watch_status['folders']:
-            status_icon = "✓" if folder['exists'] else "✗"
+            status_icon = "[OK]" if folder['exists'] else "[X]"
             print(f"  {status_icon} {folder['path']}")
             print(f"    Pattern: {folder['pattern']}")
             print(f"    Type: {folder['output_type']} -> {', '.join(folder['engines'])}")

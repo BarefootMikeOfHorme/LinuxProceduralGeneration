@@ -608,7 +608,7 @@ async def test_end_to_end_distributed_execution():
     total_handled = len(executor.completed_tasks) + len(executor.task_assignments)
     assert total_handled > 0
 
-    print(f"\n✅ End-to-end distributed execution test passed!")
+    print(f"\n[OK] End-to-end distributed execution test passed!")
     print(f"   Workers: {len(executor.workers)}")
     print(f"   Completed: {len(executor.completed_tasks)}")
     print(f"   Assigned: {len(executor.task_assignments)}")

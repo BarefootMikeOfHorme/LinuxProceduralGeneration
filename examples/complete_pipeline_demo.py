@@ -309,20 +309,20 @@ def main():
     print("""
 The VaultMind Forge autonomous pipeline is now COMPLETE and production-ready:
 
-✅ SDXL Diffusion Generator
+[OK] SDXL Diffusion Generator
    - Full SDXL base + refiner support
    - Memory optimizations (xFormers, attention slicing)
    - ControlNet & IP-Adapter ready
    - Placeholder mode for testing
 
-✅ 5 Autonomous Agents
+[OK] 5 Autonomous Agents
    1. Resolution Advisor - Optimal resolution & generation method
    2. Parameter Optimizer - Steps, CFG, sampler tuning
    3. Prompt Refiner - Prompt enhancement on failures
    4. Quality Guardian - Quality checking & auto-fixing
    5. Material Suggester - Shader & texture configuration
 
-✅ Complete Integration
+[OK] Complete Integration
    - Agents work together seamlessly
    - Automatic retry with refinement
    - Platform-specific optimization

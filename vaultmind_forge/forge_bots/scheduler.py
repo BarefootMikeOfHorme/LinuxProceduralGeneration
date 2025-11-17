@@ -431,7 +431,7 @@ class BotScheduler:
         print(f"\n{'BOT STATUS':-^80}")
         for name, bot in self.bots.items():
             status = bot.status.value.upper()
-            health_icon = "✓" if health[name] == 'healthy' else ("⚠" if health[name] in ['paused', 'idle'] else "✗")
+            health_icon = "[OK]" if health[name] == 'healthy' else ("[WARN]" if health[name] in ['paused', 'idle'] else "[X]")
             priority = bot.config.priority.name
             print(f"  {health_icon} {name:<30} {status:<12} Priority: {priority}")
 

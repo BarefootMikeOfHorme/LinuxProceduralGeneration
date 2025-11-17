@@ -114,7 +114,7 @@ class VideoGenerator:
                 check=True
             )
         except (subprocess.CalledProcessError, FileNotFoundError):
-            print("⚠️  FFmpeg not found. Video generation requires FFmpeg.")
+            print("[WARN]️  FFmpeg not found. Video generation requires FFmpeg.")
             print("   Install: https://ffmpeg.org/download.html")
 
     def frames_to_video(

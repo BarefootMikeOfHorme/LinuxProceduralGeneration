@@ -145,7 +145,7 @@ class BackendLoader:
             )
 
             if self.verbose:
-                print(f"✓ Rust backend loaded (version: {version})")
+                print(f"[OK] Rust backend loaded (version: {version})")
 
             return fvr
 
@@ -162,7 +162,7 @@ class BackendLoader:
                 warnings.warn(error_msg, ImportWarning)
 
             if self.verbose:
-                print(f"✗ Rust backend unavailable: {e}")
+                print(f"[X] Rust backend unavailable: {e}")
 
             return None
 
@@ -179,7 +179,7 @@ class BackendLoader:
                 warnings.warn(error_msg, RuntimeWarning)
 
             if self.verbose:
-                print(f"✗ Error loading Rust backend: {e}")
+                print(f"[X] Error loading Rust backend: {e}")
 
             return None
 
@@ -228,7 +228,7 @@ class BackendLoader:
             )
 
             if self.verbose:
-                print(f"✓ C++ backend loaded (version: {version})")
+                print(f"[OK] C++ backend loaded (version: {version})")
 
             return lib
 
@@ -245,7 +245,7 @@ class BackendLoader:
                 warnings.warn(error_msg, ImportWarning)
 
             if self.verbose:
-                print(f"✗ C++ backend unavailable: {e}")
+                print(f"[X] C++ backend unavailable: {e}")
 
             return None
 
@@ -262,7 +262,7 @@ class BackendLoader:
                 warnings.warn(error_msg, RuntimeWarning)
 
             if self.verbose:
-                print(f"✗ Error loading C++ backend: {e}")
+                print(f"[X] Error loading C++ backend: {e}")
 
             return None
 
@@ -287,7 +287,7 @@ class BackendLoader:
             )
 
             if self.verbose:
-                print(f"✓ Python backend loaded (version: {version})")
+                print(f"[OK] Python backend loaded (version: {version})")
 
             return forge_validator
 
@@ -389,11 +389,11 @@ class BackendLoader:
                 print(f"  {backend_type.value:10} - Not checked")
             elif info.status == BackendStatus.AVAILABLE:
                 version = info.version or "unknown"
-                print(f"  {backend_type.value:10} - ✓ Available (v{version})")
+                print(f"  {backend_type.value:10} - [OK] Available (v{version})")
             elif info.status == BackendStatus.UNAVAILABLE:
-                print(f"  {backend_type.value:10} - ✗ Unavailable")
+                print(f"  {backend_type.value:10} - [X] Unavailable")
             elif info.status == BackendStatus.ERROR:
-                print(f"  {backend_type.value:10} - ✗ Error: {info.error_message}")
+                print(f"  {backend_type.value:10} - [X] Error: {info.error_message}")
             else:
                 print(f"  {backend_type.value:10} - ? Untested")
 
@@ -510,9 +510,9 @@ if __name__ == "__main__":
                 backend_type = bt
                 break
 
-        print(f"✓ Successfully loaded: {backend_type.value if backend_type else 'unknown'}")
+        print(f"[OK] Successfully loaded: {backend_type.value if backend_type else 'unknown'}")
     else:
-        print("✗ No backend available")
+        print("[X] No backend available")
     print()
 
     # Show available backends

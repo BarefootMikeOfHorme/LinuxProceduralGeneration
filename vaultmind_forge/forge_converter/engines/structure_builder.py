@@ -185,7 +185,7 @@ This structure was automatically created by forge_converter.
             if subdir.is_dir() and not any(subdir.iterdir()):
                 (subdir / ".gitkeep").touch()
 
-        self.logger.info(f"✓ Created Unity structure: {unity_path}")
+        self.logger.info(f"[OK] Created Unity structure: {unity_path}")
         return unity_path
 
     # ========================================================================
@@ -239,7 +239,7 @@ This structure was automatically created by forge_converter.
             if subdir.is_dir() and not any(subdir.iterdir()):
                 (subdir / ".gitkeep").touch()
 
-        self.logger.info(f"✓ Created Unreal structure: {unreal_path}")
+        self.logger.info(f"[OK] Created Unreal structure: {unreal_path}")
         return unreal_path
 
     # ========================================================================
@@ -289,7 +289,7 @@ This structure was automatically created by forge_converter.
             if subdir.is_dir() and not any(subdir.iterdir()):
                 (subdir / ".gitkeep").touch()
 
-        self.logger.info(f"✓ Created Godot structure: {godot_path}")
+        self.logger.info(f"[OK] Created Godot structure: {godot_path}")
         return godot_path
 
     # ========================================================================
@@ -341,7 +341,7 @@ This structure was automatically created by forge_converter.
             if subdir.is_dir() and not any(subdir.iterdir()):
                 (subdir / ".gitkeep").touch()
 
-        self.logger.info(f"✓ Created Web structure: {web_path}")
+        self.logger.info(f"[OK] Created Web structure: {web_path}")
         return web_path
 
     # ========================================================================
@@ -388,7 +388,7 @@ This structure was automatically created by forge_converter.
             if subdir.is_dir() and not any(subdir.iterdir()):
                 (subdir / ".gitkeep").touch()
 
-        self.logger.info(f"✓ Created Blender structure: {blender_path}")
+        self.logger.info(f"[OK] Created Blender structure: {blender_path}")
         return blender_path
 
     # ========================================================================
@@ -429,7 +429,7 @@ This structure was automatically created by forge_converter.
         with open(index_path, 'w', encoding='utf-8') as f:
             json.dump(index_data, f, indent=2)
 
-        self.logger.info(f"✓ Created all engine structures")
+        self.logger.info(f"[OK] Created all engine structures")
         self.logger.info(f"  Index: {index_path}")
 
         return structures
@@ -452,6 +452,6 @@ if __name__ == "__main__":
     # Create structures for all engines
     structures = builder.create_all_structures("CharacterAssets")
 
-    print("\n✅ Created engine structures:")
+    print("\n[OK] Created engine structures:")
     for engine, path in structures.items():
         print(f"  {engine}: {path}")

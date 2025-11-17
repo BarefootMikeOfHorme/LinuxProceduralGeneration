@@ -449,10 +449,10 @@ This demo shows:
   - Memory-efficient multi-model workflows
 
 ModelManager automatically:
-  ✓ Loads models on-demand
-  ✓ Unloads idle models to free memory
-  ✓ Handles priority-based eviction
-  ✓ Thread-safe concurrent access
+  [OK] Loads models on-demand
+  [OK] Unloads idle models to free memory
+  [OK] Handles priority-based eviction
+  [OK] Thread-safe concurrent access
     """)
 
     # Run examples
@@ -481,11 +481,11 @@ ModelManager automatically:
     print("=" * 70)
     print("""
 COMPLETE SYSTEM:
-  ✓ ModelManager - Thread-safe load/unload sequencer
-  ✓ GPTPlannerBackend - GPT-20B for complex planning
-  ✓ FLUX integration - With LoRA support
-  ✓ Automatic memory management
-  ✓ Priority-based model eviction
+  [OK] ModelManager - Thread-safe load/unload sequencer
+  [OK] GPTPlannerBackend - GPT-20B for complex planning
+  [OK] FLUX integration - With LoRA support
+  [OK] Automatic memory management
+  [OK] Priority-based model eviction
 
 USAGE PATTERNS:
   1. Planning-heavy: Keep GPT-20B loaded, unload diffusion

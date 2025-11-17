@@ -174,7 +174,7 @@ class SuperResolutionUpscaler:
         # Check backend availability
         if not self._backends_available.get(backend, False):
             if self.enable_fallback:
-                print(f"⚠️  Backend {backend.value} not available, using Lanczos fallback")
+                print(f"[WARN]️  Backend {backend.value} not available, using Lanczos fallback")
                 backend = SRBackend.FALLBACK_LANCZOS
             else:
                 raise RuntimeError(f"Backend {backend.value} not available")

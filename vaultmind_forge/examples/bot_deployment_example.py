@@ -63,7 +63,7 @@ def example_1_asset_monitor():
         auto_start=True
     )
 
-    print("\n✓ Asset monitor deployed")
+    print("\n[OK] Asset monitor deployed")
     print("  - Watching: watched/models (*.fbx)")
     print("  - Watching: watched/textures (*.png)")
     print("  - Auto-submits jobs to batch processor")
@@ -105,7 +105,7 @@ def example_2_qa_bot():
         auto_start=True
     )
 
-    print("\n✓ QA bot deployed")
+    print("\n[OK] QA bot deployed")
     print("  - Scanning: output/assets")
     print("  - Check interval: 1 hour")
     print("  - Reports: reports/qa")
@@ -147,7 +147,7 @@ def example_3_optimizer_bot():
         auto_start=True
     )
 
-    print("\n✓ Optimizer bot deployed")
+    print("\n[OK] Optimizer bot deployed")
     print("  - Auto-pauses batch processing when system is under load")
     print("  - Auto-resumes when resources available")
     print("  - Thresholds: CPU 90%, Memory 90%, GPU 85°C")
@@ -184,7 +184,7 @@ def example_4_lineage_bot():
         auto_start=True
     )
 
-    print("\n✓ Lineage inspector deployed")
+    print("\n[OK] Lineage inspector deployed")
     print("  - Monitors: lineage database integrity")
     print("  - Detects: orphans, broken chains, missing files")
     print("  - Check interval: 30 minutes")
@@ -278,11 +278,11 @@ def example_5_full_deployment():
         priority=BotPriority.LOW
     )
 
-    print("✓ All bots deployed!\n")
+    print("[OK] All bots deployed!\n")
 
     # Start all bots
     scheduler.start_all()
-    print("✓ All bots started\n")
+    print("[OK] All bots started\n")
 
     # Run for a bit
     print("Running for 15 seconds...\n")
@@ -312,7 +312,7 @@ def example_5_full_deployment():
     print("\nStopping all bots...")
     scheduler.stop_all()
 
-    print("\n✓ Example complete!")
+    print("\n[OK] Example complete!")
 
 
 def main():
