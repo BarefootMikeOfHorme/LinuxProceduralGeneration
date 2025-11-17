@@ -17,6 +17,10 @@ from dataclasses import dataclass, field
 from enum import Enum
 
 from .terminal_ui import TerminalUI, console
+from vaultmind_forge.config import get_config
+
+# Load configuration for agent autonomy levels
+config = get_config()
 
 
 class AgentStatus(str, Enum):
@@ -102,7 +106,7 @@ class AgentManager:
             metadata={
                 "description": "Autonomous quality validation and error detection",
                 "capabilities": ["artifact_detection", "composition_check", "technical_validation"],
-                "autonomous_level": 0.75,
+                "autonomous_level": config.runtime.agent_quality_guardian_autonomy,
             }
         )
 
@@ -116,7 +120,7 @@ class AgentManager:
             metadata={
                 "description": "Autonomous prompt enhancement and optimization",
                 "capabilities": ["clarity_enhancement", "specificity_boost", "negative_prompt_generation"],
-                "autonomous_level": 0.85,
+                "autonomous_level": config.runtime.agent_prompt_refiner_autonomy,
             }
         )
 
@@ -130,7 +134,7 @@ class AgentManager:
             metadata={
                 "description": "Autonomous parameter selection and optimization",
                 "capabilities": ["step_optimization", "cfg_tuning", "seed_management"],
-                "autonomous_level": 0.70,
+                "autonomous_level": config.runtime.agent_parameter_optimizer_autonomy,
             }
         )
 
@@ -144,7 +148,7 @@ class AgentManager:
             metadata={
                 "description": "Material and texture analysis expert",
                 "capabilities": ["material_detection", "style_analysis", "texture_enhancement"],
-                "autonomous_level": 0.75,
+                "autonomous_level": config.runtime.agent_material_specialist_autonomy,
             }
         )
 
@@ -158,7 +162,7 @@ class AgentManager:
             metadata={
                 "description": "Resolution and aspect ratio specialist",
                 "capabilities": ["resolution_selection", "aspect_ratio_optimization"],
-                "autonomous_level": 0.80,
+                "autonomous_level": config.runtime.agent_resolution_expert_autonomy,
             }
         )
 

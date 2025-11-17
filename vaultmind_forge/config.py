@@ -89,31 +89,47 @@ class PathConfig:
 class RuntimeConfig:
     """Runtime defaults - can be overridden by environment variables"""
 
-    # Generation defaults (from AUDIT_REPORT magic numbers)
+    # Import defaults from constants module
+    from vaultmind_forge.cli.constants import (
+        GENERATION_TASK_TIMEOUT,
+        VALIDATION_TASK_TIMEOUT,
+        DEFAULT_TASK_TIMEOUT,
+        MAX_PARALLEL_TASKS,
+        CHECKPOINT_INTERVAL_SECONDS,
+        DAG_POLL_INTERVAL_SECONDS,
+        MONITOR_REFRESH_INTERVAL_SECONDS,
+        AGENT_QUALITY_GUARDIAN_AUTONOMY,
+        AGENT_PROMPT_REFINER_AUTONOMY,
+        AGENT_PARAMETER_OPTIMIZER_AUTONOMY,
+        AGENT_MATERIAL_SPECIALIST_AUTONOMY,
+        AGENT_RESOLUTION_EXPERT_AUTONOMY,
+    )
+
+    # Generation defaults
     default_width: int = 1024
     default_height: int = 1024
     default_steps: int = 30
     default_batch_size: int = 1
 
-    # Timeouts (seconds)
-    generation_timeout: int = 300
-    validation_timeout: int = 60
-    default_task_timeout: int = 300
+    # Timeouts (seconds) - from constants
+    generation_timeout: int = GENERATION_TASK_TIMEOUT
+    validation_timeout: int = VALIDATION_TASK_TIMEOUT
+    default_task_timeout: int = DEFAULT_TASK_TIMEOUT
 
-    # Workflow settings
-    max_parallel_tasks: int = 4
-    checkpoint_interval: float = 30.0
-    dag_poll_interval: float = 0.1
+    # Workflow settings - from constants
+    max_parallel_tasks: int = MAX_PARALLEL_TASKS
+    checkpoint_interval: float = CHECKPOINT_INTERVAL_SECONDS
+    dag_poll_interval: float = DAG_POLL_INTERVAL_SECONDS
 
-    # Monitor refresh
-    monitor_refresh_interval: int = 2
+    # Monitor refresh - from constants
+    monitor_refresh_interval: int = MONITOR_REFRESH_INTERVAL_SECONDS
 
-    # Agent autonomy levels (from AUDIT_REPORT)
-    agent_quality_guardian_autonomy: float = 0.75
-    agent_prompt_refiner_autonomy: float = 0.85
-    agent_parameter_optimizer_autonomy: float = 0.70
-    agent_material_specialist_autonomy: float = 0.75
-    agent_resolution_expert_autonomy: float = 0.80
+    # Agent autonomy levels - from constants
+    agent_quality_guardian_autonomy: float = AGENT_QUALITY_GUARDIAN_AUTONOMY
+    agent_prompt_refiner_autonomy: float = AGENT_PROMPT_REFINER_AUTONOMY
+    agent_parameter_optimizer_autonomy: float = AGENT_PARAMETER_OPTIMIZER_AUTONOMY
+    agent_material_specialist_autonomy: float = AGENT_MATERIAL_SPECIALIST_AUTONOMY
+    agent_resolution_expert_autonomy: float = AGENT_RESOLUTION_EXPERT_AUTONOMY
 
     def __post_init__(self):
         """Load from environment variables"""
