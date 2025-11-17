@@ -24,6 +24,8 @@ target/
 # Build artifacts
 build/
 dist/
+*.obj
+*.o
 
 # Tooling
 .env

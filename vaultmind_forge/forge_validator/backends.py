@@ -154,6 +154,29 @@ def get_backend() -> object:
     return PythonFallbackBackend()
 
 
+def get_validator(backend_name='auto'):
+    """
+    Get a validator instance by name.
+
+    Args:
+        backend_name: 'auto', 'rust', 'cpp', 'python', or 'basic'
+
+    Returns:
+        Validator backend instance
+    """
+    if backend_name == 'auto':
+        return get_backend()
+    elif backend_name == 'rust':
+        return RustBackend()
+    elif backend_name == 'cpp':
+        return CppBackend()
+    elif backend_name in ('python', 'basic'):
+        return PythonFallbackBackend()
+    else:
+        logger.warning(f"Unknown backend '{backend_name}', using auto")
+        return get_backend()
+
+
 # Convenience functions for direct metric access
 def sharpness_score(asset_path: Path) -> float:
     """
