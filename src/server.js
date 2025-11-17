@@ -11,6 +11,7 @@ import helmet from 'helmet';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { existsSync, mkdirSync } from 'fs';
+import { createServer } from 'net';
 
 import { logger, validatePort } from './utils.js';
 import {
@@ -34,9 +35,55 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Configuration
-const PORT = process.env.PORT || 3000;
 const HOST = process.env.HOST || 'localhost';
 const NODE_ENV = process.env.NODE_ENV || 'development';
+
+/**
+ * Find available port in range 1000-8000
+ * Avoids conflicts with LM Studio (3000), common services
+ */
+async function findAvailablePort(minPort = 1000, maxPort = 8000) {
+  const checkPort = (port) => {
+    return new Promise((resolve) => {
+      const server = createServer();
+
+      server.once('error', (err) => {
+        if (err.code === 'EADDRINUSE') {
+          resolve(false); // Port in use
+        } else {
+          resolve(false); // Other error, treat as unavailable
+        }
+      });
+
+      server.once('listening', () => {
+        server.close();
+        resolve(true); // Port available
+      });
+
+      server.listen(port, HOST);
+    });
+  };
+
+  // Try random ports in range
+  const maxAttempts = 20;
+  for (let i = 0; i < maxAttempts; i++) {
+    const port = Math.floor(Math.random() * (maxPort - minPort + 1)) + minPort;
+    if (await checkPort(port)) {
+      return port;
+    }
+  }
+
+  // Fallback: sequential search
+  for (let port = minPort; port <= maxPort; port++) {
+    if (await checkPort(port)) {
+      return port;
+    }
+  }
+
+  throw new Error(`No available ports found in range ${minPort}-${maxPort}`);
+}
+
+const PORT = process.env.PORT ? parseInt(process.env.PORT) : await findAvailablePort();
 
 // Initialize Express app
 const app = express();
