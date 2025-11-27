@@ -35,6 +35,10 @@ from .dcft_backend import (
     DCFTBackend,
 )
 
+from .merlinv1_backend import (
+    Merlinv1Backend,
+)
+
 from .tiered_ai_manager import (
     TieredAIManager,
     TaskComplexity,
@@ -63,6 +67,7 @@ __all__ = [
     # Backends
     "GPTPlannerBackend",
     "DCFTBackend",
+    "Merlinv1Backend",
     # Tiered System
     "TieredAIManager",
     "TaskComplexity",

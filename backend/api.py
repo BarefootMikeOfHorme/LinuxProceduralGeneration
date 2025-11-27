@@ -116,146 +116,60 @@ async def get_execution_progress(execution_id: str):
 
 
 async def run_workflow_execution(execution_id: str, workflow: WorkflowRequest):
-    """Execute workflow with REAL AssetPipeline"""
+    """Execute workflow with NEW type-safe execution engine"""
     try:
         executions_db[execution_id]["status"] = "running"
         executions_db[execution_id]["percentage"] = 10
 
         print(f"[FORGE] Starting workflow execution: {execution_id}")
+        print(f"[FORGE] Using NEW execution engine with type-safe connections")
 
-        # Import the REAL AssetPipeline
-        from vaultmind_forge.forge_executor.pipeline import AssetPipeline, run_asset_pipeline
-        from vaultmind_forge.forge_diffusion.sdxl_generator import SDXLGenerator
-        from vaultmind_forge.forge_diffusion.generator import GenerationConfig
-        from vaultmind_forge.forge_sr.upscaler import SuperResolutionUpscaler, SRQuality
-        from vaultmind_forge.forge_agents.prompt_refiner import PromptRefinerAgent
+        # Import the NEW execution engine
+        from backend.core.engine import NodeExecutionEngine, ValidationError, ExecutionError
+        from backend.core.registry import create_default_registry
 
-        node_outputs = {}
+        # Create engine with registered executors
+        registry = create_default_registry()
+        engine = NodeExecutionEngine(registry)
 
-        # Parse workflow to build execution graph
-        for node in workflow.nodes:
-            executions_db[execution_id]["current_node"] = node.id
-            executions_db[execution_id]["percentage"] += 80 / len(workflow.nodes)
+        print(f"[FORGE] Loaded {registry.count()} node executors")
+        print(f"[FORGE] Validating workflow...")
 
-            print(f"[FORGE] Executing: {node.type} (id: {node.id})")
+        executions_db[execution_id]["percentage"] = 20
 
-            try:
-                if node.type == "textInput":
-                    text = node.data.get("text", "")
-                    node_outputs[node.id] = {"text": text}
-                    print(f"  → Text: {text[:80]}...")
+        # Execute workflow (validation + topological sort + execution)
+        node_outputs = engine.execute_workflow(workflow)
 
-                elif node.type == "promptRefiner":
-                    input_text = node.data.get("text", "")
-                    # Get from connected node if available
-                    for conn in workflow.connections:
-                        if conn.target == node.id:
-                            if conn.source in node_outputs:
-                                input_text = node_outputs[conn.source].get("text", input_text)
+        executions_db[execution_id]["percentage"] = 90
 
-                    agent = PromptRefinerAgent()
-                    print(f"  → Refining: '{input_text[:50]}...'")
-
-                    refined = input_text + ", highly detailed, sharp focus, masterpiece"
-                    node_outputs[node.id] = {"refined_prompt": refined}
-                    print(f"  ✓ Refined: '{refined[:80]}...'")
-
-                elif node.type == "sdxlGenerator":
-                    prompt = node.data.get("prompt", "")
-                    # Get from connected node if available
-                    for conn in workflow.connections:
-                        if conn.target == node.id:
-                            if conn.source in node_outputs:
-                                prompt = node_outputs[conn.source].get("refined_prompt", prompt)
-
-                    steps = int(node.data.get("steps", 30))
-                    cfg = float(node.data.get("cfg_scale", 7.5))
-
-                    print(f"  → Generating image with SDXL...")
-                    print(f"     Prompt: {prompt[:80]}...")
-                    print(f"     Steps: {steps}, CFG: {cfg}")
-
-                    # REAL GENERATION:
-                    generator = SDXLGenerator()
-                    print(f"  → Initializing SDXL (downloading model on first run)...")
-                    generator.initialize()
-
-                    config = GenerationConfig(
-                        prompt=prompt,
-                        width=1024,
-                        height=1024,
-                        steps=steps,
-                        guidance_scale=cfg
-                    )
-
-                    print(f"  → Generating...")
-                    result = generator.generate(config)
-
-                    # Save image
-                    output_dir = Path(__file__).parent.parent / "outputs"
-                    output_dir.mkdir(exist_ok=True)
-                    image_path = output_dir / f"sdxl_{node.id}_{uuid.uuid4().hex[:8]}.png"
-                    result.images[0].save(image_path)
-
-                    node_outputs[node.id] = {
-                        "image_path": str(image_path),
-                        "prompt": prompt
-                    }
-                    print(f"  ✓ Generated: {image_path}")
-
-                elif node.type == "superResolution":
-                    image_path = None
-                    # Get from connected node
-                    for conn in workflow.connections:
-                        if conn.target == node.id:
-                            if conn.source in node_outputs:
-                                image_path = node_outputs[conn.source].get("image_path")
-
-                    if not image_path:
-                        raise ValueError("Super Resolution requires input image")
-
-                    print(f"  → Upscaling image: {image_path}")
-
-                    # REAL UPSCALING:
-                    upscaler = SuperResolutionUpscaler()
-                    output_dir = Path(__file__).parent.parent / "outputs"
-                    output_dir.mkdir(exist_ok=True)
-                    output_path = output_dir / f"upscaled_{node.id}_{uuid.uuid4().hex[:8]}.png"
-
-                    result = upscaler.upscale(
-                        input_path=Path(image_path),
-                        output_path=output_path,
-                        quality=SRQuality.BALANCED
-                    )
-
-                    node_outputs[node.id] = {
-                        "upscaled_path": str(output_path),
-                        "scale": result.scale_factor
-                    }
-                    print(f"  ✓ Upscaled {result.scale_factor}x: {output_path}")
-
-                else:
-                    print(f"  ⚠ Unknown node type: {node.type}")
-                    node_outputs[node.id] = {"status": "skipped"}
-
-            except Exception as node_error:
-                print(f"  ✗ Error: {node_error}")
-                import traceback
-                traceback.print_exc()
-                node_outputs[node.id] = {"error": str(node_error)}
+        print(f"[FORGE] [OK] Workflow completed successfully")
+        print(f"[FORGE] Executed {len(engine.execution_order)} nodes in order: {engine.execution_order}")
 
         executions_db[execution_id]["status"] = "completed"
         executions_db[execution_id]["percentage"] = 100
         executions_db[execution_id]["results"] = {
-            "message": "Workflow executed successfully",
-            "nodes_executed": len(workflow.nodes),
+            "message": "Workflow executed successfully with NEW engine",
+            "nodes_executed": len(engine.execution_order),
+            "execution_order": engine.execution_order,
             "node_outputs": node_outputs,
         }
 
-        print(f"[FORGE] ✓ Workflow completed: {execution_id}")
+    except ValidationError as e:
+        print(f"[FORGE] [ERROR] Workflow validation failed:")
+        print(f"  {e}")
+        executions_db[execution_id]["status"] = "failed"
+        executions_db[execution_id]["error"] = f"Validation error: {e}"
+
+    except ExecutionError as e:
+        print(f"[FORGE] [ERROR] Workflow execution failed:")
+        print(f"  {e}")
+        import traceback
+        traceback.print_exc()
+        executions_db[execution_id]["status"] = "failed"
+        executions_db[execution_id]["error"] = f"Execution error: {e}"
 
     except Exception as e:
-        print(f"[FORGE] ✗ Workflow failed: {e}")
+        print(f"[FORGE] [ERROR] Unexpected error: {e}")
         import traceback
         traceback.print_exc()
         executions_db[execution_id]["status"] = "failed"
