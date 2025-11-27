@@ -139,7 +139,9 @@ export async function handleStatus(req, res) {
  */
 export async function handleGenerateDiffusion(req, res) {
   try {
-    const { jobConfig, multiPass = false, passes = 1, backend = 'placeholder' } = req.body;
+    // FIXED: Use real backend by default - python, NOT placeholder
+    const defaultBackend = process.env.DEFAULT_BACKEND || 'python';
+    const { jobConfig, multiPass = false, passes = 1, backend = defaultBackend } = req.body;
 
     // Validate inputs
     if (!jobConfig) {
@@ -175,11 +177,13 @@ export async function handleGenerateDiffusion(req, res) {
  */
 export async function handleGenerateWithLineage(req, res) {
   try {
+    // FIXED: Use real backend by default - python, NOT placeholder
+    const defaultBackend = process.env.DEFAULT_BACKEND || 'python';
     const {
       jobConfig,
       multiPass = true,
       passes = 3,
-      backend = 'placeholder',
+      backend = defaultBackend,
       packageAssets = true,
       validateAssets = true
     } = req.body;

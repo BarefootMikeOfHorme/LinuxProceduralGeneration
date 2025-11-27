@@ -133,6 +133,10 @@ app.use((req, res, next) => {
 // Serve frontend components
 app.use('/static', express.static(path.join(__dirname, 'frontend')));
 
+// Serve web UI
+const webDir = path.join(__dirname, '..', 'web');
+app.use('/web', express.static(webDir));
+
 // Serve generated assets
 const outputDir = path.join(__dirname, '..', 'output');
 if (!existsSync(outputDir)) {

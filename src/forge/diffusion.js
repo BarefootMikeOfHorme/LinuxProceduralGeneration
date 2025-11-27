@@ -47,9 +47,19 @@ export class GenerationJob {
  */
 export class DiffusionGenerator {
   constructor(options = {}) {
-    this.mode = options.mode || 'placeholder';
+    // FIXED: Use real Python backend by default, NOT placeholder
+    // Environment variable takes precedence, then options, then default to 'python'
+    this.mode = process.env.BACKEND_MODE || options.mode || 'python';
     this.backend = options.backend || 'sdxl_base';
     this.logger = options.logger || logger;
+
+    // Log warning if placeholder mode is explicitly requested
+    if (this.mode === 'placeholder') {
+      this.logger.warn('⚠️  WARNING: Running in PLACEHOLDER mode - will generate fake images!');
+      this.logger.warn('⚠️  Set BACKEND_MODE=python in .env to use real SDXL generation');
+    } else {
+      this.logger.info(`✅ Using real backend mode: ${this.mode}`);
+    }
   }
 
   /**
