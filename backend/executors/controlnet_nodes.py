@@ -19,6 +19,14 @@ class CannyPreprocessorExecutor(NodeExecutor):
         return "cannyPreprocessor"
 
     @property
+    def display_name(self) -> str:
+        return "Canny Edge Detector"
+
+    @property
+    def category(self) -> str:
+        return "controlnet"
+
+    @property
     def input_spec(self) -> List[InputSpec]:
         return [
             InputSpec("image", DataType.IMAGE, required=True),
@@ -76,6 +84,14 @@ class DepthPreprocessorExecutor(NodeExecutor):
         return "depthPreprocessor"
 
     @property
+    def display_name(self) -> str:
+        return "Depth Map Estimator"
+
+    @property
+    def category(self) -> str:
+        return "controlnet"
+
+    @property
     def input_spec(self) -> List[InputSpec]:
         return [
             InputSpec("image", DataType.IMAGE, required=True),
@@ -125,6 +141,14 @@ class PosePreprocessorExecutor(NodeExecutor):
     @property
     def node_type(self) -> str:
         return "posePreprocessor"
+
+    @property
+    def display_name(self) -> str:
+        return "Pose Detector"
+
+    @property
+    def category(self) -> str:
+        return "controlnet"
 
     @property
     def input_spec(self) -> List[InputSpec]:
@@ -184,6 +208,14 @@ class ControlNetLoaderExecutor(NodeExecutor):
         return "controlnetLoader"
 
     @property
+    def display_name(self) -> str:
+        return "ControlNet Loader"
+
+    @property
+    def category(self) -> str:
+        return "controlnet"
+
+    @property
     def input_spec(self) -> List[InputSpec]:
         return [
             InputSpec("controlnet_type", DataType.TEXT, required=True),
@@ -227,6 +259,14 @@ class SDXLControlNetGeneratorExecutor(NodeExecutor):
     @property
     def node_type(self) -> str:
         return "sdxlControlNetGenerator"
+
+    @property
+    def display_name(self) -> str:
+        return "SDXL ControlNet Generator"
+
+    @property
+    def category(self) -> str:
+        return "generation"
 
     @property
     def input_spec(self) -> List[InputSpec]:

@@ -152,7 +152,11 @@ def create_default_registry() -> NodeRegistry:
     from backend.executors.input_nodes import TextInputExecutor, NumberInputExecutor
     from backend.executors.generation_nodes import SDXLGeneratorExecutor
     from backend.executors.processing_nodes import SuperResolutionExecutor
-    from backend.executors.ai_nodes import PromptRefinerExecutor
+    from backend.executors.ai_nodes import (
+        PromptRefinerExecutor,
+        ParameterOptimizerExecutor,
+        QualityGuardianExecutor,
+    )
     from backend.executors.controlnet_nodes import (
         CannyPreprocessorExecutor,
         DepthPreprocessorExecutor,
@@ -171,8 +175,10 @@ def create_default_registry() -> NodeRegistry:
     # Register processing nodes
     registry.register(SuperResolutionExecutor())
 
-    # Register AI nodes
+    # Register AI Agent nodes
     registry.register(PromptRefinerExecutor())
+    registry.register(ParameterOptimizerExecutor())
+    registry.register(QualityGuardianExecutor())
 
     # Register ControlNet nodes
     registry.register(CannyPreprocessorExecutor())

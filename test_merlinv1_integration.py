@@ -1,145 +1,158 @@
 """
-Test Merlinv1 Integration with Vaultmind Forge
+Test Merlinv1 Integration with PromptRefinerExecutor
 
-Run this after Merlinv1 training completes to verify:
-1. Model loads correctly
-2. Tokenizer works
-3. Inference runs on GPU/CPU
-4. Backend integrates with forge_ai system
+Quick test to verify:
+1. Merlinv1Backend loads
+2. PromptRefinerAgent uses Merlinv1
+3. PromptRefinerExecutor works with the agent
 """
 
-import sys
-from pathlib import Path
+import logging
 
-# Add vaultmind_forge to path
-sys.path.insert(0, str(Path(__file__).parent / "vaultmind_forge"))
+# Set up logging
+logging.basicConfig(level=logging.INFO, format='%(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
-from forge_ai import Merlinv1Backend, AIRequest
+def test_merlinv1_backend():
+    """Test 1: Merlinv1Backend loads"""
+    print("\n" + "="*60)
+    print("TEST 1: Merlinv1 Backend Loading")
+    print("="*60)
 
-def test_merlinv1():
-    print("="*70)
-    print("MERLINV1 INTEGRATION TEST")
-    print("="*70)
-    print()
-
-    # Test 1: Initialize backend
-    print("[1/4] Initializing Merlinv1 backend...")
     try:
-        backend = Merlinv1Backend(
-            model_path="C:/Merlinv1/checkpoints/final",
-            device="auto"
-        )
+        from vaultmind_forge.forge_ai.merlinv1_backend import Merlinv1Backend
+        from vaultmind_forge.forge_ai.base_ai import AIRequest
+
+        backend = Merlinv1Backend()
         backend.initialize()
-        print(f"✓ Backend initialized")
-        print(f"  Device: {backend.actual_device}")
-        print(f"  Model params: {backend.model.num_parameters():,}")
-        print()
-    except Exception as e:
-        print(f"✗ Initialization failed: {e}")
-        return False
 
-    # Test 2: Check availability
-    print("[2/4] Checking backend availability...")
-    if backend.is_available():
-        print("✓ Backend is available")
-        print()
-    else:
-        print("✗ Backend not available")
-        return False
+        print(f"[OK] Merlinv1 loaded successfully")
+        print(f"     Model path: {backend.model_path}")
+        print(f"     Device: {backend.actual_device}")
+        print(f"     Parameters: {backend.model.num_parameters():,}")
 
-    # Test 3: Simple generation
-    print("[3/4] Testing simple generation...")
-    try:
+        # Quick generation test
         request = AIRequest(
-            prompt="The ancient sword",
-            max_tokens=100,
-            temperature=0.8
+            prompt="a majestic dragon",
+            system_prompt="Enhance this prompt for image generation.",
+            max_tokens=50,
+            temperature=0.7
         )
 
         response = backend.generate(request)
+        print(f"\n[OK] Test generation:")
+        print(f"     Input: 'a majestic dragon'")
+        print(f"     Output: {response.content[:100]}...")
+        print(f"     Latency: {response.latency_ms:.0f}ms")
 
-        print(f"✓ Generation successful")
-        print(f"  Input: {request.prompt}")
-        print(f"  Output: {response.content[:200]}...")
-        print(f"  Tokens: {response.tokens_used}")
-        print(f"  Latency: {response.latency_ms:.0f}ms")
-        print(f"  Device: {response.metadata['device']}")
-        print()
+        backend.shutdown()
+        return True
+
     except Exception as e:
-        print(f"✗ Generation failed: {e}")
+        print(f"[FAIL] {e}")
+        return False
+
+def test_prompt_refiner_agent():
+    """Test 2: PromptRefinerAgent with Merlinv1"""
+    print("\n" + "="*60)
+    print("TEST 2: PromptRefinerAgent with Merlinv1")
+    print("="*60)
+
+    try:
+        from vaultmind_forge.forge_agents.prompt_refiner import PromptRefinerAgent
+
+        agent = PromptRefinerAgent(use_merlinv1=True)
+
+        print(f"[OK] Agent created")
+        print(f"     Merlinv1 available: {agent.merlinv1_available}")
+
+        # Test refinement
+        refinement = agent.refine_prompt(
+            original_prompt="a cat sitting on a chair",
+            style="photorealistic"
+        )
+
+        print(f"\n[OK] Prompt refined:")
+        print(f"     Original: {refinement.original_prompt}")
+        print(f"     Refined:  {refinement.refined_prompt}")
+        print(f"     Confidence: {refinement.confidence:.2f}")
+        print(f"     Reasoning: {refinement.reasoning}")
+
+        # Shutdown Merlinv1 to free memory
+        if agent.merlinv1_backend:
+            agent.merlinv1_backend.shutdown()
+
+        return True
+
+    except Exception as e:
+        print(f"[FAIL] {e}")
         import traceback
         traceback.print_exc()
         return False
 
-    # Test 4: System prompt + generation
-    print("[4/4] Testing with system prompt...")
+def test_prompt_refiner_executor():
+    """Test 3: PromptRefinerExecutor node"""
+    print("\n" + "="*60)
+    print("TEST 3: PromptRefinerExecutor Node")
+    print("="*60)
+
     try:
-        request = AIRequest(
-            system_prompt="You are a fantasy world builder. Describe items with vivid detail.",
-            prompt="A mysterious artifact found in ancient ruins:",
-            max_tokens=150,
-            temperature=0.9
-        )
+        from backend.executors.ai_nodes import PromptRefinerExecutor
 
-        response = backend.generate(request)
+        executor = PromptRefinerExecutor()
 
-        print(f"✓ System prompt generation successful")
-        print(f"  Output: {response.content[:200]}...")
-        print(f"  Tokens: {response.tokens_used}")
-        print(f"  Latency: {response.latency_ms:.0f}ms")
-        print()
+        print(f"[OK] Executor created: {executor.node_type}")
+
+        # Test execution
+        inputs = {
+            "text": "a cyberpunk city at night",
+            "style": "cinematic"
+        }
+
+        result = executor.execute(inputs)
+
+        print(f"\n[OK] Execution result:")
+        print(f"     Input: {inputs['text']}")
+        print(f"     Style: {inputs['style']}")
+        print(f"     Refined: {result['refined_prompt']}")
+        print(f"     Method: {result['metadata']['method']}")
+        print(f"     Model: {result['metadata']['model']}")
+        print(f"     Confidence: {result['metadata'].get('confidence', 'N/A')}")
+
+        return True
+
     except Exception as e:
-        print(f"✗ System prompt generation failed: {e}")
+        print(f"[FAIL] {e}")
+        import traceback
+        traceback.print_exc()
         return False
 
-    # Stats
-    print("="*70)
-    print("BACKEND STATISTICS")
-    print("="*70)
-    stats = backend.get_stats()
-    for key, value in stats.items():
-        print(f"  {key}: {value}")
-    print()
-
-    # Cleanup
-    print("Shutting down backend...")
-    backend.shutdown()
-    print("✓ Shutdown complete")
-    print()
-
-    print("="*70)
-    print("ALL TESTS PASSED! ✓")
-    print("="*70)
-    print()
-    print("Merlinv1 is ready to use in Vaultmind Forge!")
-    print()
-    print("Next steps:")
-    print("1. Integrate with forge_agent for job planning")
-    print("2. Use for prompt refinement and style suggestions")
-    print("3. Enable AI-assisted feedback loops")
-    print()
-
-    return True
-
-
 if __name__ == "__main__":
-    print()
-    print("Prerequisites:")
-    print("- Merlinv1 training completed")
-    print("- Final model saved to: C:/Merlinv1/checkpoints/final")
-    print("- PyTorch + transformers installed")
-    print()
-    input("Press Enter to start test...")
-    print()
+    print("\n" + "="*60)
+    print("MERLINV1 INTEGRATION TEST")
+    print("="*60)
 
-    success = test_merlinv1()
+    results = []
 
-    if not success:
-        print()
-        print("Test failed! Check error messages above.")
-        print()
-        print("Common issues:")
-        print("- Model not trained yet (run: START_WITH_NEPTUNE.bat)")
-        print("- Wrong model path (check: C:/Merlinv1/checkpoints/final)")
-        print("- Missing dependencies (pip install transformers torch)")
-        sys.exit(1)
+    # Run tests
+    results.append(("Merlinv1 Backend", test_merlinv1_backend()))
+    results.append(("PromptRefinerAgent", test_prompt_refiner_agent()))
+    results.append(("PromptRefinerExecutor", test_prompt_refiner_executor()))
+
+    # Summary
+    print("\n" + "="*60)
+    print("TEST SUMMARY")
+    print("="*60)
+
+    for test_name, passed in results:
+        status = "[PASS]" if passed else "[FAIL]"
+        print(f"{status} {test_name}")
+
+    all_passed = all(r[1] for r in results)
+
+    if all_passed:
+        print("\n[OK] All tests passed! Merlinv1 is integrated and working.")
+    else:
+        print("\n[WARN] Some tests failed. Check output above.")
+
+    print("="*60)

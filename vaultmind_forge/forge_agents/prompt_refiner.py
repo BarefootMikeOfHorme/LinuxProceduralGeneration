@@ -2,11 +2,12 @@
 Prompt Refiner Agent - Autonomous prompt enhancement
 
 This agent autonomously improves prompts when generation fails,
-without requiring main AI consultation.
+using Merlinv1 AI model for intelligent refinement.
 
 Capabilities:
 - Analyzes failed generation metrics
-- Adds appropriate detail keywords
+- Uses Merlinv1 AI to enhance prompts
+- Falls back to rule-based refinement if Merlinv1 unavailable
 - Suggests style modifiers
 - Emphasizes underrepresented concepts
 - Learns from successful attempts
@@ -53,6 +54,8 @@ class PromptRefinerAgent(BaseAgent):
         min_confidence_threshold: float = 0.7,
         learning_enabled: bool = True,
         metrics_path: Optional[Path] = None,
+        use_merlinv1: bool = True,
+        merlinv1_path: Optional[str] = None,
     ):
         """
         Initialize Prompt Refiner Agent.
@@ -61,6 +64,8 @@ class PromptRefinerAgent(BaseAgent):
             min_confidence_threshold: Minimum confidence to auto-apply refinements
             learning_enabled: Enable learning from successful refinements
             metrics_path: Path to save metrics
+            use_merlinv1: Use Merlinv1 AI for prompt refinement (default True)
+            merlinv1_path: Path to Merlinv1 model (default: C:/Merlinv1/checkpoints/final)
         """
         super().__init__(
             name="Prompt Refiner",
@@ -71,6 +76,25 @@ class PromptRefinerAgent(BaseAgent):
         self.confidence_threshold = min_confidence_threshold
         self.learning_enabled = learning_enabled
         self.metrics_path = metrics_path
+        self.use_merlinv1 = use_merlinv1
+
+        # Initialize Merlinv1 backend
+        self.merlinv1_backend = None
+        self.merlinv1_available = False
+
+        if use_merlinv1:
+            try:
+                from vaultmind_forge.forge_ai.merlinv1_backend import Merlinv1Backend
+                from vaultmind_forge.forge_ai.base_ai import AIRequest
+
+                model_path = merlinv1_path or "C:/Merlinv1/checkpoints/final"
+                self.merlinv1_backend = Merlinv1Backend(model_path=model_path)
+                self.merlinv1_backend.initialize()
+                self.merlinv1_available = True
+                logger.info(f"[PromptRefiner] Merlinv1 backend loaded successfully")
+            except Exception as e:
+                logger.warning(f"[PromptRefiner] Merlinv1 unavailable, using rule-based refinement: {e}")
+                self.merlinv1_available = False
 
         # Refinement patterns for different issues
         self.refinement_patterns = {
@@ -133,6 +157,83 @@ class PromptRefinerAgent(BaseAgent):
         # Track successful refinements
         self.successful_refinements: Dict[str, List[str]] = {}
 
+    def _refine_with_merlinv1(
+        self,
+        original_prompt: str,
+        style: Optional[str] = None,
+        failed_metrics: Optional[Dict[str, float]] = None,
+    ) -> Optional[str]:
+        """
+        Use Merlinv1 AI to refine prompt.
+
+        Args:
+            original_prompt: Original prompt text
+            style: Desired style
+            failed_metrics: Quality metrics from failed generation
+
+        Returns:
+            Refined prompt or None if Merlinv1 unavailable
+        """
+        if not self.merlinv1_available or not self.merlinv1_backend:
+            return None
+
+        try:
+            from vaultmind_forge.forge_ai.base_ai import AIRequest
+
+            # Build context for Merlinv1
+            system_prompt = (
+                "You are an expert prompt engineer for AI image generation. "
+                "Enhance the following prompt to produce higher quality outputs. "
+                "Add specific details, quality modifiers, and style keywords. "
+                "Keep the core concept intact. Output only the enhanced prompt."
+            )
+
+            # Add style context if provided
+            if style:
+                system_prompt += f"\nTarget style: {style}"
+
+            # Add failure context if we have metrics
+            if failed_metrics:
+                issues = []
+                if failed_metrics.get("sharpness", 1.0) < 0.7:
+                    issues.append("low sharpness")
+                if failed_metrics.get("contrast", 1.0) < 0.6:
+                    issues.append("low contrast")
+                if failed_metrics.get("saturation", 1.0) < 0.5:
+                    issues.append("desaturated colors")
+
+                if issues:
+                    system_prompt += f"\nPrevious generation had: {', '.join(issues)}"
+
+            # Create AI request
+            request = AIRequest(
+                prompt=f"Original prompt: {original_prompt}\n\nEnhanced prompt:",
+                system_prompt=system_prompt,
+                temperature=0.7,
+                max_tokens=150,
+                top_p=0.9,
+            )
+
+            # Generate refinement
+            response = self.merlinv1_backend.generate(request)
+            refined = response.content.strip()
+
+            # Clean up the response
+            # Remove quotes if Merlinv1 added them
+            refined = refined.strip('"\'')
+
+            # If Merlinv1 returned something reasonable, use it
+            if refined and len(refined) > len(original_prompt) * 0.5:
+                logger.info(f"[PromptRefiner] Merlinv1 refined: {original_prompt[:50]}... -> {refined[:50]}...")
+                return refined
+            else:
+                logger.warning(f"[PromptRefiner] Merlinv1 output too short, falling back to rules")
+                return None
+
+        except Exception as e:
+            logger.error(f"[PromptRefiner] Merlinv1 refinement failed: {e}")
+            return None
+
     def refine_prompt(
         self,
         original_prompt: str,
@@ -143,6 +244,9 @@ class PromptRefinerAgent(BaseAgent):
         """
         Refine a prompt based on failure analysis.
 
+        Uses Merlinv1 AI for intelligent refinement when available,
+        falls back to rule-based refinement otherwise.
+
         Args:
             original_prompt: Original generation prompt
             failed_metrics: Quality metrics from failed generation
@@ -152,8 +256,53 @@ class PromptRefinerAgent(BaseAgent):
         Returns:
             PromptRefinement with refined prompt and confidence
         """
+        # Try Merlinv1 AI-powered refinement first
+        merlinv1_refined = self._refine_with_merlinv1(
+            original_prompt,
+            style=style,
+            failed_metrics=failed_metrics
+        )
+
+        if merlinv1_refined:
+            # Merlinv1 succeeded - use AI-generated refinement
+            reasoning = "Refined using Merlinv1 AI"
+            if style:
+                reasoning += f" ({style} style)"
+            if failed_metrics:
+                issues = [k for k, v in failed_metrics.items() if isinstance(v, (int, float)) and v < 0.7]
+                if issues:
+                    reasoning += f"; addressed: {', '.join(issues)}"
+
+            # Calculate confidence (higher for AI refinement)
+            confidence = 0.85  # High confidence in Merlinv1
+
+            # Track decision
+            decision = AgentDecision(
+                action="REFINE",
+                confidence=confidence,
+                reasoning=reasoning,
+                metadata={
+                    "original_prompt": original_prompt,
+                    "refined_prompt": merlinv1_refined,
+                    "method": "merlinv1_ai",
+                    "style": style,
+                }
+            )
+            self.record_decision(decision)
+
+            return PromptRefinement(
+                original_prompt=original_prompt,
+                refined_prompt=merlinv1_refined,
+                refinements_added=["AI-enhanced"],
+                confidence=confidence,
+                reasoning=reasoning,
+                negative_prompt=self._build_negative_prompt(failed_metrics),
+            )
+
+        # Fallback to rule-based refinement
+        logger.info("[PromptRefiner] Using rule-based refinement")
         refinements = []
-        reasoning_parts = []
+        reasoning_parts = ["Using rule-based refinement"]
 
         # Analyze metrics and add appropriate refinements
         if failed_metrics:
