@@ -410,9 +410,40 @@ This index is maintained manually. When adding new documentation:
 3. Update documentation quality assessment
 4. Update roadmap if applicable
 
-**Last Updated:** November 9, 2025
-**Documentation Version:** 0.4.0
-**Total Documentation Files:** 72+
+**Last Updated:** November 17, 2025
+**Documentation Version:** 0.5.0
+**Total Documentation Files:** 75+
+
+---
+
+## 🌐 Web UI Documentation (NEW!)
+
+### Web Interface
+
+73. **[web/README.md](./web/README.md)** - Complete web UI documentation
+    - Browser-based interface
+    - Multi-backend support (local, HuggingFace, NVIDIA, Replicate)
+    - Agent dashboard
+    - Real-time stats
+    - Cloud integration guide
+
+74. **[docs/web/WEB_UI_INTEGRATION_SUMMARY.md](./docs/web/WEB_UI_INTEGRATION_SUMMARY.md)** - Integration details
+    - Architecture overview
+    - API client usage
+    - Backend configuration
+    - Testing guide
+
+75. **[docs/web/WEB_UI_QUICKSTART.md](./docs/web/WEB_UI_QUICKSTART.md)** - 2-minute quick start
+    - Step-by-step setup
+    - First generation tutorial
+    - Troubleshooting
+
+### SDXL Generation
+
+76. **[docs/guides/SDXL_GENERATION_GUIDE.md](./docs/guides/SDXL_GENERATION_GUIDE.md)** - SDXL generation guide
+    - Model installation
+    - Parameter optimization
+    - Best practices
 
 ---
 
@@ -428,6 +459,11 @@ Located in `docs/archives/code_snapshots/`:
 ### Documentation Archives
 Located in `docs/archives/milestones/`:
 - **milestone_reports_20251109.zip** - Development milestone completion reports (6 files)
+- **completed_20251116.md** - Development completion snapshot (Nov 16)
+
+### Review Archives
+Located in `docs/archives/reviews/`:
+- **project_review_20251116.md** - Comprehensive project review and action items
 
 **Archive Details:** See [MERGE_REPORT.md](./docs/consolidation/MERGE_REPORT.md) for complete consolidation documentation
 

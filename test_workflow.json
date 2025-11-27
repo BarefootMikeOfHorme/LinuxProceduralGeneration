@@ -1,0 +1,38 @@
+{
+  "nodes": [
+    {
+      "id": "text-1",
+      "type": "textInput",
+      "data": {
+        "text": "a majestic cat"
+      }
+    },
+    {
+      "id": "refiner-1",
+      "type": "promptRefiner",
+      "data": {}
+    },
+    {
+      "id": "sdxl-1",
+      "type": "sdxlGenerator",
+      "data": {
+        "steps": 20,
+        "cfg_scale": 7.5
+      }
+    }
+  ],
+  "connections": [
+    {
+      "source": "text-1",
+      "sourceHandle": "text",
+      "target": "refiner-1",
+      "targetHandle": "text"
+    },
+    {
+      "source": "refiner-1",
+      "sourceHandle": "refined_prompt",
+      "target": "sdxl-1",
+      "targetHandle": "prompt"
+    }
+  ]
+}
