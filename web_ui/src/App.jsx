@@ -4,6 +4,8 @@ import NodeEditor from './components/NodeEditor'
 import NodePalette from './components/NodePalette'
 import PropertyPanel from './components/PropertyPanel'
 import Toolbar from './components/Toolbar'
+import FileBrowser from './components/FileBrowser'
+import OutputModal from './components/OutputModal'
 import useKeyboardShortcuts from './hooks/useKeyboardShortcuts'
 import { useWorkflowStore } from './store/workflowStore'
 
@@ -27,7 +29,7 @@ function App() {
   return (
     <ReactFlowProvider>
       <div className="flex flex-col h-screen bg-background">
-        <Toolbar 
+        <Toolbar
           showPalette={showPalette}
           setShowPalette={setShowPalette}
           showProperties={showProperties}
@@ -43,6 +45,10 @@ function App() {
           )}
         </div>
       </div>
+
+      {/* Modals - controlled by Zustand store */}
+      <FileBrowser />
+      <OutputModal />
     </ReactFlowProvider>
   )
 }

@@ -15,13 +15,23 @@ import SDXLGeneratorNode from './nodes/SDXLGeneratorNode'
 import PromptRefinerNode from './nodes/PromptRefinerNode'
 import SuperResolutionNode from './nodes/SuperResolutionNode'
 import TextInputNode from './nodes/TextInputNode'
+import BaseNode from './nodes/BaseNode'
+import { nodeLibrary } from '../lib/nodeLibrary'
 
+// Custom nodes with specialized UI
 const nodeTypes = {
   sdxlGenerator: SDXLGeneratorNode,
   promptRefiner: PromptRefinerNode,
   superResolution: SuperResolutionNode,
   textInput: TextInputNode,
 }
+
+// Auto-register remaining nodes with BaseNode
+nodeLibrary.forEach(node => {
+  if (!nodeTypes[node.type]) {
+    nodeTypes[node.type] = (props) => <BaseNode {...props} type={node.type} />
+  }
+})
 
 const socketColors = {
   image: '#FF5555',

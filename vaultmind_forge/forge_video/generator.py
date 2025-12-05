@@ -11,6 +11,43 @@ from dataclasses import dataclass
 from enum import Enum
 import subprocess
 import json
+import os
+
+
+def sanitize_media_path(path: Path | str) -> Path:
+    """
+    Validate and sanitize media file paths to prevent command injection.
+
+    Args:
+        path: Path to validate
+
+    Returns:
+        Sanitized absolute Path object
+
+    Raises:
+        ValueError: If path is invalid or contains suspicious characters
+    """
+    try:
+        path = Path(path)
+
+        # Resolve to absolute path and check if it exists
+        resolved = path.resolve(strict=True)
+
+        # Security: Reject paths with shell metacharacters in filename
+        # This prevents injection through concat file parsing
+        dangerous_chars = ['\'', '"', ';', '&', '|', '$', '`', '\n', '\r']
+        filename = resolved.name
+        if any(char in filename for char in dangerous_chars):
+            raise ValueError(f"Path contains dangerous characters: {filename}")
+
+        # Ensure it's a regular file (not a pipe, device, etc.)
+        if not resolved.is_file():
+            raise ValueError(f"Path is not a regular file: {resolved}")
+
+        return resolved
+
+    except (OSError, RuntimeError) as e:
+        raise ValueError(f"Invalid or inaccessible path: {path}") from e
 
 
 class TransitionType(str, Enum):
@@ -147,13 +184,22 @@ class VideoGenerator:
         # Create temporary file list for ffmpeg
         frame_list_path = output_path.parent / f".{output_path.stem}_frames.txt"
 
+        # SECURITY: Validate all frame paths before writing to concat file
+        try:
+            sanitized_frames = [sanitize_media_path(fp) for fp in frame_paths]
+        except ValueError as e:
+            raise ValueError(f"Invalid frame path in sequence: {e}")
+
         with open(frame_list_path, 'w') as f:
-            for frame_path in frame_paths:
-                f.write(f"file '{Path(frame_path).absolute()}'\n")
+            for frame_path in sanitized_frames:
+                # Use forward slashes for cross-platform compatibility
+                safe_path = str(frame_path).replace('\\', '/')
+                f.write(f"file '{safe_path}'\n")
                 f.write(f"duration {frame_duration}\n")
             # Last frame needs to be repeated for duration
-            if frame_paths:
-                f.write(f"file '{Path(frame_paths[-1]).absolute()}'\n")
+            if sanitized_frames:
+                safe_path = str(sanitized_frames[-1]).replace('\\', '/')
+                f.write(f"file '{safe_path}'\n")
 
         # Build ffmpeg command
         cmd = [
@@ -170,7 +216,12 @@ class VideoGenerator:
 
         # Add audio if provided
         if config.audio_path:
-            cmd.extend(["-i", str(config.audio_path), "-c:a", "aac"])
+            # SECURITY: Validate audio path
+            try:
+                safe_audio = sanitize_media_path(config.audio_path)
+                cmd.extend(["-i", str(safe_audio), "-c:a", "aac"])
+            except ValueError as e:
+                raise ValueError(f"Invalid audio path: {e}")
 
         cmd.extend([
             "-y",  # Overwrite output
@@ -273,7 +324,12 @@ class VideoGenerator:
         Returns:
             List of extracted frame paths
         """
-        video_path = Path(video_path)
+        # SECURITY: Validate video path
+        try:
+            safe_video_path = sanitize_media_path(video_path)
+        except ValueError as e:
+            raise ValueError(f"Invalid video path: {e}")
+
         output_dir = Path(output_dir)
         output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -281,7 +337,7 @@ class VideoGenerator:
 
         cmd = [
             self.ffmpeg_path,
-            "-i", str(video_path),
+            "-i", str(safe_video_path),
         ]
 
         if fps:
@@ -326,9 +382,17 @@ class VideoGenerator:
         # Create concat file
         concat_file = output_path.parent / f".{output_path.stem}_concat.txt"
 
+        # SECURITY: Validate all video paths before writing to concat file
+        try:
+            sanitized_videos = [sanitize_media_path(vp) for vp in video_paths]
+        except ValueError as e:
+            raise ValueError(f"Invalid video path in sequence: {e}")
+
         with open(concat_file, 'w') as f:
-            for video_path in video_paths:
-                f.write(f"file '{Path(video_path).absolute()}'\n")
+            for video_path in sanitized_videos:
+                # Use forward slashes for cross-platform compatibility
+                safe_path = str(video_path).replace('\\', '/')
+                f.write(f"file '{safe_path}'\n")
 
         cmd = [
             self.ffmpeg_path,

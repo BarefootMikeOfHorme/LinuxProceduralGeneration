@@ -5,27 +5,37 @@ Type-safe workflow execution with DAG topological sorting
 
 from graphlib import TopologicalSorter, CycleError
 from typing import Dict, List, Any, Optional
+from datetime import datetime
 import logging
 
 from .types import DataType, can_connect
 from .base_executor import NodeExecutor
 from .registry import NodeRegistry
+from .pipeline_base import (
+    BasePipeline,
+    PipelineResult,
+    ValidationResult,
+    PipelineValidationError,
+    PipelineExecutionError,
+    create_pipeline_result,
+)
 
 
 logger = logging.getLogger(__name__)
 
 
-class ValidationError(Exception):
-    """Raised when workflow validation fails"""
+# Keep legacy exception names for backwards compatibility
+class ValidationError(PipelineValidationError):
+    """Raised when workflow validation fails (legacy alias)"""
     pass
 
 
-class ExecutionError(Exception):
-    """Raised when node execution fails"""
+class ExecutionError(PipelineExecutionError):
+    """Raised when node execution fails (legacy alias)"""
     pass
 
 
-class NodeExecutionEngine:
+class NodeExecutionEngine(BasePipeline):
     """
     Core execution engine for VaultMind Forge workflows.
 
@@ -44,9 +54,11 @@ class NodeExecutionEngine:
         Args:
             registry: NodeRegistry containing all available node executors
         """
+        super().__init__()
         self.registry = registry
         self.node_outputs: Dict[str, Dict[str, Any]] = {}
-        self.execution_order: List[str] = []
+        self._execution_order: List[str] = []
+        self._current_workflow = None
 
     def execute_workflow(self, workflow) -> Dict[str, Dict[str, Any]]:
         """
@@ -66,17 +78,17 @@ class NodeExecutionEngine:
 
         # Reset state
         self.node_outputs = {}
-        self.execution_order = []
+        self._execution_order = []
 
         # 1. Validate workflow
         self.validate_workflow(workflow)
 
         # 2. Build execution order (topological sort)
-        self.execution_order = self.build_execution_order(workflow)
-        logger.info(f"Execution order: {self.execution_order}")
+        self._execution_order = self.build_execution_order(workflow)
+        logger.info(f"Execution order: {self._execution_order}")
 
         # 3. Execute nodes in order
-        for node_id in self.execution_order:
+        for node_id in self._execution_order:
             node = self.find_node(workflow, node_id)
             self.execute_node(node, workflow)
 
@@ -315,7 +327,126 @@ class NodeExecutionEngine:
     def clear_cache(self) -> None:
         """Clear cached outputs (for re-execution)"""
         self.node_outputs = {}
-        self.execution_order = []
+        self._execution_order = []
+        self._current_workflow = None
+
+    # BasePipeline abstract methods implementation
+
+    async def execute(self, input: Any) -> PipelineResult:
+        """
+        Execute pipeline (BasePipeline interface).
+
+        Args:
+            input: Workflow object to execute
+
+        Returns:
+            PipelineResult with execution status and outputs
+        """
+        started_at = datetime.utcnow()
+        errors = []
+
+        try:
+            # Store workflow for validation
+            self._current_workflow = input
+
+            # Execute workflow (legacy method)
+            node_outputs = self.execute_workflow(input)
+
+            # Calculate execution time
+            finished_at = datetime.utcnow()
+            execution_time_ms = (finished_at - started_at).total_seconds() * 1000
+
+            # Create result
+            self.result = create_pipeline_result(
+                success=True,
+                outputs=node_outputs,
+                execution_time_ms=execution_time_ms,
+                execution_order=self._execution_order.copy(),
+                started_at=started_at,
+                finished_at=finished_at,
+                metadata={
+                    "nodes_executed": len(self._execution_order),
+                    "total_outputs": sum(len(outputs) for outputs in node_outputs.values()),
+                }
+            )
+
+            return self.result
+
+        except ValidationError as e:
+            errors.append(f"Validation failed: {str(e)}")
+        except ExecutionError as e:
+            errors.append(f"Execution failed: {str(e)}")
+        except Exception as e:
+            errors.append(f"Unexpected error: {str(e)}")
+
+        # Create failure result
+        finished_at = datetime.utcnow()
+        execution_time_ms = (finished_at - started_at).total_seconds() * 1000
+
+        self.result = create_pipeline_result(
+            success=False,
+            outputs=self.node_outputs,
+            errors=errors,
+            execution_time_ms=execution_time_ms,
+            execution_order=self._execution_order.copy(),
+            started_at=started_at,
+            finished_at=finished_at,
+        )
+
+        return self.result
+
+    def validate(self) -> ValidationResult:
+        """
+        Validate workflow (BasePipeline interface).
+
+        Returns:
+            ValidationResult with validation status
+        """
+        result = ValidationResult(valid=True)
+
+        if self._current_workflow is None:
+            result.add_error("No workflow loaded")
+            return result
+
+        workflow = self._current_workflow
+
+        # Validate all nodes exist in registry
+        for node in workflow.nodes:
+            if not self.registry.has_executor(node.type):
+                result.add_error(f"Unknown node type: '{node.type}' (node {node.id})")
+
+        # Validate all connections
+        for conn in workflow.connections:
+            try:
+                self.validate_connection(conn, workflow)
+            except ValidationError as e:
+                result.add_error(str(e))
+
+        # Check for cycles
+        try:
+            self.build_execution_order(workflow)
+        except ValidationError as e:
+            result.add_error(f"DAG validation failed: {str(e)}")
+
+        return result
+
+    def get_execution_order(self) -> List[str]:
+        """
+        Get execution order (BasePipeline interface).
+
+        Returns:
+            List of node IDs in execution order
+        """
+        if self._current_workflow is None:
+            return []
+
+        if not self._execution_order:
+            try:
+                self._execution_order = self.build_execution_order(self._current_workflow)
+            except Exception:
+                return []
+
+        return self._execution_order.copy()
 
 
 if __name__ == "__main__":

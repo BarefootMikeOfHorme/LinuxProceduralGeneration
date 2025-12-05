@@ -7,12 +7,13 @@
 
 import { createHash, randomBytes } from 'crypto';
 import { promisify } from 'util';
-import { exec } from 'child_process';
+import { exec, execFile } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 
 const execAsync = promisify(exec);
+const execFileAsync = promisify(execFile);
 const readFileAsync = promisify(fs.readFile);
 const writeFileAsync = promisify(fs.writeFile);
 const readdirAsync = promisify(fs.readdir);
@@ -532,20 +533,39 @@ export async function saveLineageRecord(record) {
 
 /**
  * Execute Python script
+ *
+ * SECURITY: Uses execFile by default (safe), but supports shell mode via options.useShell
  */
 export async function executePythonScript(scriptPath, args = [], options = {}) {
   const python = options.python || 'python';
   const timeout = options.timeout || 60000;
   const cwd = options.cwd || process.cwd();
+  const useShell = options.useShell || false; // Backdoor for advanced use cases
 
-  const command = `${python} ${scriptPath} ${args.join(' ')}`;
+  // Basic path validation
+  if (!scriptPath || scriptPath.trim() === '') {
+    throw new Error('Script path is required');
+  }
 
   try {
-    const { stdout, stderr } = await execAsync(command, {
-      cwd,
-      timeout,
-      maxBuffer: 10 * 1024 * 1024 // 10MB buffer
-    });
+    let stdout, stderr;
+
+    if (useShell) {
+      // Legacy shell mode (less secure, for advanced cases)
+      const command = `${python} ${scriptPath} ${args.join(' ')}`;
+      ({ stdout, stderr } = await execAsync(command, {
+        cwd,
+        timeout,
+        maxBuffer: 10 * 1024 * 1024
+      }));
+    } else {
+      // Secure mode: Use execFile (no shell injection)
+      ({ stdout, stderr } = await execFileAsync(python, [scriptPath, ...args], {
+        cwd,
+        timeout,
+        maxBuffer: 10 * 1024 * 1024
+      }));
+    }
 
     return {
       success: true,

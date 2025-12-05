@@ -187,6 +187,62 @@ def create_default_registry() -> NodeRegistry:
     registry.register(ControlNetLoaderExecutor())
     registry.register(SDXLControlNetGeneratorExecutor())
 
+    # Register additional nodes
+    from backend.executors.additional_nodes import (
+        ImageLoaderExecutor,
+        StyleProfileExecutor,
+        VideoGeneratorExecutor,
+        Mesh3DGeneratorExecutor,
+        ProceduralGeneratorExecutor,
+        SemanticDownrezExecutor,
+        FormatConverterExecutor,
+        AssetPackagerExecutor,
+        SaveImageExecutor,
+        LineageArchiveExecutor,
+        BranchExecutor,
+        LoopExecutor,
+        CacheExecutor,
+    )
+
+    # Register input nodes
+    registry.register(ImageLoaderExecutor())
+    registry.register(StyleProfileExecutor())
+
+    # Register generation nodes
+    registry.register(VideoGeneratorExecutor())
+    registry.register(Mesh3DGeneratorExecutor())
+    registry.register(ProceduralGeneratorExecutor())
+
+    # Register enhancement nodes
+    registry.register(SemanticDownrezExecutor())
+
+    # Register processing nodes
+    registry.register(FormatConverterExecutor())
+    registry.register(AssetPackagerExecutor())
+
+    # Register output nodes
+    registry.register(SaveImageExecutor())
+    registry.register(LineageArchiveExecutor())
+
+    # Register utility nodes
+    registry.register(BranchExecutor())
+    registry.register(LoopExecutor())
+    registry.register(CacheExecutor())
+
+    # Register ConverterPro nodes
+    try:
+        from backend.executors.converter_pro_nodes import (
+            ConverterProScanExecutor,
+            ConverterProConvertExecutor,
+            ConverterProExportExecutor,
+        )
+        registry.register(ConverterProScanExecutor())
+        registry.register(ConverterProConvertExecutor())
+        registry.register(ConverterProExportExecutor())
+        logger.info("Registered ConverterPro nodes")
+    except Exception as e:
+        logger.warning(f"Could not register ConverterPro nodes: {e}")
+
     logger.info(f"Created default registry with {registry.count()} executors")
     return registry
 

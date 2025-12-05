@@ -1,0 +1,24 @@
+{
+  "checkpoints": [
+    {
+      "checkpoint_id": "ckpt_test-wf_1763359506115",
+      "workflow_id": "test-wf",
+      "checkpoint_type": "full",
+      "timestamp": 1763359506.1158752,
+      "version": 1,
+      "total_tasks": 1,
+      "completed_tasks": 0,
+      "failed_tasks": 0,
+      "running_tasks": 0,
+      "compressed": true,
+      "size_bytes": 505,
+      "checksum": "0f62379c8092ecfeb864819e728e6263bf028c611349a87840d1bcb1cdd25ed7",
+      "parent_checkpoint_id": null,
+      "tags": [
+        "test"
+      ],
+      "notes": ""
+    }
+  ],
+  "last_updated": 1763359506.1270103
+}

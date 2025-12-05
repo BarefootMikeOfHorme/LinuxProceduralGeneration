@@ -23,8 +23,6 @@ from PIL import Image, ImageEnhance, ImageFilter
 from .base_agent import BaseAgent, AgentDecision, AgentCapability, EscalationReason
 
 # Import validators
-import sys
-sys.path.insert(0, str(Path(__file__).parents[1]))
 
 from forge_validator.metrics import (
     anatomy_score,

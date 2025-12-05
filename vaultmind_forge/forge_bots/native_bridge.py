@@ -38,7 +38,6 @@ class NativeBridge:
             # Add native_libs to path
             native_libs = Path(__file__).parent.parent / "forge_validator" / "native_libs"
             if native_libs.exists() and str(native_libs) not in sys.path:
-                sys.path.insert(0, str(native_libs))
 
             import vmf_validator
             self.rust_module = vmf_validator

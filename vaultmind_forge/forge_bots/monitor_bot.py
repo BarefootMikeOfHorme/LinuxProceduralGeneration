@@ -14,7 +14,6 @@ from datetime import datetime
 import logging
 
 # Add parent to path for imports
-sys.path.insert(0, str(Path(__file__).parents[1]))
 
 from .base_bot import BaseBot, BotConfig, BotPriority
 from forge_batch import BatchProcessor, BatchJob, JobPriority

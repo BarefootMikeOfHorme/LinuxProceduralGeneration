@@ -12,7 +12,6 @@ import numpy as np
 import logging
 
 # Add parent to path
-sys.path.insert(0, str(Path(__file__).parents[1]))
 
 from forge_bots.native_bridge import get_native_bridge
 from .noise_types import NoiseType, NoisePreset, get_preset

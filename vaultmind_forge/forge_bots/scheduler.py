@@ -18,7 +18,6 @@ from enum import Enum
 import logging
 
 # Add parent to path
-sys.path.insert(0, str(Path(__file__).parents[1]))
 
 from .base_bot import BaseBot, BotConfig, BotStatus, BotPriority
 from .monitor_bot import AssetMonitorBot, FolderWatchConfig

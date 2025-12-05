@@ -14,7 +14,6 @@ from dataclasses import dataclass
 import logging
 
 # Add modules to path
-sys.path.insert(0, str(Path(__file__).parents[1]))
 
 from .job_queue import JobQueue, BatchJob, JobPriority, JobStatus
 from .resource_manager import ResourceManager, ResourceRequirements

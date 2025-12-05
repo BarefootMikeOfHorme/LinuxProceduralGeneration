@@ -12,7 +12,6 @@ from dataclasses import dataclass
 from enum import Enum
 
 # Add forge_converter to path for AI control
-sys.path.insert(0, str(Path(__file__).parents[1]))
 
 from forge_converter.ai_control import (
     AIDecisionEngine,
@@ -225,8 +224,8 @@ class AIValidator:
             from PIL import Image
             import numpy as np
 
-            img = Image.open(asset_path).convert("L")
-            gray = np.array(img, dtype=np.float32) / 255.0
+            with Image.open(asset_path) as img:
+                gray = np.array(img.convert("L"), dtype=np.float32) / 255.0
 
             # Laplacian variance (sharpness metric)
             try:
@@ -252,8 +251,8 @@ class AIValidator:
             from PIL import Image
             import numpy as np
 
-            img = Image.open(asset_path).convert("RGB")
-            arr = np.array(img, dtype=np.float32) / 255.0
+            with Image.open(asset_path) as img:
+                arr = np.array(img.convert("RGB"), dtype=np.float32) / 255.0
 
             # Check color distribution
             r, g, b = arr[:,:,0], arr[:,:,1], arr[:,:,2]
@@ -283,8 +282,8 @@ class AIValidator:
             from PIL import Image
             import numpy as np
 
-            img = Image.open(asset_path).convert("RGB")
-            arr = np.array(img, dtype=np.float32) / 255.0
+            with Image.open(asset_path) as img:
+                arr = np.array(img.convert("RGB"), dtype=np.float32) / 255.0
 
             # Check for extreme values (often artifacts)
             extreme_pixels = np.sum((arr == 0.0) | (arr == 1.0))
@@ -320,8 +319,9 @@ class AIValidator:
             import numpy as np
 
             # Load asset
-            asset_img = Image.open(asset_path).convert("RGB").resize((256, 256))
-            asset_arr = np.array(asset_img, dtype=np.float32) / 255.0
+            with Image.open(asset_path) as asset_img:
+                asset_img_resized = asset_img.convert("RGB").resize((256, 256))
+                asset_arr = np.array(asset_img_resized, dtype=np.float32) / 255.0
 
             # Compute asset color histogram
             asset_hist = self._compute_color_histogram(asset_arr)
@@ -332,8 +332,9 @@ class AIValidator:
                 if not Path(ref_path).exists():
                     continue
 
-                ref_img = Image.open(ref_path).convert("RGB").resize((256, 256))
-                ref_arr = np.array(ref_img, dtype=np.float32) / 255.0
+                with Image.open(ref_path) as ref_img:
+                    ref_img_resized = ref_img.convert("RGB").resize((256, 256))
+                    ref_arr = np.array(ref_img_resized, dtype=np.float32) / 255.0
                 ref_hist = self._compute_color_histogram(ref_arr)
 
                 # Histogram intersection

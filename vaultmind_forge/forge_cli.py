@@ -177,9 +177,7 @@ def workflow(
 ):
     """Execute a workflow from JSON file"""
     import json
-    import sys
     import time
-    sys.path.insert(0, str(Path(__file__).parent.parent))
 
     from backend.core.engine import NodeExecutionEngine, ValidationError, ExecutionError
     from backend.core.registry import create_default_registry

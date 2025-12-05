@@ -287,7 +287,7 @@ class SDXLControlNetGeneratorExecutor(NodeExecutor):
     def output_spec(self) -> List[OutputSpec]:
         return [
             OutputSpec("image", DataType.IMAGE),
-            OutputSpec("metadata", DataType.JSON),
+            OutputSpec("metadata", DataType.DICT),
         ]
 
     def execute(self, inputs: Dict[str, Any]) -> Dict[str, Any]:

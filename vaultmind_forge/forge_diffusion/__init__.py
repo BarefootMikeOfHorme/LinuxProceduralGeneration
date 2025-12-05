@@ -24,6 +24,8 @@ from .agent_pipeline import (
     create_quick_pipeline,
 )
 
+from .sdxl_generator import SDXLGenerator
+
 __all__ = [
     "DiffusionGenerator",
     "GenerationBackend",
@@ -38,6 +40,7 @@ __all__ = [
     "AgentPipelineConfig",
     "AgentPipelineResult",
     "create_quick_pipeline",
+    "SDXLGenerator",
 ]
 
 __version__ = "1.0.0"
