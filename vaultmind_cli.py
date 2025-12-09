@@ -447,6 +447,19 @@ def interactive(ctx):
             TerminalUI.error(str(e))
 
 
+@cli.command()
+@click.pass_context
+def tui(ctx):
+    """
+    Launch the Textual TUI (Terminal User Interface)
+    
+    Full-screen, desktop-like experience for the terminal.
+    """
+    from vaultmind_forge.cli.tui_app import VaultMindApp
+    app = VaultMindApp()
+    app.run()
+
+
 def _print_help():
     """Print interactive mode help"""
     TerminalUI.clear()

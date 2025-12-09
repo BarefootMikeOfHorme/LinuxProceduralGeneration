@@ -16,8 +16,9 @@
     "api",
     "vaultmind-forge"
   ],
-  "author": "",
-  "license": "MIT",
+  "author": "Michael Shortland (BarefootMikeOfHorme)",
+  "license": "PROPRIETARY",
+  "private": true,
   "dependencies": {
     "express": "^4.18.2",
     "ajv": "^8.12.0",

@@ -90,6 +90,7 @@ class MaestroAgent(BaseAgent):
         - resource_monitor: Checks system CPU/RAM. Use before heavy tasks.
         - texture_generator: Generates textures (simulated).
         - validator: Validates assets.
+        - prompt_refiner: Refines prompts for better quality. Use when user asks for "better" or "high quality" images.
         
         User Request: "{request}"
         

@@ -54,8 +54,9 @@ class PromptRefinerAgent(BaseAgent):
         min_confidence_threshold: float = 0.7,
         learning_enabled: bool = True,
         metrics_path: Optional[Path] = None,
-        use_merlinv1: bool = True,
-        merlinv1_path: Optional[str] = None,
+        use_ai_refinement: bool = True,
+        hf_model: str = "meta-llama/Llama-3.2-3B-Instruct",
+        hf_provider: str = "replicate",
     ):
         """
         Initialize Prompt Refiner Agent.
@@ -64,8 +65,9 @@ class PromptRefinerAgent(BaseAgent):
             min_confidence_threshold: Minimum confidence to auto-apply refinements
             learning_enabled: Enable learning from successful refinements
             metrics_path: Path to save metrics
-            use_merlinv1: Use Merlinv1 AI for prompt refinement (default True)
-            merlinv1_path: Path to Merlinv1 model (default: C:/Merlinv1/checkpoints/final)
+            use_ai_refinement: Use AI for prompt refinement (default True)
+            hf_model: Hugging Face model identifier
+            hf_provider: Inference provider
         """
         super().__init__(
             name="Prompt Refiner",
@@ -76,25 +78,28 @@ class PromptRefinerAgent(BaseAgent):
         self.confidence_threshold = min_confidence_threshold
         self.learning_enabled = learning_enabled
         self.metrics_path = metrics_path
-        self.use_merlinv1 = use_merlinv1
+        self.use_ai_refinement = use_ai_refinement
 
-        # Initialize Merlinv1 backend
-        self.merlinv1_backend = None
-        self.merlinv1_available = False
+        # Initialize AI backend
+        self.ai_backend = None
+        self.ai_available = False
 
-        if use_merlinv1:
+        if use_ai_refinement:
             try:
-                from vaultmind_forge.forge_ai.merlinv1_backend import Merlinv1Backend
+                from vaultmind_forge.forge_ai.huggingface_backend import HuggingFaceBackend
                 from vaultmind_forge.forge_ai.base_ai import AIRequest
 
-                model_path = merlinv1_path or "C:/Merlinv1/checkpoints/final"
-                self.merlinv1_backend = Merlinv1Backend(model_path=model_path)
-                self.merlinv1_backend.initialize()
-                self.merlinv1_available = True
-                logger.info(f"[PromptRefiner] Merlinv1 backend loaded successfully")
+                self.ai_backend = HuggingFaceBackend(
+                    model=hf_model,
+                    provider=hf_provider
+                )
+                # We don't strictly require initialization here as it's lazy, 
+                # but we check availability
+                self.ai_available = True
+                logger.info(f"[PromptRefiner] AI backend configured: {hf_model}")
             except Exception as e:
-                logger.warning(f"[PromptRefiner] Merlinv1 unavailable, using rule-based refinement: {e}")
-                self.merlinv1_available = False
+                logger.warning(f"[PromptRefiner] AI backend unavailable, using rule-based refinement: {e}")
+                self.ai_available = False
 
         # Refinement patterns for different issues
         self.refinement_patterns = {
@@ -157,14 +162,14 @@ class PromptRefinerAgent(BaseAgent):
         # Track successful refinements
         self.successful_refinements: Dict[str, List[str]] = {}
 
-    def _refine_with_merlinv1(
+    def _refine_with_ai(
         self,
         original_prompt: str,
         style: Optional[str] = None,
         failed_metrics: Optional[Dict[str, float]] = None,
     ) -> Optional[str]:
         """
-        Use Merlinv1 AI to refine prompt.
+        Use AI to refine prompt.
 
         Args:
             original_prompt: Original prompt text
@@ -172,15 +177,15 @@ class PromptRefinerAgent(BaseAgent):
             failed_metrics: Quality metrics from failed generation
 
         Returns:
-            Refined prompt or None if Merlinv1 unavailable
+            Refined prompt or None if AI unavailable
         """
-        if not self.merlinv1_available or not self.merlinv1_backend:
+        if not self.ai_available or not self.ai_backend:
             return None
 
         try:
             from vaultmind_forge.forge_ai.base_ai import AIRequest
 
-            # Build context for Merlinv1
+            # Build context for AI
             system_prompt = (
                 "You are an expert prompt engineer for AI image generation. "
                 "Enhance the following prompt to produce higher quality outputs. "
@@ -215,23 +220,23 @@ class PromptRefinerAgent(BaseAgent):
             )
 
             # Generate refinement
-            response = self.merlinv1_backend.generate(request)
+            response = self.ai_backend.generate(request)
             refined = response.content.strip()
 
             # Clean up the response
-            # Remove quotes if Merlinv1 added them
+            # Remove quotes if AI added them
             refined = refined.strip('"\'')
 
-            # If Merlinv1 returned something reasonable, use it
+            # If AI returned something reasonable, use it
             if refined and len(refined) > len(original_prompt) * 0.5:
-                logger.info(f"[PromptRefiner] Merlinv1 refined: {original_prompt[:50]}... -> {refined[:50]}...")
+                logger.info(f"[PromptRefiner] AI refined: {original_prompt[:50]}... -> {refined[:50]}...")
                 return refined
             else:
-                logger.warning(f"[PromptRefiner] Merlinv1 output too short, falling back to rules")
+                logger.warning(f"[PromptRefiner] AI output too short, falling back to rules")
                 return None
 
         except Exception as e:
-            logger.error(f"[PromptRefiner] Merlinv1 refinement failed: {e}")
+            logger.error(f"[PromptRefiner] AI refinement failed: {e}")
             return None
 
     def refine_prompt(
@@ -244,7 +249,7 @@ class PromptRefinerAgent(BaseAgent):
         """
         Refine a prompt based on failure analysis.
 
-        Uses Merlinv1 AI for intelligent refinement when available,
+        Uses AI for intelligent refinement when available,
         falls back to rule-based refinement otherwise.
 
         Args:
@@ -256,16 +261,16 @@ class PromptRefinerAgent(BaseAgent):
         Returns:
             PromptRefinement with refined prompt and confidence
         """
-        # Try Merlinv1 AI-powered refinement first
-        merlinv1_refined = self._refine_with_merlinv1(
+        # Try AI-powered refinement first
+        ai_refined = self._refine_with_ai(
             original_prompt,
             style=style,
             failed_metrics=failed_metrics
         )
 
-        if merlinv1_refined:
-            # Merlinv1 succeeded - use AI-generated refinement
-            reasoning = "Refined using Merlinv1 AI"
+        if ai_refined:
+            # AI succeeded - use AI-generated refinement
+            reasoning = "Refined using AI"
             if style:
                 reasoning += f" ({style} style)"
             if failed_metrics:
@@ -274,7 +279,7 @@ class PromptRefinerAgent(BaseAgent):
                     reasoning += f"; addressed: {', '.join(issues)}"
 
             # Calculate confidence (higher for AI refinement)
-            confidence = 0.85  # High confidence in Merlinv1
+            confidence = 0.85  # High confidence in AI
 
             # Track decision
             decision = AgentDecision(
@@ -283,8 +288,8 @@ class PromptRefinerAgent(BaseAgent):
                 reasoning=reasoning,
                 metadata={
                     "original_prompt": original_prompt,
-                    "refined_prompt": merlinv1_refined,
-                    "method": "merlinv1_ai",
+                    "refined_prompt": ai_refined,
+                    "method": "ai_refinement",
                     "style": style,
                 }
             )
@@ -292,7 +297,7 @@ class PromptRefinerAgent(BaseAgent):
 
             return PromptRefinement(
                 original_prompt=original_prompt,
-                refined_prompt=merlinv1_refined,
+                refined_prompt=ai_refined,
                 refinements_added=["AI-enhanced"],
                 confidence=confidence,
                 reasoning=reasoning,
