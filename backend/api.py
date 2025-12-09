@@ -3,7 +3,7 @@ VaultMind Forge - FastAPI Backend
 Connects web UI to Python forge_* modules
 """
 
-from fastapi import FastAPI, HTTPException, BackgroundTasks, Depends
+from fastapi import FastAPI, HTTPException, BackgroundTasks, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Dict, List, Any, Optional
@@ -17,7 +17,32 @@ from backend.auth import verify_api_key, get_auth_status
 # Import persistence layer
 from backend.persistence import get_persistence
 
+# Import rate limiting
+from backend.rate_limiter import limiter, get_rate_limit
+from slowapi.errors import RateLimitExceeded
+
+# Import logging
+from backend.logging_config import setup_logging, log_exception
+
+# Import error handling
+from backend.error_handling import (
+    workflow_not_found_error,
+    workflow_validation_error,
+    workflow_execution_error,
+    execution_not_found_error,
+    file_not_found_error,
+    file_access_denied_error,
+    internal_error
+)
+
+# Setup logger for API
+logger = setup_logging("api")
+
 app = FastAPI(title="VaultMind Forge API", version="1.0.0")
+
+# Add rate limiter to app
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, limiter._rate_limit_exceeded_handler)
 
 app.add_middleware(
     CORSMiddleware,
@@ -29,6 +54,14 @@ app.add_middleware(
 
 # Initialize persistence (replaces in-memory dicts)
 persistence = get_persistence()
+
+# Log startup
+logger.info("=" * 60)
+logger.info("VaultMind Forge API Starting")
+logger.info(f"Authentication: {'ENABLED' if verify_api_key else 'DISABLED'}")
+logger.info(f"Rate Limiting: ENABLED")
+logger.info(f"Database: {persistence.db_path}")
+logger.info("=" * 60)
 
 
 class NodeData(BaseModel):
@@ -87,7 +120,8 @@ async def save_workflow(workflow: WorkflowSaveRequest, api_key: str = Depends(ve
 async def get_workflow(workflow_id: str, api_key: str = Depends(verify_api_key)):
     workflow_data = await persistence.workflows.load(workflow_id)
     if workflow_data is None:
-        raise HTTPException(status_code=404, detail="Workflow not found")
+        logger.warning(f"Workflow not found: {workflow_id}")
+        raise workflow_not_found_error(workflow_id).to_http_exception()
     return workflow_data
 
 
@@ -97,7 +131,8 @@ async def list_workflows(api_key: str = Depends(verify_api_key)):
 
 
 @app.post("/api/execute")
-async def execute_workflow(workflow: WorkflowRequest, background_tasks: BackgroundTasks, api_key: str = Depends(verify_api_key)):
+@limiter.limit(get_rate_limit("execute_workflow"))
+async def execute_workflow(request: Request, workflow: WorkflowRequest, background_tasks: BackgroundTasks, api_key: str = Depends(verify_api_key)):
     execution_id = str(uuid.uuid4())
 
     execution_data = {
@@ -118,7 +153,8 @@ async def execute_workflow(workflow: WorkflowRequest, background_tasks: Backgrou
 async def get_execution_progress(execution_id: str, api_key: str = Depends(verify_api_key)):
     execution_data = await persistence.executions.load(execution_id)
     if execution_data is None:
-        raise HTTPException(status_code=404, detail="Execution not found")
+        logger.warning(f"Execution not found: {execution_id}")
+        raise execution_not_found_error(execution_id).to_http_exception()
     return execution_data
 
 
@@ -188,7 +224,7 @@ def generate_previews(node_outputs: dict) -> dict:
                     }
 
             except Exception as e:
-                print(f"[FORGE] Warning: Failed to generate preview for {node_id}.{handle_name}: {e}")
+                logger.warning(f"Failed to generate preview for {node_id}.{handle_name}: {e}")
 
         if node_previews:
             previews[node_id] = node_previews
@@ -208,8 +244,8 @@ async def run_workflow_execution(execution_id: str, workflow: WorkflowRequest):
     try:
         await update_execution({"status": "running", "percentage": 10})
 
-        print(f"[FORGE] Starting workflow execution: {execution_id}")
-        print(f"[FORGE] Using NEW execution engine with type-safe connections")
+        logger.info(f"Starting workflow execution: {execution_id}")
+        logger.debug(f"Using NEW execution engine with type-safe connections")
 
         # Import the NEW execution engine
         from backend.core.engine import NodeExecutionEngine, ValidationError, ExecutionError
@@ -219,8 +255,8 @@ async def run_workflow_execution(execution_id: str, workflow: WorkflowRequest):
         registry = create_default_registry()
         engine = NodeExecutionEngine(registry)
 
-        print(f"[FORGE] Loaded {registry.count()} node executors")
-        print(f"[FORGE] Validating workflow...")
+        logger.info(f"Loaded {registry.count()} node executors")
+        logger.debug(f"Validating workflow...")
 
         await update_execution({"percentage": 20})
 
@@ -229,12 +265,12 @@ async def run_workflow_execution(execution_id: str, workflow: WorkflowRequest):
 
         await update_execution({"percentage": 90})
 
-        print(f"[FORGE] [OK] Workflow completed successfully")
-        print(f"[FORGE] Executed {len(engine.execution_order)} nodes in order: {engine.execution_order}")
+        logger.info(f"Workflow completed successfully")
+        logger.debug(f"Executed {len(engine.execution_order)} nodes in order: {engine.execution_order}")
 
         # Generate previews for visual outputs
         previews = generate_previews(node_outputs)
-        print(f"[FORGE] Generated previews for {len(previews)} nodes")
+        logger.debug(f"Generated previews for {len(previews)} nodes")
 
         await update_execution({
             "status": "completed",
@@ -249,30 +285,27 @@ async def run_workflow_execution(execution_id: str, workflow: WorkflowRequest):
         })
 
     except ValidationError as e:
-        print(f"[FORGE] [ERROR] Workflow validation failed:")
-        print(f"  {e}")
+        logger.error(f"Workflow validation failed: {e}")
+        error_detail = workflow_validation_error(str(e)).to_dict()
         await update_execution({
             "status": "failed",
-            "error": f"Validation error: {e}"
+            "error": error_detail
         })
 
     except ExecutionError as e:
-        print(f"[FORGE] [ERROR] Workflow execution failed:")
-        print(f"  {e}")
-        import traceback
-        traceback.print_exc()
+        logger.error(f"Workflow execution failed: {e}", exc_info=True)
+        error_detail = workflow_execution_error(str(e)).to_dict()
         await update_execution({
             "status": "failed",
-            "error": f"Execution error: {e}"
+            "error": error_detail
         })
 
     except Exception as e:
-        print(f"[FORGE] [ERROR] Unexpected error: {e}")
-        import traceback
-        traceback.print_exc()
+        logger.critical(f"Unexpected error in workflow execution: {e}", exc_info=True)
+        error_detail = internal_error(str(e)).to_dict()
         await update_execution({
             "status": "failed",
-            "error": str(e)
+            "error": error_detail
         })
 
 
@@ -290,7 +323,7 @@ async def list_available_nodes():
             node_info = registry.get_node_info(node_type)
             nodes.append(node_info)
         except Exception as e:
-            print(f"[API] Warning: Could not get info for node {node_type}: {e}")
+            logger.warning(f"Could not get info for node {node_type}: {e}")
 
     return {
         "categories": registry.get_categories(),
@@ -322,7 +355,8 @@ async def auth_status():
 
 
 @app.get("/api/filesystem/browse")
-async def browse_filesystem(path: Optional[str] = None, api_key: str = Depends(verify_api_key)):
+@limiter.limit(get_rate_limit("browse_filesystem"))
+async def browse_filesystem(request: Request, path: Optional[str] = None, api_key: str = Depends(verify_api_key)):
     """Browse local filesystem with security restrictions"""
     import os
     from pathlib import Path
@@ -341,19 +375,42 @@ async def browse_filesystem(path: Optional[str] = None, api_key: str = Depends(v
     if path is None:
         current_path = home
     else:
-        current_path = Path(path).resolve()
+        # Security: Normalize path WITHOUT following symlinks yet
+        requested_path = Path(path).absolute()
 
-    # Security check: Ensure path is within allowed roots
-    is_allowed = any(
-        str(current_path).startswith(str(root))
-        for root in allowed_roots
-    )
+        # Security: Check if path is within allowed roots BEFORE resolving
+        is_allowed = False
+        for root in allowed_roots:
+            try:
+                # Check if requested path is relative to an allowed root
+                requested_path.relative_to(root)
+                is_allowed = True
+                break
+            except ValueError:
+                continue
 
-    if not is_allowed:
-        raise HTTPException(status_code=403, detail="Access to this directory is not allowed")
+        if not is_allowed:
+            logger.warning(f"Access denied to path: {path}")
+            raise file_access_denied_error(str(requested_path)).to_http_exception()
+
+        # Now safe to resolve (follows symlinks) since we've validated
+        current_path = requested_path.resolve()
+
+        # Double-check after resolution (symlink could point outside)
+        is_still_allowed = any(
+            str(current_path).startswith(str(root.resolve()))
+            for root in allowed_roots
+        )
+
+        if not is_still_allowed:
+            logger.warning(f"Symlink target outside allowed directories: {current_path}")
+            raise file_access_denied_error(str(current_path)).to_http_exception()
+
+    # Removed old security check - now handled above
 
     if not current_path.exists() or not current_path.is_dir():
-        raise HTTPException(status_code=404, detail="Directory not found")
+        logger.warning(f"Directory not found: {current_path}")
+        raise file_not_found_error(str(current_path)).to_http_exception()
 
     # Collect directory items
     items = []
@@ -388,7 +445,8 @@ async def browse_filesystem(path: Optional[str] = None, api_key: str = Depends(v
                 # Skip items we can't access
                 continue
     except PermissionError:
-        raise HTTPException(status_code=403, detail="Permission denied")
+        logger.warning(f"Permission denied accessing directory: {current_path}")
+        raise file_access_denied_error(str(current_path)).to_http_exception()
 
     # Get parent path if exists and is allowed
     parent_path = None
@@ -405,24 +463,46 @@ async def browse_filesystem(path: Optional[str] = None, api_key: str = Depends(v
 
 
 @app.get("/api/filesystem/thumbnail")
-async def get_thumbnail(path: str, size: int = 200, api_key: str = Depends(verify_api_key)):
+@limiter.limit(get_rate_limit("get_thumbnail"))
+async def get_thumbnail(request: Request, path: str, size: int = 200, api_key: str = Depends(verify_api_key)):
     """Generate thumbnail for image file"""
     from PIL import Image
     import base64
     from io import BytesIO
 
-    file_path = Path(path)
-
-    # Security check
+    # Security: Validate path before resolving
     home = Path.home()
     allowed_roots = [home, home / "Desktop", home / "Documents", home / "Pictures", home / "Downloads"]
 
-    is_allowed = any(str(file_path.resolve()).startswith(str(root)) for root in allowed_roots)
+    # Normalize without following symlinks
+    requested_file = Path(path).absolute()
+
+    # Check if within allowed roots BEFORE resolving
+    is_allowed = False
+    for root in allowed_roots:
+        try:
+            requested_file.relative_to(root)
+            is_allowed = True
+            break
+        except ValueError:
+            continue
+
     if not is_allowed:
-        raise HTTPException(status_code=403, detail="Access denied")
+        logger.warning(f"Access denied to thumbnail path: {path}")
+        raise file_access_denied_error(str(requested_file)).to_http_exception()
+
+    # Now safe to resolve
+    file_path = requested_file.resolve()
+
+    # Double-check after symlink resolution
+    is_still_allowed = any(str(file_path).startswith(str(root.resolve())) for root in allowed_roots)
+    if not is_still_allowed:
+        logger.warning(f"Thumbnail symlink target outside allowed directories: {file_path}")
+        raise file_access_denied_error(str(file_path)).to_http_exception()
 
     if not file_path.exists() or not file_path.is_file():
-        raise HTTPException(status_code=404, detail="File not found")
+        logger.warning(f"Thumbnail file not found: {file_path}")
+        raise file_not_found_error(str(file_path)).to_http_exception()
 
     try:
         # Open and resize image with context manager (prevents file handle leak)
@@ -440,7 +520,8 @@ async def get_thumbnail(path: str, size: int = 200, api_key: str = Depends(verif
                 "height": img.height,
             }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to generate thumbnail: {str(e)}")
+        logger.error(f"Failed to generate thumbnail for {file_path}: {e}", exc_info=True)
+        raise internal_error(f"Failed to generate thumbnail: {str(e)}").to_http_exception()
 
 
 if __name__ == "__main__":

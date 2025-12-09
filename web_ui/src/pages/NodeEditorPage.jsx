@@ -6,8 +6,10 @@ import PropertyPanel from '../components/PropertyPanel';
 import Toolbar from '../components/Toolbar';
 import FileBrowser from '../components/FileBrowser';
 import OutputModal from '../components/OutputModal';
+import ExecutionPanel from '../components/ExecutionPanel';
 import useKeyboardShortcuts from '../hooks/useKeyboardShortcuts';
 import { useWorkflowStore } from '../store/workflowStore';
+import { showHelpDialog } from '../utils/notifications';
 
 const NodeEditorPage = () => {
     const [showPalette, setShowPalette] = useState(true);
@@ -22,7 +24,16 @@ const NodeEditorPage = () => {
             e.preventDefault();
             saveWorkflow('Untitled Workflow', 'Auto-saved workflow');
         },
-        'f1': () => alert('VaultMind Forge Help\n\nShift+A: Add node\nF5: Execute\nCtrl+S: Save\nDel: Delete\nM: Mute\nCtrl+A: Toggle AI'),
+        'f1': () => showHelpDialog('VaultMind Forge Keyboard Shortcuts', [
+            { key: 'Shift+A', action: 'Add node' },
+            { key: 'F5', action: 'Execute workflow' },
+            { key: 'Ctrl+S', action: 'Save workflow' },
+            { key: 'Del', action: 'Delete selected node' },
+            { key: 'M', action: 'Mute node' },
+            { key: 'Ctrl+A', action: 'Toggle AI assist' },
+            { key: 'F1', action: 'Show this help' },
+            { key: 'Esc', action: 'Deselect node' },
+        ]),
         'escape': () => setSelectedNode(null),
     });
 
@@ -54,9 +65,10 @@ const NodeEditorPage = () => {
                 </div>
             </div>
 
-            {/* Modals - controlled by Zustand store */}
+            {/* Modals and Panels - controlled by Zustand store */}
             <FileBrowser />
             <OutputModal />
+            <ExecutionPanel />
         </ReactFlowProvider>
     );
 };

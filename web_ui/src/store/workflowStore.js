@@ -1,12 +1,14 @@
 import { create } from 'zustand'
 import axios from 'axios'
 import { nodeLibrary } from '../lib/nodeLibrary'
+import { notifyError } from '../utils/notifications'
 
 export const useWorkflowStore = create((set, get) => ({
   nodes: [],
   edges: [],
   isExecuting: false,
   executionProgress: 0,
+  currentExecutingNode: null,
 
   // Execution results
   executionResults: null,
@@ -97,7 +99,13 @@ export const useWorkflowStore = create((set, get) => ({
   
   executeWorkflow: async () => {
     const { nodes, edges } = get()
-    set({ isExecuting: true, executionProgress: 0, nodePreviews: {} })
+    set({
+      isExecuting: true,
+      executionProgress: 0,
+      currentExecutingNode: null,
+      nodePreviews: {},
+      executionResults: null
+    })
 
     try {
       const response = await axios.post('/api/execute', {
@@ -116,13 +124,17 @@ export const useWorkflowStore = create((set, get) => ({
           const progressResponse = await axios.get('/api/execute/' + executionId + '/progress')
           const progress = progressResponse.data
 
-          set({ executionProgress: progress.percentage })
+          set({
+            executionProgress: progress.percentage,
+            currentExecutingNode: progress.current_node || null
+          })
 
           if (progress.status === 'completed') {
             clearInterval(pollProgress)
             set({
               isExecuting: false,
               executionProgress: 100,
+              currentExecutingNode: null,
               executionResults: progress.results,
               showResultsModal: true
             })
@@ -135,13 +147,14 @@ export const useWorkflowStore = create((set, get) => ({
             clearInterval(pollProgress)
             set({
               isExecuting: false,
+              currentExecutingNode: null,
               executionResults: { error: progress.error },
               showResultsModal: true
             })
           }
         } catch (error) {
           clearInterval(pollProgress)
-          set({ isExecuting: false })
+          set({ isExecuting: false, currentExecutingNode: null })
           console.error('Failed to fetch progress:', error)
         }
       }, 1000)
@@ -149,7 +162,10 @@ export const useWorkflowStore = create((set, get) => ({
     } catch (error) {
       set({ isExecuting: false })
       console.error('Failed to execute workflow:', error)
-      alert('Failed to start workflow execution')
+
+      // Check if we have structured error details from backend
+      const errorDetails = error.response?.data;
+      notifyError('Failed to start workflow execution', errorDetails);
     }
   },
 
@@ -176,7 +192,10 @@ export const useWorkflowStore = create((set, get) => ({
       })
     } catch (error) {
       console.error('Failed to browse path:', error)
-      alert('Failed to browse directory')
+
+      // Check if we have structured error details from backend
+      const errorDetails = error.response?.data;
+      notifyError('Failed to browse directory', errorDetails);
     }
   },
 

@@ -32,13 +32,16 @@ class NativeBridge:
         self._load_cpp_backend()
 
     def _load_rust_backend(self):
-        """Load Rust validator module with procedural generation"""
-        try:
-            import sys
-            # Add native_libs to path
-            native_libs = Path(__file__).parent.parent / "forge_validator" / "native_libs"
-            if native_libs.exists() and str(native_libs) not in sys.path:
+        """
+        Load Rust validator module with procedural generation.
 
+        Rust module should be properly installed via:
+            cd vaultmind_forge/native/rust/validator
+            maturin develop --release
+
+        This installs vmf_validator into Python environment - no path hacks needed.
+        """
+        try:
             import vmf_validator
             self.rust_module = vmf_validator
             self.rust_available = True

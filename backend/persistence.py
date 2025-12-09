@@ -8,14 +8,16 @@ from __future__ import annotations
 
 import sqlite3
 import json
-import logging
 from pathlib import Path
 from typing import Dict, List, Optional, Any
 from datetime import datetime
 from abc import ABC, abstractmethod
 from contextlib import contextmanager
 
-logger = logging.getLogger(__name__)
+# Import centralized logging
+from backend.logging_config import get_logger
+
+logger = get_logger("persistence")
 
 
 class PersistenceError(Exception):

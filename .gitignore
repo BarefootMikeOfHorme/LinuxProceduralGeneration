@@ -37,6 +37,7 @@ output/
 demo_output*/
 lineage/
 examples/test_output/
+logs/
 
 # Native builds
 vaultmind_forge/native/cpp/validator/build/

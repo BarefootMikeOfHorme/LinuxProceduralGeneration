@@ -5,67 +5,6 @@ Powered by Textual
 
 from textual.app import App, ComposeResult
 from textual.containers import Container, Grid, Horizontal, Vertical
-from textual.widgets import Header, Footer, Static, Button, DataTable, Log, TabbedContent, TabPane
-from textual.reactive import reactive
-from textual import events
-
-import psutil
-import time
-from datetime import datetime
-
-class SystemMonitor(Static):
-    """Widget to display system metrics"""
-    
-    cpu_usage = reactive(0.0)
-    memory_usage = reactive(0.0)
-    
-    def on_mount(self) -> None:
-        self.set_interval(1, self.update_metrics)
-        
-    def update_metrics(self) -> None:
-        self.cpu_usage = psutil.cpu_percent()
-        self.memory_usage = psutil.virtual_memory().percent
-        
-    def render(self) -> str:
-        # Create a visual bar for CPU
-        cpu_bar = "█" * int(self.cpu_usage / 5)
-        cpu_bar += "░" * (20 - int(self.cpu_usage / 5))
-        
-        # Create a visual bar for RAM
-        mem_bar = "█" * int(self.memory_usage / 5)
-        mem_bar += "░" * (20 - int(self.memory_usage / 5))
-        
-        return f"""
-[bold cyan]SYSTEM DIAGNOSTICS[/bold cyan]
-[bold]CPU:[/bold] [{self._get_color(self.cpu_usage)}]{cpu_bar}[/] {self.cpu_usage:>5.1f}%
-[bold]RAM:[/bold] [{self._get_color(self.memory_usage)}]{mem_bar}[/] {self.memory_usage:>5.1f}%
-[bold]GPU:[/bold] [yellow]N/A[/yellow] (Mock)
-        """
-
-    def _get_color(self, value):
-        if value < 50: return "green"
-        if value < 80: return "yellow"
-        return "red"
-
-class AgentStatus(Static):
-    """Widget to display agent status"""
-    
-    def render(self) -> str:
-        return """
-[bold cyan]AGENT NETWORK[/bold cyan]
-[green]●[/green] [bold]Maestro[/bold]           [dim]IDLE[/dim]
-[green]●[/green] [bold]Quality Guardian[/bold]  [green]WATCHING[/green]
-[dim]○[/dim] [bold]Resource Monitor[/bold]  [dim]SLEEPING[/dim]
-[dim]○[/dim] [bold]Prompt Refiner[/bold]    [dim]OFFLINE[/dim]
-        """
-
-"""
-VaultMind Forge TUI - Terminal User Interface
-Powered by Textual
-"""
-
-from textual.app import App, ComposeResult
-from textual.containers import Container, Grid, Horizontal, Vertical
 from textual.widgets import Header, Footer, Static, Button, DataTable, Log, TabbedContent, TabPane, Input
 from textual.reactive import reactive
 from textual import events
@@ -76,26 +15,26 @@ from datetime import datetime
 
 class SystemMonitor(Static):
     """Widget to display system metrics"""
-    
+
     cpu_usage = reactive(0.0)
     memory_usage = reactive(0.0)
-    
+
     def on_mount(self) -> None:
         self.set_interval(1, self.update_metrics)
-        
+
     def update_metrics(self) -> None:
         self.cpu_usage = psutil.cpu_percent()
         self.memory_usage = psutil.virtual_memory().percent
-        
+
     def render(self) -> str:
         # Create a visual bar for CPU
         cpu_bar = "█" * int(self.cpu_usage / 5)
         cpu_bar += "░" * (20 - int(self.cpu_usage / 5))
-        
+
         # Create a visual bar for RAM
         mem_bar = "█" * int(self.memory_usage / 5)
         mem_bar += "░" * (20 - int(self.memory_usage / 5))
-        
+
         return f"""
 [bold cyan]SYSTEM DIAGNOSTICS[/bold cyan]
 [bold]CPU:[/bold] [{self._get_color(self.cpu_usage)}]{cpu_bar}[/] {self.cpu_usage:>5.1f}%
@@ -110,7 +49,7 @@ class SystemMonitor(Static):
 
 class AgentStatus(Static):
     """Widget to display agent status"""
-    
+
     def render(self) -> str:
         return """
 [bold cyan]AGENT NETWORK[/bold cyan]
@@ -122,13 +61,13 @@ class AgentStatus(Static):
 
 class VaultMindApp(App):
     """The main TUI application"""
-    
+
     CSS = """
     Screen {
         layout: vertical;
         background: #1a1b26; /* Tokyo Night Background */
     }
-    
+
     /* Header Styling */
     Header {
         dock: top;
@@ -145,11 +84,11 @@ class VaultMindApp(App):
         color: #565f89;
         border-bottom: solid #16161e;
     }
-    
+
     Tab {
         padding: 1 2;
     }
-    
+
     Tab.-active {
         color: #bb9af7; /* Purple accent */
         border-bottom: solid #bb9af7;
@@ -209,7 +148,7 @@ class VaultMindApp(App):
         height: 14;
         margin: 1;
     }
-    
+
     SystemMonitor, AgentStatus {
         width: 50%;
         height: 100%;
@@ -218,7 +157,7 @@ class VaultMindApp(App):
         margin-right: 1;
         padding: 1;
     }
-    
+
     /* Terminal Styling */
     #terminal-container {
         height: 100%;
@@ -237,41 +176,41 @@ class VaultMindApp(App):
     #terminal-input {
         dock: bottom;
         height: 3;
-        border: top solid #565f89;
+        border-top: solid #565f89;
         background: #24283b;
         color: #c0caf5;
     }
     """
-    
+
     BINDINGS = [
         ("q", "quit", "Quit"),
         ("d", "toggle_dark", "Toggle Dark Mode"),
     ]
-    
+
     def compose(self) -> ComposeResult:
         yield Header(show_clock=True)
-        
+
         with TabbedContent():
             with TabPane("Welcome", id="welcome"):
                 with Vertical(id="welcome-container"):
                     yield Static(
                         """
- ██╗   ██╗ █████╗ ██╗   ██╗██╗  ████████╗███╗   ███╗██╗███╗   ██╗██████╗ 
+ ██╗   ██╗ █████╗ ██╗   ██╗██╗  ████████╗███╗   ███╗██╗███╗   ██╗██████╗
  ██║   ██║██╔══██╗██║   ██║██║  ╚══██╔══╝████╗ ████║██║████╗  ██║██╔══██╗
  ██║   ██║███████║██║   ██║██║     ██║   ██╔████╔██║██║██╔██╗ ██║██║  ██║
  ╚██╗ ██╔╝██╔══██║██║   ██║██║     ██║   ██║╚██╔╝██║██║██║╚██╗██║██║  ██║
   ╚████╔╝ ██║  ██║╚██████╔╝███████╗██║   ██║ ╚═╝ ██║██║██║ ╚████║██████╔╝
-   ╚═══╝  ╚═╝  ╚═╝ ╚═════╝ ╚══════╝╚═╝   ╚═╝     ╚═╝╚═╝╚═╝  ╚═══╝╚═════╝ 
+   ╚═══╝  ╚═╝  ╚═╝ ╚═════╝ ╚══════╝╚═╝   ╚═╝     ╚═╝╚═╝╚═╝  ╚═══╝╚═════╝
                         """,
                         id="logo"
                     )
                     yield Static("Welcome to VaultMind Forge Enterprise Edition", id="welcome-text")
-                    
+
                     with Horizontal(classes="button-row"):
                         yield Button("System Check", id="btn-sys-check", classes="action-btn")
                         yield Button("Active Agents", id="btn-agents", classes="action-btn")
                         yield Button("Update Models", id="btn-update", classes="action-btn")
-                        
+
                     yield Button("Quit", id="btn-quit", classes="quit-btn")
 
             with TabPane("Dashboard", id="dashboard"):
@@ -281,27 +220,27 @@ class VaultMindApp(App):
                     classes="dashboard-row"
                 )
                 yield Log(id="activity_log", highlight=True)
-                
+
             with TabPane("Processes", id="processes"):
                 yield DataTable()
-                
+
             with TabPane("Terminal", id="terminal"):
                 with Vertical(id="terminal-container"):
                     yield Log(id="terminal-log", highlight=False)
                     yield Input(placeholder="Enter command...", id="terminal-input")
-                
+
         yield Footer()
-        
+
     def on_mount(self) -> None:
         self.title = "VAULTMIND FORGE"
         self.sub_title = "ENTERPRISE ORCHESTRATION"
-        
+
         # Setup Log
         try:
             log = self.query_one("#activity_log", Log)
             log.write_line(f"[{datetime.now().time()}] [bold green]SYSTEM INITIALIZED[/]")
         except: pass
-        
+
         # Setup Terminal
         try:
             term_log = self.query_one("#terminal-log", Log)
@@ -309,7 +248,7 @@ class VaultMindApp(App):
             term_log.write_line("[#565f89]Connected to local daemon.[/]")
             term_log.write_line("Type 'help' for available commands.\n")
         except: pass
-        
+
         # Setup Process Table
         try:
             table = self.query_one(DataTable)
@@ -352,13 +291,13 @@ class VaultMindApp(App):
         if event.input.id == "terminal-input":
             command = event.value.strip()
             term_log = self.query_one("#terminal-log", Log)
-            
+
             # Echo command
             term_log.write_line(f"[bold #bb9af7]➜[/] {command}")
-            
+
             # Clear input
             event.input.value = ""
-            
+
             # Handle commands
             if command == "help":
                 term_log.write_line("[#7aa2f7]Available commands:[/]")

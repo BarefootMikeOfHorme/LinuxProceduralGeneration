@@ -1,14 +1,15 @@
-import { Play, Save, FolderOpen, Layers, Settings, HelpCircle } from 'lucide-react'
+import { Play, Save, FolderOpen, Layers, Settings, HelpCircle, Loader2 } from 'lucide-react'
 import { useWorkflowStore } from '../store/workflowStore'
+import { notifySuccess, notifyInfo } from '../utils/notifications'
 
 export default function Toolbar({ showPalette, setShowPalette, showProperties, setShowProperties }) {
-  const { saveWorkflow, executeWorkflow, isExecuting } = useWorkflowStore()
+  const { saveWorkflow, executeWorkflow, isExecuting, executionProgress } = useWorkflowStore()
 
   const handleSave = async () => {
     const name = prompt('Workflow name:', 'Untitled Workflow')
     if (name) {
       await saveWorkflow(name, 'Created with VaultMind Forge')
-      alert('Workflow saved!')
+      notifySuccess(`Workflow "${name}" saved successfully!`)
     }
   }
 
@@ -54,20 +55,35 @@ export default function Toolbar({ showPalette, setShowPalette, showProperties, s
           onClick={handleExecute}
           disabled={isExecuting}
           className={
-            'px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ' +
+            'px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 relative overflow-hidden ' +
             (isExecuting
-              ? 'bg-border text-textMuted cursor-not-allowed'
+              ? 'bg-blue-600 text-white cursor-not-allowed'
               : 'bg-accent hover:bg-accent/80 text-white')
           }
         >
-          <Play className="w-4 h-4" />
-          {isExecuting ? 'Executing...' : 'Execute (F5)'}
+          {/* Progress background */}
+          {isExecuting && (
+            <div
+              className="absolute inset-0 bg-blue-700 transition-all duration-300"
+              style={{ width: `${executionProgress}%` }}
+            />
+          )}
+
+          {/* Content */}
+          <div className="relative flex items-center gap-2">
+            {isExecuting ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Play className="w-4 h-4" />
+            )}
+            {isExecuting ? `Executing ${Math.round(executionProgress)}%` : 'Execute (F5)'}
+          </div>
         </button>
 
         <div className="w-px h-8 bg-border mx-2" />
 
         <button
-          onClick={() => alert('VaultMind Forge v1.0\n\nNode-based AI content generation\n\nPress F1 for keyboard shortcuts')}
+          onClick={() => notifyInfo('VaultMind Forge v1.0 - Node-based AI content generation. Press F1 for keyboard shortcuts.', { duration: 5000 })}
           className="p-2 bg-background hover:bg-border rounded-lg transition-colors"
         >
           <HelpCircle className="w-4 h-4" />
