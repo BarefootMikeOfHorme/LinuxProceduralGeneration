@@ -1,0 +1,58 @@
+post_install() {
+    echo "=========================================="
+    echo "VaultMind Forge - Post-Installation Setup"
+    echo "=========================================="
+    echo ""
+    echo "1. Create configuration file:"
+    echo "   sudo cp /opt/vaultmind-forge/.env.example /opt/vaultmind-forge/.env"
+    echo "   sudo nano /opt/vaultmind-forge/.env"
+    echo ""
+    echo "2. Generate API key:"
+    echo "   python -c \"import secrets; print(secrets.token_urlsafe(32))\""
+    echo ""
+    echo "3. Edit /opt/vaultmind-forge/.env and set:"
+    echo "   VAULTMIND_AUTH_ENABLED=true"
+    echo "   VAULTMIND_API_KEY=<your-generated-key>"
+    echo ""
+    echo "4. Set proper ownership:"
+    echo "   sudo chown -R http:http /var/lib/vaultmind-forge"
+    echo "   sudo chown -R http:http /var/log/vaultmind-forge"
+    echo ""
+    echo "5. Enable and start the service:"
+    echo "   sudo systemctl daemon-reload"
+    echo "   sudo systemctl enable vaultmind-forge"
+    echo "   sudo systemctl start vaultmind-forge"
+    echo ""
+    echo "6. Check status:"
+    echo "   sudo systemctl status vaultmind-forge"
+    echo "   curl http://localhost:8000/api/health"
+    echo ""
+    echo "Documentation: /usr/share/doc/vaultmind-forge/"
+    echo "License: /usr/share/licenses/vaultmind-forge/LICENSE.md"
+    echo "=========================================="
+}
+
+post_upgrade() {
+    echo "VaultMind Forge has been upgraded to version $1"
+    echo "Restarting service..."
+    systemctl is-active --quiet vaultmind-forge && systemctl restart vaultmind-forge
+    echo "Done. Check status: systemctl status vaultmind-forge"
+}
+
+pre_remove() {
+    echo "Stopping VaultMind Forge service..."
+    systemctl is-active --quiet vaultmind-forge && systemctl stop vaultmind-forge
+    systemctl is-enabled --quiet vaultmind-forge && systemctl disable vaultmind-forge
+}
+
+post_remove() {
+    echo "VaultMind Forge has been removed."
+    echo ""
+    echo "User data is preserved in:"
+    echo "  - /var/lib/vaultmind-forge/"
+    echo "  - /var/log/vaultmind-forge/"
+    echo ""
+    echo "To completely remove all data:"
+    echo "  sudo rm -rf /var/lib/vaultmind-forge"
+    echo "  sudo rm -rf /var/log/vaultmind-forge"
+}

@@ -1,0 +1,31 @@
+[Unit]
+Description=VaultMind Forge API Server
+Documentation=https://github.com/BarefootMikeOfHorme/LinuxProceduralGeneration
+After=network.target
+
+[Service]
+Type=simple
+User=http
+Group=http
+WorkingDirectory=/opt/vaultmind-forge
+Environment="PATH=/opt/vaultmind-forge/.venv312/bin:/usr/bin"
+EnvironmentFile=/opt/vaultmind-forge/.env
+ExecStart=/opt/vaultmind-forge/.venv312/bin/uvicorn backend.api:app --host 0.0.0.0 --port 8000
+Restart=always
+RestartSec=10
+StandardOutput=append:/var/log/vaultmind-forge/service.log
+StandardError=append:/var/log/vaultmind-forge/service-error.log
+
+# Security hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/vaultmind-forge /var/log/vaultmind-forge /opt/vaultmind-forge/data /opt/vaultmind-forge/logs /opt/vaultmind-forge/output
+
+# Resource limits
+LimitNOFILE=65536
+LimitNPROC=4096
+
+[Install]
+WantedBy=multi-user.target

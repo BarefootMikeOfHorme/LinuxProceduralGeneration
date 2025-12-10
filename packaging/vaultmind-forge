@@ -1,0 +1,19 @@
+#!/bin/bash
+# VaultMind Forge CLI Wrapper
+
+INSTALL_DIR="/opt/vaultmind-forge"
+VENV_PYTHON="${INSTALL_DIR}/.venv312/bin/python"
+CLI_MODULE="vaultmind_forge.cli.cli_main"
+
+if [ ! -d "$INSTALL_DIR" ]; then
+    echo "Error: VaultMind Forge is not installed in $INSTALL_DIR"
+    exit 1
+fi
+
+if [ ! -f "$VENV_PYTHON" ]; then
+    echo "Error: Python virtual environment not found"
+    exit 1
+fi
+
+cd "$INSTALL_DIR" || exit 1
+exec "$VENV_PYTHON" -m "$CLI_MODULE" "$@"

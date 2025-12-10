@@ -1,229 +1,397 @@
 # 🧬 VaultMind Forge
 
-[![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](./scripts/build_native.py)
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/)
-[![Rust](https://img.shields.io/badge/rust-1.70%2B-orange)](https://www.rust-lang.org/)
-[![C++](https://img.shields.io/badge/c%2B%2B-17-red)](https://isocpp.org/)
-[![License](https://img.shields.io/badge/license-MIT-green)](./LICENSE.md)
+[![Node.js](https://img.shields.io/badge/node.js-18%2B-green)](https://nodejs.org/)
+[![Docker](https://img.shields.io/badge/docker-ready-blue)](https://www.docker.com/)
+[![License](https://img.shields.io/badge/license-proprietary-red)](./LICENSE.md)
 
-**Enterprise AI-Powered Asset Generation & Processing Pipeline**
+**Production-Ready AI Content Generation with Visual Node-Based Workflows**
 
-VaultMind Forge is a production-ready, multi-language asset generation framework designed for high-fidelity game development, 3D content creation, and procedural workflows. It combines the ease of Python orchestration with the raw performance of Rust and C++ native modules.
+VaultMind Forge is an enterprise-grade platform for AI-powered procedural content generation, featuring a visual node-based workflow editor, comprehensive API, and multiple deployment options.
 
-> **🚀 New in v2.0:** Unified Native Build System, Maestro Agent Orchestrator, and Dynamic Resource Management.
-
----
-
-## 📖 Table of Contents
-- [Overview](#-overview)
-- [Key Features](#-key-features)
-- [Architecture](#-architecture)
-- [Getting Started](#-getting-started)
-- [Agent System](#-agent-system)
-- [Usage](#-usage)
-- [Development](#-development)
-- [Contributing](#-contributing)
+![VaultMind Forge Screenshot](docs/screenshot.png)
 
 ---
 
-## 🔭 Overview
+## 🚀 Features
 
-VaultMind Forge is not just a tool; it's a complete ecosystem for asset lifecycle management. From ingestion to generation, validation, and export, every step is tracked with cryptographic lineage fidelity.
+### 🎨 Visual Workflow Editor
+- **Node-Based Interface**: Drag-and-drop workflow creation with ReactFlow
+- **Real-Time Preview**: See your workflow execute with live progress indicators
+- **Modular Design**: Extensible node system for custom operations
+- **Undo/Redo**: Full workflow history with keyboard shortcuts
 
-**System Scale:**
-*   **138+ Processing Modules** across Python, Rust, and C++.
-*   **5 Autonomous AI Agents** for quality control and optimization.
-*   **Maestro Orchestrator** for high-level task planning.
-*   **Multi-Interface:** Web UI (React), CLI, and REST API.
+### 🤖 AI-Powered Generation
+- **Stable Diffusion XL**: High-fidelity image generation
+- **Text-to-Image**: Create visual assets from natural language descriptions
+- **Prompt Engineering**: Built-in prompt templates and refinement
+- **Batch Processing**: Generate multiple variations efficiently
+
+### 🔒 Enterprise Security
+- **API Key Authentication**: Secure access control with X-API-Key headers
+- **Rate Limiting**: Protect against DoS attacks with configurable limits
+- **Path Traversal Protection**: Dual-validation filesystem security
+- **Audit Logging**: Complete request/response logging with rotation
+
+### ⚡ Production Ready
+- **Docker Deployment**: Multi-stage builds with health checks
+- **Systemd Integration**: Native Linux service management
+- **Windows Installer**: One-click installation with Inno Setup
+- **Comprehensive Monitoring**: Health endpoints, structured logging, error tracking
+
+### 🎯 Developer Experience
+- **FastAPI Backend**: Modern async Python web framework
+- **React Frontend**: TypeScript-based UI with Vite build tooling
+- **REST API**: Comprehensive API with OpenAPI/Swagger documentation
+- **CLI Interface**: Rich terminal UI with Typer and textual
 
 ---
 
-## ✨ Key Features
+## 📦 Installation
 
-### 🎨 Multi-Pass AI Generation
-*   **Stable Diffusion XL (SDXL)** integration for high-fidelity textures and concepts.
-*   **Video Generation** with frame stitching and transition effects.
-*   **Procedural Generation** via Rust-powered noise algorithms.
+### Quick Start with Docker (Recommended)
 
-### 🤖 Autonomous Agent System
-*   **Maestro Agent**: A master planner that decomposes complex requests into executable sub-tasks.
-*   **Quality Guardian**: Automatically monitors asset quality and rejects substandard outputs.
-*   **Resource Monitor**: Deterministic agent ensuring system stability under load.
-*   **Dynamic Management**: Intelligent loading/unloading of agents to minimize memory footprint.
+```bash
+# 1. Clone repository
+git clone https://github.com/BarefootMikeOfHorme/LinuxProceduralGeneration.git
+cd LinuxProceduralGeneration
 
-### ⚡ High-Performance Native Core
-*   **Rust Validators**: 10-50x faster image analysis (color fidelity, contrast, sharpness) via `pyo3`.
-*   **C++ SIMD Modules**: AVX2-optimized color space conversions and heavy math operations.
-*   **Unified Build**: Single-script compilation for all native components.
+# 2. Configure environment
+cp .env.example .env
 
-### 🛡️ Lineage & Integrity
-*   **Genealogy Tracking**: Every asset knows its parents.
-*   **SHA-256 Checksums**: Guarantee asset integrity at every stage.
-*   **VAF Format**: Custom VaultMind Asset Format for optimized storage and streaming.
+# 3. Generate API key
+python -c "import secrets; print(secrets.token_urlsafe(32))"
+
+# 4. Edit .env and set VAULTMIND_API_KEY
+
+# 5. Start with Docker Compose
+docker-compose up -d
+
+# 6. Access the application
+# Web UI: http://localhost:8000
+# API docs: http://localhost:8000/docs
+```
+
+### Arch Linux (AUR)
+
+```bash
+# Install from AUR
+yay -S vaultmind-forge
+
+# Or build manually
+git clone https://github.com/BarefootMikeOfHorme/LinuxProceduralGeneration.git
+cd LinuxProceduralGeneration
+makepkg -si
+
+# Start service
+sudo systemctl enable --now vaultmind-forge
+```
+
+### Windows Installer
+
+1. Download `VaultMindForge-Setup.exe` from [Releases](https://github.com/BarefootMikeOfHorme/LinuxProceduralGeneration/releases)
+2. Run the installer (will install Python 3.12 and Node.js if needed)
+3. Follow the setup wizard
+4. Configure your API key in the `.env` file
+5. Service starts automatically
+
+### Manual Installation
+
+See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for detailed manual installation instructions.
+
+---
+
+## 🎮 Usage
+
+### Web UI
+
+The visual node editor is the primary interface:
+
+1. **Open your browser** to `http://localhost:8000`
+2. **Drag nodes** from the palette onto the canvas
+3. **Connect nodes** by dragging from output to input handles
+4. **Configure properties** in the right panel
+5. **Execute workflow** with the Execute button (or F5)
+6. **Monitor progress** in the execution panel
+
+**Keyboard Shortcuts:**
+- `F5` - Execute workflow
+- `Ctrl/Cmd + S` - Save workflow
+- `Ctrl/Cmd + Z` - Undo
+- `Ctrl/Cmd + Y` - Redo
+- `Delete` - Delete selected nodes
+- `F1` - Show help
+
+### API
+
+```python
+import requests
+
+headers = {"X-API-Key": "your-api-key-here"}
+
+# Execute a workflow
+response = requests.post(
+    "http://localhost:8000/api/execute",
+    headers=headers,
+    json={
+        "nodes": [...],
+        "edges": [...]
+    }
+)
+
+# Check health
+health = requests.get("http://localhost:8000/api/health").json()
+print(health)
+```
+
+### CLI
+
+```bash
+# Start the TUI interface
+vaultmind-forge tui
+
+# Run a workflow from file
+vaultmind-forge run workflow.json
+
+# Validate configuration
+vaultmind-forge validate
+```
 
 ---
 
 ## 🏗️ Architecture
 
-VaultMind Forge uses a hybrid architecture to balance flexibility and performance.
+VaultMind Forge uses a modern web architecture:
 
-```mermaid
-graph TD
-    User[User Interfaces] -->|CLI/API/Web| Maestro[Maestro Agent]
-    Maestro -->|Plan| AgentMgr[Agent Manager]
-    
-    subgraph "Orchestration Layer (Python)"
-        AgentMgr -->|Load/Unload| Agents[Specialized Agents]
-        Agents -->|Execute| Executor[Process Orchestrator]
-    end
-    
-    subgraph "Native Core"
-        Executor -->|PyO3| Rust[Rust Modules]
-        Executor -->|ctypes| CPP[C++ Modules]
-    end
-    
-    subgraph "Data Layer"
-        Rust --> Assets[Asset Storage]
-        CPP --> Assets
-    end
+```
+┌─────────────────────────────────────────────────┐
+│           Frontend (React + Vite)               │
+│  ┌──────────────────────────────────────────┐   │
+│  │ ReactFlow Canvas │ Node Palette │ Props │   │
+│  │ Execution Panel  │ Toast Notifications  │   │
+│  └──────────────────────────────────────────┘   │
+└─────────────────┬───────────────────────────────┘
+                  │ REST API
+┌─────────────────▼───────────────────────────────┐
+│          Backend (FastAPI + Uvicorn)            │
+│  ┌──────────────────────────────────────────┐   │
+│  │ API Endpoints │ Rate Limiter │ Auth      │   │
+│  │ Error Handler │ Logging │ Validators    │   │
+│  └──────────────────────────────────────────┘   │
+└─────────────────┬───────────────────────────────┘
+                  │
+┌─────────────────▼───────────────────────────────┐
+│       Processing Layer (Python + PyTorch)       │
+│  ┌──────────────────────────────────────────┐   │
+│  │ Workflow Executor │ Node Processors      │   │
+│  │ SDXL Pipeline │ File Operations          │   │
+│  └──────────────────────────────────────────┘   │
+└─────────────────┬───────────────────────────────┘
+                  │
+┌─────────────────▼───────────────────────────────┐
+│         Data Layer (SQLite + Filesystem)        │
+│  ┌──────────────────────────────────────────┐   │
+│  │ Workflows │ Assets │ Logs │ Checkpoints  │   │
+│  └──────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 🚀 Getting Started
+## 🛠️ Technology Stack
+
+### Backend
+- **FastAPI** - Modern async web framework
+- **Uvicorn** - ASGI server
+- **Pydantic** - Data validation
+- **SQLAlchemy** - Database ORM
+- **slowapi** - Rate limiting
+- **PyTorch** - Deep learning framework
+- **Transformers** - Hugging Face model library
+- **Diffusers** - Stable Diffusion pipeline
+
+### Frontend
+- **React 18** - UI framework
+- **TypeScript** - Type-safe JavaScript
+- **Vite** - Build tooling
+- **ReactFlow** - Visual node editor
+- **Zustand** - State management
+- **Framer Motion** - Animations
+- **react-hot-toast** - Notifications
+- **Tailwind CSS** - Styling
+
+### Infrastructure
+- **Docker** - Containerization
+- **Docker Compose** - Multi-container orchestration
+- **Systemd** - Linux service management
+- **NSSM** - Windows service wrapper
+- **Nginx** - Reverse proxy (optional)
+- **Redis** - Distributed rate limiting (optional)
+
+---
+
+## 📚 Documentation
+
+- **[Deployment Guide](docs/DEPLOYMENT.md)** - Installation, configuration, production setup
+- **[API Reference](http://localhost:8000/docs)** - Interactive OpenAPI documentation
+- **[Package Building](packaging/README.md)** - Creating Arch/Windows installers
+
+---
+
+## 🔧 Configuration
+
+VaultMind Forge is configured via environment variables (`.env` file):
+
+### Required
+```env
+VAULTMIND_API_KEY=your-generated-api-key-here
+```
+
+### Security
+```env
+VAULTMIND_AUTH_ENABLED=true  # Enable API authentication (default: true)
+```
+
+### Logging
+```env
+VAULTMIND_LOG_LEVEL=INFO  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+```
+
+### Paths
+```env
+VAULTMIND_MODELS_DIR=./models
+VAULTMIND_OUTPUT_DIR=./output
+VAULTMIND_CHECKPOINTS_DIR=./checkpoints
+```
+
+### Rate Limiting
+```env
+RATE_LIMIT_STORAGE=memory://  # or redis://localhost:6379
+```
+
+See `.env.example` for all available options.
+
+---
+
+## 🚦 Development
 
 ### Prerequisites
-*   **Python 3.10+**
-*   **Rust** (via `rustup`)
-*   **C++ Compiler** (`g++` or MSVC `cl.exe`)
-*   **Node.js 18+** (for Web UI)
+- Python 3.10+
+- Node.js 18+
+- 8GB RAM minimum (16GB recommended for AI models)
 
-### Installation
-
-1.  **Clone the repository:**
-    ```bash
-    git clone https://github.com/yourusername/vaultmind-forge.git
-    cd vaultmind-forge
-    ```
-
-2.  **Install Python dependencies:**
-    ```bash
-    pip install -r requirements.txt
-    ```
-
-3.  **Build Native Components (Crucial):**
-    We provide a unified build script to compile both Rust and C++ modules.
-    ```bash
-    python scripts/build_native.py
-    ```
-    *This will compile the Rust `vmf_validator` extension and the C++ `validator` shared library.*
-
-4.  **Install Web UI dependencies (Optional):**
-    ```bash
-    cd web_ui
-    npm install
-    ```
-
----
-
-## 🧠 Agent System
-
-VaultMind Forge employs a sophisticated agentic architecture.
-
-### The Maestro
-The **Maestro Agent** (`forge_agents/maestro_agent.py`) is the brain of the operation. It uses a high-level LLM (via `UnifiedAgentBackend`) to understand natural language requests and create execution plans.
-
-### Programmatic Agents
-For deterministic tasks, we use **Programmatic Agents** (`forge_agents/programmatic_agent.py`). These are code-based agents that execute fast, reliable logic without AI inference latency.
-*   **ResourceMonitor**: Checks CPU/RAM/GPU usage.
-*   **FileManager**: Handles asset organization.
-
-### Dynamic Resource Management
-The **Agent Manager** (`forge_agents/agent_manager.py`) ensures your system doesn't run out of memory. It uses an LRU (Least Recently Used) caching strategy to keep only active agents in memory, dynamically loading and unloading them as needed.
-
----
-
-## 💻 Usage
-
-### CLI
-The Command Line Interface is the fastest way to interact with the Forge.
+### Setup
 
 ```bash
-# Run a validation check
-vaultmind validate ./my_asset.png
+# 1. Clone repository
+git clone https://github.com/BarefootMikeOfHorme/LinuxProceduralGeneration.git
+cd LinuxProceduralGeneration
 
-# Ask the Maestro to perform a complex task
-vaultmind run "Check system resources and then generate a sci-fi crate texture"
+# 2. Create Python virtual environment
+python -m venv .venv312
+source .venv312/bin/activate  # Windows: .venv312\Scripts\activate
+
+# 3. Install Python dependencies
+pip install -r requirements.txt
+
+# 4. Set up frontend
+cd web_ui
+npm install
+npm run dev  # Runs on http://localhost:5173
+
+# 5. In another terminal, start backend
+cd backend
+uvicorn api:app --reload --port 8000
 ```
-
-### Web UI
-Launch the visual node editor for a drag-and-drop workflow experience.
-
-```bash
-# Windows
-START_WEB_UI.bat
-
-# Manual
-cd backend && python api.py
-cd web_ui && npm run dev
-```
-Access at `http://localhost:3000`.
-
-### Python API
-Integrate Forge directly into your pipeline.
-
-```python
-from vaultmind_forge.forge_validator import get_validator
-from pathlib import Path
-
-# Use the high-performance Rust backend
-validator = get_validator(backend_name="rust")
-result = validator.validate(Path("./texture.png"))
-
-print(f"Sharpness: {result['sharpness']}")
-```
-
----
-
-## 🛠️ Development
 
 ### Running Tests
-We use `pytest` for comprehensive testing.
 
 ```bash
-# Run all tests
+# Python tests
 pytest
 
-# Run specific native integration tests
-python tests/test_native_integration.py
+# Frontend tests
+cd web_ui
+npm test
 
-# Run agent system tests
-python tests/test_agent_manager.py
+# E2E tests
+npm run test:e2e
 ```
-
-### Adding a New Module
-1.  Create your module in `vaultmind_forge/`.
-2.  If it requires native code, add it to `native/rust` or `native/cpp`.
-3.  Update `scripts/build_native.py` to include your new native component.
-4.  Register it with the `AgentManager` if applicable.
 
 ---
 
-## 🤝 Contributing
+## 🎯 Roadmap
 
-We welcome contributions! Please see [CONTRIBUTING.md](./CONTRIBUTING.md) for details.
-
-1.  **Fork** the repo.
-2.  **Create** a feature branch.
-3.  **Commit** your changes (ensure lineage fidelity!).
-4.  **Push** and create a **Pull Request**.
+- [ ] **Plugin System**: Third-party node development
+- [ ] **Cloud Deployment**: AWS/GCP/Azure templates
+- [ ] **Multi-Model Support**: DALL-E 3, Midjourney integration
+- [ ] **Collaboration**: Real-time multi-user workflows
+- [ ] **Version Control**: Git-like workflow versioning
+- [ ] **Mobile App**: iOS/Android remote monitoring
 
 ---
 
 ## 📜 License
 
-This project is licensed under the MIT License - see the [LICENSE.md](./LICENSE.md) file for details.
+VaultMind Forge is licensed under the **Michael Sovereign License v1.0**.
+
+**TL;DR**: This is proprietary software. You may:
+- ✅ View, evaluate, and test the software
+- ✅ Use for personal, non-commercial purposes during beta
+- ❌ Redistribute, modify, or use commercially without permission
+
+See [LICENSE.md](LICENSE.md) for full terms.
+
+For commercial licensing inquiries, contact: barefoot.mike.of.horme@gmail.com
 
 ---
 
-**VaultMind Forge** — *Forging the future of digital assets.*
+## 🙏 Credits
+
+**Created by**: Michael Shortland ([@BarefootMikeOfHorme](https://github.com/BarefootMikeOfHorme))
+
+**Development Assistance**:
+- Claude (Anthropic) - Architecture design, security implementation, deployment infrastructure
+- Open source community - Libraries and frameworks that made this possible
+
+**Special Thanks**:
+- Hugging Face for Transformers and Diffusers
+- FastAPI team for the excellent web framework
+- ReactFlow team for the visual editor foundation
+- The entire Python and JavaScript ecosystems
+
+---
+
+## 🤝 Contributing
+
+While VaultMind Forge is proprietary software, we welcome:
+- **Bug Reports**: [Open an issue](https://github.com/BarefootMikeOfHorme/LinuxProceduralGeneration/issues)
+- **Feature Requests**: Suggest improvements
+- **Documentation**: Help improve docs and examples
+
+For commercial partnerships or contributions, please contact the author.
+
+---
+
+## 📞 Support
+
+- **Documentation**: [/docs](./docs/)
+- **Issues**: [GitHub Issues](https://github.com/BarefootMikeOfHorme/LinuxProceduralGeneration/issues)
+- **Email**: barefoot.mike.of.horme@gmail.com
+
+---
+
+## 🏆 Acknowledgments
+
+This project builds on the shoulders of giants:
+- **PyTorch** - Deep learning infrastructure
+- **Stability AI** - Stable Diffusion models
+- **Anthropic** - Claude AI assistance
+- **Vercel** - Vite build system
+- **Meta** - React framework
+
+---
+
+**VaultMind Forge** — *Forging the future of AI content creation.*
+
+[![Star this repo](https://img.shields.io/github/stars/BarefootMikeOfHorme/LinuxProceduralGeneration?style=social)](https://github.com/BarefootMikeOfHorme/LinuxProceduralGeneration)
