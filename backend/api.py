@@ -47,6 +47,10 @@ from backend.analytics import (
 )
 from backend.telemetry import get_telemetry_service, TELEMETRY_ENABLED
 
+# Import security middleware
+from backend.security_middleware import configure_security_middleware
+import os
+
 # Setup logger for API
 logger = setup_logging("api")
 
@@ -56,13 +60,23 @@ app = FastAPI(title="VaultMind Forge API", version="1.0.0")
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, limiter._rate_limit_exceeded_handler)
 
+# Configure CORS (environment-based for security)
+cors_origins = os.getenv(
+    "VAULTMIND_CORS_ORIGINS",
+    "http://localhost:3000,http://localhost:5173,http://localhost:8000"
+).split(",")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:3001", "http://localhost:3002", "http://localhost:3003"],
+    allow_origins=cors_origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization", "X-API-Key"],
+    max_age=600,  # Cache preflight requests for 10 minutes
 )
+
+# Configure enterprise security middleware
+configure_security_middleware(app)
 
 # Initialize persistence (replaces in-memory dicts)
 persistence = get_persistence()
@@ -73,6 +87,9 @@ logger.info("VaultMind Forge API Starting")
 logger.info(f"Authentication: {'ENABLED' if verify_api_key else 'DISABLED'}")
 logger.info(f"Rate Limiting: ENABLED")
 logger.info(f"Database: {persistence.db_path}")
+logger.info(f"CORS Origins: {', '.join(cors_origins)}")
+logger.info(f"Analytics: {'ENABLED' if ANALYTICS_ENABLED else 'DISABLED'}")
+logger.info(f"Telemetry: {'ENABLED' if TELEMETRY_ENABLED else 'DISABLED'}")
 logger.info("=" * 60)
 
 
