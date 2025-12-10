@@ -1,0 +1,94 @@
+# Git and version control
+.git
+.gitignore
+.gitattributes
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+.venv/
+.venv312/
+venv/
+ENV/
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+
+# IDE
+.vscode/
+.idea/
+.vs/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+logs/
+*.log
+
+# Test and development
+tests/
+test_*/
+Testing/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Documentation
+docs/
+*.md
+!README.md
+!LICENSE.md
+
+# Build artifacts
+target/
+output/
+outputs/
+demo_output*/
+
+# Archive and temp files
+archive/
+*.tmp
+*.swp
+
+# Development scripts
+scripts/testing/
+scripts/utilities/
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Models (too large, should be mounted or downloaded)
+models/
+checkpoints/
+*.bin
+*.safetensors
+*.gguf
+*.parquet
+
+# Large data files
+data/
+uploads/

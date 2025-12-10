@@ -1,0 +1,81 @@
+# VaultMind Forge - Docker Compose Configuration
+# Usage: docker-compose up -d
+
+version: '3.8'
+
+services:
+  vaultmind-forge:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: vaultmind-forge
+    restart: unless-stopped
+
+    # Port mapping
+    ports:
+      - "${PORT:-8000}:8000"
+
+    # Environment variables (override in .env file)
+    environment:
+      # Authentication (default: enabled for security)
+      - VAULTMIND_AUTH_ENABLED=${VAULTMIND_AUTH_ENABLED:-true}
+      - VAULTMIND_API_KEY=${VAULTMIND_API_KEY}
+
+      # Logging
+      - VAULTMIND_LOG_LEVEL=${VAULTMIND_LOG_LEVEL:-INFO}
+
+      # Paths
+      - VAULTMIND_MODELS_DIR=/app/models
+      - VAULTMIND_OUTPUT_DIR=/app/output
+      - VAULTMIND_CHECKPOINTS_DIR=/app/checkpoints
+
+      # Rate limiting storage (use Redis for production)
+      - RATE_LIMIT_STORAGE=${RATE_LIMIT_STORAGE:-memory://}
+
+    # Volumes for persistent data
+    volumes:
+      # Persistent storage
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./output:/app/output
+      - ./models:/app/models
+      - ./checkpoints:/app/checkpoints
+
+      # Optional: Mount .env file
+      - ./.env:/app/.env:ro
+
+    # Health check
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+    # Resource limits (adjust based on your hardware)
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 8G
+        reservations:
+          cpus: '2'
+          memory: 4G
+
+  # Optional: Redis for distributed rate limiting (uncomment for production)
+  # redis:
+  #   image: redis:7-alpine
+  #   container_name: vaultmind-redis
+  #   restart: unless-stopped
+  #   command: redis-server --appendonly yes
+  #   volumes:
+  #     - redis-data:/data
+  #   ports:
+  #     - "6379:6379"
+
+# volumes:
+#   redis-data:
+
+networks:
+  default:
+    name: vaultmind-network
