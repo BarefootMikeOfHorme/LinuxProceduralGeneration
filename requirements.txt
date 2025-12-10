@@ -12,6 +12,7 @@ wrapt==2.0.1
 python-dotenv==1.2.1
 pydantic==2.12.4
 pydantic_core==2.41.5
+aiohttp==3.10.11
 
 # CLI & TUI
 typer==0.20.0

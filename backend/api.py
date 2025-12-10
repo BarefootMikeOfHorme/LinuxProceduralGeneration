@@ -35,6 +35,18 @@ from backend.error_handling import (
     internal_error
 )
 
+# Import analytics and telemetry
+from backend.analytics import (
+    track_workflow_started,
+    track_workflow_completed,
+    track_workflow_failed,
+    track_node_executed,
+    track_node_failed,
+    get_analytics_store,
+    ANALYTICS_ENABLED
+)
+from backend.telemetry import get_telemetry_service, TELEMETRY_ENABLED
+
 # Setup logger for API
 logger = setup_logging("api")
 
@@ -145,6 +157,13 @@ async def execute_workflow(request: Request, workflow: WorkflowRequest, backgrou
     }
     await persistence.executions.save(execution_id, execution_data)
 
+    # Track workflow started
+    track_workflow_started(
+        workflow_id=execution_id,
+        node_count=len(workflow.nodes),
+        session_id=request.client.host if request.client else None
+    )
+
     background_tasks.add_task(run_workflow_execution, execution_id, workflow)
     return {"execution_id": execution_id}
 
@@ -234,6 +253,9 @@ def generate_previews(node_outputs: dict) -> dict:
 
 async def run_workflow_execution(execution_id: str, workflow: WorkflowRequest):
     """Execute workflow with NEW type-safe execution engine"""
+    import time
+    start_time = time.time()
+
     # Helper to update execution state
     async def update_execution(updates: dict):
         execution_data = await persistence.executions.load(execution_id)
@@ -272,6 +294,31 @@ async def run_workflow_execution(execution_id: str, workflow: WorkflowRequest):
         previews = generate_previews(node_outputs)
         logger.debug(f"Generated previews for {len(previews)} nodes")
 
+        # Calculate duration and track success
+        duration_ms = (time.time() - start_time) * 1000
+        track_workflow_completed(execution_id, duration_ms)
+
+        # Track individual node executions
+        for node in workflow.nodes:
+            track_node_executed(
+                node_id=node.id,
+                node_type=node.type,
+                duration_ms=0,  # Individual node timing would require engine modification
+                workflow_id=execution_id
+            )
+
+        # Optional: Send telemetry (async, non-blocking)
+        if TELEMETRY_ENABLED:
+            import asyncio
+            telemetry = get_telemetry_service()
+            asyncio.create_task(
+                telemetry.track_workflow_execution(
+                    node_count=len(workflow.nodes),
+                    duration_ms=duration_ms,
+                    success=True
+                )
+            )
+
         await update_execution({
             "status": "completed",
             "percentage": 100,
@@ -287,6 +334,10 @@ async def run_workflow_execution(execution_id: str, workflow: WorkflowRequest):
     except ValidationError as e:
         logger.error(f"Workflow validation failed: {e}")
         error_detail = workflow_validation_error(str(e)).to_dict()
+
+        # Track failure
+        track_workflow_failed(execution_id, "WORKFLOW_VALIDATION_ERROR", str(e))
+
         await update_execution({
             "status": "failed",
             "error": error_detail
@@ -295,6 +346,10 @@ async def run_workflow_execution(execution_id: str, workflow: WorkflowRequest):
     except ExecutionError as e:
         logger.error(f"Workflow execution failed: {e}", exc_info=True)
         error_detail = workflow_execution_error(str(e)).to_dict()
+
+        # Track failure
+        track_workflow_failed(execution_id, "WORKFLOW_EXECUTION_ERROR", str(e))
+
         await update_execution({
             "status": "failed",
             "error": error_detail
@@ -303,6 +358,10 @@ async def run_workflow_execution(execution_id: str, workflow: WorkflowRequest):
     except Exception as e:
         logger.critical(f"Unexpected error in workflow execution: {e}", exc_info=True)
         error_detail = internal_error(str(e)).to_dict()
+
+        # Track failure
+        track_workflow_failed(execution_id, "INTERNAL_ERROR", str(e))
+
         await update_execution({
             "status": "failed",
             "error": error_detail
@@ -522,6 +581,73 @@ async def get_thumbnail(request: Request, path: str, size: int = 200, api_key: s
     except Exception as e:
         logger.error(f"Failed to generate thumbnail for {file_path}: {e}", exc_info=True)
         raise internal_error(f"Failed to generate thumbnail: {str(e)}").to_http_exception()
+
+
+# ============================================================================
+# Analytics Endpoints
+# ============================================================================
+
+@app.get("/api/analytics/status")
+async def get_analytics_status(api_key: str = Depends(verify_api_key)):
+    """Get analytics and telemetry status"""
+    telemetry = get_telemetry_service()
+
+    return {
+        "analytics": {
+            "enabled": ANALYTICS_ENABLED,
+            "database": str(get_analytics_store().db_path) if ANALYTICS_ENABLED else None,
+        },
+        "telemetry": telemetry.get_telemetry_status()
+    }
+
+
+@app.get("/api/analytics/stats")
+async def get_analytics_stats(days: int = 7, api_key: str = Depends(verify_api_key)):
+    """Get workflow execution statistics"""
+    if not ANALYTICS_ENABLED:
+        return {"error": "Analytics is disabled"}
+
+    analytics = get_analytics_store()
+    return analytics.get_workflow_stats(days=days)
+
+
+@app.get("/api/analytics/nodes")
+async def get_node_analytics(limit: int = 10, api_key: str = Depends(verify_api_key)):
+    """Get node usage statistics"""
+    if not ANALYTICS_ENABLED:
+        return {"error": "Analytics is disabled"}
+
+    analytics = get_analytics_store()
+    return {
+        "nodes": analytics.get_node_usage(limit=limit)
+    }
+
+
+@app.get("/api/analytics/errors")
+async def get_error_analytics(days: int = 7, api_key: str = Depends(verify_api_key)):
+    """Get error summary"""
+    if not ANALYTICS_ENABLED:
+        return {"error": "Analytics is disabled"}
+
+    analytics = get_analytics_store()
+    return {
+        "errors": analytics.get_error_summary(days=days)
+    }
+
+
+@app.post("/api/analytics/cleanup")
+async def cleanup_analytics(days: int = 90, api_key: str = Depends(verify_api_key)):
+    """Clean up old analytics data"""
+    if not ANALYTICS_ENABLED:
+        return {"error": "Analytics is disabled"}
+
+    analytics = get_analytics_store()
+    deleted_count = analytics.cleanup_old_data(days=days)
+
+    return {
+        "message": f"Cleaned up {deleted_count} old records",
+        "deleted_count": deleted_count
+    }
 
 
 if __name__ == "__main__":
