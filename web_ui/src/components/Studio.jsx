@@ -17,6 +17,7 @@ import PromptEditor from './editors/PromptEditor'
 import ParameterSweep from './editors/ParameterSweep'
 import TemplateEditor from './editors/TemplateEditor'
 import PipelineEditor from './editors/PipelineEditor'
+import AutomationEditor from './editors/AutomationEditor'
 import { Menu, ChevronLeft, ChevronRight, Settings } from 'lucide-react'
 
 export default function Studio() {
@@ -102,15 +103,7 @@ export default function Studio() {
         return <PipelineEditor />
 
       case 'automation':
-        return (
-          <div className="flex items-center justify-center h-full bg-background">
-            <div className="text-center">
-              <h2 className="text-2xl font-bold text-accent mb-2">Automation Editor</h2>
-              <p className="text-textMuted">Event-driven workflows with triggers</p>
-              <p className="text-xs text-textMuted mt-2">Coming soon...</p>
-            </div>
-          </div>
-        )
+        return <AutomationEditor />
 
       case 'template':
         return <TemplateEditor />
