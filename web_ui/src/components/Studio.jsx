@@ -13,6 +13,7 @@ import AssetBrowser from './AssetBrowser'
 import PropertiesPanel from './PropertiesPanel'
 import NodeEditor from './NodeEditor'
 import ComparisonViewer from './editors/ComparisonViewer'
+import PromptEditor from './editors/PromptEditor'
 import { Menu, ChevronLeft, ChevronRight, Settings } from 'lucide-react'
 
 export default function Studio() {
@@ -51,14 +52,7 @@ export default function Studio() {
         )
 
       case 'prompt':
-        return (
-          <div className="flex items-center justify-center h-full bg-background">
-            <div className="text-center">
-              <h2 className="text-2xl font-bold text-accent mb-2">Prompt Editor</h2>
-              <p className="text-textMuted">Coming soon...</p>
-            </div>
-          </div>
-        )
+        return <PromptEditor />
 
       case 'material':
         return (
