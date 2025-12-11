@@ -18,7 +18,11 @@ import { showHelpDialog } from '../utils/notifications'
 
 const StudioPage = () => {
   const { executeWorkflow, saveWorkflow } = useWorkflowStore()
-  const { toggleAssetBrowser, togglePropertiesPanel, activeEditorType } = useEditorStore()
+  const { toggleAssetBrowser, togglePropertiesPanel, activeEditorId, openEditors } = useEditorStore()
+
+  // Derive the current editor type from the active editor
+  const currentEditor = openEditors.find(ed => ed.id === activeEditorId)
+  const editorType = currentEditor?.type || 'workflow'
 
   useKeyboardShortcuts({
     // Global shortcuts
@@ -45,7 +49,7 @@ const StudioPage = () => {
     ]),
 
     // Workflow editor specific (only when workflow editor is active)
-    ...(activeEditorType === 'workflow' && {
+    ...(editorType === 'workflow' && {
       'f5': () => executeWorkflow(),
       'ctrl+s': (e) => {
         e.preventDefault()

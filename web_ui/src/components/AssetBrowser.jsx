@@ -42,7 +42,7 @@ export default function AssetBrowser() {
     selectAsset,
     clearSelectedAssets,
     removeAsset,
-    openEditor
+    openAsset
   } = useEditorStore()
 
   const [searchQuery, setSearchQuery] = useState('')
@@ -83,11 +83,8 @@ export default function AssetBrowser() {
   const filteredAssets = getFilteredAssets()
 
   const handleAssetDoubleClick = (asset) => {
-    // Open appropriate editor for this asset type
-    const editorType = getDefaultEditorForAsset(asset.mimeType || `${asset.assetType}/generic`)
-    if (editorType) {
-      openEditor(editorType, asset, asset.name)
-    }
+    // Open asset in appropriate editor (editor type determined automatically)
+    openAsset(asset)
   }
 
   const handleDeleteAsset = (asset, e) => {

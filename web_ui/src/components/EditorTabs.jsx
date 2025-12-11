@@ -11,19 +11,17 @@ import { X, Plus } from 'lucide-react'
 
 export default function EditorTabs() {
   const {
-    activeEditorType,
+    activeEditorId,
     openEditors,
     setActiveEditor,
     closeEditor,
-    openEditor
+    openNewAsset
   } = useEditorStore()
 
   const handleNewEditor = () => {
-    // Show editor type picker (for now, just cycle through types)
-    const types = ['workflow', 'image', 'prompt', 'material', 'video', 'batch']
-    const currentIndex = types.indexOf(activeEditorType)
-    const nextType = types[(currentIndex + 1) % types.length]
-    openEditor(nextType)
+    // TODO: Show asset type picker modal
+    // For now, default to new workflow
+    openNewAsset('workflow')
   }
 
   return (
@@ -32,7 +30,7 @@ export default function EditorTabs() {
         {openEditors.map((editor) => {
           const editorDef = getEditorDefinition(editor.type)
           const Icon = editorDef?.icon
-          const isActive = editor.type === activeEditorType
+          const isActive = editor.id === activeEditorId
 
           return (
             <div
@@ -45,7 +43,7 @@ export default function EditorTabs() {
                   : 'bg-surface text-textMuted hover:bg-background/50'
                 }
               `}
-              onClick={() => setActiveEditor(editor.type)}
+              onClick={() => setActiveEditor(editor.id)}
             >
               {/* Active indicator */}
               {isActive && (

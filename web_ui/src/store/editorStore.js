@@ -11,53 +11,101 @@ export const useEditorStore = create((set, get) => ({
   // ============================================================================
   // Editor Tabs & Active Editor
   // ============================================================================
+  // Each tab represents an ASSET being edited, not an editor type
+  // The editor type is determined by the asset type
 
-  activeEditorType: 'workflow', // 'workflow' | 'image' | 'prompt' | 'material' | 'video' | 'batch'
+  activeEditorId: 'workflow-main', // ID of active tab
   openEditors: [
-    { id: 'workflow-main', type: 'workflow', title: 'Workflow', asset: null }
+    {
+      id: 'workflow-main',
+      type: 'workflow',
+      title: 'Untitled Workflow',
+      asset: null, // null for new/unsaved assets
+      modified: false,
+      icon: 'workflow'
+    }
   ],
 
-  setActiveEditor: (editorType) => set({ activeEditorType: editorType }),
+  setActiveEditor: (editorId) => set({ activeEditorId: editorId }),
 
-  openEditor: (editorType, asset = null, title = null) => {
+  openAsset: (asset) => {
     const { openEditors } = get()
-    const editorId = asset ? `${editorType}-${asset.id}` : `${editorType}-${Date.now()}`
+    const editorId = `asset-${asset.id}`
 
-    // Check if editor already open for this asset
+    // Check if this asset is already open
     const existing = openEditors.find(ed => ed.id === editorId)
     if (existing) {
-      set({ activeEditorType: editorType })
+      set({ activeEditorId: editorId })
       return
     }
 
-    // Create new editor tab
+    // Determine editor type from asset type
+    let editorType = 'workflow'
+    if (asset.assetType === 'images') editorType = 'image'
+    else if (asset.assetType === 'videos') editorType = 'video'
+    else if (asset.assetType === 'meshes') editorType = 'mesh'
+    else if (asset.assetType === 'materials') editorType = 'material'
+    else if (asset.assetType === 'prompts') editorType = 'prompt'
+    else if (asset.assetType === 'audio') editorType = 'audio'
+
+    // Create new tab for this asset
     const newEditor = {
       id: editorId,
       type: editorType,
-      title: title || `${editorType} Editor`,
+      title: asset.name || 'Untitled',
       asset: asset,
-      modified: false
+      modified: false,
+      icon: editorType
     }
 
     set({
       openEditors: [...openEditors, newEditor],
-      activeEditorType: editorType
+      activeEditorId: editorId
+    })
+  },
+
+  openNewAsset: (assetType) => {
+    const { openEditors } = get()
+    const editorId = `new-${assetType}-${Date.now()}`
+
+    // Determine editor type
+    let editorType = assetType
+    let title = `Untitled ${assetType}`
+
+    const newEditor = {
+      id: editorId,
+      type: editorType,
+      title: title,
+      asset: null, // New asset not yet saved
+      modified: true, // New assets are always "modified"
+      icon: editorType
+    }
+
+    set({
+      openEditors: [...openEditors, newEditor],
+      activeEditorId: editorId
     })
   },
 
   closeEditor: (editorId) => {
-    const { openEditors, activeEditorType } = get()
+    const { openEditors, activeEditorId } = get()
     const closingEditor = openEditors.find(ed => ed.id === editorId)
 
     // Don't allow closing the last editor
     if (openEditors.length === 1) return
 
+    // Check if modified and warn user
+    if (closingEditor?.modified) {
+      // TODO: Show confirmation dialog
+      // For now, just close it
+    }
+
     // If closing active editor, switch to another
-    if (closingEditor.type === activeEditorType) {
+    if (editorId === activeEditorId) {
       const remainingEditors = openEditors.filter(ed => ed.id !== editorId)
       set({
         openEditors: remainingEditors,
-        activeEditorType: remainingEditors[remainingEditors.length - 1].type
+        activeEditorId: remainingEditors[remainingEditors.length - 1].id
       })
     } else {
       set({
@@ -212,9 +260,9 @@ export const useEditorStore = create((set, get) => ({
   // ============================================================================
 
   reset: () => set({
-    activeEditorType: 'workflow',
+    activeEditorId: 'workflow-main',
     openEditors: [
-      { id: 'workflow-main', type: 'workflow', title: 'Workflow', asset: null }
+      { id: 'workflow-main', type: 'workflow', title: 'Untitled Workflow', asset: null, modified: false }
     ],
     selectedAssets: [],
     imageEditor: {

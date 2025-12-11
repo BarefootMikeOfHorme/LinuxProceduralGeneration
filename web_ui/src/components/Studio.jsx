@@ -16,7 +16,7 @@ import { Menu, ChevronLeft, ChevronRight, Settings } from 'lucide-react'
 
 export default function Studio() {
   const {
-    activeEditorType,
+    activeEditorId,
     openEditors,
     assetBrowserVisible,
     propertiesPanelVisible,
@@ -27,12 +27,14 @@ export default function Studio() {
   const [leftPanelWidth, setLeftPanelWidth] = useState(250)
   const [rightPanelWidth, setRightPanelWidth] = useState(300)
 
-  const currentEditor = openEditors.find(ed => ed.type === activeEditorType)
-  const editorDef = getEditorDefinition(activeEditorType)
+  // Get the currently active editor tab (asset being edited)
+  const currentEditor = openEditors.find(ed => ed.id === activeEditorId)
+  const editorType = currentEditor?.type || 'workflow'
+  const editorDef = getEditorDefinition(editorType)
 
-  // Render the active editor component
+  // Render the active editor component based on asset type
   const renderActiveEditor = () => {
-    switch (activeEditorType) {
+    switch (editorType) {
       case 'workflow':
         return <NodeEditor />
 
@@ -102,7 +104,7 @@ export default function Studio() {
           <div className="flex items-center justify-center h-full bg-background">
             <div className="text-center">
               <h2 className="text-2xl font-bold text-red-500 mb-2">Unknown Editor</h2>
-              <p className="text-textMuted">Editor type: {activeEditorType}</p>
+              <p className="text-textMuted">Editor type: {editorType}</p>
             </div>
           </div>
         )
@@ -184,7 +186,7 @@ export default function Studio() {
             className="bg-surface border-l border-border overflow-hidden flex-shrink-0"
             style={{ width: `${rightPanelWidth}px` }}
           >
-            <PropertiesPanel editorType={activeEditorType} />
+            <PropertiesPanel editorType={editorType} />
           </div>
         )}
       </div>
