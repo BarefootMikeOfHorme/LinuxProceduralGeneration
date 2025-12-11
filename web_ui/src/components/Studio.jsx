@@ -18,6 +18,7 @@ import ParameterSweep from './editors/ParameterSweep'
 import TemplateEditor from './editors/TemplateEditor'
 import PipelineEditor from './editors/PipelineEditor'
 import AutomationEditor from './editors/AutomationEditor'
+import MapEditor from './editors/MapEditor'
 import { Menu, ChevronLeft, ChevronRight, Settings } from 'lucide-react'
 
 export default function Studio() {
@@ -113,6 +114,9 @@ export default function Studio() {
 
       case 'comparison':
         return <ComparisonViewer />
+
+      case 'map':
+        return <MapEditor />
 
       default:
         return (
