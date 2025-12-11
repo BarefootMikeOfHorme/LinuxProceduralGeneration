@@ -11,7 +11,7 @@ import PropertyPanelWorkflow from './PropertyPanelWorkflow'
 import { Settings, Layers, Sliders } from 'lucide-react'
 
 export default function PropertiesPanel({ editorType }) {
-  const { imageEditor, promptEditor, materialEditor } = useEditorStore()
+  const { imageEditor, promptEditor, materialEditor, comparisonViewer, setComparisonViewerState } = useEditorStore()
   const { selectedNodes } = useWorkflowStore()
 
   // Render editor-specific properties
@@ -251,6 +251,89 @@ export default function PropertiesPanel({ editorType }) {
                     {mesh}
                   </button>
                 ))}
+              </div>
+            </div>
+          </div>
+        )
+
+      case 'comparison':
+        return (
+          <div className="p-4">
+            <div className="flex items-center gap-2 mb-4">
+              <Settings className="w-5 h-5 text-accent" />
+              <h3 className="text-sm font-semibold">Comparison Settings</h3>
+            </div>
+
+            {/* View mode */}
+            <div className="mb-4">
+              <label className="block text-xs font-medium mb-2 text-textMuted">View Mode</label>
+              <select
+                value={comparisonViewer.viewMode}
+                onChange={(e) => setComparisonViewerState({ viewMode: e.target.value })}
+                className="w-full p-2 bg-background border border-border rounded text-sm"
+              >
+                <option value="grid">Grid</option>
+                <option value="slider">Slider</option>
+              </select>
+            </div>
+
+            {/* Sync options */}
+            <div className="mb-4">
+              <label className="block text-xs font-medium mb-2 text-textMuted">Synchronization</label>
+              <div className="space-y-2">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={comparisonViewer.syncZoom}
+                    onChange={(e) => setComparisonViewerState({ syncZoom: e.target.checked })}
+                    className="rounded"
+                  />
+                  <span className="text-sm text-text">Sync Zoom</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={comparisonViewer.syncPan}
+                    onChange={(e) => setComparisonViewerState({ syncPan: e.target.checked })}
+                    className="rounded"
+                  />
+                  <span className="text-sm text-text">Sync Pan</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={comparisonViewer.showMetadata}
+                    onChange={(e) => setComparisonViewerState({ showMetadata: e.target.checked })}
+                    className="rounded"
+                  />
+                  <span className="text-sm text-text">Show Metadata</span>
+                </label>
+              </div>
+            </div>
+
+            {/* Selected assets count */}
+            <div className="p-3 bg-background rounded border border-border">
+              <div className="text-xs text-textMuted mb-1">Assets in comparison</div>
+              <div className="text-lg font-bold text-accent">
+                {comparisonViewer.selectedAssets.length}
+              </div>
+              <div className="text-xs text-textMuted mt-1">
+                Maximum: 6 assets
+              </div>
+            </div>
+
+            {/* Keyboard shortcuts */}
+            <div className="mt-4 p-3 bg-background rounded border border-border">
+              <div className="text-xs font-medium text-textMuted mb-2">Keyboard Shortcuts</div>
+              <div className="space-y-1 text-xs text-textMuted">
+                <div className="flex justify-between">
+                  <span>← →</span>
+                  <span>Navigate assets</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>F</span>
+                  <span>Toggle favorite</span>
+                </div>
               </div>
             </div>
           </div>
