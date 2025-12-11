@@ -16,6 +16,7 @@ import ComparisonViewer from './editors/ComparisonViewer'
 import PromptEditor from './editors/PromptEditor'
 import ParameterSweep from './editors/ParameterSweep'
 import TemplateEditor from './editors/TemplateEditor'
+import PipelineEditor from './editors/PipelineEditor'
 import { Menu, ChevronLeft, ChevronRight, Settings } from 'lucide-react'
 
 export default function Studio() {
@@ -98,15 +99,7 @@ export default function Studio() {
 
       // Pipeline-specific editors
       case 'pipeline':
-        return (
-          <div className="flex items-center justify-center h-full bg-background">
-            <div className="text-center">
-              <h2 className="text-2xl font-bold text-accent mb-2">Pipeline Editor</h2>
-              <p className="text-textMuted">Multi-stage processing pipelines</p>
-              <p className="text-xs text-textMuted mt-2">Coming soon...</p>
-            </div>
-          </div>
-        )
+        return <PipelineEditor />
 
       case 'automation':
         return (
