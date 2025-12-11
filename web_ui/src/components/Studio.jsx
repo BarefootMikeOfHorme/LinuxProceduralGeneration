@@ -19,6 +19,7 @@ import TemplateEditor from './editors/TemplateEditor'
 import PipelineEditor from './editors/PipelineEditor'
 import AutomationEditor from './editors/AutomationEditor'
 import MapEditor from './editors/MapEditor'
+import MapMaker from './editors/MapMaker'
 import { Menu, ChevronLeft, ChevronRight, Settings } from 'lucide-react'
 
 export default function Studio() {
@@ -45,61 +46,9 @@ export default function Studio() {
       case 'workflow':
         return <NodeEditor />
 
-      case 'image':
-        // Will create this next
-        return (
-          <div className="flex items-center justify-center h-full bg-background">
-            <div className="text-center">
-              <h2 className="text-2xl font-bold text-accent mb-2">Image Editor</h2>
-              <p className="text-textMuted">Coming soon...</p>
-            </div>
-          </div>
-        )
-
       case 'prompt':
         return <PromptEditor />
 
-      case 'material':
-        return (
-          <div className="flex items-center justify-center h-full bg-background">
-            <div className="text-center">
-              <h2 className="text-2xl font-bold text-accent mb-2">Material Editor</h2>
-              <p className="text-textMuted">Coming soon...</p>
-            </div>
-          </div>
-        )
-
-      case 'video':
-        return (
-          <div className="flex items-center justify-center h-full bg-background">
-            <div className="text-center">
-              <h2 className="text-2xl font-bold text-accent mb-2">Video Editor</h2>
-              <p className="text-textMuted">Coming soon...</p>
-            </div>
-          </div>
-        )
-
-      case 'mesh':
-        return (
-          <div className="flex items-center justify-center h-full bg-background">
-            <div className="text-center">
-              <h2 className="text-2xl font-bold text-accent mb-2">3D Viewer</h2>
-              <p className="text-textMuted">Coming soon...</p>
-            </div>
-          </div>
-        )
-
-      case 'batch':
-        return (
-          <div className="flex items-center justify-center h-full bg-background">
-            <div className="text-center">
-              <h2 className="text-2xl font-bold text-accent mb-2">Batch Processor</h2>
-              <p className="text-textMuted">Coming soon...</p>
-            </div>
-          </div>
-        )
-
-      // Pipeline-specific editors
       case 'pipeline':
         return <PipelineEditor />
 
@@ -117,6 +66,9 @@ export default function Studio() {
 
       case 'map':
         return <MapEditor />
+
+      case 'map_maker':
+        return <MapMaker />
 
       default:
         return (
