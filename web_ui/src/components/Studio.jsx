@@ -15,6 +15,7 @@ import NodeEditor from './NodeEditor'
 import ComparisonViewer from './editors/ComparisonViewer'
 import PromptEditor from './editors/PromptEditor'
 import ParameterSweep from './editors/ParameterSweep'
+import TemplateEditor from './editors/TemplateEditor'
 import { Menu, ChevronLeft, ChevronRight, Settings } from 'lucide-react'
 
 export default function Studio() {
@@ -119,15 +120,7 @@ export default function Studio() {
         )
 
       case 'template':
-        return (
-          <div className="flex items-center justify-center h-full bg-background">
-            <div className="text-center">
-              <h2 className="text-2xl font-bold text-accent mb-2">Template Editor</h2>
-              <p className="text-textMuted">Reusable workflow templates</p>
-              <p className="text-xs text-textMuted mt-2">Coming soon...</p>
-            </div>
-          </div>
-        )
+        return <TemplateEditor />
 
       case 'parameter_sweep':
         return <ParameterSweep />
