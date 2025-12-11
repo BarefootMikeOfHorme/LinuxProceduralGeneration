@@ -13,7 +13,12 @@ import {
   Type,
   Layers,
   Workflow,
-  Grid3x3
+  Grid3x3,
+  GitBranch,
+  Zap,
+  FileCode,
+  TrendingUp,
+  Columns
 } from 'lucide-react'
 
 export const EditorType = {
@@ -24,7 +29,13 @@ export const EditorType = {
   VIDEO: 'video',
   MESH: 'mesh',
   BATCH: 'batch',
-  AUDIO: 'audio'
+  AUDIO: 'audio',
+  // Pipeline-specific editors
+  PIPELINE: 'pipeline',
+  AUTOMATION: 'automation',
+  TEMPLATE: 'template',
+  PARAMETER_SWEEP: 'parameter_sweep',
+  COMPARISON: 'comparison'
 }
 
 export const editorDefinitions = {
@@ -220,6 +231,145 @@ export const editorDefinitions = {
       'Fade in/out',
       'Normalization',
       'Export formats'
+    ]
+  },
+
+  // ========================================================================
+  // PIPELINE-SPECIFIC EDITORS
+  // ========================================================================
+
+  [EditorType.PIPELINE]: {
+    id: EditorType.PIPELINE,
+    name: 'Pipeline Editor',
+    description: 'Multi-stage processing pipelines',
+    icon: GitBranch,
+    color: '#6366f1', // indigo
+    supportedAssets: ['pipeline/json'],
+    shortcuts: {
+      open: 'Ctrl+Shift+L',
+      save: 'Ctrl+S',
+      execute: 'F6',
+      addStage: 'Shift+S'
+    },
+    defaultWidth: '100%',
+    canHaveMultiple: true,
+    features: [
+      'Multi-stage pipeline graph',
+      'Stage dependencies',
+      'Parallel execution paths',
+      'Error handling & rollback',
+      'Pipeline versioning',
+      'Stage templates',
+      'Real-time progress tracking',
+      'Output caching per stage'
+    ]
+  },
+
+  [EditorType.AUTOMATION]: {
+    id: EditorType.AUTOMATION,
+    name: 'Automation Editor',
+    description: 'Event-driven workflows with triggers',
+    icon: Zap,
+    color: '#f97316', // orange
+    supportedAssets: ['automation/json'],
+    shortcuts: {
+      open: 'Ctrl+Shift+U',
+      save: 'Ctrl+S',
+      test: 'Ctrl+T',
+      addTrigger: 'Shift+T'
+    },
+    defaultWidth: '100%',
+    canHaveMultiple: true,
+    features: [
+      'Event triggers (time, file, webhook)',
+      'Conditional logic',
+      'Action sequences',
+      'Variable passing',
+      'Error notifications',
+      'Execution history',
+      'Dry-run mode',
+      'Schedule management'
+    ]
+  },
+
+  [EditorType.TEMPLATE]: {
+    id: EditorType.TEMPLATE,
+    name: 'Template Editor',
+    description: 'Reusable workflow templates',
+    icon: FileCode,
+    color: '#a855f7', // purple
+    supportedAssets: ['template/json'],
+    shortcuts: {
+      open: 'Ctrl+Shift+T',
+      save: 'Ctrl+S',
+      instantiate: 'Ctrl+Enter',
+      addParam: 'Shift+P'
+    },
+    defaultWidth: '100%',
+    canHaveMultiple: true,
+    features: [
+      'Parameterized workflows',
+      'Default values',
+      'Type constraints',
+      'Template inheritance',
+      'Instant preview',
+      'Template marketplace',
+      'Version control',
+      'Export/import'
+    ]
+  },
+
+  [EditorType.PARAMETER_SWEEP]: {
+    id: EditorType.PARAMETER_SWEEP,
+    name: 'Parameter Sweep',
+    description: 'Grid-based parameter exploration',
+    icon: TrendingUp,
+    color: '#0ea5e9', // sky blue
+    supportedAssets: ['sweep/json'],
+    shortcuts: {
+      open: 'Ctrl+Shift+G',
+      save: 'Ctrl+S',
+      generate: 'Ctrl+Enter',
+      addAxis: 'Shift+A'
+    },
+    defaultWidth: '100%',
+    canHaveMultiple: true,
+    features: [
+      'Multi-dimensional parameter grids',
+      'Range definitions (linear, log, custom)',
+      'Combinatorial generation',
+      'Priority queue',
+      'Result tracking',
+      'Best result highlighting',
+      'Export results as dataset',
+      'Resume interrupted sweeps'
+    ]
+  },
+
+  [EditorType.COMPARISON]: {
+    id: EditorType.COMPARISON,
+    name: 'Comparison Viewer',
+    description: 'Side-by-side result comparison',
+    icon: Columns,
+    color: '#22c55e', // green
+    supportedAssets: ['*'],
+    shortcuts: {
+      open: 'Ctrl+Shift+C',
+      nextResult: 'Right',
+      prevResult: 'Left',
+      favorite: 'F'
+    },
+    defaultWidth: '100%',
+    canHaveMultiple: true,
+    features: [
+      '2-6 asset side-by-side view',
+      'Synchronized zoom/pan',
+      'Metadata diff view',
+      'Rating system',
+      'Export selections',
+      'Diff highlighting',
+      'A/B testing mode',
+      'Parameter correlation'
     ]
   }
 }

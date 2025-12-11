@@ -99,6 +99,62 @@ export default function Studio() {
           </div>
         )
 
+      // Pipeline-specific editors
+      case 'pipeline':
+        return (
+          <div className="flex items-center justify-center h-full bg-background">
+            <div className="text-center">
+              <h2 className="text-2xl font-bold text-accent mb-2">Pipeline Editor</h2>
+              <p className="text-textMuted">Multi-stage processing pipelines</p>
+              <p className="text-xs text-textMuted mt-2">Coming soon...</p>
+            </div>
+          </div>
+        )
+
+      case 'automation':
+        return (
+          <div className="flex items-center justify-center h-full bg-background">
+            <div className="text-center">
+              <h2 className="text-2xl font-bold text-accent mb-2">Automation Editor</h2>
+              <p className="text-textMuted">Event-driven workflows with triggers</p>
+              <p className="text-xs text-textMuted mt-2">Coming soon...</p>
+            </div>
+          </div>
+        )
+
+      case 'template':
+        return (
+          <div className="flex items-center justify-center h-full bg-background">
+            <div className="text-center">
+              <h2 className="text-2xl font-bold text-accent mb-2">Template Editor</h2>
+              <p className="text-textMuted">Reusable workflow templates</p>
+              <p className="text-xs text-textMuted mt-2">Coming soon...</p>
+            </div>
+          </div>
+        )
+
+      case 'parameter_sweep':
+        return (
+          <div className="flex items-center justify-center h-full bg-background">
+            <div className="text-center">
+              <h2 className="text-2xl font-bold text-accent mb-2">Parameter Sweep</h2>
+              <p className="text-textMuted">Grid-based parameter exploration</p>
+              <p className="text-xs text-textMuted mt-2">Coming soon...</p>
+            </div>
+          </div>
+        )
+
+      case 'comparison':
+        return (
+          <div className="flex items-center justify-center h-full bg-background">
+            <div className="text-center">
+              <h2 className="text-2xl font-bold text-accent mb-2">Comparison Viewer</h2>
+              <p className="text-textMuted">Side-by-side result comparison</p>
+              <p className="text-xs text-textMuted mt-2">Coming soon...</p>
+            </div>
+          </div>
+        )
+
       default:
         return (
           <div className="flex items-center justify-center h-full bg-background">

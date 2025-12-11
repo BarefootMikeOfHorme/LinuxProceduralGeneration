@@ -243,6 +243,79 @@ export const useEditorStore = create((set, get) => ({
   })),
 
   // ============================================================================
+  // Pipeline-Specific Editor State
+  // ============================================================================
+
+  // Pipeline Editor State
+  pipelineEditor: {
+    stages: [],
+    connections: [],
+    activeStageId: null,
+    executionMode: 'sequential', // 'sequential' | 'parallel'
+    errorHandling: 'stop' // 'stop' | 'skip' | 'retry'
+  },
+
+  setPipelineEditorState: (updates) => set(state => ({
+    pipelineEditor: { ...state.pipelineEditor, ...updates }
+  })),
+
+  // Automation Editor State
+  automationEditor: {
+    triggers: [],
+    actions: [],
+    conditions: [],
+    schedule: null,
+    enabled: false,
+    lastRun: null,
+    executionHistory: []
+  },
+
+  setAutomationEditorState: (updates) => set(state => ({
+    automationEditor: { ...state.automationEditor, ...updates }
+  })),
+
+  // Template Editor State
+  templateEditor: {
+    parameters: [],
+    defaults: {},
+    constraints: {},
+    baseWorkflow: null,
+    preview: null
+  },
+
+  setTemplateEditorState: (updates) => set(state => ({
+    templateEditor: { ...state.templateEditor, ...updates }
+  })),
+
+  // Parameter Sweep State
+  parameterSweep: {
+    axes: [], // Each axis defines a parameter and its range
+    combinations: [],
+    results: [],
+    status: 'idle', // 'idle' | 'running' | 'paused' | 'completed'
+    currentIndex: 0,
+    bestResult: null
+  },
+
+  setParameterSweepState: (updates) => set(state => ({
+    parameterSweep: { ...state.parameterSweep, ...updates }
+  })),
+
+  // Comparison Viewer State
+  comparisonViewer: {
+    selectedAssets: [],
+    viewMode: 'grid', // 'grid' | 'slider' | 'diff'
+    syncZoom: true,
+    syncPan: true,
+    showMetadata: true,
+    ratings: {}
+  },
+
+  setComparisonViewerState: (updates) => set(state => ({
+    comparisonViewer: { ...state.comparisonViewer, ...updates }
+  })),
+
+  // ============================================================================
   // UI State
   // ============================================================================
 
