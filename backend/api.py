@@ -35,7 +35,7 @@ from backend.error_handling import (
     internal_error
 )
 
-# Import analytics and telemetry
+# Import analytics
 from backend.analytics import (
     track_workflow_started,
     track_workflow_completed,
@@ -45,7 +45,6 @@ from backend.analytics import (
     get_analytics_store,
     ANALYTICS_ENABLED
 )
-from backend.telemetry import get_telemetry_service, TELEMETRY_ENABLED
 
 # Import security middleware
 from backend.security_middleware import configure_security_middleware
@@ -89,7 +88,6 @@ logger.info(f"Rate Limiting: ENABLED")
 logger.info(f"Database: {persistence.db_path}")
 logger.info(f"CORS Origins: {', '.join(cors_origins)}")
 logger.info(f"Analytics: {'ENABLED' if ANALYTICS_ENABLED else 'DISABLED'}")
-logger.info(f"Telemetry: {'ENABLED' if TELEMETRY_ENABLED else 'DISABLED'}")
 logger.info("=" * 60)
 
 
@@ -326,9 +324,7 @@ async def run_workflow_execution(execution_id: str, workflow: WorkflowRequest):
 
         # Optional: Send telemetry (async, non-blocking)
         if TELEMETRY_ENABLED:
-            import asyncio
-            telemetry = get_telemetry_service()
-            asyncio.create_task(
+            import asyncio            asyncio.create_task(
                 telemetry.track_workflow_execution(
                     node_count=len(workflow.nodes),
                     duration_ms=duration_ms,
@@ -606,15 +602,12 @@ async def get_thumbnail(request: Request, path: str, size: int = 200, api_key: s
 
 @app.get("/api/analytics/status")
 async def get_analytics_status(api_key: str = Depends(verify_api_key)):
-    """Get analytics and telemetry status"""
-    telemetry = get_telemetry_service()
-
+    """Get analytics status"""
     return {
         "analytics": {
             "enabled": ANALYTICS_ENABLED,
             "database": str(get_analytics_store().db_path) if ANALYTICS_ENABLED else None,
-        },
-        "telemetry": telemetry.get_telemetry_status()
+        }
     }
 
 
