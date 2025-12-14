@@ -182,3 +182,8 @@ mod tests {
         assert_eq!(mesh1.indices[1], 1);
     }
 }
+pub mod extended_primitives;
+pub mod templates;
+
+pub use extended_primitives::*;
+pub use templates::*;
