@@ -1,0 +1,205 @@
+//! Mesh processing and optimization
+pub mod validation;
+//!
+//! Inspired by Ice Engine's Meshmerizer: mesh cleaning, LOD generation,
+//! compression, subdivision surfaces, convex hulls, etc.
+
+use crate::geometry::Mesh;
+use crate::{Result, GeometryError};
+use rayon::prelude::*;
+
+pub mod optimizer;
+pub mod lod;
+pub mod subdivision;
+
+pub use optimizer::MeshOptimizer;
+pub use validation::{MeshValidator, ValidationReport};
+pub use lod::LodGenerator;
+
+/// Clean mesh by removing degenerate triangles, duplicate vertices, etc.
+pub fn clean_mesh(mesh: &mut Mesh) -> Result<()> {
+    remove_degenerate_triangles(mesh)?;
+    remove_duplicate_vertices(mesh)?;
+    mesh.compute_normals();
+    Ok(())
+}
+
+/// Remove degenerate triangles (zero area, invalid indices)
+fn remove_degenerate_triangles(mesh: &mut Mesh) -> Result<()> {
+    let mut valid_indices = Vec::new();
+    let epsilon = 1e-6;
+
+    for chunk in mesh.indices.chunks(3) {
+        if chunk.len() != 3 {
+            continue;
+        }
+
+        let i0 = chunk[0] as usize;
+        let i1 = chunk[1] as usize;
+        let i2 = chunk[2] as usize;
+
+        // Check bounds
+        if i0 >= mesh.vertices.len() || i1 >= mesh.vertices.len() || i2 >= mesh.vertices.len() {
+            continue;
+        }
+
+        let v0 = mesh.vertices[i0];
+        let v1 = mesh.vertices[i1];
+        let v2 = mesh.vertices[i2];
+
+        // Calculate triangle area
+        let edge1 = v1 - v0;
+        let edge2 = v2 - v0;
+        let cross = edge1.cross(&edge2);
+        let area = cross.norm() / 2.0;
+
+        // Keep triangle if area is above threshold
+        if area > epsilon {
+            valid_indices.extend_from_slice(chunk);
+        }
+    }
+
+    mesh.indices = valid_indices;
+    Ok(())
+}
+
+/// Remove duplicate vertices and update indices
+fn remove_duplicate_vertices(mesh: &mut Mesh) -> Result<()> {
+    let epsilon = 1e-6;
+    let mut unique_vertices = Vec::new();
+    let mut vertex_map = Vec::new();
+
+    for (i, &vertex) in mesh.vertices.iter().enumerate() {
+        // Find if vertex already exists
+        let existing = unique_vertices.iter().position(|&v: &nalgebra::Point3<f32>| {
+            (v - vertex).norm() < epsilon
+        });
+
+        if let Some(idx) = existing {
+            vertex_map.push(idx as u32);
+        } else {
+            vertex_map.push(unique_vertices.len() as u32);
+            unique_vertices.push(vertex);
+        }
+    }
+
+    // Update indices
+    for idx in &mut mesh.indices {
+        *idx = vertex_map[*idx as usize];
+    }
+
+    mesh.vertices = unique_vertices;
+
+    // Also update normals and UVs if they exist
+    // (simplified - should maintain correspondence)
+    mesh.compute_normals();
+    mesh.uvs = vec![(0.0, 0.0); mesh.vertices.len()];
+
+    Ok(())
+}
+
+/// Calculate mesh statistics
+pub struct MeshStats {
+    pub vertex_count: usize,
+    pub triangle_count: usize,
+    pub edge_count: usize,
+    pub surface_area: f32,
+    pub volume: f32,
+}
+
+impl MeshStats {
+    pub fn from_mesh(mesh: &Mesh) -> Self {
+        let vertex_count = mesh.vertex_count();
+        let triangle_count = mesh.triangle_count();
+
+        // Estimate edge count (Euler's formula: E ≈ 3V/2 for closed mesh)
+        let edge_count = (vertex_count * 3) / 2;
+
+        // Calculate surface area
+        let surface_area = calculate_surface_area(mesh);
+
+        // Calculate volume (for closed meshes)
+        let volume = calculate_volume(mesh);
+
+        Self {
+            vertex_count,
+            triangle_count,
+            edge_count,
+            surface_area,
+            volume,
+        }
+    }
+}
+
+/// Calculate total surface area
+fn calculate_surface_area(mesh: &Mesh) -> f32 {
+    mesh.indices
+        .par_chunks(3)
+        .map(|chunk| {
+            if chunk.len() != 3 {
+                return 0.0;
+            }
+
+            let v0 = mesh.vertices[chunk[0] as usize];
+            let v1 = mesh.vertices[chunk[1] as usize];
+            let v2 = mesh.vertices[chunk[2] as usize];
+
+            let edge1 = v1 - v0;
+            let edge2 = v2 - v0;
+            let cross = edge1.cross(&edge2);
+
+            cross.norm() / 2.0
+        })
+        .sum()
+}
+
+/// Calculate volume (for closed meshes)
+fn calculate_volume(mesh: &Mesh) -> f32 {
+    mesh.indices
+        .par_chunks(3)
+        .map(|chunk| {
+            if chunk.len() != 3 {
+                return 0.0;
+            }
+
+            let v0 = mesh.vertices[chunk[0] as usize];
+            let v1 = mesh.vertices[chunk[1] as usize];
+            let v2 = mesh.vertices[chunk[2] as usize];
+
+            // Signed volume of tetrahedron formed with origin
+            v0.coords.dot(&v1.coords.cross(&v2.coords)) / 6.0
+        })
+        .sum::<f32>()
+        .abs()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::geometry::primitives::Box;
+    use crate::geometry::Primitive;
+    use nalgebra::Vector3;
+
+    #[test]
+    fn test_clean_mesh() {
+        let b = Box::new(Vector3::new(2.0, 2.0, 2.0));
+        let mut mesh = b.to_mesh().unwrap();
+
+        clean_mesh(&mut mesh).unwrap();
+
+        assert!(mesh.vertex_count() > 0);
+        assert!(mesh.triangle_count() > 0);
+    }
+
+    #[test]
+    fn test_mesh_stats() {
+        let b = Box::new(Vector3::new(2.0, 2.0, 2.0));
+        let mesh = b.to_mesh().unwrap();
+
+        let stats = MeshStats::from_mesh(&mesh);
+
+        assert_eq!(stats.vertex_count, 8);
+        assert_eq!(stats.triangle_count, 12);
+        assert!(stats.surface_area > 0.0);
+    }
+}

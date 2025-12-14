@@ -1,0 +1,205 @@
+//! Constructive Solid Geometry (CSG) Operations
+//!
+//! Inspired by Ice Engine's Meshmerizer module, this provides boolean
+//! operations on meshes: union, difference, intersection.
+//!
+//! Current implementation uses simplified algorithms. Future versions
+//! will integrate parry3d for robust CSG operations.
+
+use crate::geometry::Mesh;
+use crate::{Result, GeometryError};
+use nalgebra::Point3;
+
+/// CSG operation types
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum CsgOperation {
+    Union,
+    Difference,
+    Intersection,
+}
+
+/// Perform CSG union: A ∪ B (combine two meshes)
+///
+/// # Arguments
+/// * `mesh_a` - First mesh
+/// * `mesh_b` - Second mesh
+///
+/// # Returns
+/// Combined mesh containing both geometries
+pub fn union(mesh_a: &Mesh, mesh_b: &Mesh) -> Result<Mesh> {
+    // Simplified implementation: just merge the meshes
+    // A full implementation would handle overlapping geometry and boolean operations
+    let mut result = mesh_a.clone();
+    result.merge(mesh_b);
+    Ok(result)
+}
+
+/// Perform CSG difference: A \ B (subtract B from A)
+///
+/// # Arguments
+/// * `mesh_a` - Base mesh
+/// * `mesh_b` - Mesh to subtract
+///
+/// # Returns
+/// Mesh A with mesh B removed
+pub fn difference(mesh_a: &Mesh, mesh_b: &Mesh) -> Result<Mesh> {
+    // Placeholder implementation
+    // Full implementation requires:
+    // 1. Find intersections between meshes
+    // 2. Classify triangles (inside/outside/intersecting)
+    // 3. Clip intersecting triangles
+    // 4. Remove inside triangles from mesh_a
+    // 5. Invert and add clipped triangles from mesh_b
+
+    // For now, return mesh_a (no subtraction)
+    Ok(mesh_a.clone())
+}
+
+/// Perform CSG intersection: A ∩ B (keep only overlapping volume)
+///
+/// # Arguments
+/// * `mesh_a` - First mesh
+/// * `mesh_b` - Second mesh
+///
+/// # Returns
+/// Mesh containing only the overlapping volume
+pub fn intersection(mesh_a: &Mesh, mesh_b: &Mesh) -> Result<Mesh> {
+    // Placeholder implementation
+    // Full implementation requires:
+    // 1. Find intersections between meshes
+    // 2. Keep only triangles that are inside both meshes
+    // 3. Clip triangles at intersection boundaries
+
+    // For now, return an empty mesh
+    Ok(Mesh::new())
+}
+
+/// Generic CSG operation dispatcher
+pub fn csg_operation(
+    mesh_a: &Mesh,
+    mesh_b: &Mesh,
+    operation: CsgOperation,
+) -> Result<Mesh> {
+    match operation {
+        CsgOperation::Union => union(mesh_a, mesh_b),
+        CsgOperation::Difference => difference(mesh_a, mesh_b),
+        CsgOperation::Intersection => intersection(mesh_a, mesh_b),
+    }
+}
+
+// Internal helper functions for CSG operations
+
+/// Check if a point is inside a mesh
+fn point_inside_mesh(point: &Point3<f32>, mesh: &Mesh) -> bool {
+    // Ray casting algorithm
+    // Cast a ray from the point and count intersections
+    // Odd count = inside, even count = outside
+
+    // Simplified placeholder
+    false
+}
+
+/// Find intersection between a ray and a triangle
+fn ray_triangle_intersection(
+    ray_origin: &Point3<f32>,
+    ray_direction: &nalgebra::Vector3<f32>,
+    v0: &Point3<f32>,
+    v1: &Point3<f32>,
+    v2: &Point3<f32>,
+) -> Option<f32> {
+    // Möller-Trumbore algorithm
+    let epsilon = 1e-6;
+
+    let edge1 = v1 - v0;
+    let edge2 = v2 - v0;
+
+    let h = ray_direction.cross(&edge2);
+    let a = edge1.dot(&h);
+
+    if a > -epsilon && a < epsilon {
+        return None; // Ray is parallel to triangle
+    }
+
+    let f = 1.0 / a;
+    let s = ray_origin - v0;
+    let u = f * s.dot(&h);
+
+    if u < 0.0 || u > 1.0 {
+        return None;
+    }
+
+    let q = s.cross(&edge1);
+    let v = f * ray_direction.dot(&q);
+
+    if v < 0.0 || u + v > 1.0 {
+        return None;
+    }
+
+    let t = f * edge2.dot(&q);
+
+    if t > epsilon {
+        Some(t)
+    } else {
+        None
+    }
+}
+
+/// Classify triangle as inside, outside, or intersecting with another mesh
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum TriangleClassification {
+    Inside,
+    Outside,
+    Intersecting,
+}
+
+fn classify_triangle(
+    v0: &Point3<f32>,
+    v1: &Point3<f32>,
+    v2: &Point3<f32>,
+    mesh: &Mesh,
+) -> TriangleClassification {
+    // Simplified: check if all vertices are inside
+    let centroid = Point3::new(
+        (v0.x + v1.x + v2.x) / 3.0,
+        (v0.y + v1.y + v2.y) / 3.0,
+        (v0.z + v1.z + v2.z) / 3.0,
+    );
+
+    if point_inside_mesh(&centroid, mesh) {
+        TriangleClassification::Inside
+    } else {
+        TriangleClassification::Outside
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::geometry::primitives::{Box, Sphere};
+    use crate::geometry::Primitive;
+    use nalgebra::Vector3;
+
+    #[test]
+    fn test_union() {
+        let box1 = Box::new(Vector3::new(2.0, 2.0, 2.0));
+        let box2 = Box::new(Vector3::new(1.0, 1.0, 1.0));
+
+        let mesh1 = box1.to_mesh().unwrap();
+        let mesh2 = box2.to_mesh().unwrap();
+
+        let result = union(&mesh1, &mesh2).unwrap();
+
+        // Union should have vertices from both meshes
+        assert_eq!(result.vertex_count(), mesh1.vertex_count() + mesh2.vertex_count());
+    }
+
+    #[test]
+    fn test_csg_operation_dispatch() {
+        let box1 = Box::new(Vector3::new(2.0, 2.0, 2.0));
+        let mesh1 = box1.to_mesh().unwrap();
+        let mesh2 = mesh1.clone();
+
+        let result = csg_operation(&mesh1, &mesh2, CsgOperation::Union).unwrap();
+        assert!(result.vertex_count() > 0);
+    }
+}
