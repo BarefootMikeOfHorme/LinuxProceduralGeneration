@@ -661,5 +661,3 @@ impl Primitive for Octahedron {
     }
 }
 
-// Add exports
-pub use self::{
