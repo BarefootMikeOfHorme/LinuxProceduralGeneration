@@ -54,6 +54,31 @@ class ConversionEnvelope:
     metadata: Dict[str, Any] = field(default_factory=dict)
     provenance: Dict[str, Any] = field(default_factory=dict)
 
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "ConversionEnvelope":
+        """Restore an envelope from its JSON-compatible dictionary form."""
+        values = dict(data)
+        values["loss_status"] = ConversionLossStatus(
+            values.get("loss_status", ConversionLossStatus.UNCHECKED.value)
+        )
+        allowed = {
+            "schema_version",
+            "asset_id",
+            "source_path",
+            "source_format",
+            "target_engine",
+            "target_format",
+            "media_type",
+            "output_path",
+            "loss_status",
+            "loss_reasons",
+            "warnings",
+            "errors",
+            "metadata",
+            "provenance",
+        }
+        return cls(**{key: value for key, value in values.items() if key in allowed})
+
     def to_dict(self) -> Dict[str, Any]:
         """Return a JSON-compatible representation of the envelope."""
 

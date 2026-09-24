@@ -8,6 +8,7 @@ from vaultmind_forge.forge_converter import (
     ConversionLossStatus,
     get_build123d_capabilities,
     create_build123d_box_envelope,
+    execute_isolated_plan,
     execute_plan,
     get_ai_tool_manifest,
     plan_from_dict,
@@ -43,6 +44,26 @@ def test_build123d_ai_manifest_and_structured_plan(tmp_path: Path):
         }
     )
     result = execute_plan(plan, tmp_path)
+
+    assert result.loss_status.value == "reinterpreted"
+    assert Path(result.output_path).is_file()
+
+
+def test_build123d_structured_plan_runs_in_worker(tmp_path: Path):
+    result = execute_isolated_plan(
+        {
+            "name": "worker-box",
+            "operations": [
+                {
+                    "operation": "box",
+                    "parameters": {"size": [2, 3, 4]},
+                }
+            ],
+            "output_formats": ["step", "stl"],
+        },
+        tmp_path,
+        timeout_seconds=30,
+    )
 
     assert result.loss_status.value == "reinterpreted"
     assert Path(result.output_path).is_file()

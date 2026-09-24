@@ -67,6 +67,7 @@ try:
         get_ai_tool_manifest,
         plan_from_dict,
     )
+    from .build123d_worker import execute_isolated_plan
     __all__ = [
         'AssetConverter',
         'ConversionOptions',
@@ -91,6 +92,7 @@ try:
         'execute_plan',
         'get_ai_tool_manifest',
         'plan_from_dict',
+        'execute_isolated_plan',
         'ConversionProfile',
         'TargetEngine',
         'AssetType'
