@@ -21,6 +21,45 @@ def main_callback():
 def version():
     console.print(f"VaultMind Forge v{__version__}")
 
+@app.command("cad-capabilities")
+def cad_capabilities():
+    """Show available CAD backends and profile metadata as JSON."""
+    from .forge_converter import (
+        get_build123d_capabilities,
+        get_cad_profiles,
+        get_freecad_capabilities,
+    )
+
+    payload = {
+        "default_profile": "build123d",
+        "profiles": [profile.to_dict() for profile in get_cad_profiles()],
+        "build123d": get_build123d_capabilities().to_dict(),
+        "freecad": get_freecad_capabilities().to_dict(),
+    }
+    console.print_json(json.dumps(payload))
+
+
+@app.command("cad-execute")
+def cad_execute(
+    plan: Path = typer.Argument(..., exists=True, readable=True, help="Structured build123d plan JSON"),
+    output_dir: Path = typer.Option("./output/cad", help="Output directory"),
+    timeout: int = typer.Option(60, min=1, help="Worker timeout in seconds"),
+):
+    """Execute an allowlisted build123d plan in the isolated structured worker."""
+    from .forge_converter import execute_isolated_plan
+
+    try:
+        plan_data = json.loads(plan.read_text(encoding="utf-8"))
+        result = execute_isolated_plan(plan_data, output_dir, timeout_seconds=timeout)
+    except Exception as error:
+        console.print(f"[red]CAD plan failed: {error}[/red]")
+        raise typer.Exit(code=1)
+
+    console.print_json(json.dumps(result.to_dict()))
+    if result.loss_status.value == "failed":
+        raise typer.Exit(code=1)
+
+
 @app.command()
 def logo(style: str = typer.Option("compact", help="Logo style: compact, simple, full")):
     """Display VaultMind Forge ASCII art logo"""
