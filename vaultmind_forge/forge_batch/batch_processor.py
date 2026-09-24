@@ -17,8 +17,12 @@ import logging
 
 from .job_queue import JobQueue, BatchJob, JobPriority, JobStatus
 from .resource_manager import ResourceManager, ResourceRequirements
-from forge_executor.pipeline import AssetPipeline, PipelineResult
-from forge_converter.ai_control import AuthorityLevel
+try:
+    from ..forge_executor.pipeline import AssetPipeline, PipelineResult
+    from ..forge_converter.ai_control import AuthorityLevel
+except ImportError:
+    from forge_executor.pipeline import AssetPipeline, PipelineResult
+    from forge_converter.ai_control import AuthorityLevel
 
 logger = logging.getLogger(__name__)
 

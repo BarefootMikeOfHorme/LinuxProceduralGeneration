@@ -23,9 +23,14 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-from forge_validator.ai_validator import AIValidator, ValidationDecision
-from forge_lineage import LineageTracker, OperationType
-from forge_converter.ai_control import AuthorityLevel
+try:
+    from ..forge_validator.ai_validator import AIValidator, ValidationDecision
+    from ..forge_lineage import LineageTracker, OperationType
+    from ..forge_converter.ai_control import AuthorityLevel
+except ImportError:
+    from forge_validator.ai_validator import AIValidator, ValidationDecision
+    from forge_lineage import LineageTracker, OperationType
+    from forge_converter.ai_control import AuthorityLevel
 
 
 # Simple synchronous DAG for pipeline orchestration

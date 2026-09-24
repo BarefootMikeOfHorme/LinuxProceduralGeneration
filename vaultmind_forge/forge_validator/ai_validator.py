@@ -13,12 +13,20 @@ from enum import Enum
 
 # Add forge_converter to path for AI control
 
-from forge_converter.ai_control import (
-    AIDecisionEngine,
-    AuthorityLevel,
-    DecisionOutcome,
-    QualityMetrics as AIQualityMetrics
-)
+try:
+    from ..forge_converter.ai_control import (
+        AIDecisionEngine,
+        AuthorityLevel,
+        DecisionOutcome,
+        QualityMetrics as AIQualityMetrics
+    )
+except ImportError:
+    from forge_converter.ai_control import (
+        AIDecisionEngine,
+        AuthorityLevel,
+        DecisionOutcome,
+        QualityMetrics as AIQualityMetrics
+    )
 from .validator import Validator, ValidationResult
 
 # Import metrics functions carefully - some are in metrics.py, others need to be computed
