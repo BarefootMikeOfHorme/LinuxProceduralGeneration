@@ -5,6 +5,37 @@ use std::f32::consts::PI;
 use crate::geometry::{Mesh, Primitive};
 use crate::Result;
 
+fn validate_finite_positive(label: &str, value: f32) -> Result<()> {
+    if !value.is_finite() || value <= 0.0 {
+        return Err(crate::GeometryError::InvalidParameters(format!(
+            "{label} must be finite and greater than zero"
+        )));
+    }
+    Ok(())
+}
+
+fn validate_finite_vector(label: &str, vector: Vector3<f32>) -> Result<()> {
+    if !vector.x.is_finite() || !vector.y.is_finite() || !vector.z.is_finite() {
+        return Err(crate::GeometryError::InvalidParameters(format!(
+            "{label} must contain only finite values"
+        )));
+    }
+    Ok(())
+}
+
+fn validate_finite_point(label: &str, point: Point3<f32>) -> Result<()> {
+    validate_finite_vector(label, point.coords)
+}
+
+fn validate_count(label: &str, value: u32, minimum: u32) -> Result<()> {
+    if value < minimum {
+        return Err(crate::GeometryError::InvalidParameters(format!(
+            "{label} must be at least {minimum}"
+        )));
+    }
+    Ok(())
+}
+
 /// Box primitive
 #[derive(Debug, Clone)]
 pub struct Box {
@@ -28,6 +59,12 @@ impl Box {
 
 impl Primitive for Box {
     fn to_mesh(&self) -> Result<Mesh> {
+        validate_finite_vector("box size", self.size)?;
+        validate_finite_positive("box size.x", self.size.x)?;
+        validate_finite_positive("box size.y", self.size.y)?;
+        validate_finite_positive("box size.z", self.size.z)?;
+        validate_finite_point("box center", self.center)?;
+
         let mut mesh = Mesh::new();
 
         let hx = self.size.x / 2.0;
@@ -119,6 +156,11 @@ impl Sphere {
 
 impl Primitive for Sphere {
     fn to_mesh(&self) -> Result<Mesh> {
+        validate_finite_positive("sphere radius", self.radius)?;
+        validate_finite_point("sphere center", self.center)?;
+        validate_count("sphere segments", self.segments, 3)?;
+        validate_count("sphere rings", self.rings, 2)?;
+
         let mut mesh = Mesh::new();
 
         // UV sphere generation
@@ -212,6 +254,11 @@ impl Cylinder {
 
 impl Primitive for Cylinder {
     fn to_mesh(&self) -> Result<Mesh> {
+        validate_finite_positive("cylinder radius", self.radius)?;
+        validate_finite_positive("cylinder height", self.height)?;
+        validate_finite_point("cylinder center", self.center)?;
+        validate_count("cylinder segments", self.segments, 3)?;
+
         let mut mesh = Mesh::new();
 
         let half_height = self.height / 2.0;
@@ -244,14 +291,45 @@ impl Primitive for Cylinder {
             let next_bottom = ((i + 1) % (self.segments + 1)) * 2;
             let next_top = next_bottom + 1;
 
-            // Two triangles per quad
+            // Two triangles per quad, wound outward.
             mesh.indices.push(curr_bottom);
-            mesh.indices.push(next_bottom);
             mesh.indices.push(curr_top);
+            mesh.indices.push(next_bottom);
 
             mesh.indices.push(curr_top);
-            mesh.indices.push(next_bottom);
             mesh.indices.push(next_top);
+            mesh.indices.push(next_bottom);
+        }
+
+        // Bottom and top cap centers.
+        let bottom_center_idx = mesh.vertices.len() as u32;
+        mesh.vertices.push(Point3::new(
+            self.center.x,
+            self.center.y - half_height,
+            self.center.z,
+        ));
+        let top_center_idx = mesh.vertices.len() as u32;
+        mesh.vertices.push(Point3::new(
+            self.center.x,
+            self.center.y + half_height,
+            self.center.z,
+        ));
+
+        for i in 0..self.segments {
+            let curr_bottom = i * 2;
+            let curr_top = curr_bottom + 1;
+            let next = ((i + 1) % (self.segments + 1)) * 2;
+            let next_top = next + 1;
+
+            // Bottom cap points outward along -Y.
+            mesh.indices.push(bottom_center_idx);
+            mesh.indices.push(curr_bottom);
+            mesh.indices.push(next);
+
+            // Top cap points outward along +Y.
+            mesh.indices.push(top_center_idx);
+            mesh.indices.push(next_top);
+            mesh.indices.push(curr_top);
         }
 
         mesh.compute_normals();
@@ -290,13 +368,109 @@ impl Cone {
             segments: 32,
         }
     }
+
+    pub fn with_center(mut self, center: Point3<f32>) -> Self {
+        self.center = center;
+        self
+    }
+
+    pub fn with_segments(mut self, segments: u32) -> Self {
+        self.segments = segments;
+        self
+    }
+
+    /// Create cone with low detail (8 segments)
+    pub fn low_detail(radius: f32, height: f32) -> Self {
+        Self::new(radius, height).with_segments(8)
+    }
+
+    /// Create cone with medium-low detail (16 segments)
+    pub fn medium_low_detail(radius: f32, height: f32) -> Self {
+        Self::new(radius, height).with_segments(16)
+    }
+
+    /// Create cone with medium detail (32 segments) - default
+    pub fn medium_detail(radius: f32, height: f32) -> Self {
+        Self::new(radius, height).with_segments(32)
+    }
+
+    /// Create cone with medium-high detail (48 segments)
+    pub fn medium_high_detail(radius: f32, height: f32) -> Self {
+        Self::new(radius, height).with_segments(48)
+    }
+
+    /// Create cone with high detail (64 segments)
+    pub fn high_detail(radius: f32, height: f32) -> Self {
+        Self::new(radius, height).with_segments(64)
+    }
+
+    /// Create cone with very high detail (128 segments)
+    pub fn very_high_detail(radius: f32, height: f32) -> Self {
+        Self::new(radius, height).with_segments(128)
+    }
 }
 
 impl Primitive for Cone {
     fn to_mesh(&self) -> Result<Mesh> {
-        // Similar to cylinder but with top radius = 0
-        // Implementation simplified for now
+        validate_finite_positive("cone radius", self.radius)?;
+        validate_finite_positive("cone height", self.height)?;
+        validate_finite_point("cone center", self.center)?;
+        validate_count("cone segments", self.segments, 3)?;
+
         let mut mesh = Mesh::new();
+
+        // Center of base circle
+        let base_center_idx = 0;
+        mesh.vertices.push(Point3::new(
+            self.center.x,
+            self.center.y,
+            self.center.z,
+        ));
+
+        // Base circle vertices
+        for i in 0..=self.segments {
+            let theta = 2.0 * PI * i as f32 / self.segments as f32;
+            let x = self.radius * theta.cos();
+            let z = self.radius * theta.sin();
+
+            mesh.vertices.push(Point3::new(
+                self.center.x + x,
+                self.center.y,
+                self.center.z + z,
+            ));
+        }
+
+        // Apex at top
+        let apex_idx = mesh.vertices.len() as u32;
+        mesh.vertices.push(Point3::new(
+            self.center.x,
+            self.center.y + self.height,
+            self.center.z,
+        ));
+
+        // Base triangles (fan from center)
+        for i in 0..self.segments {
+            let curr = 1 + i;
+            let next = 1 + ((i + 1) % (self.segments + 1));
+
+            mesh.indices.push(base_center_idx);
+            mesh.indices.push(curr);
+            mesh.indices.push(next);
+        }
+
+        // Side triangles (from base to apex)
+        for i in 0..self.segments {
+            let curr = 1 + i;
+            let next = 1 + ((i + 1) % (self.segments + 1));
+
+            mesh.indices.push(curr);
+            mesh.indices.push(apex_idx);
+            mesh.indices.push(next);
+        }
+
+        mesh.compute_normals();
+        mesh.uvs = vec![(0.0, 0.0); mesh.vertices.len()];
+
         Ok(mesh)
     }
 
@@ -332,12 +506,119 @@ impl Torus {
             minor_segments: 24,
         }
     }
+
+    pub fn with_center(mut self, center: Point3<f32>) -> Self {
+        self.center = center;
+        self
+    }
+
+    pub fn with_segments(mut self, major_segments: u32, minor_segments: u32) -> Self {
+        self.major_segments = major_segments;
+        self.minor_segments = minor_segments;
+        self
+    }
+
+    /// Create torus with low detail (16, 8)
+    pub fn low_detail(major_radius: f32, minor_radius: f32) -> Self {
+        Self::new(major_radius, minor_radius).with_segments(16, 8)
+    }
+
+    /// Create torus with medium-low detail (24, 12)
+    pub fn medium_low_detail(major_radius: f32, minor_radius: f32) -> Self {
+        Self::new(major_radius, minor_radius).with_segments(24, 12)
+    }
+
+    /// Create torus with medium detail (48, 24) - default
+    pub fn medium_detail(major_radius: f32, minor_radius: f32) -> Self {
+        Self::new(major_radius, minor_radius).with_segments(48, 24)
+    }
+
+    /// Create torus with medium-high detail (64, 32)
+    pub fn medium_high_detail(major_radius: f32, minor_radius: f32) -> Self {
+        Self::new(major_radius, minor_radius).with_segments(64, 32)
+    }
+
+    /// Create torus with high detail (96, 48)
+    pub fn high_detail(major_radius: f32, minor_radius: f32) -> Self {
+        Self::new(major_radius, minor_radius).with_segments(96, 48)
+    }
+
+    /// Create torus with very high detail (128, 64)
+    pub fn very_high_detail(major_radius: f32, minor_radius: f32) -> Self {
+        Self::new(major_radius, minor_radius).with_segments(128, 64)
+    }
 }
 
 impl Primitive for Torus {
     fn to_mesh(&self) -> Result<Mesh> {
-        // Torus generation - implementation simplified for now
+        validate_finite_positive("torus major radius", self.major_radius)?;
+        validate_finite_positive("torus minor radius", self.minor_radius)?;
+        if self.major_radius <= self.minor_radius {
+            return Err(crate::GeometryError::InvalidParameters(
+                "torus major radius must be greater than minor radius".to_string(),
+            ));
+        }
+        validate_finite_point("torus center", self.center)?;
+        validate_count("torus major segments", self.major_segments, 3)?;
+        validate_count("torus minor segments", self.minor_segments, 3)?;
+
         let mut mesh = Mesh::new();
+
+        // Generate torus vertices
+        for i in 0..=self.major_segments {
+            let theta = 2.0 * PI * i as f32 / self.major_segments as f32;
+            let cos_theta = theta.cos();
+            let sin_theta = theta.sin();
+
+            for j in 0..=self.minor_segments {
+                let phi = 2.0 * PI * j as f32 / self.minor_segments as f32;
+                let cos_phi = phi.cos();
+                let sin_phi = phi.sin();
+
+                // Torus parametric equations
+                let x = (self.major_radius + self.minor_radius * cos_phi) * cos_theta;
+                let y = self.minor_radius * sin_phi;
+                let z = (self.major_radius + self.minor_radius * cos_phi) * sin_theta;
+
+                mesh.vertices.push(Point3::new(
+                    self.center.x + x,
+                    self.center.y + y,
+                    self.center.z + z,
+                ));
+
+                // Normal vector for torus
+                let nx = cos_phi * cos_theta;
+                let ny = sin_phi;
+                let nz = cos_phi * sin_theta;
+                mesh.normals.push(Vector3::new(nx, ny, nz));
+
+                // UV coordinates
+                let u = i as f32 / self.major_segments as f32;
+                let v = j as f32 / self.minor_segments as f32;
+                mesh.uvs.push((u, v));
+            }
+        }
+
+        // Generate indices
+        for i in 0..self.major_segments {
+            for j in 0..self.minor_segments {
+                let curr = i * (self.minor_segments + 1) + j;
+                let next_i = ((i + 1) % (self.major_segments + 1)) * (self.minor_segments + 1) + j;
+                let next_j = curr + 1;
+                let next_both = next_i + 1;
+
+                // First triangle, wound outward.
+                mesh.indices.push(curr);
+                mesh.indices.push(next_j);
+                mesh.indices.push(next_i);
+
+                // Second triangle, wound outward.
+                mesh.indices.push(next_j);
+                mesh.indices.push(next_both);
+                mesh.indices.push(next_i);
+            }
+        }
+
         Ok(mesh)
     }
 
@@ -369,5 +650,44 @@ mod tests {
         let s = Sphere::new(1.0).with_detail(16, 8);
         let mesh = s.to_mesh().unwrap();
         assert!(mesh.vertex_count() > 0);
+    }
+
+    fn signed_volume(mesh: &Mesh) -> f32 {
+        mesh.indices
+            .chunks(3)
+            .map(|chunk| {
+                let a = mesh.vertices[chunk[0] as usize];
+                let b = mesh.vertices[chunk[1] as usize];
+                let c = mesh.vertices[chunk[2] as usize];
+                a.coords.dot(&b.coords.cross(&c.coords)) / 6.0
+            })
+            .sum()
+    }
+
+    #[test]
+    fn test_cylinder_is_capped_and_outward() {
+        let mesh = Cylinder::new(1.0, 2.0).with_segments(8).to_mesh().unwrap();
+        assert_eq!(mesh.vertex_count(), 20);
+        assert_eq!(mesh.triangle_count(), 32);
+        assert!(signed_volume(&mesh) > 0.0);
+    }
+
+    #[test]
+    fn test_cone_and_torus_winding() {
+        let cone = Cone::new(1.0, 2.0).with_segments(8).to_mesh().unwrap();
+        assert!(signed_volume(&cone) > 0.0);
+
+        let torus = Torus::new(2.0, 0.5)
+            .with_segments(12, 8)
+            .to_mesh()
+            .unwrap();
+        assert!(signed_volume(&torus) > 0.0);
+    }
+
+    #[test]
+    fn test_invalid_primitive_parameters_are_rejected() {
+        assert!(Cylinder::new(1.0, 1.0).with_segments(0).to_mesh().is_err());
+        assert!(Sphere::new(1.0).with_detail(0, 8).to_mesh().is_err());
+        assert!(Torus::new(1.0, 1.0).to_mesh().is_err());
     }
 }

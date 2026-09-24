@@ -36,11 +36,64 @@ impl Capsule {
         self.segments = segments;
         self
     }
+
+    /// Create capsule with low detail (4 rings, 8 segments)
+    pub fn low_detail(radius: f32, height: f32) -> Self {
+        Self { radius, height, rings: 4, segments: 8 }
+    }
+
+    /// Create capsule with medium-low detail (6 rings, 12 segments)
+    pub fn medium_low_detail(radius: f32, height: f32) -> Self {
+        Self { radius, height, rings: 6, segments: 12 }
+    }
+
+    /// Create capsule with medium detail (8 rings, 16 segments) - default
+    pub fn medium_detail(radius: f32, height: f32) -> Self {
+        Self::new(radius, height)
+    }
+
+    /// Create capsule with medium-high detail (12 rings, 24 segments)
+    pub fn medium_high_detail(radius: f32, height: f32) -> Self {
+        Self { radius, height, rings: 12, segments: 24 }
+    }
+
+    /// Create capsule with high detail (16 rings, 32 segments)
+    pub fn high_detail(radius: f32, height: f32) -> Self {
+        Self { radius, height, rings: 16, segments: 32 }
+    }
+
+    /// Create capsule with very high detail (24 rings, 48 segments)
+    pub fn very_high_detail(radius: f32, height: f32) -> Self {
+        Self { radius, height, rings: 24, segments: 48 }
+    }
 }
 
 impl Primitive for Capsule {
     fn to_mesh(&self) -> Result<Mesh> {
+        if !self.radius.is_finite() || self.radius <= 0.0 {
+            return Err(crate::GeometryError::InvalidParameters(
+                "capsule radius must be finite and greater than zero".to_string(),
+            ));
+        }
+        if !self.height.is_finite() || self.height < 0.0 {
+            return Err(crate::GeometryError::InvalidParameters(
+                "capsule height must be finite and non-negative".to_string(),
+            ));
+        }
+        if self.rings < 2 {
+            return Err(crate::GeometryError::InvalidParameters(
+                "capsule rings must be at least 2".to_string(),
+            ));
+        }
+        if self.segments < 3 {
+            return Err(crate::GeometryError::InvalidParameters(
+                "capsule segments must be at least 3".to_string(),
+            ));
+        }
+
         let mut mesh = Mesh::new();
+
+        let verts_per_row = (self.segments + 1) as u32;
 
         // Top hemisphere
         for i in 0..=self.rings {
@@ -78,6 +131,28 @@ impl Primitive for Capsule {
                 let x = r * phi.cos();
                 let z = r * phi.sin();
                 mesh.vertices.push(Point3::new(x, y, z));
+            }
+        }
+
+        // Generate indices
+        let total_rows = ((self.rings + 1) * 3) as u32; // top hemisphere + cylinder + bottom hemisphere
+
+        for row in 0..(total_rows - 1) {
+            for seg in 0..(self.segments as u32) {
+                let curr = row * verts_per_row + seg;
+                let next_row = (row + 1) * verts_per_row + seg;
+                let curr_next = curr + 1;
+                let next_row_next = next_row + 1;
+
+                // First triangle, wound outward.
+                mesh.indices.push(curr);
+                mesh.indices.push(curr_next);
+                mesh.indices.push(next_row);
+
+                // Second triangle, wound outward.
+                mesh.indices.push(curr_next);
+                mesh.indices.push(next_row_next);
+                mesh.indices.push(next_row);
             }
         }
 
@@ -658,6 +733,33 @@ impl Primitive for Octahedron {
             Point3::new(-self.size, -self.size, -self.size),
             Point3::new(self.size, self.size, self.size),
         )
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn signed_volume(mesh: &Mesh) -> f32 {
+        mesh.indices
+            .chunks(3)
+            .map(|chunk| {
+                let a = mesh.vertices[chunk[0] as usize];
+                let b = mesh.vertices[chunk[1] as usize];
+                let c = mesh.vertices[chunk[2] as usize];
+                a.coords.dot(&b.coords.cross(&c.coords)) / 6.0
+            })
+            .sum()
+    }
+
+    #[test]
+    fn test_capsule_winding_and_validation() {
+        let mesh = Capsule::new(0.5, 1.0).to_mesh().unwrap();
+        assert!(signed_volume(&mesh) > 0.0);
+        assert!(Capsule::new(0.5, 1.0)
+            .with_detail(1, 8)
+            .to_mesh()
+            .is_err());
     }
 }
 
