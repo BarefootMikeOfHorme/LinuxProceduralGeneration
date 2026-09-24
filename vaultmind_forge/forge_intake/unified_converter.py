@@ -29,11 +29,13 @@ try:
         ConversionEnvelope,
         ConversionLossStatus,
     )
+    from vaultmind_forge.forge_converter.validation import validate_obj_output
 except ModuleNotFoundError:
     from forge_converter.contracts import (
         ConversionEnvelope,
         ConversionLossStatus,
     )
+    from forge_converter.validation import validate_obj_output
 
 
 class ConversionStatus(Enum):
@@ -298,14 +300,31 @@ class UnifiedConverter:
             # Generate VAF-Catalog
             vaf_catalog = self._generate_catalog(vaf_full, filepath)
 
+            warnings = []
+            loss_status = ConversionLossStatus.UNCHECKED
+            if ext == ".obj":
+                loss_status = ConversionLossStatus.REINTERPRETED
+                warnings.append(
+                    "OBJ groups, smoothing, and material semantics are not preserved by the VAF intake parser"
+                )
+
             return ConversionResult(
                 status=ConversionStatus.SUCCESS,
                 source_path=str(filepath),
                 source_format=ext,
+                loss_status=loss_status,
+                warnings=warnings,
                 vaf_full=vaf_full,
                 vaf_catalog=vaf_catalog,
             )
 
+        except NotImplementedError as e:
+            return ConversionResult(
+                status=ConversionStatus.UNSUPPORTED,
+                source_path=str(filepath),
+                source_format=ext,
+                errors=[str(e)],
+            )
         except Exception as e:
             return ConversionResult(
                 status=ConversionStatus.FAILED,
@@ -349,11 +368,9 @@ class UnifiedConverter:
         ir.source_format = spec.extension
         ir.source_file = filepath.name
 
-        # Most scene formats require external tools
-        # For now, extract basic metadata
-        self._parse_generic_scene(filepath, ir)
-
-        return ir
+        raise NotImplementedError(
+            f"Scene intake for {spec.extension} requires a validated external scene worker"
+        )
 
     def _parse_texture(self, filepath: Path, spec: FormatSpec) -> IntermediateRepresentation:
         """Parse texture/image formats"""
@@ -379,8 +396,7 @@ class UnifiedConverter:
                 }
                 ir.textures.append(texture)
         except Exception as e:
-            # PIL not available or image couldn't be opened
-            pass
+            raise ValueError(f"Image intake validation failed for {filepath}: {e}") from e
 
         return ir
 
@@ -401,119 +417,94 @@ class UnifiedConverter:
     # =========================================================================
 
     def _parse_obj(self, filepath: Path, ir: IntermediateRepresentation):
-        """Parse Wavefront OBJ file (basic implementation)"""
+        """Parse and independently validate a Wavefront OBJ file."""
+        validation = validate_obj_output(filepath)
+        if not validation.valid:
+            raise ValueError("; ".join(validation.errors))
+
         vertices = []
         normals = []
         uvs = []
-        faces = []
+        triangles = []
 
-        try:
-            with open(filepath, 'r') as f:
-                for line in f:
-                    line = line.strip()
-                    if not line or line.startswith('#'):
-                        continue
+        with filepath.open('r', encoding='utf-8') as f:
+            for line_number, raw_line in enumerate(f, 1):
+                line = raw_line.strip()
+                if not line or line.startswith('#'):
+                    continue
+                parts = line.split()
+                if not parts:
+                    continue
 
-                    parts = line.split()
-                    if not parts:
-                        continue
+                directive = parts[0]
+                if directive == 'v':
+                    if len(parts) < 4:
+                        raise ValueError(f"line {line_number}: vertex requires x/y/z")
+                    vertices.append([float(parts[1]), float(parts[2]), float(parts[3])])
+                elif directive == 'vn':
+                    if len(parts) < 4:
+                        raise ValueError(f"line {line_number}: normal requires x/y/z")
+                    normals.append([float(parts[1]), float(parts[2]), float(parts[3])])
+                elif directive == 'vt':
+                    if len(parts) < 3:
+                        raise ValueError(f"line {line_number}: UV requires u/v")
+                    uvs.append([float(parts[1]), float(parts[2])])
+                elif directive == 'f':
+                    corners = parts[1:]
+                    if len(corners) < 3:
+                        raise ValueError(f"line {line_number}: face requires at least three corners")
+                    for index in range(1, len(corners) - 1):
+                        triangles.append([corners[0], corners[index], corners[index + 1]])
 
-                    if parts[0] == 'v':  # Vertex
-                        vertices.append([float(parts[1]), float(parts[2]), float(parts[3])])
-                    elif parts[0] == 'vn':  # Normal
-                        normals.append([float(parts[1]), float(parts[2]), float(parts[3])])
-                    elif parts[0] == 'vt':  # UV
-                        uvs.append([float(parts[1]), float(parts[2])])
-                    elif parts[0] == 'f':  # Face
-                        faces.append(parts[1:])
+        mesh = {
+            "name": filepath.stem,
+            "vertices": {
+                "count": len(vertices),
+                "positions": vertices,
+                "normals": normals if normals else None,
+                "uvs": [uvs] if uvs else [],
+            },
+            "indices": {
+                "count": len(triangles) * 3,
+                "data": triangles,
+            },
+        }
 
-            # Build mesh
-            mesh = {
-                "name": filepath.stem,
-                "vertices": {
-                    "count": len(vertices),
-                    "positions": vertices,  # In real implementation, reference binary buffer
-                    "normals": normals if normals else None,
-                    "uvs": [uvs] if uvs else [],
-                },
-                "indices": {
-                    "count": len(faces) * 3,  # Simplified
-                    "data": faces,
-                }
-            }
-
-            ir.meshes.append(mesh)
-            ir.total_vertices = len(vertices)
-            ir.total_triangles = len(faces)
-            ir.has_normals = bool(normals)
-            ir.has_uvs = bool(uvs)
-
-        except Exception as e:
-            print(f"[WARN] OBJ parsing error: {e}")
+        ir.meshes.append(mesh)
+        ir.total_vertices = len(vertices)
+        ir.total_triangles = len(triangles)
+        ir.has_normals = bool(normals)
+        ir.has_uvs = bool(uvs)
 
     def _parse_gltf(self, filepath: Path, ir: IntermediateRepresentation):
-        """Parse glTF/GLB format (basic implementation)"""
-        try:
-            # For .gltf (JSON)
-            if filepath.suffix == ".gltf":
-                with open(filepath, 'r') as f:
-                    gltf_data = json.load(f)
-
-                # Extract basic info
-                if "meshes" in gltf_data:
-                    for mesh_data in gltf_data["meshes"]:
-                        mesh = {
-                            "name": mesh_data.get("name", "mesh"),
-                            "vertices": {"count": 0},  # Would need to parse accessors
-                        }
-                        ir.meshes.append(mesh)
-
-                ir.has_normals = True  # glTF typically has normals
-                ir.has_uvs = True
-
-            # For .glb (binary), would need proper binary parsing
-            else:
-                ir.has_normals = True
-                ir.has_uvs = True
-
-        except Exception as e:
-            print(f"[WARN] glTF parsing error: {e}")
+        raise NotImplementedError(
+            "glTF/GLB intake requires a validated accessor and buffer parser"
+        )
 
     def _parse_fbx(self, filepath: Path, ir: IntermediateRepresentation):
-        """Parse FBX format (requires external library)"""
-        # FBX is binary/proprietary - would need fbx library or Blender
-        # For now, just mark as present
-        ir.has_normals = True
-        ir.has_uvs = True
-        print(f"[INFO] FBX parsing requires external tool (Blender/FBX SDK)")
+        raise NotImplementedError(
+            "FBX intake requires the planned Blender/FBX worker"
+        )
 
     def _parse_collada(self, filepath: Path, ir: IntermediateRepresentation):
-        """Parse COLLADA (.dae) format"""
-        # XML-based, would parse with xml.etree.ElementTree
-        ir.has_normals = True
-        ir.has_uvs = True
-        print(f"[INFO] COLLADA parsing not yet implemented")
+        raise NotImplementedError(
+            "COLLADA intake requires a validated XML geometry parser"
+        )
 
     def _parse_usd(self, filepath: Path, ir: IntermediateRepresentation):
-        """Parse USD formats"""
-        # Would require USD library
-        ir.has_normals = True
-        ir.has_uvs = True
-        print(f"[INFO] USD parsing requires Pixar USD library")
+        raise NotImplementedError(
+            "USD intake requires a validated Pixar USD or OpenUSD worker"
+        )
 
     def _parse_stl(self, filepath: Path, ir: IntermediateRepresentation):
-        """Parse STL format (basic implementation)"""
-        # STL is simple triangle format
-        ir.has_normals = True  # STL has per-face normals
-        ir.has_uvs = False  # STL doesn't support UVs
-        print(f"[INFO] STL parsing not yet fully implemented")
+        raise NotImplementedError(
+            "STL intake requires a validated native STL loader"
+        )
 
     def _parse_ply(self, filepath: Path, ir: IntermediateRepresentation):
-        """Parse PLY format"""
-        ir.has_normals = False
-        ir.has_uvs = False
-        ir.has_vertex_colors = True  # PLY often has vertex colors
-        print(f"[INFO] PLY parsing not yet fully implemented")
+        raise NotImplementedError(
+            "PLY intake requires a validated PLY parser"
+        )
 
     def _parse_mtl(self, filepath: Path, ir: IntermediateRepresentation):
         """Parse OBJ material file"""

@@ -85,6 +85,16 @@ def test_freecad_detection_is_side_effect_free():
         assert capabilities.error
 
 
+def test_intake_placeholder_format_is_explicitly_unsupported(tmp_path: Path):
+    source = tmp_path / "model.dae"
+    source.write_text("<COLLADA/>", encoding="utf-8")
+
+    result = UnifiedConverter().convert(source, "asset-2")
+
+    assert result.status == ConversionStatus.UNSUPPORTED
+    assert result.to_envelope("asset-2").loss_status.value == "unsupported"
+
+
 def test_build123d_default_capability():
     capabilities = get_build123d_capabilities()
     assert capabilities.available
@@ -157,4 +167,5 @@ def test_intake_result_exposes_canonical_envelope(tmp_path: Path):
     assert result.status == ConversionStatus.SUCCESS
     assert envelope.source_format == ".obj"
     assert envelope.target_format == "vaf"
-    assert envelope.loss_status == ConversionLossStatus.UNCHECKED
+    assert envelope.loss_status == ConversionLossStatus.REINTERPRETED
+    assert envelope.warnings
