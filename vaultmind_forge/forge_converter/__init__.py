@@ -69,6 +69,7 @@ try:
     )
     from .build123d_worker import execute_isolated_plan
     from .freecad_adapter import FreeCADCapabilities, get_freecad_capabilities
+    from .doctor import collect_doctor_report
     __all__ = [
         'AssetConverter',
         'ConversionOptions',
@@ -96,6 +97,7 @@ try:
         'execute_isolated_plan',
         'FreeCADCapabilities',
         'get_freecad_capabilities',
+        'collect_doctor_report',
         'ConversionProfile',
         'TargetEngine',
         'AssetType'

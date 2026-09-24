@@ -15,6 +15,7 @@ from vaultmind_forge.forge_converter import (
     get_cad_profiles,
     get_default_cad_profile,
     get_freecad_capabilities,
+    collect_doctor_report,
     validate_output,
 )
 from vaultmind_forge.forge_intake.unified_converter import (
@@ -68,6 +69,14 @@ def test_build123d_structured_plan_runs_in_worker(tmp_path: Path):
 
     assert result.loss_status.value == "reinterpreted"
     assert Path(result.output_path).is_file()
+
+
+def test_doctor_report_is_non_secret_and_structured():
+    report = collect_doctor_report()
+    assert report["schema_version"] == "1.0"
+    assert report["build123d"]["available"] is True
+    assert "optional_commands" in report
+    assert "api_key" not in str(report).lower()
 
 
 def test_cad_profile_registry_marks_build123d_default():

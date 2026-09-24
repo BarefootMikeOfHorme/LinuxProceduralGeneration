@@ -21,6 +21,14 @@ def main_callback():
 def version():
     console.print(f"VaultMind Forge v{__version__}")
 
+@app.command()
+def doctor():
+    """Print non-mutating LPG environment and optional-tool diagnostics."""
+    from .forge_converter import collect_doctor_report
+
+    console.print_json(json.dumps(collect_doctor_report()))
+
+
 @app.command("cad-capabilities")
 def cad_capabilities():
     """Show available CAD backends and profile metadata as JSON."""

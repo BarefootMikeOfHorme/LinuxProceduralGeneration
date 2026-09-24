@@ -461,7 +461,7 @@ Validation:
 - STEP output: 15,418 bytes for a test box.
 - STL output: 684 bytes for a test box.
 - `pip check` reported no broken requirements.
-- Targeted asset contract tests: 11 passed.
+- Targeted asset contract tests: 12 passed.
 - GUI-safe build123d envelope test passed for a fixed box with STEP/STL output.
 - Structured AI plan smoke passed for a box-minus-cylinder boolean plan.
 - CAD profile registry test passed: build123d default; FreeCAD/OpenSCAD/Blender optional.
@@ -469,6 +469,7 @@ Validation:
 - FreeCAD detection smoke passed without launching or installing FreeCAD.
 - CLI `cad-capabilities` and isolated `cad-execute` smoke passed with STEP/STL output.
 - Installed `.venv312\Scripts\forge.exe --help` and `forge cad-capabilities` passed after fixing package-qualified imports.
+- `forge doctor` reports Python, build123d, FreeCAD, native extension, Cargo, OpenSCAD, Blender, FFmpeg, and Docker capability state without launching tools or reading secrets.
 
 ## Phase 8 — WSL/Linux package manager and wizard
 
@@ -562,8 +563,8 @@ These reports are inputs, not automatic current verification. Future changes sho
 ```text
 Last active arm: Arm 3 — asset envelope and conversion honesty
 Status: [V] envelope, OBJ adapter, and image adapter smoke validated; broader formats pending
-Files changed: startup/package files; forge_3d lazy native loader; Rust geometry/OBJ/export/PyO3; forge_converter/contracts.py, validation.py, converter.py, build123d_adapter.py, build123d_ai.py, build123d_worker.py, freecad_adapter.py, and cad_profiles.py; forge_intake envelope/OBJ validation migration; OpenSCAD worker detection; default build123d dependency; FreeCAD secondary starter documentation; Python module and console CLI entry points; CAD capability/execution CLI commands; package-relative import repairs
-Checks run: Python import/registry/CLI/schema smoke; source and isolated `python -m vaultmind_forge --help`; clean Python wheel build/import; final isolated Python package wheel/import; full cargo test (35 passed); Maturin native wheel build/install; final Python ABI probe; asset-contract smoke; OBJ/image adapter smoke; independent validator smoke; build123d capability/STEP/STL/envelope/structured-plan/worker smoke; CAD profile registry smoke; FreeCAD detection smoke; CLI CAD capability/execution smoke; targeted pytest (11 passed); intake envelope/OBJ/unsupported smoke; git diff --check
+Files changed: startup/package files; forge_3d lazy native loader; Rust geometry/OBJ/export/PyO3; forge_converter/contracts.py, validation.py, converter.py, build123d_adapter.py, build123d_ai.py, build123d_worker.py, freecad_adapter.py, doctor.py, and cad_profiles.py; forge_intake envelope/OBJ validation migration; OpenSCAD worker detection; default build123d dependency; FreeCAD secondary starter documentation; Python module and console CLI entry points; CAD capability/execution/doctor CLI commands; package-relative import repairs
+Checks run: Python import/registry/CLI/schema smoke; source and isolated `python -m vaultmind_forge --help`; clean Python wheel build/import; final isolated Python package wheel/import; full cargo test (35 passed); Maturin native wheel build/install; final Python ABI probe; asset-contract smoke; OBJ/image adapter smoke; independent validator smoke; build123d capability/STEP/STL/envelope/structured-plan/worker smoke; CAD profile registry smoke; FreeCAD detection smoke; CLI CAD capability/execution/doctor smoke; targeted pytest (12 passed); intake envelope/OBJ/unsupported smoke; git diff --check
 Evidence: GAMEPLAN.md Arm 1/Arm 2/Arm 3 sections; temporary wheels under approved OpenCode temp directory
 Open questions: WSL/Linux OpenSCAD availability; full primitive UV/manifold/determinism matrix; migration of forge_intake to ConversionEnvelope
 Known limitations: additional_nodes module absent; self-intersection status is unknown; QEM and spanning CSG explicitly unsupported; FBX/glTF explicitly unsupported; OpenSCAD binary absent; build123d arbitrary-script worker is not implemented; FreeCAD is documented as a secondary option but not detected/provisioned; media/Blender/archive adapters unsupported
