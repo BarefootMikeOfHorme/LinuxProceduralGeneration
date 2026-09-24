@@ -402,7 +402,7 @@ contract -> build/provision -> smoke -> validate -> wire -> document -> advance
 ### FreeCAD arm
 
 - [x] Mark FreeCAD as the recommended secondary GUI/headless CAD application.
-- [ ] Add FreeCAD/FreeCADCmd detection without auto-installing it.
+- [x] Add FreeCAD/FreeCADCmd detection without auto-installing it.
 - [ ] Define FreeCAD document/STEP/IGES job contract.
 - [ ] Add isolated FreeCAD worker and resource limits.
 - [ ] Add independent STEP/IGES/FCStd output validation.
@@ -459,11 +459,12 @@ Validation:
 - STEP output: 15,418 bytes for a test box.
 - STL output: 684 bytes for a test box.
 - `pip check` reported no broken requirements.
-- Targeted asset contract tests: 9 passed.
+- Targeted asset contract tests: 10 passed.
 - GUI-safe build123d envelope test passed for a fixed box with STEP/STL output.
 - Structured AI plan smoke passed for a box-minus-cylinder boolean plan.
 - CAD profile registry test passed: build123d default; FreeCAD/OpenSCAD/Blender optional.
 - Isolated structured-plan worker test passed with STEP/STL output.
+- FreeCAD detection smoke passed without launching or installing FreeCAD.
 
 ## Phase 8 — WSL/Linux package manager and wizard
 
@@ -557,8 +558,8 @@ These reports are inputs, not automatic current verification. Future changes sho
 ```text
 Last active arm: Arm 3 — asset envelope and conversion honesty
 Status: [V] envelope, OBJ adapter, and image adapter smoke validated; broader formats pending
-Files changed: startup/package files; forge_3d lazy native loader; Rust geometry/OBJ/export/PyO3; forge_converter/contracts.py, validation.py, converter.py, build123d_adapter.py, build123d_ai.py, build123d_worker.py, and cad_profiles.py; forge_intake envelope compatibility; OpenSCAD worker detection; default build123d dependency; FreeCAD secondary starter documentation
-Checks run: Python import/registry/CLI/schema smoke; clean Python wheel build/import; final isolated Python package wheel/import; full cargo test (35 passed); Maturin native wheel build/install; final Python ABI probe; asset-contract smoke; OBJ/image adapter smoke; independent validator smoke; build123d capability/STEP/STL/envelope/structured-plan/worker smoke; CAD profile registry smoke; targeted pytest (9 passed); intake envelope smoke; git diff --check
+Files changed: startup/package files; forge_3d lazy native loader; Rust geometry/OBJ/export/PyO3; forge_converter/contracts.py, validation.py, converter.py, build123d_adapter.py, build123d_ai.py, build123d_worker.py, freecad_adapter.py, and cad_profiles.py; forge_intake envelope compatibility; OpenSCAD worker detection; default build123d dependency; FreeCAD secondary starter documentation
+Checks run: Python import/registry/CLI/schema smoke; clean Python wheel build/import; final isolated Python package wheel/import; full cargo test (35 passed); Maturin native wheel build/install; final Python ABI probe; asset-contract smoke; OBJ/image adapter smoke; independent validator smoke; build123d capability/STEP/STL/envelope/structured-plan/worker smoke; CAD profile registry smoke; FreeCAD detection smoke; targeted pytest (10 passed); intake envelope smoke; git diff --check
 Evidence: GAMEPLAN.md Arm 1/Arm 2/Arm 3 sections; temporary wheels under approved OpenCode temp directory
 Open questions: WSL/Linux OpenSCAD availability; full primitive UV/manifold/determinism matrix; migration of forge_intake to ConversionEnvelope
 Known limitations: additional_nodes module absent; self-intersection status is unknown; QEM and spanning CSG explicitly unsupported; FBX/glTF explicitly unsupported; OpenSCAD binary absent; build123d arbitrary-script worker is not implemented; FreeCAD is documented as a secondary option but not detected/provisioned; media/Blender/archive adapters unsupported

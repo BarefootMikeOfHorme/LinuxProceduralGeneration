@@ -68,6 +68,7 @@ try:
         plan_from_dict,
     )
     from .build123d_worker import execute_isolated_plan
+    from .freecad_adapter import FreeCADCapabilities, get_freecad_capabilities
     __all__ = [
         'AssetConverter',
         'ConversionOptions',
@@ -93,6 +94,8 @@ try:
         'get_ai_tool_manifest',
         'plan_from_dict',
         'execute_isolated_plan',
+        'FreeCADCapabilities',
+        'get_freecad_capabilities',
         'ConversionProfile',
         'TargetEngine',
         'AssetType'

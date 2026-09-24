@@ -14,6 +14,7 @@ from vaultmind_forge.forge_converter import (
     plan_from_dict,
     get_cad_profiles,
     get_default_cad_profile,
+    get_freecad_capabilities,
     validate_output,
 )
 from vaultmind_forge.forge_intake.unified_converter import (
@@ -74,6 +75,14 @@ def test_cad_profile_registry_marks_build123d_default():
     profiles = {profile.profile_id: profile for profile in get_cad_profiles()}
     assert profiles["freecad"].default is False
     assert profiles["openscad"].install_kind == "external_application"
+
+
+def test_freecad_detection_is_side_effect_free():
+    capabilities = get_freecad_capabilities()
+    assert capabilities.backend == "freecad"
+    assert isinstance(capabilities.available, bool)
+    if not capabilities.available:
+        assert capabilities.error
 
 
 def test_build123d_default_capability():
