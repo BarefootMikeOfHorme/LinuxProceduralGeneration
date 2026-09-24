@@ -589,8 +589,8 @@ At the end of each future work session, update the same fields with current evid
 
 ## Immediate next action
 
-Arms 1 and 2 have passed their source/package/native validation gates. Arm 3 has passing OBJ/image/validator/intake smoke gates, and build123d is now the default installed B-rep runtime. The next active step is:
+The core native/PyO3 and `forge_3d` source is now tracked. The next active step is:
 
-**Build123d worker boundary.**
+**Native geometry/PyO3 reconciliation.**
 
-Define isolated execution for arbitrary build123d source, then continue replacing remaining `forge_intake` placeholder parser results.
+Run the full Rust suite and Python binding smoke against the now-tracked source, finish remaining primitive/UV/manifold/determinism checks, and close the native geometry arm before expanding further into media, WSL, providers, AL1, or UI work.
