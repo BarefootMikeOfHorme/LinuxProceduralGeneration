@@ -101,8 +101,17 @@ cd LinuxProceduralGeneration
 python -m venv .venv312
 source .venv312/bin/activate  # Windows: .venv312\Scripts\activate
 
-# Install dependencies
-pip install -r requirements.txt
+# Base library/CLI install (includes build123d B-rep CAD)
+pip install -e .
+
+# API profile
+pip install -e ".[api]"
+
+# Local AI profile (platform/CUDA selection is handled by the environment)
+pip install -e ".[ai]"
+
+# Native build tooling
+pip install -e ".[native-build]"
 
 # Configure
 cp .env.example .env
@@ -110,6 +119,25 @@ cp .env.example .env
 # Launch
 python -m vaultmind_forge
 ```
+
+## CAD Profiles
+
+LPG supports multiple CAD backends instead of treating one application as the
+only CAD authority:
+
+- **build123d** — the default Python B-rep/CAD-as-code runtime included in the
+  base LPG install. It brings the OpenCascade/OCP dependency stack and should
+  still run behind an isolated worker boundary for untrusted jobs.
+- **FreeCAD** — recommended secondary GUI/headless application for users who
+  want interactive parametric CAD, STEP/IGES/FCStd workflows, and
+  `FreeCADCmd` automation. The setup wizard can detect or add it later; it is
+  not a pip dependency.
+- **OpenSCAD** — optional lightweight CSG and `.scad` procedural worker.
+- **Blender** — optional scene, rendering, animation, and visual asset worker.
+
+The Rust/PyO3 LPG core remains independent of these backends. Each backend
+must report its own capability, conversion-loss, provenance, and validation
+results.
 
 ---
 

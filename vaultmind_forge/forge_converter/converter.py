@@ -13,6 +13,11 @@ from dataclasses import dataclass, asdict
 from enum import Enum
 
 from . import ConversionProfile, TargetEngine, AssetType
+from .contracts import (
+    ConversionEnvelope,
+    ConversionLossStatus,
+    ConversionUnsupportedError,
+)
 
 
 @dataclass
@@ -49,6 +54,10 @@ class ConversionResult:
     errors: List[str] = None
     warnings: List[str] = None
     metadata: Dict = None
+    source_format: Optional[str] = None
+    target_format: Optional[str] = None
+    loss_status: ConversionLossStatus = ConversionLossStatus.UNCHECKED
+    loss_reasons: List[str] = None
 
     def __post_init__(self):
         if self.optimizations_applied is None:
@@ -57,12 +66,45 @@ class ConversionResult:
             self.errors = []
         if self.warnings is None:
             self.warnings = []
+        if self.loss_reasons is None:
+            self.loss_reasons = []
         if self.metadata is None:
             self.metadata = {}
 
     def to_dict(self) -> Dict:
-        """Convert result to dictionary."""
-        return asdict(self)
+        """Convert result to a JSON-compatible dictionary."""
+        data = asdict(self)
+        data["loss_status"] = self.loss_status.value
+        return data
+
+    def to_envelope(self) -> ConversionEnvelope:
+        """Return the canonical loss-aware conversion envelope."""
+        return ConversionEnvelope(
+            asset_id=str(self.metadata.get("asset_id", "")),
+            source_path=self.source_path,
+            source_format=self.source_format or "",
+            target_engine=self.target_engine,
+            target_format=self.target_format,
+            output_path=self.output_path,
+            loss_status=self.loss_status,
+            loss_reasons=list(self.loss_reasons),
+            warnings=list(self.warnings),
+            errors=list(self.errors),
+            metadata={
+                **self.metadata,
+                "processing_time_ms": self.processing_time_ms,
+                "file_size_original": self.file_size_original,
+                "file_size_output": self.file_size_output,
+                "compression_ratio": self.compression_ratio,
+                "optimizations_applied": list(self.optimizations_applied),
+            },
+            provenance={
+                "tool": "forge_converter.AssetConverter",
+                "operation": "convert",
+                "profile": self.profile,
+                "target_engine": self.target_engine,
+            },
+        )
 
 
 class AssetConverter:
@@ -193,11 +235,13 @@ class AssetConverter:
             success=False,
             source_path=str(asset_path),
             target_engine=target_engine.value,
-            profile=profile.value
+            profile=profile.value,
+            source_format=asset_path.suffix.lower().lstrip("."),
         )
 
         # Validate source file exists
         if not asset_path.exists():
+            result.loss_status = ConversionLossStatus.FAILED
             result.errors.append(f"Source file not found: {asset_path}")
             return result
 
@@ -214,6 +258,12 @@ class AssetConverter:
         if options is None:
             options = ConversionOptions()
 
+        # A texture adapter may request an explicit output format. This keeps
+        # the default path shape stable while allowing real image conversion.
+        requested_texture_format = None
+        if asset_type == AssetType.TEXTURE:
+            requested_texture_format = options.custom_options.get("target_format")
+
         # Create output directory
         output_dir = self.output_base / target_engine.value
         output_dir.mkdir(parents=True, exist_ok=True)
@@ -226,7 +276,12 @@ class AssetConverter:
             # Asset is not in source_dir, just use filename
             output_path = output_dir / asset_path.name
 
+        if requested_texture_format:
+            normalized_format = str(requested_texture_format).lower().lstrip(".")
+            output_path = output_path.with_suffix(f".{normalized_format}")
+
         output_path.parent.mkdir(parents=True, exist_ok=True)
+        result.target_format = output_path.suffix.lower().lstrip(".")
 
         # Perform conversion based on asset type and target engine
         try:
@@ -237,7 +292,22 @@ class AssetConverter:
             elif asset_type == AssetType.ANIMATION:
                 self._convert_animation(asset_path, output_path, target_engine, profile_settings, options, result)
             else:
+                result.loss_status = ConversionLossStatus.UNSUPPORTED
                 result.errors.append(f"Unsupported asset type: {asset_type}")
+                return result
+
+            if not output_path.exists():
+                result.loss_status = ConversionLossStatus.FAILED
+                result.errors.append(f"Conversion adapter did not produce output: {output_path}")
+                return result
+
+            from .validation import validate_output
+
+            validation = validate_output(output_path)
+            result.metadata["output_validation"] = validation.to_dict()
+            if not validation.valid:
+                result.loss_status = ConversionLossStatus.FAILED
+                result.errors.extend(validation.errors)
                 return result
 
             result.success = True
@@ -249,7 +319,11 @@ class AssetConverter:
                 if result.file_size_original > 0:
                     result.compression_ratio = result.file_size_output / result.file_size_original
 
+        except ConversionUnsupportedError as error:
+            result.loss_status = ConversionLossStatus.UNSUPPORTED
+            result.errors.append(str(error))
         except Exception as e:
+            result.loss_status = ConversionLossStatus.FAILED
             result.errors.append(f"Conversion failed: {str(e)}")
 
         # Calculate processing time
@@ -266,17 +340,37 @@ class AssetConverter:
         options: ConversionOptions,
         result: ConversionResult
     ):
-        """Convert 3D model asset."""
-        # TODO: Implement actual model conversion
-        # This is a placeholder implementation
+        """Convert an OBJ asset through the native geometry path."""
+        if source.suffix.lower() != ".obj" or output.suffix.lower() != ".obj":
+            raise ConversionUnsupportedError(
+                "Only OBJ-to-OBJ model conversion is currently validated"
+            )
 
-        result.warnings.append("Model conversion not yet fully implemented - using placeholder")
+        from ..forge_3d._native import load_native
 
-        # Simulate conversion by copying file
-        import shutil
-        shutil.copy2(source, output)
+        native = load_native()
+        rust_mesh = native.load_obj(str(source))
+        if target_engine == TargetEngine.UNITY:
+            native.export_for_unity(rust_mesh, str(output))
+        elif target_engine == TargetEngine.UNREAL:
+            native.export_for_unreal(rust_mesh, str(output))
+        elif target_engine == TargetEngine.GODOT:
+            native.export_for_godot(rust_mesh, str(output))
+        else:
+            rust_mesh.export_obj(str(output))
 
-        result.optimizations_applied.append("placeholder_conversion")
+        result.loss_status = ConversionLossStatus.REINTERPRETED
+        result.loss_reasons.append(
+            "OBJ groups, smoothing, and material semantics are not preserved"
+        )
+        result.optimizations_applied.append("native_obj_reimport_export")
+        result.metadata.update(
+            {
+                "adapter": "native_obj",
+                "source_vertex_count": rust_mesh.vertex_count,
+                "source_triangle_count": rust_mesh.triangle_count,
+            }
+        )
 
     def _convert_texture(
         self,
@@ -287,17 +381,55 @@ class AssetConverter:
         options: ConversionOptions,
         result: ConversionResult
     ):
-        """Convert texture asset."""
-        # TODO: Implement actual texture conversion
-        # This is a placeholder implementation
+        """Convert a texture through Pillow with explicit loss reporting."""
+        from PIL import Image
 
-        result.warnings.append("Texture conversion not yet fully implemented - using placeholder")
+        target_format = output.suffix.lower().lstrip(".")
+        format_names = {
+            "png": "PNG",
+            "jpg": "JPEG",
+            "jpeg": "JPEG",
+            "webp": "WEBP",
+            "tif": "TIFF",
+            "tiff": "TIFF",
+            "bmp": "BMP",
+        }
+        save_format = format_names.get(target_format)
+        if save_format is None:
+            raise ConversionUnsupportedError(
+                f"Image output format '.{target_format}' is not validated"
+            )
 
-        # Simulate conversion by copying file
-        import shutil
-        shutil.copy2(source, output)
+        with Image.open(source) as image:
+            image.load()
+            source_mode = image.mode
+            if save_format == "JPEG" and source_mode not in {"RGB", "L"}:
+                raise ConversionUnsupportedError(
+                    f"JPEG output does not support source mode {source_mode}"
+                )
 
-        result.optimizations_applied.append("placeholder_conversion")
+            save_options = {}
+            if save_format == "JPEG":
+                save_options = {"quality": 95, "subsampling": 0}
+            elif save_format == "WEBP":
+                save_options = {"lossless": True}
+            image.save(output, format=save_format, **save_options)
+
+        result.metadata.update(
+            {
+                "adapter": "pillow_image",
+                "source_mode": source_mode,
+                "target_format": save_format,
+            }
+        )
+        if save_format == "JPEG":
+            result.loss_status = ConversionLossStatus.LOSSY
+            result.loss_reasons.append("JPEG encoding is lossy")
+        else:
+            result.loss_status = ConversionLossStatus.REINTERPRETED
+            result.loss_reasons.append(
+                "Pixel data is preserved, but ancillary image metadata is not guaranteed"
+            )
 
     def _convert_animation(
         self,
@@ -309,16 +441,10 @@ class AssetConverter:
         result: ConversionResult
     ):
         """Convert animation asset."""
-        # TODO: Implement actual animation conversion
-        # This is a placeholder implementation
-
-        result.warnings.append("Animation conversion not yet fully implemented - using placeholder")
-
-        # Simulate conversion by copying file
-        import shutil
-        shutil.copy2(source, output)
-
-        result.optimizations_applied.append("placeholder_conversion")
+        raise ConversionUnsupportedError(
+            f"Animation conversion for {target_engine.value} is not implemented; "
+            "use a validated media adapter instead of copying the source"
+        )
 
     def batch_convert(
         self,

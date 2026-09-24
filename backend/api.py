@@ -19,7 +19,9 @@ from backend.persistence import get_persistence
 
 # Import rate limiting
 from backend.rate_limiter import limiter, get_rate_limit
+from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
+from slowapi.middleware import SlowAPIASGIMiddleware
 
 # Import logging
 from backend.logging_config import setup_logging, log_exception
@@ -57,7 +59,8 @@ app = FastAPI(title="VaultMind Forge API", version="1.0.0")
 
 # Add rate limiter to app
 app.state.limiter = limiter
-app.add_exception_handler(RateLimitExceeded, limiter._rate_limit_exceeded_handler)
+app.add_middleware(SlowAPIASGIMiddleware)
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # Configure CORS (environment-based for security)
 cors_origins = os.getenv(
@@ -299,11 +302,12 @@ async def run_workflow_execution(execution_id: str, workflow: WorkflowRequest):
 
         # Execute workflow (validation + topological sort + execution)
         node_outputs = engine.execute_workflow(workflow)
+        execution_order = engine.get_execution_order()
 
         await update_execution({"percentage": 90})
 
         logger.info(f"Workflow completed successfully")
-        logger.debug(f"Executed {len(engine.execution_order)} nodes in order: {engine.execution_order}")
+        logger.debug(f"Executed {len(execution_order)} nodes in order: {execution_order}")
 
         # Generate previews for visual outputs
         previews = generate_previews(node_outputs)
@@ -322,23 +326,16 @@ async def run_workflow_execution(execution_id: str, workflow: WorkflowRequest):
                 workflow_id=execution_id
             )
 
-        # Optional: Send telemetry (async, non-blocking)
-        if TELEMETRY_ENABLED:
-            import asyncio            asyncio.create_task(
-                telemetry.track_workflow_execution(
-                    node_count=len(workflow.nodes),
-                    duration_ms=duration_ms,
-                    success=True
-                )
-            )
+        # Telemetry is intentionally not wired here. Local analytics above
+        # remains the supported reporting path until a telemetry adapter exists.
 
         await update_execution({
             "status": "completed",
             "percentage": 100,
             "results": {
                 "message": "Workflow executed successfully with NEW engine",
-                "nodes_executed": len(engine.execution_order),
-                "execution_order": engine.execution_order,
+                "nodes_executed": len(execution_order),
+                "execution_order": execution_order,
                 "node_outputs": node_outputs,
                 "previews": previews,
             }

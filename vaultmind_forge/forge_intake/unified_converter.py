@@ -24,6 +24,17 @@ from enum import Enum
 
 from .format_registry import FormatRegistry, FormatSpec, FormatFamily
 
+try:
+    from vaultmind_forge.forge_converter.contracts import (
+        ConversionEnvelope,
+        ConversionLossStatus,
+    )
+except ModuleNotFoundError:
+    from forge_converter.contracts import (
+        ConversionEnvelope,
+        ConversionLossStatus,
+    )
+
 
 class ConversionStatus(Enum):
     """Status of conversion operation"""
@@ -41,12 +52,44 @@ class ConversionResult:
     vaf_catalog: Optional[Dict] = None
     warnings: List[str] = None
     errors: List[str] = None
+    source_path: str = ""
+    source_format: str = ""
+    loss_status: Optional[ConversionLossStatus] = None
 
     def __post_init__(self):
         if self.warnings is None:
             self.warnings = []
         if self.errors is None:
             self.errors = []
+        if self.loss_status is None:
+            self.loss_status = {
+                ConversionStatus.SUCCESS: ConversionLossStatus.UNCHECKED,
+                ConversionStatus.PARTIAL: ConversionLossStatus.APPROXIMATED,
+                ConversionStatus.FAILED: ConversionLossStatus.FAILED,
+                ConversionStatus.UNSUPPORTED: ConversionLossStatus.UNSUPPORTED,
+            }[self.status]
+
+    def to_envelope(self, asset_id: str = "") -> ConversionEnvelope:
+        """Expose the intake result through the canonical conversion contract."""
+        return ConversionEnvelope(
+            asset_id=asset_id,
+            source_path=self.source_path,
+            source_format=self.source_format,
+            target_format="vaf",
+            media_type="application/x-vaf+json",
+            loss_status=self.loss_status,
+            warnings=list(self.warnings),
+            errors=list(self.errors),
+            metadata={
+                "vaf_full": self.vaf_full,
+                "vaf_catalog": self.vaf_catalog,
+            },
+            provenance={
+                "tool": "forge_intake.UnifiedConverter",
+                "operation": "intake_to_vaf",
+                "status": self.status.value,
+            },
+        )
 
 
 class IntermediateRepresentation:
@@ -226,6 +269,8 @@ class UnifiedConverter:
         if not spec:
             return ConversionResult(
                 status=ConversionStatus.UNSUPPORTED,
+                source_path=str(filepath),
+                source_format=ext,
                 errors=[f"Unsupported format: {ext}"]
             )
 
@@ -242,6 +287,8 @@ class UnifiedConverter:
             else:
                 return ConversionResult(
                     status=ConversionStatus.UNSUPPORTED,
+                    source_path=str(filepath),
+                    source_format=ext,
                     errors=[f"No parser for format family: {spec.family}"]
                 )
 
@@ -253,6 +300,8 @@ class UnifiedConverter:
 
             return ConversionResult(
                 status=ConversionStatus.SUCCESS,
+                source_path=str(filepath),
+                source_format=ext,
                 vaf_full=vaf_full,
                 vaf_catalog=vaf_catalog,
             )
@@ -260,6 +309,8 @@ class UnifiedConverter:
         except Exception as e:
             return ConversionResult(
                 status=ConversionStatus.FAILED,
+                source_path=str(filepath),
+                source_format=ext,
                 errors=[f"Conversion failed: {str(e)}"]
             )
 

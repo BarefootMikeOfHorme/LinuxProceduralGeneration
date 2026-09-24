@@ -1,0 +1,14 @@
+[build-system]
+requires = ["maturin>=1.10,<2"]
+build-backend = "maturin"
+
+[project]
+name = "vaultmind-forge-core"
+version = "0.1.0"
+description = "Native geometry and mesh capabilities for VaultMind Forge"
+requires-python = ">=3.10"
+license = { text = "Proprietary" }
+
+[tool.maturin]
+bindings = "pyo3"
+module-name = "vaultmind_forge_core"

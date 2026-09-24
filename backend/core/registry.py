@@ -187,47 +187,55 @@ def create_default_registry() -> NodeRegistry:
     registry.register(ControlNetLoaderExecutor())
     registry.register(SDXLControlNetGeneratorExecutor())
 
-    # Register additional nodes
-    from backend.executors.additional_nodes import (
-        ImageLoaderExecutor,
-        StyleProfileExecutor,
-        VideoGeneratorExecutor,
-        Mesh3DGeneratorExecutor,
-        ProceduralGeneratorExecutor,
-        SemanticDownrezExecutor,
-        FormatConverterExecutor,
-        AssetPackagerExecutor,
-        SaveImageExecutor,
-        LineageArchiveExecutor,
-        BranchExecutor,
-        LoopExecutor,
-        CacheExecutor,
-    )
+    # Register additional nodes when their optional module is available.
+    try:
+        from backend.executors.additional_nodes import (
+            ImageLoaderExecutor,
+            StyleProfileExecutor,
+            VideoGeneratorExecutor,
+            Mesh3DGeneratorExecutor,
+            ProceduralGeneratorExecutor,
+            SemanticDownrezExecutor,
+            FormatConverterExecutor,
+            AssetPackagerExecutor,
+            SaveImageExecutor,
+            LineageArchiveExecutor,
+            BranchExecutor,
+            LoopExecutor,
+            CacheExecutor,
+        )
+    except ModuleNotFoundError as exc:
+        if exc.name != "backend.executors.additional_nodes":
+            raise
+        logger.warning(
+            "Optional additional node executors are unavailable; "
+            "continuing without them."
+        )
+    else:
+        # Register input nodes
+        registry.register(ImageLoaderExecutor())
+        registry.register(StyleProfileExecutor())
 
-    # Register input nodes
-    registry.register(ImageLoaderExecutor())
-    registry.register(StyleProfileExecutor())
+        # Register generation nodes
+        registry.register(VideoGeneratorExecutor())
+        registry.register(Mesh3DGeneratorExecutor())
+        registry.register(ProceduralGeneratorExecutor())
 
-    # Register generation nodes
-    registry.register(VideoGeneratorExecutor())
-    registry.register(Mesh3DGeneratorExecutor())
-    registry.register(ProceduralGeneratorExecutor())
+        # Register enhancement nodes
+        registry.register(SemanticDownrezExecutor())
 
-    # Register enhancement nodes
-    registry.register(SemanticDownrezExecutor())
+        # Register processing nodes
+        registry.register(FormatConverterExecutor())
+        registry.register(AssetPackagerExecutor())
 
-    # Register processing nodes
-    registry.register(FormatConverterExecutor())
-    registry.register(AssetPackagerExecutor())
+        # Register output nodes
+        registry.register(SaveImageExecutor())
+        registry.register(LineageArchiveExecutor())
 
-    # Register output nodes
-    registry.register(SaveImageExecutor())
-    registry.register(LineageArchiveExecutor())
-
-    # Register utility nodes
-    registry.register(BranchExecutor())
-    registry.register(LoopExecutor())
-    registry.register(CacheExecutor())
+        # Register utility nodes
+        registry.register(BranchExecutor())
+        registry.register(LoopExecutor())
+        registry.register(CacheExecutor())
 
     # Register ConverterPro nodes
     try:

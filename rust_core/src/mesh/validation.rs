@@ -22,7 +22,7 @@ pub struct ValidationReport {
     pub is_valid: bool,
     pub is_manifold: bool,
     pub is_watertight: bool,
-    pub has_self_intersections: bool,
+    pub has_self_intersections: Option<bool>,
     pub degenerate_triangle_count: usize,
     pub duplicate_vertex_count: usize,
     pub non_manifold_edge_count: usize,
@@ -36,7 +36,7 @@ impl ValidationReport {
             is_valid: true,
             is_manifold: true,
             is_watertight: true,
-            has_self_intersections: false,
+            has_self_intersections: None,
             degenerate_triangle_count: 0,
             duplicate_vertex_count: 0,
             non_manifold_edge_count: 0,
@@ -68,9 +68,6 @@ impl Edge {
         }
     }
 
-    fn ordered(v0: u32, v1: u32) -> Self {
-        Self { v0, v1 }
-    }
 }
 
 /// Mesh validator and repairer
@@ -153,8 +150,9 @@ impl MeshValidator {
             report.add_issue(format!("Mesh has {} boundary edges (holes)", report.hole_count));
         }
 
-        // Check for self-intersections (expensive, simplified check)
-        report.has_self_intersections = false; // TODO: Implement full check
+        // Full self-intersection detection is not implemented yet. Report an
+        // explicit unknown value instead of claiming that no intersections exist.
+        report.has_self_intersections = None;
 
         // Overall validity
         report.is_valid = report.issues.is_empty();
@@ -313,9 +311,9 @@ impl MeshValidator {
         for chunk in mesh.indices.chunks(3) {
             if chunk.len() == 3 {
                 let edges = [
-                    Edge::ordered(chunk[0], chunk[1]),
-                    Edge::ordered(chunk[1], chunk[2]),
-                    Edge::ordered(chunk[2], chunk[0]),
+                    Edge::new(chunk[0], chunk[1]),
+                    Edge::new(chunk[1], chunk[2]),
+                    Edge::new(chunk[2], chunk[0]),
                 ];
 
                 for edge in &edges {
@@ -373,6 +371,7 @@ mod tests {
         let report = validator.validate(&mesh);
         assert!(report.is_valid);
         assert!(report.is_manifold);
+        assert!(report.has_self_intersections.is_none());
     }
 
     #[test]

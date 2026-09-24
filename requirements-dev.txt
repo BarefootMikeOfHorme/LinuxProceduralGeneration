@@ -1,5 +1,6 @@
-# VaultMind Forge - Development Dependencies
-# Include production requirements first
+# VaultMind Forge - pinned development environment
+# The installable dependency contract lives in pyproject.toml extras.
+# Include the full pinned environment first.
 -r requirements.txt
 
 # Testing Framework

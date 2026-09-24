@@ -10,11 +10,8 @@ use crate::geometry::Mesh;
 use crate::{Result, GeometryError};
 use nalgebra::{Point3, Vector3};
 use parry3d::shape::TriMesh;
-use parry3d::query::{Ray, RayCast};
+use parry3d::query::PointQuery;
 use parry3d::math::{Isometry, Real};
-use rayon::prelude::*;
-use std::collections::HashSet;
-
 const EPSILON: f32 = 1e-6;
 
 /// Triangle representation for CSG
@@ -99,8 +96,10 @@ impl RobustCsgEngine {
                 match self.classify_triangle(tri, &trimesh_b) {
                     TriangleClass::Outside => result_triangles.push(tri.clone()),
                     TriangleClass::Spanning => {
-                        // Clip and add outside parts
-                        result_triangles.push(tri.clone());
+                        return Err(GeometryError::CsgOperationFailed(
+                            "CSG union encountered a spanning triangle; boundary clipping is not implemented"
+                                .to_string(),
+                        ));
                     }
                     TriangleClass::Inside => {
                         // Skip - inside the other mesh
@@ -115,7 +114,10 @@ impl RobustCsgEngine {
                 match self.classify_triangle(tri, &trimesh_a) {
                     TriangleClass::Outside => result_triangles.push(tri.clone()),
                     TriangleClass::Spanning => {
-                        result_triangles.push(tri.clone());
+                        return Err(GeometryError::CsgOperationFailed(
+                            "CSG union encountered a spanning triangle; boundary clipping is not implemented"
+                                .to_string(),
+                        ));
                     }
                     TriangleClass::Inside => {
                         // Skip
@@ -140,8 +142,10 @@ impl RobustCsgEngine {
                 match self.classify_triangle(tri, &trimesh_b) {
                     TriangleClass::Outside => result_triangles.push(tri.clone()),
                     TriangleClass::Spanning => {
-                        // Clip triangle and keep outside part
-                        result_triangles.push(tri.clone());
+                        return Err(GeometryError::CsgOperationFailed(
+                            "CSG difference encountered a spanning triangle; boundary clipping is not implemented"
+                                .to_string(),
+                        ));
                     }
                     TriangleClass::Inside => {
                         // Remove - inside B
@@ -166,8 +170,10 @@ impl RobustCsgEngine {
                 match self.classify_triangle(tri, &trimesh_b) {
                     TriangleClass::Inside => result_triangles.push(tri.clone()),
                     TriangleClass::Spanning => {
-                        // Clip and keep inside part
-                        result_triangles.push(tri.clone());
+                        return Err(GeometryError::CsgOperationFailed(
+                            "CSG intersection encountered a spanning triangle; boundary clipping is not implemented"
+                                .to_string(),
+                        ));
                     }
                     TriangleClass::Outside => {
                         // Skip
@@ -228,59 +234,90 @@ impl RobustCsgEngine {
         Ok(TriMesh::new(vertices, indices))
     }
 
-    /// Classify triangle relative to mesh using robust ray casting
-    fn classify_triangle(&self, triangle: &Triangle, trimesh: &TriMesh) -> TriangleClass {
-        // Use centroid-based classification with multiple ray tests
-        let centroid = triangle.centroid();
+    /// Return true when a segment intersects a triangle using
+    /// Möller–Trumbore's segment/triangle test.
+    fn segment_intersects_triangle(
+        start: Point3<f32>,
+        end: Point3<f32>,
+        triangle: [Point3<f32>; 3],
+    ) -> bool {
+        let direction = end - start;
+        let edge1 = triangle[1] - triangle[0];
+        let edge2 = triangle[2] - triangle[0];
+        let pvec = direction.cross(&edge2);
+        let determinant = edge1.dot(&pvec);
 
-        // Cast rays in multiple directions to handle edge cases
-        let directions = vec![
-            Vector3::new(1.0, 0.0, 0.0),
-            Vector3::new(0.0, 1.0, 0.0),
-            Vector3::new(0.0, 0.0, 1.0),
-            Vector3::new(1.0, 1.0, 1.0).normalize(),
-        ];
-
-        let mut inside_count = 0;
-        let mut total_tests = 0;
-
-        for dir in &directions {
-            if self.point_inside_mesh(&centroid, trimesh, dir) {
-                inside_count += 1;
-            }
-            total_tests += 1;
+        if determinant.abs() < EPSILON {
+            // Coplanar/parallel cases are handled conservatively by the
+            // point classification and are not treated as a confirmed hit.
+            return false;
         }
 
-        // Majority voting
-        if inside_count == total_tests {
+        let inverse_determinant = 1.0 / determinant;
+        let tvec = start - triangle[0];
+        let u = tvec.dot(&pvec) * inverse_determinant;
+        if u < -EPSILON || u > 1.0 + EPSILON {
+            return false;
+        }
+
+        let qvec = tvec.cross(&edge1);
+        let v = direction.dot(&qvec) * inverse_determinant;
+        if v < -EPSILON || u + v > 1.0 + EPSILON {
+            return false;
+        }
+
+        let t = qvec.dot(&edge2) * inverse_determinant;
+        t >= -EPSILON && t <= 1.0 + EPSILON
+    }
+
+    /// Return true when any edge of the candidate triangle intersects the
+    /// other mesh, or when an edge of the other mesh intersects the candidate.
+    fn triangle_intersects_trimesh(&self, triangle: &Triangle, trimesh: &TriMesh) -> bool {
+        let candidate_edges = [
+            (triangle.vertices[0], triangle.vertices[1]),
+            (triangle.vertices[1], triangle.vertices[2]),
+            (triangle.vertices[2], triangle.vertices[0]),
+        ];
+
+        for face_index in 0..trimesh.num_triangles() {
+            let other = trimesh.triangle(face_index as u32);
+            let other_triangle = [other.a, other.b, other.c];
+            let other_edges = [
+                (other.a, other.b),
+                (other.b, other.c),
+                (other.c, other.a),
+            ];
+
+            if candidate_edges.iter().any(|(start, end)| {
+                Self::segment_intersects_triangle(*start, *end, other_triangle)
+            }) || other_edges.iter().any(|(start, end)| {
+                Self::segment_intersects_triangle(*start, *end, triangle.vertices)
+            }) {
+                return true;
+            }
+        }
+
+        false
+    }
+
+    /// Classify a triangle by testing its edges and centroid against the solid
+    /// mesh. Boundary-crossing triangles are never silently copied.
+    fn classify_triangle(&self, triangle: &Triangle, trimesh: &TriMesh) -> TriangleClass {
+        if self.triangle_intersects_trimesh(triangle, trimesh) {
+            return TriangleClass::Spanning;
+        }
+
+        if self.point_inside_mesh(&triangle.centroid(), trimesh) {
             TriangleClass::Inside
-        } else if inside_count == 0 {
-            TriangleClass::Outside
         } else {
-            TriangleClass::Spanning
+            TriangleClass::Outside
         }
     }
 
-    /// Check if point is inside mesh using ray casting
-    fn point_inside_mesh(
-        &self,
-        point: &Point3<f32>,
-        trimesh: &TriMesh,
-        direction: &Vector3<f32>,
-    ) -> bool {
-        let ray = Ray::new(*point, *direction);
+    /// Check if a point is inside a closed mesh using Parry's solid query.
+    fn point_inside_mesh(&self, point: &Point3<f32>, trimesh: &TriMesh) -> bool {
         let identity = Isometry::identity();
-
-        // Count intersections
-        let mut intersection_count = 0;
-
-        // Cast ray and count hits
-        if let Some(_toi) = trimesh.cast_ray(&identity, &ray, Real::MAX, false) {
-            intersection_count += 1;
-        }
-
-        // Odd count = inside, even count = outside
-        intersection_count % 2 == 1
+        trimesh.contains_point(&identity, point)
     }
 
     /// Convert triangles back to mesh
@@ -335,7 +372,8 @@ mod tests {
         let engine = RobustCsgEngine::new();
 
         let box1 = Box::new(Vector3::new(2.0, 2.0, 2.0));
-        let box2 = Box::new(Vector3::new(1.0, 1.0, 1.0));
+        let box2 = Box::new(Vector3::new(1.0, 1.0, 1.0))
+            .with_center(Point3::new(3.0, 0.0, 0.0));
 
         let mesh1 = box1.to_mesh().unwrap();
         let mesh2 = box2.to_mesh().unwrap();
@@ -347,7 +385,7 @@ mod tests {
     }
 
     #[test]
-    fn test_robust_difference() {
+    fn test_robust_difference_rejects_spanning_case() {
         let engine = RobustCsgEngine::new();
 
         let box1 = Box::new(Vector3::new(2.0, 2.0, 2.0));
@@ -356,9 +394,20 @@ mod tests {
         let mesh1 = box1.to_mesh().unwrap();
         let mesh2 = sphere.to_mesh().unwrap();
 
-        let result = engine.difference(&mesh1, &mesh2).unwrap();
+        assert!(engine.difference(&mesh1, &mesh2).is_err());
+    }
 
-        assert!(result.vertex_count() > 0);
+    #[test]
+    fn test_robust_intersection_rejects_spanning_case() {
+        let engine = RobustCsgEngine::new();
+
+        let box1 = Box::new(Vector3::new(2.0, 2.0, 2.0));
+        let sphere = Sphere::new(1.0);
+
+        let mesh1 = box1.to_mesh().unwrap();
+        let mesh2 = sphere.to_mesh().unwrap();
+
+        assert!(engine.intersection(&mesh1, &mesh2).is_err());
     }
 
     #[test]

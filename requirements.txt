@@ -1,5 +1,11 @@
-# VaultMind Forge - Production Dependencies
-# Generated from working .venv312 environment
+# VaultMind Forge - pinned full-environment lock
+# The installable dependency contract lives in pyproject.toml extras.
+# This file records the currently used full environment for deployment and
+# development reproducibility; it is not the source of package extras.
+
+# Default CAD runtime
+build123d==0.13.0
+cadquery-ocp-novtk==8.0.1.0.0
 
 # Core Framework Dependencies
 fastapi==0.123.8
@@ -39,7 +45,7 @@ huggingface-hub==0.36.0
 # Scientific Computing
 numpy==2.3.3
 scipy==1.16.3
-pillow==11.3.0
+pillow==12.2.0
 matplotlib==3.10.7
 
 # Procedural Generation
@@ -72,7 +78,7 @@ Pygments==2.19.2
 
 # Type Hints & Validation
 annotated-types==0.7.0
-typing_extensions==4.15.0
+typing_extensions==4.16.0
 typing-inspection==0.4.2
 
 # Plotting & Visualization

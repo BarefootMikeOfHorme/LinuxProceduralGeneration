@@ -417,7 +417,7 @@ def workflow(
 def validate(config: Path = typer.Argument(..., exists=True, readable=True)):
     import json
     from jsonschema import Draft202012Validator
-    schema_path = Path(__file__).resolve().parents[1] / "config" / "schemas" / "job.schema.json"
+    schema_path = Path(__file__).resolve().parent / "config" / "schemas" / "job.schema.json"
     schema = json.loads(Path(schema_path).read_text(encoding="utf-8"))
     instance = json.loads(Path(config).read_text(encoding="utf-8"))
     errors = sorted(Draft202012Validator(schema).iter_errors(instance), key=lambda e: e.path)

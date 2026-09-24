@@ -11,10 +11,12 @@ pub mod validation;
 pub mod optimizer;
 pub mod lod;
 pub mod subdivision;
+pub mod obj;
 
 pub use optimizer::MeshOptimizer;
 pub use validation::{MeshValidator, ValidationReport};
 pub use lod::LodGenerator;
+pub use obj::load_obj;
 
 /// Clean mesh by removing degenerate triangles, duplicate vertices, etc.
 pub fn clean_mesh(mesh: &mut Mesh) -> Result<()> {
@@ -62,30 +64,24 @@ fn remove_degenerate_triangles(mesh: &mut Mesh) -> Result<()> {
 /// Remove duplicate vertices
 fn remove_duplicate_vertices(mesh: &mut Mesh) -> Result<()> {
     // Simple implementation - can be optimized with spatial hashing
-    let mut new_vertices = Vec::new();
+    let mut new_vertices: Vec<nalgebra::Point3<f32>> = Vec::new();
     let mut index_map: Vec<u32> = Vec::new();
     let epsilon = 1e-6;
 
     for vertex in &mesh.vertices {
-        let mut found = None;
-
-        for (i, &vertex) in mesh.vertices.iter().enumerate() {
-            if (vertex.coords - vertex.coords).norm() < epsilon {
-                found = Some(i as u32);
-                break;
-            }
-        }
-
-        match found {
-            Some(idx) => index_map.push(idx),
-            None => {
-                new_vertices.push(*vertex);
-                index_map.push((new_vertices.len() - 1) as u32);
-            }
+        if let Some((index, _)) = new_vertices
+            .iter()
+            .enumerate()
+            .find(|(_, candidate)| (candidate.coords - vertex.coords).norm() < epsilon)
+        {
+            index_map.push(index as u32);
+        } else {
+            new_vertices.push(*vertex);
+            index_map.push((new_vertices.len() - 1) as u32);
         }
     }
 
-    // Remap indices
+    // Remap triangle indices to the compacted vertex array.
     for index in &mut mesh.indices {
         if (*index as usize) < index_map.len() {
             *index = index_map[*index as usize];

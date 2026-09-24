@@ -40,10 +40,57 @@ class AssetType(Enum):
 
 # Import main converter class
 try:
-    from .converter import AssetConverter, ConversionResult
+    from .converter import AssetConverter, ConversionOptions, ConversionResult
+    from .contracts import (
+        ConversionEnvelope,
+        ConversionLossStatus,
+        ConversionUnsupportedError,
+    )
+    from .validation import OutputValidation, OutputValidationStatus, validate_output
+    from .build123d_adapter import (
+        Build123DCapabilities,
+        create_build123d_box,
+        create_build123d_box_envelope,
+        get_build123d_capabilities,
+    )
+    from .cad_profiles import (
+        CAD_PROFILES,
+        CadProfile,
+        get_cad_profiles,
+        get_default_cad_profile,
+    )
+    from .build123d_ai import (
+        Build123DOperation,
+        Build123DPlan,
+        Build123DPlanError,
+        execute_plan,
+        get_ai_tool_manifest,
+        plan_from_dict,
+    )
     __all__ = [
         'AssetConverter',
+        'ConversionOptions',
         'ConversionResult',
+        'ConversionEnvelope',
+        'ConversionLossStatus',
+        'ConversionUnsupportedError',
+        'OutputValidation',
+        'OutputValidationStatus',
+        'validate_output',
+        'Build123DCapabilities',
+        'create_build123d_box',
+        'create_build123d_box_envelope',
+        'get_build123d_capabilities',
+        'CAD_PROFILES',
+        'CadProfile',
+        'get_cad_profiles',
+        'get_default_cad_profile',
+        'Build123DOperation',
+        'Build123DPlan',
+        'Build123DPlanError',
+        'execute_plan',
+        'get_ai_tool_manifest',
+        'plan_from_dict',
         'ConversionProfile',
         'TargetEngine',
         'AssetType'

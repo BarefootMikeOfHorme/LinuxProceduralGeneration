@@ -79,6 +79,7 @@ class NodeExecutionEngine(BasePipeline):
         # Reset state
         self.node_outputs = {}
         self._execution_order = []
+        self._current_workflow = workflow
 
         # 1. Validate workflow
         self.validate_workflow(workflow)

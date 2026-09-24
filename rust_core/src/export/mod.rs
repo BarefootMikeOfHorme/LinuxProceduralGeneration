@@ -70,27 +70,37 @@ fn export_obj(mesh: &Mesh, path: &Path) -> Result<()> {
         writeln!(file, "vt {} {}", u, v)?;
     }
 
-    // Write faces (OBJ indices are 1-based)
+    // Write faces (OBJ indices are 1-based). Only reference UV/normal
+    // indices when the mesh actually contains those attributes.
+    let has_uvs = mesh.uvs.len() >= mesh.vertices.len();
+    let has_normals = mesh.normals.len() >= mesh.vertices.len();
+
     for chunk in mesh.indices.chunks(3) {
         if chunk.len() == 3 {
-            writeln!(
-                file,
-                "f {}/{}/{} {}/{}/{} {}/{}/{}",
-                chunk[0] + 1, chunk[0] + 1, chunk[0] + 1,
-                chunk[1] + 1, chunk[1] + 1, chunk[1] + 1,
-                chunk[2] + 1, chunk[2] + 1, chunk[2] + 1
-            )?;
+            let refs: Vec<String> = chunk
+                .iter()
+                .map(|index| {
+                    let vertex = index + 1;
+                    match (has_uvs, has_normals) {
+                        (true, true) => format!("{vertex}/{vertex}/{vertex}"),
+                        (false, true) => format!("{vertex}//{vertex}"),
+                        (true, false) => format!("{vertex}/{vertex}"),
+                        (false, false) => format!("{vertex}"),
+                    }
+                })
+                .collect();
+            writeln!(file, "f {} {} {}", refs[0], refs[1], refs[2])?;
         }
     }
 
     Ok(())
 }
 
-/// Export to FBX format (placeholder)
-fn export_fbx(mesh: &Mesh, path: &Path) -> Result<()> {
-    // FBX export requires a complex binary or ASCII format
-    // For now, export as OBJ with .fbx extension as placeholder
-    export_obj(mesh, path)
+/// Reject FBX export until a real serializer is implemented.
+fn export_fbx(_mesh: &Mesh, _path: &Path) -> Result<()> {
+    Err(GeometryError::ExportError(
+        "FBX export is not implemented; use OBJ or a future validated FBX serializer".to_string(),
+    ))
 }
 
 /// Export to glTF format (placeholder)
@@ -100,28 +110,19 @@ fn export_gltf(mesh: &Mesh, path: &Path) -> Result<()> {
     Err(GeometryError::ExportError("glTF export not yet implemented".to_string()))
 }
 
-/// Export optimized for Unity
+/// Export optimized for Unity. OBJ is the only validated engine format.
 fn export_unity(mesh: &Mesh, path: &Path) -> Result<()> {
-    // Unity prefers FBX
-    // Apply Unity-specific optimizations:
-    // - Y-up coordinate system
-    // - Right-handed coordinates
-    export_fbx(mesh, path)
+    engine_formats::export_for_engine(mesh, path, engine_formats::Engine::Unity)
 }
 
-/// Export optimized for Godot
+/// Export optimized for Godot using validated OBJ output.
 fn export_godot(mesh: &Mesh, path: &Path) -> Result<()> {
-    // Godot supports OBJ, glTF
-    // Y-up, right-handed
-    export_obj(mesh, path)
+    engine_formats::export_for_engine(mesh, path, engine_formats::Engine::Godot)
 }
 
-/// Export optimized for Unreal
+/// Export optimized for Unreal. OBJ is the only validated engine format.
 fn export_unreal(mesh: &Mesh, path: &Path) -> Result<()> {
-    // Unreal prefers FBX
-    // Z-up coordinate system
-    // TODO: Apply coordinate system transformation
-    export_fbx(mesh, path)
+    engine_formats::export_for_engine(mesh, path, engine_formats::Engine::Unreal)
 }
 
 #[cfg(test)]
@@ -139,9 +140,32 @@ mod tests {
 
         let path = PathBuf::from("test_output.obj");
         export_obj(&mesh, &path).unwrap();
+        let reloaded = crate::mesh::obj::load_obj(&path).unwrap();
+        assert_eq!(reloaded.vertex_count(), mesh.vertex_count());
+        assert_eq!(reloaded.triangle_count(), mesh.triangle_count());
 
         // Cleanup
         std::fs::remove_file(path).ok();
+    }
+
+    #[test]
+    fn test_unsupported_formats_fail_without_creating_files() {
+        let b = Box::new(Vector3::new(2.0, 2.0, 2.0));
+        let mesh = b.to_mesh().unwrap();
+        let base = std::env::temp_dir().join(format!("lpg-export-{}", std::process::id()));
+
+        let fbx_path = base.with_extension("fbx");
+        assert!(export_fbx(&mesh, &fbx_path).is_err());
+        assert!(!fbx_path.exists());
+
+        let gltf_path = base.with_extension("gltf");
+        assert!(export_gltf(&mesh, &gltf_path).is_err());
+        assert!(!gltf_path.exists());
+
+        let obj_path = base.with_extension("obj");
+        assert!(export_unity(&mesh, &obj_path).is_ok());
+        assert!(obj_path.exists());
+        std::fs::remove_file(obj_path).ok();
     }
 }
 pub mod engine_formats;

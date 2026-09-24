@@ -307,11 +307,11 @@ impl AdvancedOptimizer {
         // Sort by error (lowest first)
         collapses.sort_by(|a, b| a.error.partial_cmp(&b.error).unwrap());
 
-        // Perform collapses (simplified - full implementation needs topology updates)
-        // For now, return original mesh
-        // TODO: Implement full edge collapse with topology maintenance
-
-        Ok(mesh.clone())
+        // A full topology-preserving collapse is not implemented yet. Do not
+        // report the unchanged input as a successful simplification.
+        Err(GeometryError::MeshProcessingError(
+            "QEM simplification is not implemented; the input mesh was not changed".to_string(),
+        ))
     }
 
     /// Calculate ACMR (Average Cache Miss Ratio)
@@ -407,9 +407,6 @@ mod tests {
         let mesh = cube.to_mesh().unwrap();
 
         let target_count = mesh.triangle_count() / 2;
-        let simplified = optimizer.simplify_qem(&mesh, target_count).unwrap();
-
-        // Should have vertices
-        assert!(simplified.vertex_count() > 0);
+        assert!(optimizer.simplify_qem(&mesh, target_count).is_err());
     }
 }
