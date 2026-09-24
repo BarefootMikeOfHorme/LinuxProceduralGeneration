@@ -333,8 +333,8 @@ Goal: make conversion a first-class, loss-aware, secure subsystem.
 - [ ] Implement video/audio conversion through isolated FFmpeg/media workers.
 - [ ] Implement Blender external worker protocol.
 - [ ] Implement OpenSCAD external worker protocol.
-- [ ] Implement build123d B-rep adapter and capability profile.
-- [ ] Implement FreeCADCmd headless worker and capability profile.
+- [x] Implement build123d B-rep adapter and capability profile.
+- [~] Implement FreeCADCmd headless worker and capability profile.
 - [ ] Implement optional Godot/engine adapters.
 - [ ] Add stream, metadata, color-space, transform, and loss reports.
 - [ ] Add archive, path, symlink, resource, and parser-security controls.
@@ -396,7 +396,8 @@ contract -> build/provision -> smoke -> validate -> wire -> document -> advance
 
 - [x] Make build123d the default Python B-rep dependency.
 - [x] Add build123d capability detection and version capture.
-- [ ] Add isolated Python CAD worker contract for arbitrary source execution.
+- [x] Add isolated structured-plan Python CAD worker contract.
+- [ ] Add isolated arbitrary-source execution contract.
 - [x] Add trusted fixed STEP/STL generation and independent validation.
 - [ ] Add build123d bake-off against CadQuery/OCCT alternatives.
 
