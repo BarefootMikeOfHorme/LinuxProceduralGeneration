@@ -199,6 +199,28 @@ Review and correct the remaining startup/package contract before moving to geome
 - define and add focused characterization checks;
 - verify clean import and registry construction only after authorization.
 
+## Ubuntu base-function gate
+
+**Date:** 2026-09-24  
+**Status:** `[V]` WSL2/Python 3.12/build123d/native wheel/CLI smoke passed
+
+- Ubuntu WSL2 is the first Linux runtime target.
+- Ubuntu system `python3` is 3.14, which is too new for the current PyO3 0.22 toolchain.
+- Ubuntu provides `/usr/bin/python3.12`; LPG uses `.venv-linux` with Python 3.12.13.
+- build123d 0.13.0 and OCP installed successfully in `.venv-linux`.
+- Maturin built the Linux native wheel:
+  `vaultmind_forge_core-0.1.0-cp312-cp312-linux_x86_64.whl`.
+- The Linux native wheel installed and imported successfully.
+- Ubuntu base smoke passed:
+  - `forge doctor`
+  - `forge cad-capabilities`
+  - `forge cad-execute`
+  - Native cylinder creation
+  - STEP output: 15,392 bytes
+  - STL output: 684 bytes
+- Ubuntu Cargo tests passed with explicit `PYO3_PYTHON=.venv-linux/bin/python`: 35 passed.
+- The base program is now runnable and testable in Ubuntu WSL2.
+
 ## Arm 2 — Native geometry current pass
 
 **Date:** 2026-09-24  
