@@ -1,0 +1,37 @@
+{
+  // Draft LPG-L1 profile metadata. This is not a generated scan result.
+  "profile": "lpg-l1",
+  "template": "al1",
+  "version": "0.1.0-alpha.1",
+  "status": "draft",
+  "subject": "lpg",
+  "display_name": "LPG-L1",
+  "tiers": {
+    "L1": "root lifecycle, machine integrity, setup, governance, orchestration",
+    "L2": "shells, environments, sandboxes, and machine execution",
+    "L3": "programs, services, entrypoints, and runtime bindings",
+    "L4": "contracts, schemas, protocols, validation, safety, and repair",
+    "L5": "documentation, templates, examples, and usage knowledge",
+    "L6": "content, artifacts, models, and generated outputs"
+  },
+  "paths": {
+    "program_root_anchor": "LPG_PROGRAM_ROOT",
+    "l1_root_anchor": "LPG_L1_ROOT",
+    "portable_profile_root": "LPGL1/L1"
+  },
+  "scan": {
+    "full_startup_scan": true,
+    "scoped_rescan": "partial",
+    "tier_closure_validation": "planned",
+    "resource_limits": true,
+    "structured_warnings": true,
+    "partial_report_contract": true,
+    "follow_symlinks": false,
+    "read_env_files": false,
+    "repair_mode": "additive-only"
+  },
+  "channels": {
+    "default": "stable",
+    "supported": ["stable", "beta", "alpha", "pinned", "local"]
+  }
+}

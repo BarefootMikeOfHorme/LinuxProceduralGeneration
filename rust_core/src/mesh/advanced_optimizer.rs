@@ -246,69 +246,9 @@ impl AdvancedOptimizer {
             return Ok(mesh.clone());
         }
 
-        // Calculate quadrics for each vertex
-        let mut vertex_quadrics = vec![Quadric::from_plane(0.0, 0.0, 0.0, 0.0); mesh.vertices.len()];
-
-        for chunk in mesh.indices.chunks(3) {
-            if chunk.len() == 3 {
-                let i0 = chunk[0] as usize;
-                let i1 = chunk[1] as usize;
-                let i2 = chunk[2] as usize;
-
-                if i0 < mesh.vertices.len() && i1 < mesh.vertices.len() && i2 < mesh.vertices.len() {
-                    let q = Quadric::from_triangle(
-                        &mesh.vertices[i0],
-                        &mesh.vertices[i1],
-                        &mesh.vertices[i2],
-                    );
-
-                    vertex_quadrics[i0] = vertex_quadrics[i0].add(&q);
-                    vertex_quadrics[i1] = vertex_quadrics[i1].add(&q);
-                    vertex_quadrics[i2] = vertex_quadrics[i2].add(&q);
-                }
-            }
-        }
-
-        // Build edge list
-        let mut edges = HashSet::new();
-        for chunk in mesh.indices.chunks(3) {
-            if chunk.len() == 3 {
-                let i0 = chunk[0] as usize;
-                let i1 = chunk[1] as usize;
-                let i2 = chunk[2] as usize;
-
-                edges.insert((i0.min(i1), i0.max(i1)));
-                edges.insert((i1.min(i2), i1.max(i2)));
-                edges.insert((i2.min(i0), i2.max(i0)));
-            }
-        }
-
-        // Calculate collapse candidates
-        let mut collapses: Vec<EdgeCollapse> = edges
-            .iter()
-            .filter_map(|&(v0, v1)| {
-                if v0 >= mesh.vertices.len() || v1 >= mesh.vertices.len() {
-                    return None;
-                }
-
-                let q = vertex_quadrics[v0].add(&vertex_quadrics[v1]);
-
-                // Use midpoint as target (simplified - optimal point requires matrix inversion)
-                let target = Point3::from(
-                    (mesh.vertices[v0].coords + mesh.vertices[v1].coords) * 0.5
-                );
-
-                let error = q.error(&target);
-
-                Some(EdgeCollapse { v0, v1, target, error })
-            })
-            .collect();
-
-        // Sort by error (lowest first)
-        collapses.sort_by(|a, b| a.error.partial_cmp(&b.error).unwrap());
-
-        // A full topology-preserving collapse is not implemented yet. Do not
-        // report the unchanged input as a successful simplification.
+        // A topology-preserving collapse is not implemented yet. Do not
+        // calculate partial candidates (which can panic on degenerate meshes)
+        // and do not report the unchanged input as a successful simplification.
         Err(GeometryError::MeshProcessingError(
             "QEM simplification is not implemented; the input mesh was not changed".to_string(),
         ))

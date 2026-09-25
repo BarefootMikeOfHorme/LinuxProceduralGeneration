@@ -72,49 +72,63 @@ print(f"  Improvement: {((acmr_before - acmr_after) / acmr_before * 100):.1f}%")
 
 atvr = optimizer.calculate_atvr(optimized)
 print(f"  ATVR: {atvr:.2f}")
-print(f"  [OK] Tom Forsyth & QEM working")
+try:
+    optimizer.simplify_qem(sphere, 1)
+except RuntimeError as error:
+    print(f"  QM explicitly unsupported: {error}")
+else:
+    raise AssertionError("QEM unexpectedly reported success")
+print("  [OK] Tom Forsyth metrics and honest QEM contract")
 
 # 5. Engine-Specific Exports
 print("\n[5/6] ENGINE-SPECIFIC EXPORTS")
 vf.export_for_unity(box, "test_unity.obj")
-print(f"  Exported for Unity (Y-up, left-handed, meters)")
+print("  Exported for Unity (Y-up, left-handed, meters)")
 
 vf.export_for_unreal(box, "test_unreal.obj")
-print(f"  Exported for Unreal (Z-up, left-handed, cm)")
+print("  Exported for Unreal (Z-up, left-handed, cm)")
 
 vf.export_for_cryengine(box, "test_cry.obj")
-print(f"  Exported for CryEngine (Z-up, right-handed, cm)")
+print("  Exported for CryEngine (Z-up, right-handed, cm)")
 
 vf.export_for_lumix(box, "test_lumix.obj")
-print(f"  Exported for Lumix (Y-up, right-handed, meters) - HOMAGE!")
+print("  Exported for Lumix (Y-up, right-handed, meters) - HOMAGE!")
 
 transform = vf.get_unity_transform()
-print(f"  Unity transform matrix retrieved")
-print(f"  [OK] Engine exports working")
+print("  Unity transform matrix retrieved")
+print("  [OK] Engine exports working")
 
 # 6. CSG Operations
 print("\n[6/6] CSG OPERATIONS")
 box1 = vf.create_box((3.0, 3.0, 3.0))
+box2 = vf.create_box((1.0, 1.0, 1.0), (3.0, 0.0, 0.0))
 sphere1 = vf.create_sphere(2.0)
 
-union_result = vf.csg_union(box1, sphere1)
-diff_result = vf.csg_difference(box1, sphere1)
-inter_result = vf.csg_intersection(box1, sphere1)
-
-print(f"  Union: {union_result}")
-print(f"  Difference: {diff_result}")
-print(f"  Intersection: {inter_result}")
-print(f"  [OK] CSG operations working")
+union_result = vf.csg_union(box1, box2)
+print(f"  Disjoint union: {union_result}")
+try:
+    vf.csg_difference(box1, sphere1)
+except RuntimeError as error:
+    print(f"  Difference spanning refusal: {error}")
+else:
+    raise AssertionError("CSG difference unexpectedly reported success")
+try:
+    vf.csg_intersection(box1, sphere1)
+except RuntimeError as error:
+    print(f"  Intersection spanning refusal: {error}")
+else:
+    raise AssertionError("CSG intersection unexpectedly reported success")
+print("  [OK] CSG disjoint operation and explicit boundary refusal")
 
 # Summary
 print("\n" + "=" * 80)
-print("SUMMARY - EVERYTHING IS CROSS-ACCESSIBLE!")
+print("SUMMARY - VALIDATED NATIVE CONTRACTS")
 print("=" * 80)
-print(f"[OK] 17 primitives - Box, Sphere, Cylinder, Cone, Torus + 12 extended")
+print("[OK] 17 primitives - Box, Sphere, Cylinder, Cone, Torus + 12 extended")
 print(f"[OK] {len(templates)} size templates (MetaHuman, architecture, vehicles, etc.)")
-print(f"[OK] Mesh validation & repair (manifold checking, hole detection)")
-print(f"[OK] Advanced optimization (Tom Forsyth, QEM, ACMR/ATVR)")
-print(f"[OK] Engine exports (Unity, Unreal, CryEngine, Lumix, Godot)")
-print(f"[OK] CSG operations (union, difference, intersection)")
-print("\nAll Rust functionality is now fully exposed and accessible from Python!")
+print("[OK] Mesh validation & repair (manifold checking, hole detection)")
+print("[OK] Advanced optimization metrics and explicit QEM refusal")
+print("[OK] Engine exports (Unity, Unreal, CryEngine, Lumix, Godot)")
+print("[OK] CSG disjoint operation and explicit spanning refusal")
+print("\nNative Rust/PyO3 functionality is cross-accessible with honest limits!")
 print("=" * 80)
