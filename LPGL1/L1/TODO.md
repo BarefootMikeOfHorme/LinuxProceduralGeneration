@@ -34,6 +34,8 @@ This list is intentionally amendable. It is the first L1 worklist, not a generat
 - [x] Implement alias and path resolution.
 - [x] Emit observed candidate records.
 - [x] Preserve partial scan state.
+- [x] Define the authority promotion evidence schema.
+- [x] Reject promotion of partial, incomplete, or insufficiently validated candidates.
 - [ ] Define recursive component/node manifest schema.
 - [ ] Define tier and subtier naming grammar.
 - [ ] Define machine-ID, alias, and physical-path bindings.

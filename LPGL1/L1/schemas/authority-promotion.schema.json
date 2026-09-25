@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "al1.schema.lpg-l1.authority-promotion",
+  "title": "AL1/LPG-L1 Authority Promotion Record",
+  "description": "Evidence record for promoting an observed component to validated or approved LPG-L1 state. A partial or incomplete observation cannot be approved.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "profile",
+    "component_id",
+    "from_state",
+    "to_state",
+    "observed_digest",
+    "approved_digest",
+    "schema_id",
+    "policy_profile",
+    "checks",
+    "known_good_revision",
+    "decision"
+  ],
+  "properties": {
+    "schema_version": { "type": "string", "minLength": 1 },
+    "profile": { "type": "string", "const": "lpg-l1" },
+    "component_id": { "type": "string", "minLength": 1 },
+    "from_state": {
+      "type": "string",
+      "enum": ["observed", "validated", "planned", "partial", "conflicting", "unknown"]
+    },
+    "to_state": {
+      "type": "string",
+      "enum": ["validated", "approved", "active"]
+    },
+    "observed_digest": { "type": "string", "minLength": 1 },
+    "approved_digest": { "type": "string", "minLength": 1 },
+    "schema_id": { "type": "string", "minLength": 1 },
+    "policy_profile": { "type": "string", "minLength": 1 },
+    "checks": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "scan_complete",
+        "schema_valid",
+        "security_passed",
+        "system_requirements_passed",
+        "tier_closure_passed"
+      ],
+      "properties": {
+        "scan_complete": { "type": "boolean" },
+        "schema_valid": { "type": "boolean" },
+        "security_passed": { "type": "boolean" },
+        "system_requirements_passed": { "type": "boolean" },
+        "tier_closure_passed": { "type": "boolean" }
+      }
+    },
+    "known_good_revision": { "type": "string", "minLength": 1 },
+    "created_at": { "type": ["string", "null"], "format": "date-time" },
+    "decision": {
+      "type": "string",
+      "enum": ["approved", "rejected"]
+    },
+    "reasons": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  }
+}

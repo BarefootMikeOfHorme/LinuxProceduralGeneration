@@ -7,6 +7,9 @@ use serde::Serialize;
 pub enum AuthorityState {
     Planned,
     Observed,
+    Validated,
+    Approved,
+    Active,
     Partial,
     Conflicting,
     Missing,
@@ -36,6 +39,29 @@ pub struct AuthorityEntry {
     pub confidence: f32,
     pub digest: Option<String>,
     pub parent_id: Option<String>,
+}
+
+#[allow(dead_code)] // Promotion API is contract-first; CLI wiring follows the state machine.
+#[derive(Clone, Debug, Serialize)]
+pub struct PromotionEvidence {
+    pub schema_id: String,
+    pub policy_profile: String,
+    pub scan_complete: bool,
+    pub schema_valid: bool,
+    pub security_passed: bool,
+    pub system_requirements_passed: bool,
+    pub tier_closure_passed: bool,
+    pub observed_digest: String,
+    pub approved_digest: String,
+    pub known_good_revision: Option<String>,
+}
+
+#[allow(dead_code)] // Promotion API is contract-first; CLI wiring follows the state machine.
+#[derive(Clone, Debug, Serialize)]
+#[serde(tag = "status", rename_all = "kebab-case")]
+pub enum PromotionOutcome {
+    Approved { entry: Box<AuthorityEntry> },
+    Rejected { reasons: Vec<String> },
 }
 
 #[derive(Clone, Debug, Serialize)]
@@ -163,6 +189,71 @@ pub fn build_candidates(profile: &str, root: &Node, scan_complete: bool) -> Auth
     index
 }
 
+#[allow(dead_code)] // Promotion API is contract-first; CLI wiring follows the state machine.
+pub fn promote_to_approved(
+    entry: &AuthorityEntry,
+    evidence: &PromotionEvidence,
+) -> PromotionOutcome {
+    let mut reasons = Vec::new();
+
+    if !matches!(
+        entry.state,
+        AuthorityState::Observed | AuthorityState::Validated
+    ) {
+        reasons.push(format!(
+            "component state {:?} is not eligible for approval",
+            entry.state
+        ));
+    }
+    if !evidence.scan_complete {
+        reasons.push("scan is incomplete".to_string());
+    }
+    if !evidence.schema_valid {
+        reasons.push("schema validation failed or is missing".to_string());
+    }
+    if !evidence.security_passed {
+        reasons.push("security validation failed or is missing".to_string());
+    }
+    if !evidence.system_requirements_passed {
+        reasons.push("system requirements failed or are missing".to_string());
+    }
+    if !evidence.tier_closure_passed {
+        reasons.push("tier closure validation failed or is missing".to_string());
+    }
+    if evidence.observed_digest.trim().is_empty() {
+        reasons.push("observed digest is required".to_string());
+    }
+    if evidence.approved_digest.trim().is_empty() {
+        reasons.push("approved digest is required".to_string());
+    }
+    if evidence
+        .known_good_revision
+        .as_deref()
+        .map(str::trim)
+        .filter(|revision| !revision.is_empty())
+        .is_none()
+    {
+        reasons.push("known-good revision is required".to_string());
+    }
+    if let Some(entry_digest) = &entry.digest {
+        if entry_digest != &evidence.observed_digest {
+            reasons.push("observed digest does not match the component digest".to_string());
+        }
+    }
+
+    if !reasons.is_empty() {
+        return PromotionOutcome::Rejected { reasons };
+    }
+
+    let mut approved = entry.clone();
+    approved.state = AuthorityState::Approved;
+    approved.schema = Some(evidence.schema_id.clone());
+    approved.digest = Some(evidence.approved_digest.clone());
+    PromotionOutcome::Approved {
+        entry: Box::new(approved),
+    }
+}
+
 fn add_node(
     index: &mut AuthorityIndex,
     node: &Node,
@@ -287,6 +378,42 @@ mod tests {
         fs::write(path, content).unwrap();
     }
 
+    fn observed_entry() -> AuthorityEntry {
+        AuthorityEntry {
+            component_id: "lpg-l1.l3.program.forge".to_string(),
+            level: "L3".to_string(),
+            state: AuthorityState::Observed,
+            aliases: vec!["forge".to_string()],
+            paths: AuthorityPaths {
+                root_relative: Some("tools/forge".to_string()),
+                resolved: None,
+                schema: None,
+                entrypoint: None,
+            },
+            owner: Some("lpg-l1.l1.root".to_string()),
+            schema: None,
+            source: "scanner".to_string(),
+            confidence: 0.7,
+            digest: Some("sha256:observed".to_string()),
+            parent_id: Some("lpg-l1.l1.root".to_string()),
+        }
+    }
+
+    fn complete_evidence() -> PromotionEvidence {
+        PromotionEvidence {
+            schema_id: "al1.schema.lpg-l1.component-manifest".to_string(),
+            policy_profile: "lpg-l1.validation.default".to_string(),
+            scan_complete: true,
+            schema_valid: true,
+            security_passed: true,
+            system_requirements_passed: true,
+            tier_closure_passed: true,
+            observed_digest: "sha256:observed".to_string(),
+            approved_digest: "sha256:approved".to_string(),
+            known_good_revision: Some("lpg-l1.l3.program.forge@0.1.0".to_string()),
+        }
+    }
+
     #[test]
     fn builds_recursive_observed_candidates() {
         let dir = std::env::temp_dir().join(format!("al1_authority_test_{}", std::process::id()));
@@ -311,6 +438,56 @@ mod tests {
         ));
 
         let _ = fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn promotion_approves_only_complete_observation() {
+        let entry = observed_entry();
+        let evidence = complete_evidence();
+        match promote_to_approved(&entry, &evidence) {
+            PromotionOutcome::Approved { entry } => {
+                assert_eq!(entry.state, AuthorityState::Approved);
+                assert_eq!(entry.digest.as_deref(), Some("sha256:approved"));
+                assert_eq!(
+                    entry.schema.as_deref(),
+                    Some("al1.schema.lpg-l1.component-manifest")
+                );
+            }
+            PromotionOutcome::Rejected { reasons } => {
+                panic!("expected approval, got {reasons:?}");
+            }
+        }
+    }
+
+    #[test]
+    fn promotion_rejects_partial_or_incomplete_evidence() {
+        let mut entry = observed_entry();
+        entry.state = AuthorityState::Partial;
+        let mut evidence = complete_evidence();
+        evidence.scan_complete = false;
+        evidence.security_passed = false;
+        let outcome = promote_to_approved(&entry, &evidence);
+        assert!(matches!(outcome, PromotionOutcome::Rejected { .. }));
+    }
+
+    #[test]
+    fn promotion_rejects_missing_known_good_and_digest() {
+        let entry = observed_entry();
+        let mut evidence = complete_evidence();
+        evidence.observed_digest.clear();
+        evidence.known_good_revision = None;
+        let outcome = promote_to_approved(&entry, &evidence);
+        match outcome {
+            PromotionOutcome::Rejected { reasons } => {
+                assert!(reasons
+                    .iter()
+                    .any(|reason| reason.contains("observed digest")));
+                assert!(reasons
+                    .iter()
+                    .any(|reason| reason.contains("known-good revision")));
+            }
+            PromotionOutcome::Approved { .. } => panic!("expected rejection"),
+        }
     }
 
     #[test]
