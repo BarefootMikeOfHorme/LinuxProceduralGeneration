@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "al1.schema.lpg-l1.rollback-verification",
+  "title": "AL1/LPG-L1 Rollback Verification Report",
+  "description": "Read-only verification of whether a persisted known-good record is a valid rollback target for the current component.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["component_id", "status", "known_good", "current_digest", "reason"],
+  "properties": {
+    "component_id": { "type": "string", "minLength": 1 },
+    "status": { "type": "string", "enum": ["verified", "diverged", "missing", "invalid"] },
+    "known_good": { "type": ["object", "null"] },
+    "current_digest": { "type": ["string", "null"] },
+    "reason": { "type": "string", "minLength": 1 }
+  }
+}

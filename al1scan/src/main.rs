@@ -42,6 +42,7 @@ struct CliOptions {
     resolve: Option<String>,
     impact: Option<String>,
     closure: Option<String>,
+    verify_rollback: Option<String>,
     validate_promotion: Option<String>,
     evidence: Option<PathBuf>,
     record_good: bool,
@@ -61,6 +62,7 @@ impl CliOptions {
         let mut resolve = None;
         let mut impact = None;
         let mut closure = None;
+        let mut verify_rollback = None;
         let mut validate_promotion = None;
         let mut evidence = None;
         let mut record_good = false;
@@ -87,6 +89,10 @@ impl CliOptions {
                 "--closure" => {
                     index += 1;
                     closure = Some(Self::next_value(args, index, "--closure")?);
+                }
+                "--verify-rollback" => {
+                    index += 1;
+                    verify_rollback = Some(Self::next_value(args, index, "--verify-rollback")?);
                 }
                 "--validate-promotion" => {
                     index += 1;
@@ -207,6 +213,7 @@ impl CliOptions {
             resolve,
             impact,
             closure,
+            verify_rollback,
             validate_promotion,
             evidence,
             record_good,
@@ -245,6 +252,7 @@ impl CliOptions {
                  --resolve QUERY        resolve an ID, alias, or path in the observed index\n  \
                  --impact ID            show transitive dependents from observed dependencies\n  \
                  --closure ID           validate the complete affected tier for an impact set\n  \
+                 --verify-rollback ID   verify a persisted known-good rollback target\n  \
                  --validate-promotion ID check promotion evidence read-only\n  \
                  --evidence PATH         JSON promotion evidence file, relative to root\n  \
                  --record-good           persist an approved known-good record\n  \
@@ -1051,6 +1059,20 @@ fn main() -> io::Result<()> {
         return Ok(());
     }
 
+    if let Some(component_id) = &options.verify_rollback {
+        let report = scan::scan_root_with_limits(&scan_root, options.scan_limits())?;
+        let index = authority::build_candidates("lpg-l1", &report.root, report.complete);
+        match index.resolve(component_id) {
+            authority::Resolution::Resolved { entry } => {
+                let verification =
+                    authority::verify_known_good(&scan_root, &index, &entry.component_id);
+                println!("{}", serde_json::to_string_pretty(&verification)?);
+            }
+            other => println!("{}", serde_json::to_string_pretty(&other)?),
+        }
+        return Ok(());
+    }
+
     if let Some(component_id) = &options.validate_promotion {
         let report = scan::scan_root_with_limits(&scan_root, options.scan_limits())?;
         let index = authority::build_candidates("lpg-l1", &report.root, report.complete);
@@ -1661,6 +1683,8 @@ mod cli_tests {
             "forge",
             "--closure",
             "forge",
+            "--verify-rollback",
+            "forge",
             "--validate-promotion",
             "forge",
             "--evidence",
@@ -1679,6 +1703,7 @@ mod cli_tests {
         assert_eq!(parsed.resolve.as_deref(), Some("forge"));
         assert_eq!(parsed.impact.as_deref(), Some("forge"));
         assert_eq!(parsed.closure.as_deref(), Some("forge"));
+        assert_eq!(parsed.verify_rollback.as_deref(), Some("forge"));
         assert_eq!(parsed.validate_promotion.as_deref(), Some("forge"));
         assert_eq!(parsed.evidence, Some(PathBuf::from("evidence.json")));
         assert!(!parsed.help);

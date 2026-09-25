@@ -113,6 +113,23 @@ def al1_closure(
     console.print_json(json.dumps(payload))
 
 
+@app.command("al1-verify-rollback")
+def al1_verify_rollback(
+    component_id: str = typer.Argument(..., help="Component ID or alias"),
+    root: Optional[Path] = typer.Option(None, help="LPG program root"),
+    scope: Optional[str] = typer.Option(None, help="Relative subtree scope"),
+):
+    """Verify a persisted known-good rollback target read-only."""
+    from .forge_l1 import AL1ScannerError, verify_rollback
+
+    try:
+        payload = verify_rollback(component_id, root, scope)
+    except AL1ScannerError as error:
+        console.print(f"[red]AL1 rollback verification failed: {error}[/red]")
+        raise typer.Exit(code=1)
+    console.print_json(json.dumps(payload))
+
+
 @app.command("al1-validate-promotion")
 def al1_validate_promotion(
     component_id: str = typer.Argument(..., help="Observed component ID"),

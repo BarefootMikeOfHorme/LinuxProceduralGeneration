@@ -22,6 +22,8 @@ Current schemas:
 - `known-good.schema.json`
   - append-only local record for a promotion that passed the evidence gate;
   - stored under ignored `.al1-state/known-good/` and never written for rejected or partial scans.
+- `rollback-verification.schema.json`
+  - read-only report for whether a persisted known-good record is a valid current rollback target.
 
 These schemas do not make scanner output authoritative.
 

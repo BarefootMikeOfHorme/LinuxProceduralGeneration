@@ -105,6 +105,10 @@ def tier_closure(component_id: str, root: Path | None = None, scope: str | None 
     return run_scanner(root, ["--closure", component_id], scope)
 
 
+def verify_rollback(component_id: str, root: Path | None = None, scope: str | None = None) -> Any:
+    return run_scanner(root, ["--verify-rollback", component_id], scope)
+
+
 def validate_promotion(
     component_id: str,
     evidence: str,

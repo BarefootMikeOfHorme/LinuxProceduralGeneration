@@ -43,6 +43,8 @@ This list is intentionally amendable. It is the first L1 worklist, not a generat
 - [x] Add tier-closure validation.
 - [x] Add read-only `--closure` command output.
 - [x] Expose read-only AL1 commands through the `forge` CLI.
+- [x] Verify persisted known-good rollback targets read-only.
+- [x] Expose rollback verification through the `forge` CLI.
 - [x] Persist known-good promotion/rollback records.
 - [x] Make known-good writes idempotent and non-overwriting.
 

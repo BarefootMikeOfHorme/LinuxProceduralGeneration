@@ -82,6 +82,24 @@ pub struct KnownGoodRecord {
     pub recorded_at: Option<String>,
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum RollbackStatus {
+    Verified,
+    Diverged,
+    Missing,
+    Invalid,
+}
+
+#[derive(Clone, Debug, Serialize)]
+pub struct RollbackVerification {
+    pub component_id: String,
+    pub status: RollbackStatus,
+    pub known_good: Option<KnownGoodRecord>,
+    pub current_digest: Option<String>,
+    pub reason: String,
+}
+
 #[allow(dead_code)] // Promotion API is contract-first; CLI wiring follows the state machine.
 #[derive(Clone, Debug, Serialize)]
 #[serde(tag = "status", rename_all = "kebab-case")]
@@ -578,6 +596,151 @@ pub fn record_known_good(root: &Path, record: &KnownGoodRecord) -> std::io::Resu
     }
 }
 
+pub fn verify_known_good(
+    root: &Path,
+    index: &AuthorityIndex,
+    component_id: &str,
+) -> RollbackVerification {
+    let current = index.entry(component_id);
+    let current_digest = current.and_then(|entry| entry.digest.clone());
+    let directory = match existing_known_good_dir(root) {
+        Ok(Some(directory)) => directory,
+        Ok(None) => {
+            return RollbackVerification {
+                component_id: component_id.to_string(),
+                status: RollbackStatus::Missing,
+                known_good: None,
+                current_digest,
+                reason: "no known-good state directory exists".to_string(),
+            };
+        }
+        Err(error) => {
+            return RollbackVerification {
+                component_id: component_id.to_string(),
+                status: RollbackStatus::Invalid,
+                known_good: None,
+                current_digest,
+                reason: error.to_string(),
+            };
+        }
+    };
+
+    let mut candidates = Vec::new();
+    let entries = match fs::read_dir(directory) {
+        Ok(entries) => entries,
+        Err(error) => {
+            return RollbackVerification {
+                component_id: component_id.to_string(),
+                status: RollbackStatus::Invalid,
+                known_good: None,
+                current_digest,
+                reason: format!("could not read known-good state: {error}"),
+            };
+        }
+    };
+    for entry in entries.flatten() {
+        let path = entry.path();
+        if path.extension().and_then(|value| value.to_str()) != Some("json") {
+            continue;
+        }
+        let bytes = match fs::read(&path) {
+            Ok(bytes) => bytes,
+            Err(error) => {
+                return RollbackVerification {
+                    component_id: component_id.to_string(),
+                    status: RollbackStatus::Invalid,
+                    known_good: None,
+                    current_digest,
+                    reason: format!("could not read {}: {error}", path.display()),
+                };
+            }
+        };
+        let record: KnownGoodRecord = match serde_json::from_slice(&bytes) {
+            Ok(record) => record,
+            Err(error) => {
+                return RollbackVerification {
+                    component_id: component_id.to_string(),
+                    status: RollbackStatus::Invalid,
+                    known_good: None,
+                    current_digest,
+                    reason: format!("invalid known-good record {}: {error}", path.display()),
+                };
+            }
+        };
+        if record.component_id == component_id {
+            candidates.push(record);
+        }
+    }
+
+    let Some(record) = candidates
+        .into_iter()
+        .max_by_key(|record| record.recorded_at.clone().unwrap_or_default())
+    else {
+        return RollbackVerification {
+            component_id: component_id.to_string(),
+            status: RollbackStatus::Missing,
+            known_good: None,
+            current_digest,
+            reason: "no known-good record exists for this component".to_string(),
+        };
+    };
+
+    if let Some(current_digest) = &current_digest {
+        if current_digest != &record.approved_digest {
+            return RollbackVerification {
+                component_id: component_id.to_string(),
+                status: RollbackStatus::Diverged,
+                known_good: Some(record),
+                current_digest: Some(current_digest.clone()),
+                reason: "current digest differs from the known-good approved digest".to_string(),
+            };
+        }
+    }
+    if current.is_none() {
+        return RollbackVerification {
+            component_id: component_id.to_string(),
+            status: RollbackStatus::Missing,
+            known_good: Some(record),
+            current_digest,
+            reason: "component is not present in the current authority index".to_string(),
+        };
+    }
+    RollbackVerification {
+        component_id: component_id.to_string(),
+        status: RollbackStatus::Verified,
+        known_good: Some(record),
+        current_digest,
+        reason: "known-good record matches the current component digest".to_string(),
+    }
+}
+
+fn existing_known_good_dir(root: &Path) -> std::io::Result<Option<PathBuf>> {
+    let canonical_root = root.canonicalize()?;
+    let state_root = canonical_root.join(".al1-state");
+    let known_good = state_root.join("known-good");
+    if !known_good.exists() {
+        return Ok(None);
+    }
+    for path in [&state_root, &known_good] {
+        if let Ok(metadata) = fs::symlink_metadata(path) {
+            if crate::scan::is_link_like(&metadata) {
+                return Err(std::io::Error::new(
+                    std::io::ErrorKind::PermissionDenied,
+                    format!("known-good state path is linked: {}", path.display()),
+                ));
+            }
+            let canonical = path.canonicalize()?;
+            if !canonical.starts_with(&canonical_root) {
+                return Err(std::io::Error::new(
+                    std::io::ErrorKind::PermissionDenied,
+                    format!("known-good state path escaped the root: {}", path.display()),
+                ));
+            }
+        }
+    }
+    Ok(Some(known_good))
+}
+
 fn safe_known_good_dir(root: &Path) -> std::io::Result<PathBuf> {
     let canonical_root = root.canonicalize()?;
     let state_root = canonical_root.join(".al1-state");
@@ -824,6 +987,20 @@ mod tests {
         let first = record_known_good(&dir, &record).unwrap();
         let second = record_known_good(&dir, &record).unwrap();
         assert_eq!(first, second);
+        let mut index = AuthorityIndex::new("lpg-l1", true);
+        let mut current = observed_entry();
+        current.digest = Some("sha256:approved".to_string());
+        index.insert(current);
+        let verification = verify_known_good(&dir, &index, "lpg-l1.l3.program.forge");
+        assert_eq!(verification.status, RollbackStatus::Verified);
+        let mut diverged = index.entry("lpg-l1.l3.program.forge").unwrap().clone();
+        diverged.digest = Some("sha256:changed".to_string());
+        index.entries.clear();
+        index.insert(diverged);
+        assert_eq!(
+            verify_known_good(&dir, &index, "lpg-l1.l3.program.forge").status,
+            RollbackStatus::Diverged
+        );
         let mut conflicting = record.clone();
         conflicting.known_good_revision = "lpg-l1.l3.program.forge@0.2.0".to_string();
         assert!(record_known_good(&dir, &conflicting).is_err());

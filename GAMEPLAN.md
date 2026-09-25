@@ -243,7 +243,8 @@ Review and correct the remaining startup/package contract before moving to geome
 - `al1scan --impact` expands transitive dependents from observed dependency edges.
 - `al1scan --closure` validates the complete affected tier for an impact set, including state, ownership, and schema binding.
 - Approved promotions can be persisted as idempotent, non-overwriting known-good records under ignored `.al1-state/known-good/`.
-- Read-only AL1 commands are exposed through `forge al1-scan`, `forge al1-authority`, `forge al1-resolve`, `forge al1-impact`, `forge al1-closure`, and `forge al1-validate-promotion`.
+- `al1scan --verify-rollback` verifies a persisted known-good target read-only; it does not restore or delete state.
+- Read-only AL1 commands are exposed through `forge al1-scan`, `forge al1-authority`, `forge al1-resolve`, `forge al1-impact`, `forge al1-closure`, `forge al1-verify-rollback`, and `forge al1-validate-promotion`.
 - Dependency edges currently use explicit `requires` relationships; future edge kinds are reserved in the contract.
 - Authority promotion has a contract-first evidence validator, a read-only `--validate-promotion` CLI, `promotion-evidence.schema.json`, and `authority-promotion.schema.json`; partial, incomplete, unvalidated, or digest-mismatched candidates are rejected.
 - Partial scans produce `partial` candidates and cannot be promoted to approved/active state.
@@ -252,11 +253,11 @@ Review and correct the remaining startup/package contract before moving to geome
 
 ### Next LPG-L1 scanner step
 
-Continue the lifecycle hardening:
+Complete reversion and repair safety:
 
-- add rollback journal records and restore verification;
-- bind schema/ownership evidence to closure results;
+- add an explicit restore transaction for verified known-good targets;
 - add scoped repair rescans instead of full-root rescans;
+- bind schema/ownership evidence to closure results;
 - connect persisted known-good state to the LPG-L1 program interface;
 - keep observed candidates separate from approved and active state.
 
@@ -623,14 +624,14 @@ These reports are inputs, not automatic current verification. Future changes sho
 ### Current handoff — 2026-09-25
 
 ```text
-Last active arm: LPG-L1 persistence and forge integration
-Status: [V] known-good record persistence and read-only forge AL1 commands validated; rollback restore and scoped repair remain
+Last active arm: LPG-L1 persistence, rollback verification, and forge integration
+Status: [V] known-good record persistence, read-only rollback verification, and forge AL1 commands validated; explicit restore and scoped repair remain
 Files changed: LPGL1/README.md, LPGL1/L1/profile.jsonc, LPGL1/L1/TODO.md, LPGL1/L1/schemas; al1scan/src/authority.rs, al1scan/src/main.rs; vaultmind_forge/forge_l1.py; vaultmind_forge/forge_cli.py; vaultmind_forge/tests/test_forge_l1.py
-Checks run: al1scan cargo test (18 passed); cargo clippy --all-targets -- -D warnings; cargo fmt --check; release build; JSON Schema meta-validation; known-good write/idempotency/schema smoke; Windows forge AL1 smoke; WSL/Linux launcher smoke; focused Python forge_l1 tests (3 passed); git diff --check
-Evidence: GAMEPLAN.md LPG-L1 scanner section; known-good schema; promotion/impact/closure schemas; commit pending
-Open questions: rollback restore verification; schema/ownership binding; scoped repair rescans; startup/setup lifecycle; package/setup lifecycle integration
-Known limitations: known-good records are local state and not yet connected to automatic restore; dependency graph currently uses explicit `requires` edges; authority entries remain observed candidates; heuristic tier inference remains
-Next smallest step: implement rollback restore verification, then scoped repair rescans and startup/setup lifecycle integration
+Checks run: al1scan cargo test (18 passed); cargo clippy --all-targets -- -D warnings; cargo fmt --check; release build; JSON Schema meta-validation; known-good write/idempotency/schema smoke; rollback verification smoke; Windows forge AL1/rollback smoke; WSL/Linux launcher smoke; focused Python forge_l1 tests (3 passed); git diff --check
+Evidence: GAMEPLAN.md LPG-L1 scanner section; known-good and rollback-verification schemas; commit pending
+Open questions: explicit restore transaction; schema/ownership binding; scoped repair rescans; startup/setup lifecycle; package/setup lifecycle integration
+Known limitations: known-good records are local state and restore is not yet implemented; dependency graph currently uses explicit `requires` edges; authority entries remain observed candidates; heuristic tier inference remains
+Next smallest step: implement explicit restore transaction, then scoped repair rescans and startup/setup lifecycle integration
 ```
 
 At the end of each future work session, update the same fields with current evidence.
@@ -650,10 +651,10 @@ At the end of each future work session, update the same fields with current evid
 
 ## Immediate next action
 
-The scanner/monitor foundation, LPG-L1 schemas, candidate generator, resolver, promotion gate, dependency impact graph, tier-closure validator, known-good persistence, and read-only `forge` integration are validated.
+The scanner/monitor foundation, LPG-L1 schemas, candidate generator, resolver, promotion gate, dependency impact graph, tier-closure validator, known-good persistence, rollback verification, and read-only `forge` integration are validated.
 
 The next active step is:
 
-**Rollback restore verification and scoped repair rescans.**
+**Explicit restore transactions and scoped repair rescans.**
 
-Add restore verification for known-good records, then replace full-root repair rescans with affected-scope rescans. Keep observed candidates separate from approved and active state.
+Add an approved restore transaction for verified known-good targets, then replace full-root repair rescans with affected-scope rescans. Keep observed candidates separate from approved and active state.
