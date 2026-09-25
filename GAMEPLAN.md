@@ -221,6 +221,38 @@ Review and correct the remaining startup/package contract before moving to geome
 - Ubuntu Cargo tests passed with explicit `PYO3_PYTHON=.venv-linux/bin/python`: 35 passed.
 - The base program is now runnable and testable in Ubuntu WSL2.
 
+## LPG-L1 scanner and monitor foundation
+
+**Date:** 2026-09-25
+**Status:** `[V]` read-only monitor/debug/repair foundation validated; manifest authority remains next
+
+- `al1scan/` is a dedicated Rust scanner project and is tracked.
+- Root launchers are available as `al1scan.ps1` and `al1scan.sh`.
+- Scanner supports full-root, scoped subtree, and bounded-depth scans.
+- Scanner emits machine-readable tree reports and summary reports.
+- Resource limits are available for entries, bytes, depth, and duration.
+- Partial scans emit structured warnings and `complete: false` rather than synthesizing deletions.
+- Symlinks, Windows reparse points, external directory targets, secret-like paths, and opaque generated roots are handled explicitly.
+- Repair actions remain additive-only, confirmation-gated, and non-overwriting.
+- Report/repair writes verify that their parent remains within the scan root.
+- Windows and WSL/Linux launcher smoke passed.
+- Rust validation passed: 8 tests, Clippy with warnings denied, formatting check, and release build.
+- The scanner is currently a monitor/readout/diff/repair foundation, not yet the canonical LPG-L1 manifest or package lifecycle authority.
+- The initial `LPGL1/` profile README, draft profile, and amendable TODO are tracked.
+- `.venv-linux/`, `.al1-incoming/`, `.al1scan_reports/`, `.opencode/`, and `.continue/` are local/generated state and are not program source.
+
+### Next LPG-L1 scanner step
+
+Implement the canonical recursive component manifest and location authority:
+
+- define machine IDs and parent/child relationships;
+- define alias and path bindings;
+- define observed/planned/missing/conflict states;
+- define schema dispatch and ownership;
+- connect scanner observations to generated LPG-L1 records;
+- preserve partial scan results without promoting them to approved state;
+- add focused resolver and manifest tests before package/setup lifecycle work.
+
 ## Arm 2 — Native geometry current pass
 
 **Date:** 2026-09-24  
@@ -581,17 +613,17 @@ These reports are inputs, not automatic current verification. Future changes sho
 
 ## Session handoff
 
-### Current handoff — 2026-09-24
+### Current handoff — 2026-09-25
 
 ```text
-Last active arm: Arm 3 — asset envelope and conversion honesty
-Status: [V] envelope, OBJ adapter, and image adapter smoke validated; broader formats pending
-Files changed: startup/package files; forge_3d lazy native loader; Rust geometry/OBJ/export/PyO3; forge_converter/contracts.py, validation.py, converter.py, build123d_adapter.py, build123d_ai.py, build123d_worker.py, freecad_adapter.py, doctor.py, and cad_profiles.py; forge_intake envelope/OBJ validation migration; OpenSCAD worker detection; default build123d dependency; FreeCAD secondary starter documentation; Python module and console CLI entry points; CAD capability/execution/doctor CLI commands; package-relative import repairs
-Checks run: Python import/registry/CLI/schema smoke; source and isolated `python -m vaultmind_forge --help`; clean Python wheel build/import; final isolated Python package wheel/import; full cargo test (35 passed); Maturin native wheel build/install; final Python ABI probe; asset-contract smoke; OBJ/image adapter smoke; independent validator smoke; build123d capability/STEP/STL/envelope/structured-plan/worker smoke; CAD profile registry smoke; FreeCAD detection smoke; CLI CAD capability/execution/doctor smoke; targeted pytest (12 passed); intake envelope/OBJ/unsupported smoke; git diff --check
-Evidence: GAMEPLAN.md Arm 1/Arm 2/Arm 3 sections; temporary wheels under approved OpenCode temp directory
-Open questions: WSL/Linux OpenSCAD availability; full primitive UV/manifold/determinism matrix; migration of forge_intake to ConversionEnvelope
-Known limitations: additional_nodes module absent; self-intersection status is unknown; QEM and spanning CSG explicitly unsupported; FBX/glTF explicitly unsupported; OpenSCAD binary absent; build123d arbitrary-script worker is not implemented; FreeCAD is documented as a secondary option but not detected/provisioned; media/Blender/archive adapters unsupported
-Next smallest step: add the isolated build123d worker contract, then continue the remaining forge_intake parser migration
+Last active arm: LPG-L1 scanner and monitor foundation
+Status: [V] scanner/monitor foundation validated; canonical manifest/location authority pending
+Files changed: LPGL1/README.md, LPGL1/L1/profile.jsonc, LPGL1/L1/TODO.md; al1scan/Cargo.toml, Cargo.lock, src/main.rs, src/scan.rs; al1scan.ps1; al1scan.sh; native QEM guard and corrected binding smoke
+Checks run: al1scan cargo test (8 passed); cargo clippy --all-targets -- -D warnings; cargo fmt --check; release build; Windows launcher summary/dump smoke; WSL/Linux launcher smoke; resource-limit partial-scan smoke; git diff --check
+Evidence: GAMEPLAN.md LPG-L1 scanner section; commit 9e98520 pushed to origin/master
+Open questions: canonical recursive manifest schema; location resolver; dependency-impact graph; tier-closure validation; known-good/rollback journal; package/setup lifecycle integration
+Known limitations: scanner tier/status inference is heuristic; no manifest authority yet; repairs are additive-only; tier closure and dependency expansion are planned; generated outputs and local environments remain untracked
+Next smallest step: implement the canonical LPG-L1 recursive component manifest and location authority, then connect scanner observations without promoting partial scans
 ```
 
 At the end of each future work session, update the same fields with current evidence.
@@ -611,8 +643,10 @@ At the end of each future work session, update the same fields with current evid
 
 ## Immediate next action
 
-The core native/PyO3 and `forge_3d` source is now tracked. The next active step is:
+The scanner/monitor foundation is validated and the native QEM smoke fix is tracked.
 
-**Native geometry/PyO3 reconciliation.**
+The next active step is:
 
-Run the full Rust suite and Python binding smoke against the now-tracked source, finish remaining primitive/UV/manifold/determinism checks, and close the native geometry arm before expanding further into media, WSL, providers, AL1, or UI work.
+**Canonical LPG-L1 manifest and location authority.**
+
+Define the recursive component identity model, machine IDs, aliases, path bindings, ownership, schema dispatch, and planned/observed/missing/conflict states. Connect scanner observations without promoting partial scans to approved state.

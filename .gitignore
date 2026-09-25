@@ -8,6 +8,15 @@ __pycache__/
 *.py[cod]
 .venv/
 .venv312/
+.venv-linux/
+
+# Local agent/editor state
+.opencode/
+.continue/
+
+# AL1 scanner local intake and generated reports
+.al1-incoming/
+.al1scan_reports/
 
 # Node (if used)
 node_modules/
