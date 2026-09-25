@@ -30,6 +30,7 @@ use std::{
 };
 
 const MAX_DEPTH: usize = 12;
+const MAX_PROMOTION_EVIDENCE_BYTES: u64 = 256 * 1024;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 struct CliOptions {
@@ -39,6 +40,8 @@ struct CliOptions {
     summary: bool,
     authority: bool,
     resolve: Option<String>,
+    validate_promotion: Option<String>,
+    evidence: Option<PathBuf>,
     max_depth: usize,
     max_entries: usize,
     max_seconds: u64,
@@ -53,6 +56,8 @@ impl CliOptions {
         let mut summary = false;
         let mut authority = false;
         let mut resolve = None;
+        let mut validate_promotion = None;
+        let mut evidence = None;
         let mut max_depth = MAX_DEPTH;
         let mut max_entries = DEFAULT_MAX_ENTRIES;
         let mut max_seconds = DEFAULT_MAX_DURATION_SECS;
@@ -68,6 +73,15 @@ impl CliOptions {
                 "--resolve" => {
                     index += 1;
                     resolve = Some(Self::next_value(args, index, "--resolve")?);
+                }
+                "--validate-promotion" => {
+                    index += 1;
+                    validate_promotion =
+                        Some(Self::next_value(args, index, "--validate-promotion")?);
+                }
+                "--evidence" => {
+                    index += 1;
+                    evidence = Some(PathBuf::from(Self::next_value(args, index, "--evidence")?));
                 }
                 "--root" => {
                     index += 1;
@@ -143,6 +157,13 @@ impl CliOptions {
             index += 1;
         }
 
+        if validate_promotion.is_some() != evidence.is_some() {
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidInput,
+                "--validate-promotion and --evidence must be provided together",
+            ));
+        }
+
         if let Some(scope) = &scope {
             if scope.is_absolute()
                 || scope
@@ -163,6 +184,8 @@ impl CliOptions {
             summary,
             authority,
             resolve,
+            validate_promotion,
+            evidence,
             max_depth,
             max_entries,
             max_seconds,
@@ -196,6 +219,8 @@ impl CliOptions {
                  --summary              emit scan counts and status summary JSON\n  \
                  --authority            emit observed LPG-L1 authority candidates JSON\n  \
                  --resolve QUERY        resolve an ID, alias, or path in the observed index\n  \
+                 --validate-promotion ID check promotion evidence read-only\n  \
+                 --evidence PATH         JSON promotion evidence file, relative to root\n  \
                  --root PATH            set the LPG/program root\n  \
                  --scope PATH           scan a relative subtree only\n  \
                  --max-depth N          set the scan depth (1-128)\n  \
@@ -396,6 +421,50 @@ fn ensure_safe_directory(root: &Path, dir: &Path) -> io::Result<()> {
         }
     }
     Ok(())
+}
+
+fn read_promotion_evidence(
+    root: &Path,
+    relative_path: &Path,
+) -> io::Result<authority::PromotionEvidence> {
+    if relative_path.is_absolute()
+        || relative_path
+            .components()
+            .any(|component| matches!(component, Component::ParentDir | Component::RootDir))
+    {
+        return Err(io::Error::new(
+            io::ErrorKind::InvalidInput,
+            "promotion evidence must be a relative path inside the scan root",
+        ));
+    }
+    let path = root.join(relative_path);
+    let parent = path.parent().ok_or_else(|| {
+        io::Error::new(
+            io::ErrorKind::InvalidInput,
+            "promotion evidence has no parent directory",
+        )
+    })?;
+    ensure_safe_directory(root, parent)?;
+    let metadata = fs::metadata(&path)?;
+    if !metadata.is_file() {
+        return Err(io::Error::new(
+            io::ErrorKind::InvalidInput,
+            format!("promotion evidence is not a file: {}", path.display()),
+        ));
+    }
+    if metadata.len() > MAX_PROMOTION_EVIDENCE_BYTES {
+        return Err(io::Error::new(
+            io::ErrorKind::InvalidData,
+            "promotion evidence exceeds the 256 KiB read limit",
+        ));
+    }
+    let text = fs::read_to_string(&path)?;
+    serde_json::from_str(&text).map_err(|error| {
+        io::Error::new(
+            io::ErrorKind::InvalidData,
+            format!("invalid promotion evidence JSON: {error}"),
+        )
+    })
 }
 
 /// Writes a small human-readable Markdown report for a node (and a summary
@@ -935,6 +1004,21 @@ fn main() -> io::Result<()> {
     } else {
         root_path
     };
+
+    if let Some(component_id) = &options.validate_promotion {
+        let report = scan::scan_root_with_limits(&scan_root, options.scan_limits())?;
+        let index = authority::build_candidates("lpg-l1", &report.root, report.complete);
+        let evidence_path = options.evidence.as_ref().expect("validated by CLI parser");
+        match index.resolve(component_id) {
+            authority::Resolution::Resolved { entry } => {
+                let evidence = read_promotion_evidence(&scan_root, evidence_path)?;
+                let outcome = authority::promote_to_approved(&entry, &evidence);
+                println!("{}", serde_json::to_string_pretty(&outcome)?);
+            }
+            other => println!("{}", serde_json::to_string_pretty(&other)?),
+        }
+        return Ok(());
+    }
 
     if let Some(query) = &options.resolve {
         let report = scan::scan_root_with_limits(&scan_root, options.scan_limits())?;
@@ -1499,6 +1583,10 @@ mod cli_tests {
             "--authority",
             "--resolve",
             "forge",
+            "--validate-promotion",
+            "forge",
+            "--evidence",
+            "evidence.json",
         ]))
         .unwrap();
 
@@ -1511,6 +1599,8 @@ mod cli_tests {
         assert!(parsed.summary);
         assert!(parsed.authority);
         assert_eq!(parsed.resolve.as_deref(), Some("forge"));
+        assert_eq!(parsed.validate_promotion.as_deref(), Some("forge"));
+        assert_eq!(parsed.evidence, Some(PathBuf::from("evidence.json")));
         assert!(!parsed.help);
     }
 
@@ -1518,6 +1608,12 @@ mod cli_tests {
     fn rejects_scope_escape_and_unknown_options() {
         assert!(CliOptions::parse(&args(&["--scope", "../outside"])).is_err());
         assert!(CliOptions::parse(&args(&["--unknown"])).is_err());
+    }
+
+    #[test]
+    fn rejects_unpaired_promotion_options() {
+        assert!(CliOptions::parse(&args(&["--validate-promotion", "forge"])).is_err());
+        assert!(CliOptions::parse(&args(&["--evidence", "evidence.json"])).is_err());
     }
 
     #[test]

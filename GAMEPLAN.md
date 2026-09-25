@@ -240,7 +240,7 @@ Review and correct the remaining startup/package contract before moving to geome
 - The scanner is currently a monitor/readout/diff/repair foundation with an observed-authority candidate generator; it is not yet the approved/active manifest or package lifecycle authority.
 - `al1scan --authority` emits candidate LPG-L1 entries with canonical IDs, parent links, aliases, root-relative paths, confidence, and scan state.
 - `al1scan --resolve` resolves machine IDs, aliases, and root-relative paths with explicit ambiguity handling.
-- Authority promotion has a contract-first evidence validator and `authority-promotion.schema.json`; partial, incomplete, unvalidated, or digest-mismatched candidates are rejected.
+- Authority promotion has a contract-first evidence validator, a read-only `--validate-promotion` CLI, `promotion-evidence.schema.json`, and `authority-promotion.schema.json`; partial, incomplete, unvalidated, or digest-mismatched candidates are rejected.
 - Partial scans produce `partial` candidates and cannot be promoted to approved/active state.
 - The initial `LPGL1/` profile README, draft profile, schemas, and amendable TODO are tracked.
 - `.venv-linux/`, `.al1-incoming/`, `.al1scan_reports/`, `.opencode/`, and `.continue/` are local/generated state and are not program source.
@@ -620,13 +620,13 @@ These reports are inputs, not automatic current verification. Future changes sho
 
 ```text
 Last active arm: LPG-L1 authority promotion gate
-Status: [V] observed candidate generation, resolution, and promotion refusal contract validated; approved/active persistence pending
-Files changed: LPGL1/README.md, LPGL1/L1/profile.jsonc, LPGL1/L1/TODO.md, LPGL1/L1/schemas; al1scan/src/authority.rs and launcher wiring
-Checks run: al1scan cargo test (14 passed); cargo clippy --all-targets -- -D warnings; cargo fmt --check; release build; JSON Schema meta-validation; Windows authority/resolve smoke; WSL/Linux launcher smoke; resource-limit partial-scan smoke; git diff --check
-Evidence: GAMEPLAN.md LPG-L1 scanner section; authority promotion schema; promotion refusal tests; commit pending
+Status: [V] observed candidate generation, resolution, read-only promotion validation, and refusal contract validated; approved/active persistence pending
+Files changed: LPGL1/README.md, LPGL1/L1/profile.jsonc, LPGL1/L1/TODO.md, LPGL1/L1/schemas; al1scan/src/authority.rs, al1scan/src/main.rs, and launcher wiring
+Checks run: al1scan cargo test (15 passed); cargo clippy --all-targets -- -D warnings; cargo fmt --check; release build; JSON Schema meta-validation; Windows authority/resolve/promotion smoke; WSL/Linux launcher smoke; resource-limit partial-scan smoke; promotion rejection smoke; git diff --check
+Evidence: GAMEPLAN.md LPG-L1 scanner section; promotion evidence and record schemas; promotion refusal tests; commit pending
 Open questions: approved/active state persistence; schema/ownership binding; dependency-impact graph; tier-closure validation; known-good/rollback journal; package/setup lifecycle integration
-Known limitations: promotion API is contract-first and not yet wired to a persistent promotion CLI; authority entries are observed scanner candidates, not approved profile state; heuristic tier inference remains
-Next smallest step: wire promotion evidence into a read-only validation command, then add dependency-impact expansion and tier closure
+Known limitations: promotion validation is read-only and does not persist approvals; authority entries are observed scanner candidates, not approved profile state; heuristic tier inference remains
+Next smallest step: add dependency-impact expansion and tier-closure validation, then persist known-good promotion/rollback records
 ```
 
 At the end of each future work session, update the same fields with current evidence.
@@ -646,10 +646,10 @@ At the end of each future work session, update the same fields with current evid
 
 ## Immediate next action
 
-The scanner/monitor foundation, LPG-L1 schemas, observed candidate generator, resolver, and promotion refusal contract are validated.
+The scanner/monitor foundation, LPG-L1 schemas, observed candidate generator, resolver, and read-only promotion gate are validated.
 
 The next active step is:
 
-**Read-only promotion validation and dependency-aware reconciliation.**
+**Dependency-aware reconciliation and tier closure.**
 
-Wire promotion evidence into a read-only validation command, then add dependency-impact expansion, tier-closure validation, and known-good rollback records. Keep observed candidates separate from approved and active state.
+Add explicit dependency edges, expand impact from changed components, validate the complete affected tier, and persist known-good promotion/rollback records. Keep observed candidates separate from approved and active state.

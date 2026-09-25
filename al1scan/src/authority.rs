@@ -1,5 +1,5 @@
 use crate::scan::{Node, Status, Tier};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 #[allow(dead_code)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize)]
@@ -41,8 +41,7 @@ pub struct AuthorityEntry {
     pub parent_id: Option<String>,
 }
 
-#[allow(dead_code)] // Promotion API is contract-first; CLI wiring follows the state machine.
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct PromotionEvidence {
     pub schema_id: String,
     pub policy_profile: String,

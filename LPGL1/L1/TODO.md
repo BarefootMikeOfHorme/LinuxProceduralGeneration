@@ -36,6 +36,10 @@ This list is intentionally amendable. It is the first L1 worklist, not a generat
 - [x] Preserve partial scan state.
 - [x] Define the authority promotion evidence schema.
 - [x] Reject promotion of partial, incomplete, or insufficiently validated candidates.
+- [x] Wire read-only promotion validation through the CLI.
+- [ ] Add dependency-impact expansion.
+- [ ] Add tier-closure validation.
+- [ ] Persist known-good promotion/rollback records.
 - [ ] Define recursive component/node manifest schema.
 - [ ] Define tier and subtier naming grammar.
 - [ ] Define machine-ID, alias, and physical-path bindings.

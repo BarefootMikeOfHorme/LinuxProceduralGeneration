@@ -10,8 +10,11 @@ Current schemas:
 - `location-index.schema.json`
   - derived location authority index;
   - maps canonical IDs to aliases, root-relative/resolved paths, lifecycle state, ownership, schema, and scan provenance.
+- `promotion-evidence.schema.json`
+  - read-only input payload for the promotion gate;
+  - requires complete scan, schema, security, system-requirement, tier-closure, digest, and known-good fields.
 - `authority-promotion.schema.json`
-  - evidence record for observed-to-validated/approved promotion;
+  - durable record for observed-to-validated/approved promotion;
   - requires complete scan, schema, security, system-requirement, tier-closure, digest, and known-good evidence.
 
 These schemas do not make scanner output authoritative.

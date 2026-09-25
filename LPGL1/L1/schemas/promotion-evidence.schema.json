@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "al1.schema.lpg-l1.promotion-evidence",
+  "title": "AL1/LPG-L1 Promotion Evidence Input",
+  "description": "Read-only evidence payload consumed by the promotion gate. A complete payload still requires the observed candidate to be in an eligible state.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_id",
+    "policy_profile",
+    "scan_complete",
+    "schema_valid",
+    "security_passed",
+    "system_requirements_passed",
+    "tier_closure_passed",
+    "observed_digest",
+    "approved_digest",
+    "known_good_revision"
+  ],
+  "properties": {
+    "schema_id": { "type": "string", "minLength": 1 },
+    "policy_profile": { "type": "string", "minLength": 1 },
+    "scan_complete": { "type": "boolean" },
+    "schema_valid": { "type": "boolean" },
+    "security_passed": { "type": "boolean" },
+    "system_requirements_passed": { "type": "boolean" },
+    "tier_closure_passed": { "type": "boolean" },
+    "observed_digest": { "type": "string", "minLength": 1 },
+    "approved_digest": { "type": "string", "minLength": 1 },
+    "known_good_revision": { "type": ["string", "null"] }
+  }
+}
