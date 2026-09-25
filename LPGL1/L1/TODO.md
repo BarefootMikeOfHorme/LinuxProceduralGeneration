@@ -20,8 +20,8 @@ This list is intentionally amendable. It is the first L1 worklist, not a generat
 - [x] Exclude secret-like paths and generated/cache roots.
 - [x] Mark depth-limited directories as truncated.
 - [x] Use high-resolution modification timestamps for scan diffs.
-- [ ] Add scan resource budgets: files, bytes, duration, and node count.
-- [ ] Add structured warnings for unreadable or skipped entries.
+- [x] Add scan resource budgets: files, bytes, duration, and node count.
+- [x] Add structured warnings for unreadable or skipped entries.
 - [ ] Add scoped repair rescans instead of full-root rescans.
 
 ## LPG-L1 authority
@@ -42,17 +42,9 @@ This list is intentionally amendable. It is the first L1 worklist, not a generat
 - [x] Add read-only `--impact` command output.
 - [x] Add tier-closure validation.
 - [x] Add read-only `--closure` command output.
-- [ ] Persist known-good promotion/rollback records.
-- [ ] Define recursive component/node manifest schema.
-- [ ] Define tier and subtier naming grammar.
-- [ ] Define machine-ID, alias, and physical-path bindings.
-- [ ] Implement the location index.
-- [ ] Implement the level map.
-- [ ] Implement the path-alias registry.
-- [ ] Implement expected-location rules.
-- [ ] Implement ownership and schema-dispatch records.
-- [ ] Implement missing/planned/conflict records.
-- [ ] Add a resolver for machine ID, human name, path, and alias queries.
+- [x] Expose read-only AL1 commands through the `forge` CLI.
+- [x] Persist known-good promotion/rollback records.
+- [x] Make known-good writes idempotent and non-overwriting.
 
 ## Lifecycle
 

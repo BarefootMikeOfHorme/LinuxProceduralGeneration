@@ -29,6 +29,108 @@ def doctor():
     console.print_json(json.dumps(collect_doctor_report()))
 
 
+@app.command("al1-scan")
+def al1_scan(
+    root: Optional[Path] = typer.Option(None, help="LPG program root"),
+    scope: Optional[str] = typer.Option(None, help="Relative subtree scope"),
+    summary: bool = typer.Option(False, help="Emit summary instead of full tree"),
+):
+    """Run the read-only AL1/LPG-L1 scanner."""
+    from .forge_l1 import AL1ScannerError, scan_summary, run_scanner
+
+    try:
+        payload = run_scanner(root, ["--summary"] if summary else ["--dump"], scope)
+    except AL1ScannerError as error:
+        console.print(f"[red]AL1 scan failed: {error}[/red]")
+        raise typer.Exit(code=1)
+    console.print_json(json.dumps(payload))
+
+
+@app.command("al1-authority")
+def al1_authority(
+    root: Optional[Path] = typer.Option(None, help="LPG program root"),
+    scope: Optional[str] = typer.Option(None, help="Relative subtree scope"),
+):
+    """Emit observed LPG-L1 authority candidates."""
+    from .forge_l1 import AL1ScannerError, authority_index
+
+    try:
+        payload = authority_index(root, scope)
+    except AL1ScannerError as error:
+        console.print(f"[red]AL1 authority scan failed: {error}[/red]")
+        raise typer.Exit(code=1)
+    console.print_json(json.dumps(payload))
+
+
+@app.command("al1-resolve")
+def al1_resolve(
+    query: str = typer.Argument(..., help="Machine ID, alias, or root-relative path"),
+    root: Optional[Path] = typer.Option(None, help="LPG program root"),
+    scope: Optional[str] = typer.Option(None, help="Relative subtree scope"),
+):
+    """Resolve a component in the observed authority index."""
+    from .forge_l1 import AL1ScannerError, resolve_component
+
+    try:
+        payload = resolve_component(query, root, scope)
+    except AL1ScannerError as error:
+        console.print(f"[red]AL1 resolve failed: {error}[/red]")
+        raise typer.Exit(code=1)
+    console.print_json(json.dumps(payload))
+
+
+@app.command("al1-impact")
+def al1_impact(
+    component_id: str = typer.Argument(..., help="Changed component ID"),
+    root: Optional[Path] = typer.Option(None, help="LPG program root"),
+    scope: Optional[str] = typer.Option(None, help="Relative subtree scope"),
+):
+    """Show transitive dependents for a component change."""
+    from .forge_l1 import AL1ScannerError, component_impact
+
+    try:
+        payload = component_impact(component_id, root, scope)
+    except AL1ScannerError as error:
+        console.print(f"[red]AL1 impact query failed: {error}[/red]")
+        raise typer.Exit(code=1)
+    console.print_json(json.dumps(payload))
+
+
+@app.command("al1-closure")
+def al1_closure(
+    component_id: str = typer.Argument(..., help="Changed component ID"),
+    root: Optional[Path] = typer.Option(None, help="LPG program root"),
+    scope: Optional[str] = typer.Option(None, help="Relative subtree scope"),
+):
+    """Validate the complete affected tier for a component change."""
+    from .forge_l1 import AL1ScannerError, tier_closure
+
+    try:
+        payload = tier_closure(component_id, root, scope)
+    except AL1ScannerError as error:
+        console.print(f"[red]AL1 closure validation failed: {error}[/red]")
+        raise typer.Exit(code=1)
+    console.print_json(json.dumps(payload))
+
+
+@app.command("al1-validate-promotion")
+def al1_validate_promotion(
+    component_id: str = typer.Argument(..., help="Observed component ID"),
+    evidence: str = typer.Option(..., help="Relative promotion evidence JSON path"),
+    root: Optional[Path] = typer.Option(None, help="LPG program root"),
+    scope: Optional[str] = typer.Option(None, help="Relative subtree scope"),
+):
+    """Validate promotion evidence without changing profile state."""
+    from .forge_l1 import AL1ScannerError, validate_promotion
+
+    try:
+        payload = validate_promotion(component_id, evidence, root, scope)
+    except AL1ScannerError as error:
+        console.print(f"[red]AL1 promotion validation failed: {error}[/red]")
+        raise typer.Exit(code=1)
+    console.print_json(json.dumps(payload))
+
+
 @app.command("cad-capabilities")
 def cad_capabilities():
     """Show available CAD backends and profile metadata as JSON."""

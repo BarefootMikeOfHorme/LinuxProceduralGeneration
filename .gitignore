@@ -17,6 +17,7 @@ __pycache__/
 # AL1 scanner local intake and generated reports
 .al1-incoming/
 .al1scan_reports/
+.al1-state/
 
 # Node (if used)
 node_modules/

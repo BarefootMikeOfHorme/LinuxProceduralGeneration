@@ -1,6 +1,9 @@
 use crate::scan::{Node, Status, Tier};
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
+use std::fs::{self, OpenOptions};
+use std::io::Write;
+use std::path::{Path, PathBuf};
 
 #[allow(dead_code)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize)]
@@ -63,6 +66,20 @@ pub struct PromotionEvidence {
     pub observed_digest: String,
     pub approved_digest: String,
     pub known_good_revision: Option<String>,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
+pub struct KnownGoodRecord {
+    pub schema_version: String,
+    pub profile: String,
+    pub component_id: String,
+    pub observed_digest: String,
+    pub approved_digest: String,
+    pub known_good_revision: String,
+    pub evidence_schema: String,
+    pub policy_profile: String,
+    pub source: String,
+    pub recorded_at: Option<String>,
 }
 
 #[allow(dead_code)] // Promotion API is contract-first; CLI wiring follows the state machine.
@@ -509,6 +526,96 @@ pub fn promote_to_approved(
     }
 }
 
+pub fn record_known_good(root: &Path, record: &KnownGoodRecord) -> std::io::Result<PathBuf> {
+    if record.known_good_revision.trim().is_empty() {
+        return Err(std::io::Error::new(
+            std::io::ErrorKind::InvalidInput,
+            "known-good revision is required",
+        ));
+    }
+    let state_dir = safe_known_good_dir(root)?;
+    let file_stem = format!(
+        "{}-{}",
+        slug_for_filename(&record.component_id),
+        slug_for_filename(&record.approved_digest)
+    );
+    let target = state_dir.join(format!("{file_stem}.json"));
+    let bytes = serde_json::to_vec_pretty(record)
+        .map_err(|error| std::io::Error::new(std::io::ErrorKind::InvalidData, error))?;
+
+    match OpenOptions::new()
+        .write(true)
+        .create_new(true)
+        .open(&target)
+    {
+        Ok(mut file) => {
+            file.write_all(&bytes)?;
+            file.sync_all()?;
+            Ok(target)
+        }
+        Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => {
+            let existing = fs::read(&target)?;
+            let existing_record: KnownGoodRecord =
+                serde_json::from_slice(&existing).map_err(|parse_error| {
+                    std::io::Error::new(
+                        std::io::ErrorKind::InvalidData,
+                        format!("existing known-good record is invalid: {parse_error}"),
+                    )
+                })?;
+            if existing_record == *record {
+                Ok(target)
+            } else {
+                Err(std::io::Error::new(
+                    std::io::ErrorKind::AlreadyExists,
+                    format!(
+                        "a different known-good record already exists at {}",
+                        target.display()
+                    ),
+                ))
+            }
+        }
+        Err(error) => Err(error),
+    }
+}
+
+fn safe_known_good_dir(root: &Path) -> std::io::Result<PathBuf> {
+    let canonical_root = root.canonicalize()?;
+    let state_root = canonical_root.join(".al1-state");
+    let known_good = state_root.join("known-good");
+    for path in [&state_root, &known_good] {
+        if let Ok(metadata) = fs::symlink_metadata(path) {
+            if crate::scan::is_link_like(&metadata) {
+                return Err(std::io::Error::new(
+                    std::io::ErrorKind::PermissionDenied,
+                    format!("known-good state path is linked: {}", path.display()),
+                ));
+            }
+            let canonical = path.canonicalize()?;
+            if !canonical.starts_with(&canonical_root) {
+                return Err(std::io::Error::new(
+                    std::io::ErrorKind::PermissionDenied,
+                    format!("known-good state path escaped the root: {}", path.display()),
+                ));
+            }
+        }
+    }
+    fs::create_dir_all(&known_good)?;
+    Ok(known_good)
+}
+
+fn slug_for_filename(value: &str) -> String {
+    value
+        .chars()
+        .map(|character| {
+            if character.is_ascii_alphanumeric() || character == '.' || character == '-' {
+                character.to_ascii_lowercase()
+            } else {
+                '_'
+            }
+        })
+        .collect()
+}
+
 fn add_node(
     index: &mut AuthorityIndex,
     node: &Node,
@@ -693,6 +800,33 @@ mod tests {
             index.resolve("lpg-l1"),
             Resolution::Resolved { .. }
         ));
+
+        let _ = fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn known_good_record_is_idempotent_and_non_overwriting() {
+        let dir = std::env::temp_dir().join(format!("al1_known_good_{}", std::process::id()));
+        let _ = fs::remove_dir_all(&dir);
+        fs::create_dir_all(&dir).unwrap();
+        let record = KnownGoodRecord {
+            schema_version: "0.1.0".to_string(),
+            profile: "lpg-l1".to_string(),
+            component_id: "lpg-l1.l3.program.forge".to_string(),
+            observed_digest: "sha256:observed".to_string(),
+            approved_digest: "sha256:approved".to_string(),
+            known_good_revision: "lpg-l1.l3.program.forge@0.1.0".to_string(),
+            evidence_schema: "al1.schema.lpg-l1.promotion-evidence".to_string(),
+            policy_profile: "lpg-l1.validation.default".to_string(),
+            source: "al1scan".to_string(),
+            recorded_at: None,
+        };
+        let first = record_known_good(&dir, &record).unwrap();
+        let second = record_known_good(&dir, &record).unwrap();
+        assert_eq!(first, second);
+        let mut conflicting = record.clone();
+        conflicting.known_good_revision = "lpg-l1.l3.program.forge@0.2.0".to_string();
+        assert!(record_known_good(&dir, &conflicting).is_err());
 
         let _ = fs::remove_dir_all(&dir);
     }

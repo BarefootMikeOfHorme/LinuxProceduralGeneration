@@ -19,6 +19,9 @@ Current schemas:
 - `tier-closure.schema.json`
   - read-only report for the complete affected tier of a dependency impact set;
   - records per-component state, ownership, schema binding, status, and reasons.
+- `known-good.schema.json`
+  - append-only local record for a promotion that passed the evidence gate;
+  - stored under ignored `.al1-state/known-good/` and never written for rejected or partial scans.
 
 These schemas do not make scanner output authoritative.
 

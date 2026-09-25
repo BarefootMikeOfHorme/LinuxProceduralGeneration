@@ -44,6 +44,7 @@ struct CliOptions {
     closure: Option<String>,
     validate_promotion: Option<String>,
     evidence: Option<PathBuf>,
+    record_good: bool,
     max_depth: usize,
     max_entries: usize,
     max_seconds: u64,
@@ -62,6 +63,7 @@ impl CliOptions {
         let mut closure = None;
         let mut validate_promotion = None;
         let mut evidence = None;
+        let mut record_good = false;
         let mut max_depth = MAX_DEPTH;
         let mut max_entries = DEFAULT_MAX_ENTRIES;
         let mut max_seconds = DEFAULT_MAX_DURATION_SECS;
@@ -95,6 +97,7 @@ impl CliOptions {
                     index += 1;
                     evidence = Some(PathBuf::from(Self::next_value(args, index, "--evidence")?));
                 }
+                "--record-good" => record_good = true,
                 "--root" => {
                     index += 1;
                     root = Some(PathBuf::from(Self::next_value(args, index, "--root")?));
@@ -175,6 +178,12 @@ impl CliOptions {
                 "--validate-promotion and --evidence must be provided together",
             ));
         }
+        if record_good && validate_promotion.is_none() {
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidInput,
+                "--record-good requires --validate-promotion and --evidence",
+            ));
+        }
 
         if let Some(scope) = &scope {
             if scope.is_absolute()
@@ -200,6 +209,7 @@ impl CliOptions {
             closure,
             validate_promotion,
             evidence,
+            record_good,
             max_depth,
             max_entries,
             max_seconds,
@@ -237,6 +247,7 @@ impl CliOptions {
                  --closure ID           validate the complete affected tier for an impact set\n  \
                  --validate-promotion ID check promotion evidence read-only\n  \
                  --evidence PATH         JSON promotion evidence file, relative to root\n  \
+                 --record-good           persist an approved known-good record\n  \
                  --root PATH            set the LPG/program root\n  \
                  --scope PATH           scan a relative subtree only\n  \
                  --max-depth N          set the scan depth (1-128)\n  \
@@ -1048,7 +1059,35 @@ fn main() -> io::Result<()> {
             authority::Resolution::Resolved { entry } => {
                 let evidence = read_promotion_evidence(&scan_root, evidence_path)?;
                 let outcome = authority::promote_to_approved(&entry, &evidence);
-                println!("{}", serde_json::to_string_pretty(&outcome)?);
+                if options.record_good {
+                    if let authority::PromotionOutcome::Approved { entry: approved } = &outcome {
+                        let record = authority::KnownGoodRecord {
+                            schema_version: "0.1.0".to_string(),
+                            profile: "lpg-l1".to_string(),
+                            component_id: approved.component_id.clone(),
+                            observed_digest: evidence.observed_digest.clone(),
+                            approved_digest: evidence.approved_digest.clone(),
+                            known_good_revision: evidence
+                                .known_good_revision
+                                .clone()
+                                .unwrap_or_default(),
+                            evidence_schema: "al1.schema.lpg-l1.promotion-evidence".to_string(),
+                            policy_profile: evidence.policy_profile.clone(),
+                            source: "al1scan".to_string(),
+                            recorded_at: None,
+                        };
+                        let path = authority::record_known_good(&scan_root, &record)?;
+                        let payload = serde_json::json!({
+                            "outcome": outcome,
+                            "known_good_path": path,
+                        });
+                        println!("{}", serde_json::to_string_pretty(&payload)?);
+                    } else {
+                        println!("{}", serde_json::to_string_pretty(&outcome)?);
+                    }
+                } else {
+                    println!("{}", serde_json::to_string_pretty(&outcome)?);
+                }
             }
             other => println!("{}", serde_json::to_string_pretty(&other)?),
         }

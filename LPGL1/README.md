@@ -58,13 +58,25 @@ partial/complete scan status
 --resolve QUERY resolve machine ID, alias, or path
 --impact ID show transitive dependents from observed dependencies
 --closure ID validate the complete affected tier for an impact set
+--record-good persist an approved known-good record
 TUI monitor/debug/repair station
 context-menu actions
 rescan and diff markers
 additive-only repair proposals
 ```
 
-The current scanner is a readout/monitor foundation. It now emits observed authority candidates, resolves IDs/aliases/paths, expands dependency impact, and validates the affected tier. Promotion persistence and known-good rollback are the next integration layers.
+The current scanner is a readout/monitor foundation. It now emits observed authority candidates, resolves IDs/aliases/paths, expands dependency impact, validates the affected tier, and can persist an approved known-good record through the explicit `--record-good` action. The read-only commands are also exposed through the LPG `forge` CLI:
+
+```text
+forge al1-scan
+forge al1-authority
+forge al1-resolve
+forge al1-impact
+forge al1-closure
+forge al1-validate-promotion
+```
+
+The Python adapter invokes the scanner with an argument array, an explicit timeout, and no shell-string execution.
 
 ## Tier model
 

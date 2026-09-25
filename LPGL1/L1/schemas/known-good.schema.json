@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "al1.schema.lpg-l1.known-good",
+  "title": "AL1/LPG-L1 Known-Good Revision Record",
+  "description": "Append-only local record written only after promotion evidence passes the read-only gate.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "profile",
+    "component_id",
+    "observed_digest",
+    "approved_digest",
+    "known_good_revision",
+    "evidence_schema",
+    "policy_profile",
+    "source"
+  ],
+  "properties": {
+    "schema_version": { "type": "string", "minLength": 1 },
+    "profile": { "type": "string", "const": "lpg-l1" },
+    "component_id": { "type": "string", "minLength": 1 },
+    "observed_digest": { "type": "string", "minLength": 1 },
+    "approved_digest": { "type": "string", "minLength": 1 },
+    "known_good_revision": { "type": "string", "minLength": 1 },
+    "evidence_schema": { "type": "string", "minLength": 1 },
+    "policy_profile": { "type": "string", "minLength": 1 },
+    "source": { "type": "string", "minLength": 1 },
+    "recorded_at": { "type": ["string", "null"], "format": "date-time" }
+  }
+}
