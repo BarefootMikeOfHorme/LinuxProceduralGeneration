@@ -1,5 +1,6 @@
 use crate::scan::{Node, Status, Tier};
 use serde::{Deserialize, Serialize};
+use std::collections::{HashMap, HashSet};
 
 #[allow(dead_code)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize)]
@@ -26,6 +27,14 @@ pub struct AuthorityPaths {
     pub entrypoint: Option<String>,
 }
 
+#[derive(Clone, Debug, Default, Serialize)]
+pub struct AuthorityDependencies {
+    pub requires: Vec<String>,
+    pub provides: Vec<String>,
+    pub conflicts_with: Vec<String>,
+    pub guards: Vec<String>,
+}
+
 #[derive(Clone, Debug, Serialize)]
 pub struct AuthorityEntry {
     pub component_id: String,
@@ -39,6 +48,7 @@ pub struct AuthorityEntry {
     pub confidence: f32,
     pub digest: Option<String>,
     pub parent_id: Option<String>,
+    pub dependencies: AuthorityDependencies,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -78,6 +88,117 @@ pub struct AuthorityIndex {
     pub scan_complete: bool,
     pub entries: Vec<AuthorityEntry>,
     pub conflicts: Vec<AuthorityConflict>,
+}
+
+#[allow(dead_code)] // Contract reserves future dependency edge kinds.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum DependencyKind {
+    Requires,
+    Provides,
+    Conflicts,
+    Guards,
+    Consumes,
+    Produces,
+}
+
+#[derive(Clone, Debug, Serialize)]
+pub struct DependencyEdge {
+    pub from: String,
+    pub to: String,
+    pub kind: DependencyKind,
+}
+
+#[derive(Clone, Debug, Serialize)]
+pub struct DependencyGraph {
+    pub profile: String,
+    pub components: Vec<String>,
+    pub edges: Vec<DependencyEdge>,
+}
+
+#[derive(Clone, Debug, Serialize)]
+pub struct ImpactResult {
+    pub changed_id: String,
+    pub impacted: Vec<String>,
+    pub unknown_component: bool,
+}
+
+#[derive(Clone, Debug, Serialize)]
+#[serde(tag = "status", rename_all = "kebab-case")]
+pub enum ImpactOutcome {
+    Resolved { result: Box<ImpactResult> },
+    Unknown { component_id: String },
+}
+
+impl DependencyGraph {
+    pub fn from_index(index: &AuthorityIndex) -> Self {
+        let mut components = index
+            .entries
+            .iter()
+            .map(|entry| entry.component_id.clone())
+            .collect::<Vec<_>>();
+        components.sort();
+        let mut edges = Vec::new();
+        for entry in &index.entries {
+            for dependency in &entry.dependencies.requires {
+                edges.push(DependencyEdge {
+                    from: entry.component_id.clone(),
+                    to: dependency.clone(),
+                    kind: DependencyKind::Requires,
+                });
+            }
+        }
+        Self {
+            profile: index.profile.clone(),
+            components,
+            edges,
+        }
+    }
+
+    pub fn impacted_by(&self, changed_id: &str) -> ImpactOutcome {
+        if !self
+            .components
+            .iter()
+            .any(|component| component == changed_id)
+        {
+            return ImpactOutcome::Unknown {
+                component_id: changed_id.to_string(),
+            };
+        }
+
+        let mut dependents: HashMap<&str, Vec<&str>> = HashMap::new();
+        for edge in &self.edges {
+            if edge.kind == DependencyKind::Requires {
+                dependents
+                    .entry(edge.to.as_str())
+                    .or_default()
+                    .push(edge.from.as_str());
+            }
+        }
+
+        let mut visited = HashSet::new();
+        let mut queue = vec![changed_id.to_string()];
+        visited.insert(changed_id.to_string());
+        while let Some(current) = queue.pop() {
+            if let Some(children) = dependents.get(current.as_str()) {
+                for child in children {
+                    if visited.insert((*child).to_string()) {
+                        queue.push((*child).to_string());
+                    }
+                }
+            }
+        }
+        visited.remove(changed_id);
+        let mut impacted = visited.into_iter().collect::<Vec<_>>();
+        impacted.sort();
+        ImpactOutcome::Resolved {
+            result: Box::new(ImpactResult {
+                changed_id: changed_id.to_string(),
+                impacted,
+                unknown_component: false,
+            }),
+        }
+    }
 }
 
 #[derive(Clone, Debug, Serialize)]
@@ -299,6 +420,7 @@ fn add_node(
         confidence,
         digest: None,
         parent_id: parent_id.clone(),
+        dependencies: AuthorityDependencies::default(),
     };
     index.insert(entry);
 
@@ -395,6 +517,7 @@ mod tests {
             confidence: 0.7,
             digest: Some("sha256:observed".to_string()),
             parent_id: Some("lpg-l1.l1.root".to_string()),
+            dependencies: AuthorityDependencies::default(),
         }
     }
 
@@ -510,6 +633,44 @@ mod tests {
         let _ = fs::remove_dir_all(&dir);
     }
 
+    fn entry_with_requirements(id: &str, requires: &[&str]) -> AuthorityEntry {
+        let mut entry = observed_entry();
+        entry.component_id = id.to_string();
+        entry.dependencies.requires = requires.iter().map(|value| value.to_string()).collect();
+        entry
+    }
+
+    #[test]
+    fn dependency_impact_expands_transitive_dependents() {
+        let mut index = AuthorityIndex::new("lpg-l1", true);
+        index.insert(entry_with_requirements("lpg-l1.l3.base", &[]));
+        index.insert(entry_with_requirements(
+            "lpg-l1.l3.middle",
+            &["lpg-l1.l3.base"],
+        ));
+        index.insert(entry_with_requirements(
+            "lpg-l1.l6.output",
+            &["lpg-l1.l3.middle"],
+        ));
+        let graph = DependencyGraph::from_index(&index);
+
+        match graph.impacted_by("lpg-l1.l3.base") {
+            ImpactOutcome::Resolved { result } => {
+                assert_eq!(
+                    result.impacted,
+                    vec!["lpg-l1.l3.middle", "lpg-l1.l6.output"]
+                );
+            }
+            ImpactOutcome::Unknown { component_id } => {
+                panic!("unexpected unknown component: {component_id}");
+            }
+        }
+        assert!(matches!(
+            graph.impacted_by("lpg-l1.l3.missing"),
+            ImpactOutcome::Unknown { .. }
+        ));
+    }
+
     #[test]
     fn duplicate_identity_is_reported_as_conflict() {
         let mut index = AuthorityIndex::new("lpg-l1", true);
@@ -530,6 +691,7 @@ mod tests {
             confidence: 0.7,
             digest: None,
             parent_id: None,
+            dependencies: AuthorityDependencies::default(),
         };
         index.insert(entry.clone());
         index.insert(entry);

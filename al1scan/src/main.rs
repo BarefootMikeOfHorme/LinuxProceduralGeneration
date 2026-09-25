@@ -40,6 +40,7 @@ struct CliOptions {
     summary: bool,
     authority: bool,
     resolve: Option<String>,
+    impact: Option<String>,
     validate_promotion: Option<String>,
     evidence: Option<PathBuf>,
     max_depth: usize,
@@ -56,6 +57,7 @@ impl CliOptions {
         let mut summary = false;
         let mut authority = false;
         let mut resolve = None;
+        let mut impact = None;
         let mut validate_promotion = None;
         let mut evidence = None;
         let mut max_depth = MAX_DEPTH;
@@ -73,6 +75,10 @@ impl CliOptions {
                 "--resolve" => {
                     index += 1;
                     resolve = Some(Self::next_value(args, index, "--resolve")?);
+                }
+                "--impact" => {
+                    index += 1;
+                    impact = Some(Self::next_value(args, index, "--impact")?);
                 }
                 "--validate-promotion" => {
                     index += 1;
@@ -184,6 +190,7 @@ impl CliOptions {
             summary,
             authority,
             resolve,
+            impact,
             validate_promotion,
             evidence,
             max_depth,
@@ -219,6 +226,7 @@ impl CliOptions {
                  --summary              emit scan counts and status summary JSON\n  \
                  --authority            emit observed LPG-L1 authority candidates JSON\n  \
                  --resolve QUERY        resolve an ID, alias, or path in the observed index\n  \
+                 --impact ID            show transitive dependents from observed dependencies\n  \
                  --validate-promotion ID check promotion evidence read-only\n  \
                  --evidence PATH         JSON promotion evidence file, relative to root\n  \
                  --root PATH            set the LPG/program root\n  \
@@ -1005,6 +1013,17 @@ fn main() -> io::Result<()> {
         root_path
     };
 
+    if let Some(changed_id) = &options.impact {
+        let report = scan::scan_root_with_limits(&scan_root, options.scan_limits())?;
+        let index = authority::build_candidates("lpg-l1", &report.root, report.complete);
+        let graph = authority::DependencyGraph::from_index(&index);
+        println!(
+            "{}",
+            serde_json::to_string_pretty(&graph.impacted_by(changed_id))?
+        );
+        return Ok(());
+    }
+
     if let Some(component_id) = &options.validate_promotion {
         let report = scan::scan_root_with_limits(&scan_root, options.scan_limits())?;
         let index = authority::build_candidates("lpg-l1", &report.root, report.complete);
@@ -1583,6 +1602,8 @@ mod cli_tests {
             "--authority",
             "--resolve",
             "forge",
+            "--impact",
+            "forge",
             "--validate-promotion",
             "forge",
             "--evidence",
@@ -1599,6 +1620,7 @@ mod cli_tests {
         assert!(parsed.summary);
         assert!(parsed.authority);
         assert_eq!(parsed.resolve.as_deref(), Some("forge"));
+        assert_eq!(parsed.impact.as_deref(), Some("forge"));
         assert_eq!(parsed.validate_promotion.as_deref(), Some("forge"));
         assert_eq!(parsed.evidence, Some(PathBuf::from("evidence.json")));
         assert!(!parsed.help);
