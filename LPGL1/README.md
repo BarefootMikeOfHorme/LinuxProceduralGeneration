@@ -56,13 +56,15 @@ partial/complete scan status
 --dump JSON readout
 --authority JSON observed LPG-L1 candidate index
 --resolve QUERY resolve machine ID, alias, or path
+--impact ID show transitive dependents from observed dependencies
+--closure ID validate the complete affected tier for an impact set
 TUI monitor/debug/repair station
 context-menu actions
 rescan and diff markers
 additive-only repair proposals
 ```
 
-The current scanner is a readout/monitor foundation. It now emits observed authority candidates and resolves IDs, aliases, and paths; promotion to approved/active state, scoped dependency impact, tier-closure validation, and known-good rollback are the next integration layers.
+The current scanner is a readout/monitor foundation. It now emits observed authority candidates, resolves IDs/aliases/paths, expands dependency impact, and validates the affected tier. Promotion persistence and known-good rollback are the next integration layers.
 
 ## Tier model
 

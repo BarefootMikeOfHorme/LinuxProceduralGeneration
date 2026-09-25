@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "al1.schema.lpg-l1.tier-closure",
+  "title": "AL1/LPG-L1 Tier Closure Report",
+  "description": "Read-only validation report for the complete affected tier of a dependency impact set.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["changed_id", "affected_ids", "tiers", "checks", "status"],
+  "properties": {
+    "changed_id": { "type": "string", "minLength": 1 },
+    "affected_ids": { "type": "array", "items": { "type": "string" } },
+    "tiers": { "type": "array", "items": { "type": "string" } },
+    "checks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "component_id",
+          "tier",
+          "state",
+          "owner_bound",
+          "schema_bound",
+          "status",
+          "reasons"
+        ],
+        "properties": {
+          "component_id": { "type": "string", "minLength": 1 },
+          "tier": { "type": "string" },
+          "state": { "type": "string" },
+          "owner_bound": { "type": "boolean" },
+          "schema_bound": { "type": "boolean" },
+          "status": { "type": "string", "enum": ["passed", "blocked", "needs-evidence"] },
+          "reasons": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "status": { "type": "string", "enum": ["passed", "blocked", "needs-evidence"] }
+  }
+}

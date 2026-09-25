@@ -40,7 +40,8 @@ This list is intentionally amendable. It is the first L1 worklist, not a generat
 - [x] Add dependency-impact expansion.
 - [x] Add explicit dependency edge types to the authority contract.
 - [x] Add read-only `--impact` command output.
-- [ ] Add tier-closure validation.
+- [x] Add tier-closure validation.
+- [x] Add read-only `--closure` command output.
 - [ ] Persist known-good promotion/rollback records.
 - [ ] Define recursive component/node manifest schema.
 - [ ] Define tier and subtier naming grammar.

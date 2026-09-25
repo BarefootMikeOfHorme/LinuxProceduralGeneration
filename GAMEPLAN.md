@@ -241,6 +241,7 @@ Review and correct the remaining startup/package contract before moving to geome
 - `al1scan --authority` emits candidate LPG-L1 entries with canonical IDs, parent links, aliases, root-relative paths, confidence, and scan state.
 - `al1scan --resolve` resolves machine IDs, aliases, and root-relative paths with explicit ambiguity handling.
 - `al1scan --impact` expands transitive dependents from observed dependency edges.
+- `al1scan --closure` validates the complete affected tier for an impact set, including state, ownership, and schema binding.
 - Dependency edges currently use explicit `requires` relationships; future edge kinds are reserved in the contract.
 - Authority promotion has a contract-first evidence validator, a read-only `--validate-promotion` CLI, `promotion-evidence.schema.json`, and `authority-promotion.schema.json`; partial, incomplete, unvalidated, or digest-mismatched candidates are rejected.
 - Partial scans produce `partial` candidates and cannot be promoted to approved/active state.
@@ -249,12 +250,11 @@ Review and correct the remaining startup/package contract before moving to geome
 
 ### Next LPG-L1 scanner step
 
-Promote the candidate generator into the canonical authority lifecycle:
+Persist the validated authority lifecycle:
 
-- add tier-closure validation for the expanded impact set;
-- bind schema/ownership to generated entries;
+- bind schema/ownership evidence to closure results;
 - add known-good revision and rollback journal records;
-- connect the resolver and impact graph to the `forge`/LPG-L1 program interface;
+- connect the resolver, impact graph, and closure report to the `forge`/LPG-L1 program interface;
 - keep observed candidates separate from approved and active state.
 
 ## Arm 2 — Native geometry current pass
@@ -620,14 +620,14 @@ These reports are inputs, not automatic current verification. Future changes sho
 ### Current handoff — 2026-09-25
 
 ```text
-Last active arm: LPG-L1 dependency impact and promotion gate
-Status: [V] observed candidate generation, resolution, read-only promotion validation, and transitive dependency impact validated; tier closure/known-good persistence pending
+Last active arm: LPG-L1 tier closure and known-good persistence
+Status: [V] observed candidates, resolution, promotion gate, dependency impact, and tier-closure validation complete; persistence pending
 Files changed: LPGL1/README.md, LPGL1/L1/profile.jsonc, LPGL1/L1/TODO.md, LPGL1/L1/schemas; al1scan/src/authority.rs, al1scan/src/main.rs, and launcher wiring
-Checks run: al1scan cargo test (16 passed); cargo clippy --all-targets -- -D warnings; cargo fmt --check; release build; JSON Schema meta-validation; Windows authority/resolve/promotion/impact smoke; WSL/Linux launcher smoke; resource-limit partial-scan smoke; promotion rejection smoke; git diff --check
-Evidence: GAMEPLAN.md LPG-L1 scanner section; promotion evidence/record schemas; dependency impact tests; commit pending
-Open questions: tier-closure validation; approved/active persistence; schema/ownership binding; known-good/rollback journal; package/setup lifecycle integration
-Known limitations: dependency graph currently uses explicit `requires` edges; promotion and impact commands are read-only; authority entries remain observed candidates; heuristic tier inference remains
-Next smallest step: validate the complete affected tier for an impact set, then persist known-good promotion/rollback records
+Checks run: al1scan cargo test (17 passed); cargo clippy --all-targets -- -D warnings; cargo fmt --check; release build; JSON Schema meta-validation; Windows authority/resolve/promotion/impact/closure smoke; WSL/Linux launcher smoke; resource-limit partial-scan smoke; promotion rejection smoke; git diff --check
+Evidence: GAMEPLAN.md LPG-L1 scanner section; promotion/impact/closure schemas and tests; commit pending
+Open questions: approved/active persistence; known-good/rollback journal; schema/ownership binding; package/setup lifecycle integration
+Known limitations: dependency graph currently uses explicit `requires` edges; promotion/impact/closure commands are read-only; authority entries remain observed candidates; heuristic tier inference remains
+Next smallest step: persist closure/promotion evidence and known-good rollback records, then connect the read-only authority commands to `forge`
 ```
 
 At the end of each future work session, update the same fields with current evidence.
@@ -647,10 +647,10 @@ At the end of each future work session, update the same fields with current evid
 
 ## Immediate next action
 
-The scanner/monitor foundation, LPG-L1 schemas, observed candidate generator, resolver, promotion gate, and dependency impact graph are validated.
+The scanner/monitor foundation, LPG-L1 schemas, candidate generator, resolver, promotion gate, dependency impact graph, and tier-closure validator are validated.
 
 The next active step is:
 
-**Tier-closure validation and known-good persistence.**
+**Known-good persistence and `forge` integration.**
 
-Validate the complete affected tier for an impact set, bind schema/ownership evidence, and persist promotion/rollback records. Keep observed candidates separate from approved and active state.
+Persist closure/promotion evidence and known-good rollback records, then expose the read-only authority, impact, and closure commands through the LPG program interface. Keep observed candidates separate from approved and active state.

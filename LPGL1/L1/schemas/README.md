@@ -16,6 +16,9 @@ Current schemas:
 - `authority-promotion.schema.json`
   - durable record for observed-to-validated/approved promotion;
   - requires complete scan, schema, security, system-requirement, tier-closure, digest, and known-good evidence.
+- `tier-closure.schema.json`
+  - read-only report for the complete affected tier of a dependency impact set;
+  - records per-component state, ownership, schema binding, status, and reasons.
 
 These schemas do not make scanner output authoritative.
 

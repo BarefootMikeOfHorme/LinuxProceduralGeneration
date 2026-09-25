@@ -130,6 +130,34 @@ pub enum ImpactOutcome {
     Unknown { component_id: String },
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum ClosureCheckStatus {
+    Passed,
+    Blocked,
+    NeedsEvidence,
+}
+
+#[derive(Clone, Debug, Serialize)]
+pub struct ClosureCheck {
+    pub component_id: String,
+    pub tier: String,
+    pub state: AuthorityState,
+    pub owner_bound: bool,
+    pub schema_bound: bool,
+    pub status: ClosureCheckStatus,
+    pub reasons: Vec<String>,
+}
+
+#[derive(Clone, Debug, Serialize)]
+pub struct TierClosureReport {
+    pub changed_id: String,
+    pub affected_ids: Vec<String>,
+    pub tiers: Vec<String>,
+    pub checks: Vec<ClosureCheck>,
+    pub status: ClosureCheckStatus,
+}
+
 impl DependencyGraph {
     pub fn from_index(index: &AuthorityIndex) -> Self {
         let mut components = index
@@ -229,6 +257,12 @@ impl AuthorityIndex {
         }
     }
 
+    pub fn entry(&self, component_id: &str) -> Option<&AuthorityEntry> {
+        self.entries
+            .iter()
+            .find(|entry| entry.component_id == component_id)
+    }
+
     pub fn insert(&mut self, mut entry: AuthorityEntry) {
         if let Some(existing) = self
             .entries
@@ -307,6 +341,107 @@ pub fn build_candidates(profile: &str, root: &Node, scan_complete: bool) -> Auth
     let mut index = AuthorityIndex::new(profile, scan_complete);
     add_node(&mut index, root, None, scan_complete);
     index
+}
+
+pub fn validate_tier_closure(index: &AuthorityIndex, changed_id: &str) -> TierClosureReport {
+    let graph = DependencyGraph::from_index(index);
+    let (affected_ids, unknown) = match graph.impacted_by(changed_id) {
+        ImpactOutcome::Resolved { result } => {
+            let mut ids = vec![changed_id.to_string()];
+            ids.extend(result.impacted);
+            (ids, false)
+        }
+        ImpactOutcome::Unknown { .. } => (vec![changed_id.to_string()], true),
+    };
+
+    if unknown {
+        return TierClosureReport {
+            changed_id: changed_id.to_string(),
+            affected_ids,
+            tiers: Vec::new(),
+            checks: Vec::new(),
+            status: ClosureCheckStatus::Blocked,
+        };
+    }
+
+    let mut checks = Vec::new();
+    let mut tiers = Vec::new();
+    for component_id in &affected_ids {
+        let Some(entry) = index.entry(component_id) else {
+            checks.push(ClosureCheck {
+                component_id: component_id.clone(),
+                tier: "unknown".to_string(),
+                state: AuthorityState::Missing,
+                owner_bound: false,
+                schema_bound: false,
+                status: ClosureCheckStatus::Blocked,
+                reasons: vec![
+                    "impacted component is not present in the authority index".to_string()
+                ],
+            });
+            continue;
+        };
+        if !tiers.contains(&entry.level) {
+            tiers.push(entry.level.clone());
+        }
+        let owner_bound = entry.owner.is_some();
+        let schema_bound = entry.schema.is_some();
+        let state_ok = matches!(
+            entry.state,
+            AuthorityState::Observed
+                | AuthorityState::Validated
+                | AuthorityState::Approved
+                | AuthorityState::Active
+        );
+        let mut reasons = Vec::new();
+        if !state_ok {
+            reasons.push(format!("state {:?} is not closure-eligible", entry.state));
+        }
+        if !owner_bound {
+            reasons.push("owner is not bound".to_string());
+        }
+        if !schema_bound {
+            reasons.push("schema is not bound".to_string());
+        }
+        let status = if !state_ok || !owner_bound {
+            ClosureCheckStatus::Blocked
+        } else if !schema_bound {
+            ClosureCheckStatus::NeedsEvidence
+        } else {
+            ClosureCheckStatus::Passed
+        };
+        checks.push(ClosureCheck {
+            component_id: component_id.clone(),
+            tier: entry.level.clone(),
+            state: entry.state,
+            owner_bound,
+            schema_bound,
+            status,
+            reasons,
+        });
+    }
+
+    let status = if checks
+        .iter()
+        .any(|check| check.status == ClosureCheckStatus::Blocked)
+    {
+        ClosureCheckStatus::Blocked
+    } else if checks
+        .iter()
+        .any(|check| check.status == ClosureCheckStatus::NeedsEvidence)
+    {
+        ClosureCheckStatus::NeedsEvidence
+    } else {
+        ClosureCheckStatus::Passed
+    };
+    tiers.sort();
+    TierClosureReport {
+        changed_id: changed_id.to_string(),
+        affected_ids,
+        tiers,
+        checks,
+        status,
+    }
 }
 
 #[allow(dead_code)] // Promotion API is contract-first; CLI wiring follows the state machine.
@@ -668,6 +803,30 @@ mod tests {
         assert!(matches!(
             graph.impacted_by("lpg-l1.l3.missing"),
             ImpactOutcome::Unknown { .. }
+        ));
+    }
+
+    #[test]
+    fn tier_closure_requires_complete_affected_entries() {
+        let mut index = AuthorityIndex::new("lpg-l1", true);
+        let mut base = entry_with_requirements("lpg-l1.l3.base", &[]);
+        base.schema = Some("al1.schema.lpg-l1.component-manifest".to_string());
+        let mut middle = entry_with_requirements("lpg-l1.l3.middle", &["lpg-l1.l3.base"]);
+        middle.schema = Some("al1.schema.lpg-l1.component-manifest".to_string());
+        index.insert(base);
+        index.insert(middle);
+
+        let report = validate_tier_closure(&index, "lpg-l1.l3.base");
+        assert_eq!(report.status, ClosureCheckStatus::Passed);
+        assert_eq!(report.tiers, vec!["L3"]);
+
+        let unbound = entry_with_requirements("lpg-l1.l3.unbound", &[]);
+        index.entries.push(unbound);
+        let needs_evidence = validate_tier_closure(&index, "lpg-l1.l3.unbound");
+        assert_eq!(needs_evidence.status, ClosureCheckStatus::NeedsEvidence);
+        assert!(matches!(
+            validate_tier_closure(&index, "lpg-l1.l3.missing").status,
+            ClosureCheckStatus::Blocked
         ));
     }
 
