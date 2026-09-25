@@ -36,7 +36,7 @@
     },
     "tier": {
       "type": "string",
-      "enum": ["L1", "L2", "L3", "L4", "L5", "L6", "L12"]
+      "enum": ["L1", "L2", "L3", "L4", "L5", "L6", "L12", "Unclassified"]
     },
     "subtier": {
       "type": ["string", "null"]
@@ -47,6 +47,7 @@
         "planned",
         "discovered",
         "observed",
+        "partial",
         "validated",
         "active",
         "stale",

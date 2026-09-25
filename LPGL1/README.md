@@ -54,13 +54,15 @@ full root scan
 structured scan warnings
 partial/complete scan status
 --dump JSON readout
+--authority JSON observed LPG-L1 candidate index
+--resolve QUERY resolve machine ID, alias, or path
 TUI monitor/debug/repair station
 context-menu actions
 rescan and diff markers
 additive-only repair proposals
 ```
 
-The current scanner is a readout/monitor foundation. LPG-L1 manifest authority, scoped dependency impact, tier-closure validation, and known-good rollback are the next integration layers.
+The current scanner is a readout/monitor foundation. It now emits observed authority candidates and resolves IDs, aliases, and paths; promotion to approved/active state, scoped dependency impact, tier-closure validation, and known-good rollback are the next integration layers.
 
 ## Tier model
 

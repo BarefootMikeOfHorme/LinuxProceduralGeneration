@@ -29,7 +29,11 @@ This list is intentionally amendable. It is the first L1 worklist, not a generat
 - [x] Define the canonical LPG-L1 profile manifest schema.
 - [x] Define the component/node manifest schema.
 - [x] Define the location-index schema.
-- [ ] Define the recursive component instance generator.
+- [x] Define the recursive component instance generator.
+- [x] Implement machine IDs and parent/child relationships.
+- [x] Implement alias and path resolution.
+- [x] Emit observed candidate records.
+- [x] Preserve partial scan state.
 - [ ] Define recursive component/node manifest schema.
 - [ ] Define tier and subtier naming grammar.
 - [ ] Define machine-ID, alias, and physical-path bindings.

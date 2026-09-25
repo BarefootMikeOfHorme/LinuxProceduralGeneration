@@ -1,3 +1,4 @@
+mod authority;
 mod scan;
 
 use crossterm::{
@@ -36,6 +37,8 @@ struct CliOptions {
     scope: Option<PathBuf>,
     dump: bool,
     summary: bool,
+    authority: bool,
+    resolve: Option<String>,
     max_depth: usize,
     max_entries: usize,
     max_seconds: u64,
@@ -48,6 +51,8 @@ impl CliOptions {
         let mut scope = None;
         let mut dump = false;
         let mut summary = false;
+        let mut authority = false;
+        let mut resolve = None;
         let mut max_depth = MAX_DEPTH;
         let mut max_entries = DEFAULT_MAX_ENTRIES;
         let mut max_seconds = DEFAULT_MAX_DURATION_SECS;
@@ -59,6 +64,11 @@ impl CliOptions {
                 "--help" | "-h" => help = true,
                 "--dump" => dump = true,
                 "--summary" => summary = true,
+                "--authority" => authority = true,
+                "--resolve" => {
+                    index += 1;
+                    resolve = Some(Self::next_value(args, index, "--resolve")?);
+                }
                 "--root" => {
                     index += 1;
                     root = Some(PathBuf::from(Self::next_value(args, index, "--root")?));
@@ -151,6 +161,8 @@ impl CliOptions {
             scope,
             dump,
             summary,
+            authority,
+            resolve,
             max_depth,
             max_entries,
             max_seconds,
@@ -182,6 +194,8 @@ impl CliOptions {
              Options:\n  \
                  --dump                 emit the scan tree as JSON\n  \
                  --summary              emit scan counts and status summary JSON\n  \
+                 --authority            emit observed LPG-L1 authority candidates JSON\n  \
+                 --resolve QUERY        resolve an ID, alias, or path in the observed index\n  \
                  --root PATH            set the LPG/program root\n  \
                  --scope PATH           scan a relative subtree only\n  \
                  --max-depth N          set the scan depth (1-128)\n  \
@@ -922,6 +936,20 @@ fn main() -> io::Result<()> {
         root_path
     };
 
+    if let Some(query) = &options.resolve {
+        let report = scan::scan_root_with_limits(&scan_root, options.scan_limits())?;
+        let index = authority::build_candidates("lpg-l1", &report.root, report.complete);
+        println!("{}", serde_json::to_string_pretty(&index.resolve(query))?);
+        return Ok(());
+    }
+
+    if options.authority {
+        let report = scan::scan_root_with_limits(&scan_root, options.scan_limits())?;
+        let index = authority::build_candidates("lpg-l1", &report.root, report.complete);
+        println!("{}", serde_json::to_string_pretty(&index)?);
+        return Ok(());
+    }
+
     if options.summary {
         let report = scan::scan_root_with_limits(&scan_root, options.scan_limits())?;
         let output = ScanReportSummary {
@@ -1468,6 +1496,9 @@ mod cli_tests {
             "30",
             "--dump",
             "--summary",
+            "--authority",
+            "--resolve",
+            "forge",
         ]))
         .unwrap();
 
@@ -1478,6 +1509,8 @@ mod cli_tests {
         assert_eq!(parsed.max_seconds, 30);
         assert!(parsed.dump);
         assert!(parsed.summary);
+        assert!(parsed.authority);
+        assert_eq!(parsed.resolve.as_deref(), Some("forge"));
         assert!(!parsed.help);
     }
 

@@ -237,21 +237,23 @@ Review and correct the remaining startup/package contract before moving to geome
 - Report/repair writes verify that their parent remains within the scan root.
 - Windows and WSL/Linux launcher smoke passed.
 - Rust validation passed: 8 tests, Clippy with warnings denied, formatting check, and release build.
-- The scanner is currently a monitor/readout/diff/repair foundation, not yet the canonical LPG-L1 manifest or package lifecycle authority.
-- The initial `LPGL1/` profile README, draft profile, and amendable TODO are tracked.
+- The scanner is currently a monitor/readout/diff/repair foundation with an observed-authority candidate generator; it is not yet the approved/active manifest or package lifecycle authority.
+- `al1scan --authority` emits candidate LPG-L1 entries with canonical IDs, parent links, aliases, root-relative paths, confidence, and scan state.
+- `al1scan --resolve` resolves machine IDs, aliases, and root-relative paths with explicit ambiguity handling.
+- Partial scans produce `partial` candidates and cannot be promoted to approved/active state.
+- The initial `LPGL1/` profile README, draft profile, schemas, and amendable TODO are tracked.
 - `.venv-linux/`, `.al1-incoming/`, `.al1scan_reports/`, `.opencode/`, and `.continue/` are local/generated state and are not program source.
 
 ### Next LPG-L1 scanner step
 
-Implement the canonical recursive component manifest and location authority:
+Promote the candidate generator into the canonical authority lifecycle:
 
-- define machine IDs and parent/child relationships;
-- define alias and path bindings;
-- define observed/planned/missing/conflict states;
-- define schema dispatch and ownership;
-- connect scanner observations to generated LPG-L1 records;
-- preserve partial scan results without promoting them to approved state;
-- add focused resolver and manifest tests before package/setup lifecycle work.
+- add approved/active state transitions and promotion evidence;
+- add schema/ownership binding to generated entries;
+- add dependency-impact expansion from observed candidates;
+- add tier-closure validation;
+- add known-good revision and rollback journal records;
+- connect the resolver to the `forge`/LPG-L1 program interface.
 
 ## Arm 2 — Native geometry current pass
 
@@ -616,14 +618,14 @@ These reports are inputs, not automatic current verification. Future changes sho
 ### Current handoff — 2026-09-25
 
 ```text
-Last active arm: LPG-L1 scanner and monitor foundation
-Status: [V] scanner/monitor foundation validated; canonical manifest/location authority pending
-Files changed: LPGL1/README.md, LPGL1/L1/profile.jsonc, LPGL1/L1/TODO.md; al1scan/Cargo.toml, Cargo.lock, src/main.rs, src/scan.rs; al1scan.ps1; al1scan.sh; native QEM guard and corrected binding smoke
-Checks run: al1scan cargo test (8 passed); cargo clippy --all-targets -- -D warnings; cargo fmt --check; release build; Windows launcher summary/dump smoke; WSL/Linux launcher smoke; resource-limit partial-scan smoke; git diff --check
-Evidence: GAMEPLAN.md LPG-L1 scanner section; commit 9e98520 pushed to origin/master
-Open questions: canonical recursive manifest schema; location resolver; dependency-impact graph; tier-closure validation; known-good/rollback journal; package/setup lifecycle integration
-Known limitations: scanner tier/status inference is heuristic; no manifest authority yet; repairs are additive-only; tier closure and dependency expansion are planned; generated outputs and local environments remain untracked
-Next smallest step: implement the canonical LPG-L1 recursive component manifest and location authority, then connect scanner observations without promoting partial scans
+Last active arm: LPG-L1 authority candidate generator and resolver
+Status: [V] observed candidate generation and ID/alias/path resolution validated; approved/active promotion pending
+Files changed: LPGL1/README.md, LPGL1/L1/profile.jsonc, LPGL1/L1/TODO.md, LPGL1/L1/schemas; al1scan/src/authority.rs and launcher wiring
+Checks run: al1scan cargo test (11 passed); cargo clippy --all-targets -- -D warnings; cargo fmt --check; release build; JSON Schema validation; Windows authority/resolve smoke; WSL/Linux launcher smoke; resource-limit partial-scan smoke; git diff --check
+Evidence: GAMEPLAN.md LPG-L1 scanner section; schema validation output; commit pending
+Open questions: approved/active state transitions; schema/ownership binding; dependency-impact graph; tier-closure validation; known-good/rollback journal; package/setup lifecycle integration
+Known limitations: authority entries are observed scanner candidates, not approved profile state; heuristic tier inference remains; repairs are additive-only; tier closure and dependency expansion are planned
+Next smallest step: define approved/active promotion evidence and connect the resolver to the LPG-L1 program interface
 ```
 
 At the end of each future work session, update the same fields with current evidence.
@@ -643,10 +645,10 @@ At the end of each future work session, update the same fields with current evid
 
 ## Immediate next action
 
-The scanner/monitor foundation is validated and the native QEM smoke fix is tracked.
+The scanner/monitor foundation, LPG-L1 schemas, observed candidate generator, and resolver are validated.
 
 The next active step is:
 
-**Canonical LPG-L1 manifest and location authority.**
+**Approved/active authority promotion and dependency-aware reconciliation.**
 
-Define the recursive component identity model, machine IDs, aliases, path bindings, ownership, schema dispatch, and planned/observed/missing/conflict states. Connect scanner observations without promoting partial scans to approved state.
+Define promotion evidence, schema/ownership binding, dependency-impact expansion, tier-closure validation, and known-good rollback records. Keep observed candidates separate from approved and active state.
