@@ -22,7 +22,7 @@ This list is intentionally amendable. It is the first L1 worklist, not a generat
 - [x] Use high-resolution modification timestamps for scan diffs.
 - [x] Add scan resource budgets: files, bytes, duration, and node count.
 - [x] Add structured warnings for unreadable or skipped entries.
-- [ ] Add scoped repair rescans instead of full-root rescans.
+- [x] Add scoped repair rescans instead of full-root rescans.
 
 ## LPG-L1 authority
 

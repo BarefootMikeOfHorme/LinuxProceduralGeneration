@@ -668,6 +668,14 @@ impl App {
         n
     }
 
+    fn node_at_mut(&mut self, path: &[usize]) -> &mut Node {
+        let mut n = &mut self.tree;
+        for &i in path {
+            n = &mut n.children[i];
+        }
+        n
+    }
+
     fn rebuild_flat(&mut self) {
         self.flat.clear();
         let query = self.filter.to_lowercase();
@@ -765,6 +773,48 @@ impl App {
         self.last_scan = Instant::now();
         self.rebuild_flat();
         self.flash("Rescanned");
+        Ok(())
+    }
+
+    fn rescan_scope(&mut self, node_path: &[usize]) -> io::Result<()> {
+        let abs = self.abs_path_for(node_path);
+        let prefix = self.node_at(node_path).rel_path.clone();
+        let report = scan::scan_root_with_limits(&abs, self.limits.clone())?;
+        if !report.complete {
+            self.summary = report.summary;
+            self.warnings = report.warnings;
+            self.complete = false;
+            self.last_scan = Instant::now();
+            self.flash("Partial scope scan: previous baseline retained");
+            return Ok(());
+        }
+        let mut new_node = report.root;
+        prefix_rel_paths(&mut new_node, &prefix);
+        let old_node = self.node_at(node_path).clone();
+        scan::diff_against(&mut new_node, &old_node);
+        let previous_tree = self.tree.clone();
+        if node_path.is_empty() {
+            self.tree = new_node;
+        } else {
+            let parent_path = &node_path[..node_path.len() - 1];
+            let child_index = *node_path.last().expect("non-empty node path");
+            self.node_at_mut(parent_path).children[child_index] = new_node;
+        }
+        self.summary = scan::summarize(&self.tree);
+        self.summary.warnings = report.summary.warnings;
+        self.warnings = report.warnings;
+        self.complete = true;
+        self.prev_tree = Some(previous_tree);
+        self.last_scan = Instant::now();
+        self.rebuild_flat();
+        self.flash(format!(
+            "Rescanned scope {}",
+            if prefix.is_empty() {
+                ".".into()
+            } else {
+                prefix
+            }
+        ));
         Ok(())
     }
 
@@ -877,8 +927,8 @@ impl App {
             match dialog.action.apply(&abs, &node_name) {
                 Ok(msg) => {
                     self.flash(msg);
-                    if let Err(error) = self.rescan() {
-                        self.flash(format!("Repair created, but rescan failed: {error}"));
+                    if let Err(error) = self.rescan_scope(&dialog.node_path) {
+                        self.flash(format!("Repair created, but scope rescan failed: {error}"));
                     }
                 }
                 Err(e) => self.flash(format!("Repair failed: {e}")),
@@ -923,6 +973,20 @@ impl App {
             },
             Err(e) => self.flash(format!("No clipboard: {e}")),
         }
+    }
+}
+
+fn prefix_rel_paths(node: &mut Node, prefix: &str) {
+    if prefix.is_empty() {
+        return;
+    }
+    if node.rel_path.is_empty() {
+        node.rel_path = prefix.to_string();
+    } else {
+        node.rel_path = format!("{prefix}/{}", node.rel_path);
+    }
+    for child in &mut node.children {
+        prefix_rel_paths(child, prefix);
     }
 }
 
@@ -1719,6 +1783,21 @@ mod cli_tests {
     fn rejects_unpaired_promotion_options() {
         assert!(CliOptions::parse(&args(&["--validate-promotion", "forge"])).is_err());
         assert!(CliOptions::parse(&args(&["--evidence", "evidence.json"])).is_err());
+    }
+
+    #[test]
+    fn scope_paths_are_prefixed_before_merge() {
+        let dir = std::env::temp_dir().join(format!("al1_scope_paths_{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(dir.join("child")).unwrap();
+        std::fs::write(dir.join("child").join("file.txt"), "x").unwrap();
+        let mut tree = scan::scan_root_with_limits(&dir, scan::ScanLimits::for_depth(8))
+            .unwrap()
+            .root;
+        prefix_rel_paths(&mut tree, "tools/forge");
+        assert_eq!(tree.rel_path, "tools/forge");
+        assert_eq!(tree.children[0].rel_path, "tools/forge/child");
+        let _ = std::fs::remove_dir_all(&dir);
     }
 
     #[test]

@@ -76,7 +76,7 @@ forge al1-closure
 forge al1-validate-promotion
 ```
 
-The Python adapter invokes the scanner with an argument array, an explicit timeout, and no shell-string execution.
+The scanner now rescans only the repaired subtree after a confirmed additive repair; full-root rescans remain available for explicit structural refreshes. The Python adapter invokes the scanner with an argument array, an explicit timeout, and no shell-string execution.
 
 ## Tier model
 
