@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "al1.schema.lpg-l1.location-index",
+  "title": "AL1/LPG-L1 Location Authority Index",
+  "description": "Derived index mapping canonical component identities to aliases, paths, ownership, lifecycle state, and scan provenance.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "profile", "generated_at", "entries"],
+  "properties": {
+    "schema_version": { "type": "string", "minLength": 1 },
+    "profile": { "type": "string", "const": "lpg-l1" },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "generator": { "type": ["string", "null"] },
+    "scan_complete": { "type": "boolean" },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["component_id", "level", "state", "aliases", "paths", "source"],
+        "properties": {
+          "component_id": { "type": "string", "pattern": "^[a-z0-9]+(?:[.-][a-z0-9]+)*$" },
+          "level": { "type": "string", "enum": ["L1", "L2", "L3", "L4", "L5", "L6", "L12"] },
+          "state": {
+            "type": "string",
+            "enum": [
+              "planned",
+              "observed",
+              "validated",
+              "active",
+              "stale",
+              "missing",
+              "conflicting",
+              "quarantined",
+              "revoked",
+              "unknown"
+            ]
+          },
+          "aliases": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+          "paths": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "root_relative": { "type": ["string", "null"] },
+              "resolved": { "type": ["string", "null"] },
+              "schema": { "type": ["string", "null"] },
+              "entrypoint": { "type": ["string", "null"] }
+            }
+          },
+          "owner": { "type": ["string", "null"] },
+          "schema": { "type": ["string", "null"] },
+          "source": {
+            "type": "string",
+            "enum": ["scanner", "manifest", "manual", "import", "migration"]
+          },
+          "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+          "digest": { "type": ["string", "null"] }
+        }
+      }
+    }
+  }
+}

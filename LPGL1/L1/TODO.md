@@ -26,7 +26,10 @@ This list is intentionally amendable. It is the first L1 worklist, not a generat
 
 ## LPG-L1 authority
 
-- [ ] Define the canonical LPG-L1 profile manifest schema.
+- [x] Define the canonical LPG-L1 profile manifest schema.
+- [x] Define the component/node manifest schema.
+- [x] Define the location-index schema.
+- [ ] Define the recursive component instance generator.
 - [ ] Define recursive component/node manifest schema.
 - [ ] Define tier and subtier naming grammar.
 - [ ] Define machine-ID, alias, and physical-path bindings.
