@@ -23,9 +23,9 @@ from PIL import Image, ImageEnhance, ImageFilter
 from .base_agent import BaseAgent, AgentDecision, AgentCapability, EscalationReason
 
 # Import validators
-from vaultmind_forge.forge_bots.native_bridge import get_native_bridge
+from ..forge_bots.native_bridge import get_native_bridge
 
-from forge_validator.metrics import (
+from ..forge_validator.metrics import (
     anatomy_score,
     prompt_alignment_score,
     consistency_score,
@@ -34,7 +34,7 @@ from forge_validator.metrics import (
 )
 
 try:
-    from forge_validator.metrics_advanced import (
+    from ..forge_validator.metrics_advanced import (
         anatomy_score_advanced,
         prompt_alignment_score_advanced,
         consistency_score_advanced,

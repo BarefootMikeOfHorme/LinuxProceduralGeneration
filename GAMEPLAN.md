@@ -221,6 +221,114 @@ Review and correct the remaining startup/package contract before moving to geome
 - Ubuntu Cargo tests passed with explicit `PYO3_PYTHON=.venv-linux/bin/python`: 35 passed.
 - The base program is now runnable and testable in Ubuntu WSL2.
 
+## Agent and operator tooling pass
+
+**Date:** 2026-09-25
+**Status:** `[V]` import integrity, optional-dependency handling, and reference
+gathering validated; four real pre-existing defects were found and fixed
+
+This pass was driven by a self-audit, not a feature request. Asking "can I get
+what I need off the web" surfaced that whole classes of latent breakage were
+invisible because the test harness masked them.
+
+### Defects found and fixed
+
+- **Sibling-subpackage absolute imports.** `from forge_batch import ...` and
+  `from forge_bots.native_bridge import ...` inside the `vaultmind_forge`
+  package only resolve when `vaultmind_forge/` is itself on `sys.path`. Eight
+  test modules insert exactly that path, so the tests passed while a real
+  install would fail at import. Fixed in `forge_bots/monitor_bot.py`,
+  `forge_bots/optimizer_bot.py`, `forge_procedural/generator.py`,
+  `forge_procedural/billboard_generator.py`, and `forge_agents/quality_guardian.py`.
+- **Committed-flat syntax error.** `forge_lineage/lineage.py` had every line at
+  column 0, so `def __init__` had no body and the module raised
+  `IndentationError` on import. It was invisible because the file is an orphan:
+  all real consumers use `lineage_tracker.py`, and `forge_lineage/__init__.py`
+  re-exports from there. No valid version existed in history to recover. Body
+  indentation was restored and the module now re-exports the canonical
+  `LineageTracker`/`LineageRecord`/`OperationType` rather than duplicating them.
+- **Optional dependencies were mandatory in practice.** `textual`, `rarfile`,
+  and `watchdog` are feature-gated and declared nowhere in `pyproject.toml`,
+  yet their modules raised at import. The `watchdog` case was worse than a
+  missing import: the `try/except` guard existed but
+  `class AssetDropHandler(FileSystemEventHandler)` evaluated its base class at
+  import time, so absence surfaced as `NameError` rather than a clean degrade.
+  All five affected modules now follow the existing repo pattern
+  (`*_AVAILABLE` flag plus an explicit "install with" error at the point of use).
+- **Console encoding crash.** The reader CLI raised `UnicodeEncodeError` on a
+  Windows cp1252 console as soon as a real page contained an emoji. Fixed by
+  reconfiguring stdout/stderr rather than stripping the characters.
+
+### Evidence
+
+- Import smoke over every module in the package, with no `sys.path` mutation:
+  `modules_walked=144 failures=0`.
+- `vaultmind_forge/tests/test_web_reader.py`: 12 offline tests pass; 2 network
+  tests pass when selected explicitly.
+- LPG-L1 contract tests: 53 pass.
+
+### Reference reader
+
+`vaultmind_forge/l1/web_reader.py` fetches a URL and returns main content as
+text using only the standard library. It exists because `webfetch` returns whole
+pages: on a GitHub repo page roughly 80% of the bytes are site chrome.
+
+Getting this correct took three attempts, and the failures are the useful part:
+
+1. A class/id "chrome" filter that skipped matching subtrees silently discarded
+   the article itself, because site wrappers are named things like
+   `application-main` and the article sits several levels inside them. Removed.
+2. First-match-wins root selection picked the outermost `<main>`, which on
+   GitHub wraps the whole application including the file listing. Replaced with
+   scoring across all candidate regions.
+3. Ranking by text length then returned the file table instead of the README,
+   because the wrapper is longer. Ranking by link density overcorrected and
+   selected a code block with zero anchors. The settled rule is that semantic
+   rank dominates, density breaks ties within a rank tier, and length is a
+   floor plus a final tiebreak.
+
+Verified on a real page: the reader returns the 15k-character README and not
+the repository file listing.
+
+### Design constraints recorded
+
+- Standard library only, so it runs in the restricted environments described in
+  `AGENTS.md` with no install step. No `markdownify`, `bs4`, `trafilatura`,
+  `lxml`, or `httpx` is available in the venv.
+- Read-only GET. No credentials, no cookies, non-HTTP schemes rejected.
+- Extracted text is untrusted data. It grants no authority, permission, or
+  consent, matching the advisory-only rule in `surface-binding.schema.json`.
+- It is not a browser and cannot render JavaScript. A thin extraction is
+  reported as `thin` with a warning rather than silently trusted.
+
+### Test infrastructure
+
+There was no `conftest.py` and no pytest configuration, so test collection
+behaviour depended on the invocation directory and markers were unregistered.
+Added `[tool.pytest.ini_options]` with `contract`, `slow`, and `network`
+markers, and a default `addopts` that deselects `network` so the default suite
+stays offline-safe. The full suite is still slow; `test_batch_processing.py`
+alone takes five minutes.
+
+### Known limitations carried forward
+
+- `forge_cli.py` and `forge_cli/` collide. Python resolves the module, which
+  has no `__path__`, so `forge_cli.py:634`'s
+  `from vaultmind_forge.forge_cli.html_report import ...` fails on the
+  `--html-report` path. The `forge` console-script entry point is unaffected.
+  The same module/directory shape exists for `config.py` and `config/`.
+- Tests still carry `sys.path.insert` hacks, so library code is reachable under
+  two different module identities. That can produce two instances of
+  module-level singletons, including `forge_bots.native_bridge.get_native_bridge`.
+  Converging tests on `vaultmind_forge.*` imports is the real fix.
+- `forge_executor/pipeline.py`, `forge_batch/batch_processor.py`,
+  `forge_validator/ai_validator.py`, and `forge_intake/unified_converter.py`
+  have dead `except ImportError` fallbacks that import the broken absolute form.
+  They cannot succeed, and the broad clause will mask a genuine missing
+  third-party dependency by reporting the wrong missing module.
+- `.opencode/opencode.jsonc` has no `lsp` key, so LSP is disabled. Enabling
+  pyright would surface unresolved imports statically, without needing pytest.
+
 ## LPG-L1 scanner and monitor foundation
 
 **Date:** 2026-09-25
@@ -625,14 +733,53 @@ These reports are inputs, not automatic current verification. Future changes sho
 ### Current handoff — 2026-09-25
 
 ```text
-Last active arm: LPG-L1 rollback verification and scoped repair
-Status: [V] known-good persistence, read-only rollback verification, scoped repair rescans, and forge AL1 commands validated; explicit restore remains
-Files changed: LPGL1/README.md, LPGL1/L1/profile.jsonc, LPGL1/L1/TODO.md, LPGL1/L1/schemas; al1scan/src/authority.rs, al1scan/src/main.rs; vaultmind_forge/forge_l1.py; vaultmind_forge/forge_cli.py; vaultmind_forge/tests/test_forge_l1.py
-Checks run: al1scan cargo test (19 passed); cargo clippy --all-targets -- -D warnings; cargo fmt --check; release build; JSON Schema meta-validation; known-good write/idempotency/schema smoke; rollback verification smoke; Windows forge AL1/rollback smoke; WSL/Linux launcher smoke; focused Python forge_l1 tests (3 passed); git diff --check
-Evidence: GAMEPLAN.md LPG-L1 scanner section; known-good/rollback/tier-closure schemas; commit pending
-Open questions: explicit restore transaction; schema/ownership binding; startup/setup lifecycle; package/setup lifecycle integration
-Known limitations: known-good records are local state and restore is not yet implemented; dependency graph currently uses explicit `requires` edges; authority entries remain observed candidates; heuristic tier inference remains
-Next smallest step: implement an explicit restore transaction with pre/post validation, then bind schema/ownership and startup/setup lifecycle
+Last active arm: agent/operator tooling integrity pass, and inert LPG-L1 wizard contracts
+Status: [V] four pre-existing import/syntax/dependency defects fixed; package-wide import smoke clean at 144/144; standard-library web reader working; pytest markers registered
+
+Two separate threads ran in this pass and both need recording:
+
+1. Inert LPG-L1 wizard contracts (schema-first, no runtime).
+   Files: LPGL1/L1/schemas/{lifecycle-stage,scan-choice,install-task,install-plan,surface-binding}.schema.json
+          LPGL1/L1/drafts/{stage-catalog.draft.jsonc,wizard-flow.examples.jsonc}
+          vaultmind_forge/tests/test_lpg_l1_contracts.py
+   These define the tiered stage model, the three-state detection contract, the
+   plan/task shape, and a surface binding that keeps the first Windows-style
+   wizard from ever becoming the authority. All are explicitly inert and are
+   NOT wired into the promotion gate.
+   NOTE: these were initially written as "inert" partly on a misreading. The
+   intent is not to keep schemas minimal; it is that schemas exist to make
+   environments and programs auto-populate so nobody redoes setup by hand.
+   Volume is fine. Selective loading is the separate concern.
+
+2. Repository integrity defects, all pre-existing and all previously masked.
+   Files: vaultmind_forge/forge_bots/{monitor_bot,optimizer_bot}.py
+          vaultmind_forge/forge_procedural/{generator,billboard_generator}.py
+          vaultmind_forge/forge_agents/quality_guardian.py
+          vaultmind_forge/forge_lineage/lineage.py
+          vaultmind_forge/forge_intake/{batch_ingest,batch_ingest_v2,drop_folder_monitor}.py
+          vaultmind_forge/cli/tui_app.py
+          vaultmind_forge/l1/{__init__,web_reader}.py
+          vaultmind_forge/tests/test_web_reader.py
+          pyproject.toml
+
+Checks run: package import smoke with no sys.path mutation (144 modules, 0 failures);
+  test_web_reader.py 12 offline pass + 2 network pass; test_lpg_l1_contracts.py 53 pass;
+  JSON Schema meta-validation across 12 schemas; git diff --check
+
+Open questions: explicit restore transaction (blocked: known-good records store
+  identity/digest/revision but not restorable bytes, so the restore source policy
+  is still an open decision); schema/ownership binding; startup/setup lifecycle;
+  forge_cli.py vs forge_cli/ shadow; converging tests onto vaultmind_forge.*
+  imports to remove duplicate module identities and the split NativeBridge singleton
+
+Known limitations carried forward: forge_cli module/dir shadow breaks the
+  --html-report path; tests still pollute sys.path; four dead except-ImportError
+  fallbacks can mask real errors; no conftest.py; full suite is slow (one module
+  is 5 minutes); LSP is disabled in .opencode/opencode.jsonc
+
+Next smallest step: enable pyright LSP, add a non-polluting conftest.py, then
+  resume LPG-L1 explicit restore transactions once the restore source policy
+  is decided
 ```
 
 At the end of each future work session, update the same fields with current evidence.
@@ -652,10 +799,13 @@ At the end of each future work session, update the same fields with current evid
 
 ## Immediate next action
 
-The scanner/monitor foundation, LPG-L1 schemas, candidate generator, resolver, promotion gate, dependency impact graph, tier-closure validator, known-good persistence, rollback verification, scoped repair rescans, and read-only `forge` integration are validated.
+The scanner/monitor foundation, LPG-L1 schemas, candidate generator, resolver, promotion gate, dependency impact graph, tier-closure validator, known-good persistence, rollback verification, scoped repair rescans, and read-only `forge` integration are validated. The inert wizard contracts and the repository integrity pass are also validated.
 
-The next active step is:
+Immediate blockers, in the order they should be cleared:
 
-**Explicit restore transactions and post-restore validation.**
+1. **Restore source policy.** A known-good record stores identity, digest, and revision, but not the bytes needed to restore. Until it is decided whether restore comes from a protected Git commit, a content-addressed artifact store, or both, an explicit restore transaction cannot be implemented honestly.
+2. **Import-hygiene regression guard.** The sibling-subpackage import class is fixed but unguarded. A `conftest.py` that does not pollute `sys.path` would make any recurrence a hard failure instead of a silent one.
+3. **Enable pyright LSP** in `.opencode/opencode.jsonc` so unresolved imports surface statically, without waiting for a test run.
+4. **Resolve the `forge_cli.py` / `forge_cli/` shadow**, which currently breaks the `--html-report` path.
 
-Add an approved restore transaction for verified known-good targets, bind schema/ownership evidence, and validate the restored state before promotion. Keep observed candidates separate from approved and active state.
+Then resume LPG-L1: explicit restore transactions, schema/ownership binding, and the startup/setup lifecycle against the inert stage contract. Keep observed candidates separate from approved and active state.

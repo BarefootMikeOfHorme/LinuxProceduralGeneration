@@ -25,20 +25,45 @@ from typing import Dict, List, Set, Optional
 from collections import defaultdict
 from queue import Queue, Empty
 
-# Watchdog for file monitoring
+# Watchdog for file monitoring.
+# watchdog is an optional runtime capability: importing this module must succeed
+# without it, and only the real-time monitoring paths may fail.
 try:
     from watchdog.observers import Observer
     from watchdog.events import FileSystemEventHandler, FileCreatedEvent, FileModifiedEvent
     WATCHDOG_AVAILABLE = True
 except ImportError:
     WATCHDOG_AVAILABLE = False
-    print("[WARN] watchdog not installed. Install with: pip install watchdog")
+    # Neutral fallbacks so the module-level class definition below still works
+    # without watchdog. Every path that actually needs watchdog is gated by
+    # _require_watchdog() / WATCHDOG_AVAILABLE.
+    Observer = None
+    FileSystemEventHandler = object
+    FileCreatedEvent = None
+    FileModifiedEvent = None
 
 from .multi_version_handler import MultiVersionHandler
 from .unified_converter import UnifiedConverter, ConversionStatus
 from .format_registry import FormatRegistry
 
+WATCHDOG_REQUIREMENT_HINT = (
+    "watchdog is required for real-time drop folder monitoring "
+    "(vaultmind_forge.forge_intake.drop_folder_monitor). "
+    "Install with: pip install watchdog"
+)
 
+if not WATCHDOG_AVAILABLE:
+    print(f"[WARN] {WATCHDOG_REQUIREMENT_HINT}")
+
+
+def _require_watchdog() -> None:
+    """Raise a clear, actionable error when watchdog is not installed."""
+    if not WATCHDOG_AVAILABLE:
+        raise ImportError(WATCHDOG_REQUIREMENT_HINT)
+
+
+# Base class resolves to watchdog's FileSystemEventHandler when available and to
+# plain ``object`` otherwise, so this class is always importable.
 class AssetDropHandler(FileSystemEventHandler):
     """
     Handles file system events in drop folder.
@@ -160,8 +185,7 @@ class DropFolderMonitor:
         self.converter = UnifiedConverter()
 
         # Observer and handler
-        if not WATCHDOG_AVAILABLE:
-            raise ImportError("watchdog library required. Install with: pip install watchdog")
+        _require_watchdog()
 
         self.observer = Observer()
         self.event_handler = AssetDropHandler(self.queue)

@@ -1,0 +1,114 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "al1.schema.lpg-l1.install-plan",
+  "_comment": "INERT DRAFT. Contract only. No planner emits this yet. Refinement notes: stage order is currently a flat ordered list; it may later become a DAG with explicit parallel-safe groups once per-band dependency edges are proven. Skipped tasks must always carry a reason, otherwise a plan cannot be distinguished from a silent failure.",
+  "title": "AL1/LPG-L1 Install Plan",
+  "description": "Read-only, deterministic, ordered plan derived from a complete scan plus the applied profile. The plan is the authority input for any presentation surface; the UI never decides, only renders and authorizes.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "profile",
+    "plan_id",
+    "scan_ref",
+    "generated_from",
+    "stages",
+    "plan_state"
+  ],
+  "properties": {
+    "schema_version": { "type": "string", "minLength": 1 },
+    "profile": { "type": "string", "const": "lpg-l1" },
+    "plan_id": { "type": "string", "minLength": 1 },
+    "scan_ref": { "type": "string", "minLength": 1 },
+    "scan_complete": { "type": "boolean" },
+    "platform": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "os": { "type": ["string", "null"] },
+        "arch": { "type": ["string", "null"] },
+        "environment": { "type": ["string", "null"] }
+      }
+    },
+    "source_lineage": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "repository": { "type": ["string", "null"] },
+        "branch": { "type": ["string", "null"] },
+        "commit": { "type": ["string", "null"] },
+        "tag": { "type": ["string", "null"] },
+        "dirty": { "type": ["boolean", "null"] }
+      }
+    },
+    "generated_from": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+    "surfaces": { "type": "array", "items": { "type": "string", "enum": ["windows-wizard", "cli", "tui", "web", "desktop", "mcp", "ai-agent"] } },
+    "default_surface": { "type": ["string", "null"], "enum": ["windows-wizard", "cli", "tui", "web", "desktop", "mcp", "ai-agent", null] },
+    "stages": { "type": "array", "items": { "$ref": "#/$defs/stage" } },
+    "plan_state": {
+      "type": "string",
+      "enum": ["inert", "awaiting-approval", "authorized", "executing", "validated", "blocked"]
+    },
+    "blockers": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "evidence": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+  },
+  "allOf": [
+    {
+      "$comment": "A plan built from a partial scan must be marked blocked. It may be rendered for diagnosis, but it may not be authorized or executed.",
+      "if": {
+        "properties": { "scan_complete": { "const": false } },
+        "required": ["scan_complete"]
+      },
+      "then": {
+        "properties": { "plan_state": { "const": "blocked" } }
+      }
+    }
+  ],
+  "$defs": {
+    "stage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["stage_id", "tier", "title", "tasks"],
+      "properties": {
+        "stage_id": { "type": "string", "minLength": 1 },
+        "order": { "type": "integer", "minimum": 0 },
+        "tier": { "type": "string", "enum": ["L1", "L2", "L3", "L4", "L5", "L6"] },
+        "title": { "type": "string", "minLength": 1 },
+        "purpose": { "type": ["string", "null"] },
+        "tasks": { "type": "array", "items": { "$ref": "#/$defs/taskRef" } },
+        "stage_state": {
+          "type": "string",
+          "enum": ["pending", "running", "complete", "failed", "skipped", "stale"]
+        }
+      }
+    },
+    "taskRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["task_id", "disposition", "reason"],
+      "properties": {
+        "task_id": { "type": "string", "minLength": 1 },
+        "disposition": {
+          "type": "string",
+          "enum": ["run", "skip", "already-satisfied", "blocked", "deferred"]
+        },
+        "reason": {
+          "type": ["string", "null"],
+          "description": "Required for every disposition except run. A plan must never be indistinguishable from a silent failure."
+        },
+        "requires_approval": { "type": "boolean" }
+      },
+      "allOf": [
+        {
+          "$comment": "Anything that is not going to run must say why. Only run may omit a reason.",
+          "if": {
+            "properties": { "disposition": { "const": "run" } },
+            "required": ["disposition"]
+          },
+          "then": { "properties": { "reason": { "type": "null" } } },
+          "else": { "properties": { "reason": { "type": "string", "minLength": 1 } } }
+        }
+      ]
+    }
+  }
+}

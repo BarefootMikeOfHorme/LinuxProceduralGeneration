@@ -14,7 +14,7 @@ import logging
 # Add parent to path
 
 from .base_bot import BaseBot, BotConfig, BotPriority
-from forge_batch import BatchProcessor
+from ..forge_batch import BatchProcessor
 
 logger = logging.getLogger(__name__)
 

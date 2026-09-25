@@ -16,7 +16,7 @@ import logging
 # Add parent to path for imports
 
 from .base_bot import BaseBot, BotConfig, BotPriority
-from forge_batch import BatchProcessor, BatchJob, JobPriority
+from ..forge_batch import BatchProcessor, BatchJob, JobPriority
 
 logger = logging.getLogger(__name__)
 
@@ -269,7 +269,7 @@ def main():
     )
 
     # Create batch processor (mock for standalone)
-    from forge_batch import BatchProcessor
+    from ..forge_batch import BatchProcessor
     processor = BatchProcessor(max_workers=2)
 
     # Create bot config

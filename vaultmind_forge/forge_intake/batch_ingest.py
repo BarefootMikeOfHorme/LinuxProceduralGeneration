@@ -10,7 +10,6 @@ import os
 import json
 import hashlib
 import zipfile
-import rarfile
 import shutil
 from pathlib import Path
 from datetime import datetime
@@ -18,9 +17,30 @@ from typing import Dict, List, Optional, Tuple
 from dataclasses import dataclass, asdict
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
+# rarfile is an optional dependency: ZIP ingestion works without it, RAR
+# ingestion does not.
+try:
+    import rarfile
+    RARFILE_AVAILABLE = True
+except ImportError:
+    rarfile = None
+    RARFILE_AVAILABLE = False
+
 from . import IntakeStage, QualityLevel, AssetCategory
 from .multi_version_handler import MultiVersionHandler, process_with_multi_version
 from .unified_converter import UnifiedConverter, ConversionStatus
+
+RARFILE_REQUIREMENT_HINT = (
+    "rarfile is required to read or extract RAR archives "
+    "(vaultmind_forge.forge_intake.batch_ingest). "
+    "Install with: pip install rarfile"
+)
+
+
+def _require_rarfile() -> None:
+    """Raise a clear, actionable error when rarfile is not installed."""
+    if not RARFILE_AVAILABLE:
+        raise ImportError(RARFILE_REQUIREMENT_HINT)
 
 
 @dataclass
@@ -146,6 +166,9 @@ class AssetIngestor:
         contents = []
         format_counts = {}
 
+        if filepath.suffix.lower() == '.rar':
+            _require_rarfile()
+
         try:
             if filepath.suffix == '.zip':
                 with zipfile.ZipFile(filepath, 'r') as zf:
@@ -171,6 +194,9 @@ class AssetIngestor:
 
     def extract_archive(self, filepath: Path, extract_to: Path) -> bool:
         """Extract archive to destination"""
+        if filepath.suffix.lower() == '.rar':
+            _require_rarfile()
+
         try:
             extract_to.mkdir(parents=True, exist_ok=True)
 

@@ -1,0 +1,141 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "al1.schema.lpg-l1.scan-choice",
+  "_comment": "INERT DRAFT. Contract only. No runtime reads or writes this yet. Refinement notes: the present/absent split is deliberately three-state (present_and_valid / present_invalid / absent) because skipping a present-but-invalid component is how broken installs look healthy; this may later gain a fourth state for detected_but_unverifiable.",
+  "title": "AL1/LPG-L1 Scan Choice Record",
+  "description": "Per-candidate presentation and decision record produced from a scan. Records detection state, compatibility evidence, offered options, and the user's explicit decision. A candidate with detection_state present_invalid must never be silently skipped.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "profile",
+    "component_id",
+    "detection_state",
+    "tier",
+    "title",
+    "candidates",
+    "recommended_action",
+    "requires_approval"
+  ],
+  "properties": {
+    "schema_version": { "type": "string", "minLength": 1 },
+    "profile": { "type": "string", "const": "lpg-l1" },
+    "component_id": { "type": "string", "minLength": 1 },
+    "stage_id": { "type": ["string", "null"] },
+    "tier": { "type": "string", "enum": ["L1", "L2", "L3", "L4", "L5", "L6"] },
+    "title": { "type": "string", "minLength": 1 },
+    "explanation": { "type": ["string", "null"] },
+    "detection_state": {
+      "type": "string",
+      "enum": [
+        "present_and_valid",
+        "present_invalid",
+        "absent",
+        "present_unverified",
+        "conflicting"
+      ]
+    },
+    "incompatibility_reasons": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "candidates": { "type": "array", "items": { "$ref": "#/$defs/candidate" } },
+    "recommended_action": {
+      "type": "string",
+      "enum": ["adopt", "install", "repair", "downgrade", "override", "skip"]
+    },
+    "skip_is_silent": { "type": "boolean" },
+    "requires_approval": { "type": "boolean" },
+    "options": { "type": "array", "items": { "$ref": "#/$defs/option" } },
+    "decision": { "type": ["string", "null"], "enum": ["accepted", "declined", "deferred", null] },
+    "decided_action": { "type": ["string", "null"] },
+    "selected_candidate": { "type": ["string", "null"] },
+    "advisory_links": { "type": "array", "items": { "$ref": "#/$defs/advisory" } },
+    "evidence": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+  },
+  "allOf": [
+    {
+      "$comment": "Advisory links are help affordances, never authority and never permission. A surface must not treat opening a reference as consent to act.",
+      "properties": {
+        "advisory_links": {
+          "items": {
+            "properties": {
+              "authority": { "const": "advisory" },
+              "user_initiated": { "const": true }
+            }
+          }
+        }
+      }
+    },
+    {
+      "$comment": "A component that is present but invalid must be surfaced, not silently skipped. A present_invalid record therefore requires at least one stated incompatibility reason.",
+      "if": {
+        "properties": { "detection_state": { "const": "present_invalid" } },
+        "required": ["detection_state"]
+      },
+      "then": {
+        "properties": {
+          "skip_is_silent": { "const": false },
+          "incompatibility_reasons": { "minItems": 1 }
+        }
+      }
+    },
+    {
+      "$comment": "A component detected as valid and in use needs no decision prompt, so it must not demand approval. Anything invalid, conflicting, or absent is a real choice and must be explicit.",
+      "if": {
+        "properties": {
+          "detection_state": { "const": "present_and_valid" },
+          "recommended_action": { "const": "skip" }
+        },
+        "required": ["detection_state", "recommended_action"]
+      },
+      "then": {
+        "properties": { "skip_is_silent": { "const": true } }
+      }
+    }
+  ],
+  "$defs": {
+    "candidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "label"],
+      "properties": {
+        "path": { "type": ["string", "null"] },
+        "label": { "type": "string", "minLength": 1 },
+        "version": { "type": ["string", "null"] },
+        "source": { "type": ["string", "null"] },
+        "validation_state": {
+          "type": "string",
+          "enum": ["valid", "invalid", "unverified", "in_use", "not_validated"]
+        },
+        "in_use_by_lpg": { "type": "boolean" },
+        "modifies_system": { "type": "boolean" }
+      }
+    },
+    "option": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "label", "consequences"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "label": { "type": "string", "minLength": 1 },
+        "kind": {
+          "type": "string",
+          "enum": ["accept", "decline", "defer", "details", "reference"]
+        },
+        "risk": { "type": "string", "enum": ["low", "medium", "high", "critical"] },
+        "changes": { "type": "array", "items": { "type": "string" } },
+        "writes": { "type": "array", "items": { "type": "string" } },
+        "consequences": { "type": "array", "minItems": 1, "items": { "type": "string" } }
+      }
+    },
+    "advisory": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "target", "authority"],
+      "properties": {
+        "kind": { "type": "string", "enum": ["local-doc", "external-doc", "browser"] },
+        "target": { "type": "string", "minLength": 1 },
+        "authority": { "type": "string", "const": "advisory" },
+        "user_initiated": { "type": "boolean" }
+      }
+    }
+  }
+}

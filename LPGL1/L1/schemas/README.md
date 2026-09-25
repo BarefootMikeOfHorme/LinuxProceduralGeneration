@@ -24,6 +24,27 @@ Current schemas:
   - stored under ignored `.al1-state/known-good/` and never written for rejected or partial scans.
 - `rollback-verification.schema.json`
   - read-only report for whether a persisted known-good record is a valid current rollback target.
+- `lifecycle-stage.schema.json` (inert)
+  - ordered setup/install stage with entry criteria, exit validation, and known-good binding;
+  - a failed stage may not be recorded complete or known-good.
+- `scan-choice.schema.json` (inert)
+  - per-candidate detection state, compatibility reasons, offered options, and the user's explicit decision;
+  - three-state detection is deliberate: `present_and_valid`, `present_invalid`, `absent`.
+- `install-task.schema.json` (inert)
+  - one bounded, reversible, approval-gated operation with declared reads, writes, validation, and rollback;
+  - surface-neutral by design.
+- `install-plan.schema.json` (inert)
+  - deterministic ordered plan derived from a complete scan plus the applied profile;
+  - skipped tasks must always carry a reason.
+- `surface-binding.schema.json` (inert)
+  - UI-neutral binding between an authority record and a presentation surface;
+  - declares the prohibition set that keeps a surface from becoming the authority.
+
+The inert schemas above are contracts only. Nothing reads or writes them yet, and
+they are not part of the promotion gate. They exist so the first wizard can be
+built as a Windows-style UI for ease of use while the authority layer stays
+surface-neutral and the same records can later drive CLI, TUI, web, desktop, MCP,
+and AI-agent surfaces.
 
 These schemas do not make scanner output authoritative.
 

@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "al1.schema.lpg-l1.install-task",
+  "_comment": "INERT DRAFT. Contract only. No runtime executes this yet. Refinement notes: this is deliberately a single bounded lifecycle operation (preflight/plan/authorize/apply/validate/complete-or-rollback) so the same task shape can later be emitted for the Windows wizard, CLI, TUI, web, MCP, and AI-agent surfaces without any of them becoming the authority.",
+  "title": "AL1/LPG-L1 Install/Repair Task",
+  "description": "One bounded, reversible, approval-gated operation with declared reads, writes, validation, and rollback. Surface-neutral: the task describes what must happen, never how a particular UI presents it.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "profile",
+    "task_id",
+    "stage_id",
+    "tier",
+    "kind",
+    "title",
+    "risk",
+    "reads",
+    "writes",
+    "validation",
+    "rollback",
+    "requires_approval",
+    "state"
+  ],
+  "properties": {
+    "schema_version": { "type": "string", "minLength": 1 },
+    "profile": { "type": "string", "const": "lpg-l1" },
+    "task_id": { "type": "string", "minLength": 1 },
+    "stage_id": { "type": "string", "minLength": 1 },
+    "tier": { "type": "string", "enum": ["L1", "L2", "L3", "L4", "L5", "L6"] },
+    "component_id": { "type": ["string", "null"] },
+    "kind": {
+      "type": "string",
+      "enum": ["install", "adopt", "link", "repair", "rebuild", "revert", "refresh", "validate", "remove-managed"]
+    },
+    "title": { "type": "string", "minLength": 1 },
+    "explanation": { "type": ["string", "null"] },
+    "adapter": { "type": ["string", "null"] },
+    "risk": { "type": "string", "enum": ["low", "medium", "high", "critical"] },
+    "fault_class": {
+      "type": ["string", "null"],
+      "enum": [
+        "mismatch",
+        "missing",
+        "corrupt",
+        "incompatible",
+        "unavailable",
+        "permission-denied",
+        "validation-failed",
+        "critical-fault",
+        "unknown",
+        null
+      ]
+    },
+    "reads": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "writes": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "dry_run": { "type": "boolean" },
+    "additive_only": { "type": "boolean" },
+    "overwrites_existing": { "type": "boolean" },
+    "requires_approval": { "type": "boolean" },
+    "validation": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/validation" } },
+    "rollback": { "$ref": "#/$defs/rollback" },
+    "state": {
+      "type": "string",
+      "enum": ["planned", "authorized", "preflight-failed", "applied", "validated", "failed", "rolled-back", "skipped"]
+    },
+    "state_reasons": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "evidence": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+  },
+  "$defs": {
+    "validation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "description"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "description": { "type": "string", "minLength": 1 },
+        "check": { "type": ["string", "null"] },
+        "required": { "type": "boolean" },
+        "result": { "type": ["string", "null"], "enum": ["pass", "fail", "partial", "not-run", null] },
+        "evidence": { "type": ["string", "null"] }
+      }
+    },
+    "rollback": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["strategy"],
+      "properties": {
+        "strategy": {
+          "type": "string",
+          "enum": ["none", "restore-snapshot", "revert-component", "revert-package-set", "base-restore"]
+        },
+        "target": { "type": ["string", "null"] },
+        "source_commit": { "type": ["string", "null"] },
+        "verified": { "type": "boolean" },
+        "reason_if_unavailable": { "type": ["string", "null"] }
+      }
+    }
+  }
+}

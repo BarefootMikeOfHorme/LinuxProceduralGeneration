@@ -48,6 +48,33 @@ This list is intentionally amendable. It is the first L1 worklist, not a generat
 - [x] Persist known-good promotion/rollback records.
 - [x] Make known-good writes idempotent and non-overwriting.
 
+## Agent and operator tooling
+
+- [x] Add a dependency-free content reader for reference gathering.
+- [x] Add pytest markers (`contract`, `slow`, `network`) and default selection.
+- [x] Fix sibling-subpackage absolute imports masked by `sys.path` test hacks.
+- [x] Make optional third-party deps genuinely optional with actionable errors.
+- [x] Repair a committed-flat syntax error in `forge_lineage/lineage.py`.
+- [ ] Enable LSP (pyright) in `.opencode/opencode.jsonc`.
+- [ ] Add a `conftest.py` that does not pollute `sys.path`, so masked imports
+      cannot return silently.
+- [ ] Resolve the `forge_cli.py` / `forge_cli/` module-vs-directory shadow.
+- [ ] Remove the `sys.path.insert` hacks from tests and converge on
+      `vaultmind_forge.*` absolute imports, eliminating duplicate module objects.
+- [ ] Delete the dead `except ImportError` fallbacks that mask real errors.
+
+## Inert contracts (no runtime behavior yet)
+
+These are deliberately inert. They exist to fix shape and wording before any
+planner, CLI, or UI consumes them. Each carries a `_comment` with refinement notes.
+
+- [x] Define the lifecycle-stage contract.
+- [x] Define the scan-choice contract with three-state detection.
+- [x] Define the install-task contract.
+- [x] Define the install-plan contract.
+- [x] Define the surface-binding contract so no UI becomes the authority.
+- [x] Draft the tiered stage catalog (`drafts/stage-catalog.draft.jsonc`).
+
 ## Lifecycle
 
 - [ ] Define L1 startup states and failure states.

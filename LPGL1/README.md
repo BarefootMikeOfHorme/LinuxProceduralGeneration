@@ -132,6 +132,40 @@ Human names, folders, shell names, and entrypoints are aliases or bindings. For 
 
 Portable manifests use root anchors. Runtime scans may record resolved absolute paths. The relative mirror is useful structure, not a duplicate of the entire machine.
 
+## Setup surfaces
+
+The first setup surface will be a Windows-style wizard, chosen for ease of use.
+That choice is presentational only. Authority is not a UI concern.
+
+```text
+scan
+  → install plan (ordered, tiered, deterministic)
+  → surface binding (pages, controls, authorization, dynamic updates)
+  → user decisions recorded as scan-choice records
+  → tasks executed through declared adapters
+  → validation evidence
+  → known-good or rollback
+```
+
+The same plan, choice, and task records are expected to drive a CLI, a TUI, a web
+UI, a desktop app, an MCP client, and an AI agent. A surface may only present
+information or collect decisions. No surface computes authority state.
+
+The inert contracts for this layer currently live in:
+
+```text
+LPGL1/L1/schemas/lifecycle-stage.schema.json
+LPGL1/L1/schemas/scan-choice.schema.json
+LPGL1/L1/schemas/install-task.schema.json
+LPGL1/L1/schemas/install-plan.schema.json
+LPGL1/L1/schemas/surface-binding.schema.json
+LPGL1/L1/drafts/stage-catalog.draft.jsonc
+```
+
+They are not part of the promotion gate and no runtime consumes them yet. They
+exist to fix shape and wording first, and each carries a `_comment` describing how
+it is expected to be refined later.
+
 ## Startup and onboarding stages
 
 1. **Bootstrap discovery**
@@ -237,13 +271,22 @@ The root currently has an experimental `al1scan` scanner project and root launch
 
 ## Next implementation slice
 
-- [ ] Add canonical LPG-L1 component manifest schema.
-- [ ] Add location authority and resolver records.
-- [ ] Connect scanner output to observed LPG-L1 records.
-- [ ] Add scoped rescan and dependency-impact expansion.
-- [ ] Add tier-closure validation and explicit partial/truncated results.
-- [ ] Add known-good revision and rollback journal.
-- [ ] Add startup/install/refresh/repair transaction phases.
+Completed and evidence-backed:
+
+- [x] Canonical LPG-L1 component manifest schema.
+- [x] Location authority and resolver records.
+- [x] Scanner output connected to observed LPG-L1 records.
+- [x] Scoped rescan and dependency-impact expansion.
+- [x] Tier-closure validation with explicit partial/truncated results.
+- [x] Known-good revision persistence and rollback verification.
+- [x] Read-only AL1 commands exposed through the `forge` CLI.
+- [x] WSL/Linux and Windows launcher evidence.
+
+Still open:
+
+- [ ] Emit a read-only `forge al1-plan` from a complete scan plus the applied profile.
+- [ ] Implement startup/install/refresh/repair transaction phases against the inert stage contract.
+- [ ] Implement explicit restore transactions for verified known-good targets.
+- [ ] Bind schema/ownership evidence to authority entries and closure results.
 - [ ] Add monitor status summary and explain output.
 - [ ] Add task-specific context deployment/unloading.
-- [ ] Add initial WSL/Linux and Windows launcher evidence.

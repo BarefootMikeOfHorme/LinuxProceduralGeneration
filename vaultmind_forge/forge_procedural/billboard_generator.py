@@ -23,9 +23,7 @@ from enum import Enum
 import numpy as np
 import logging
 
-# Add parent to path
-
-from forge_bots.native_bridge import get_native_bridge
+from ..forge_bots.native_bridge import get_native_bridge
 from .output_structure import get_output_structure
 
 logger = logging.getLogger(__name__)

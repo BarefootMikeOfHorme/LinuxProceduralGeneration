@@ -76,3 +76,16 @@ forge = "vaultmind_forge.forge_cli:app"
 where = ["."]
 include = ["vaultmind_forge*", "backend*"]
 namespaces = true
+
+[tool.pytest.ini_options]
+testpaths = ["vaultmind_forge/tests"]
+# `contract` covers the LPG-L1 schema and authority contracts, which are fast
+# and must always run. `slow` marks modules that take minutes; deselect them
+# with `-m "not slow"` when iterating. `network` marks tests that make live
+# HTTP calls and are skipped by default.
+addopts = "-m 'not network'"
+markers = [
+  "contract: LPG-L1 schema and authority contract tests",
+  "slow: tests that take minutes to run",
+  "network: tests that make live network calls",
+]

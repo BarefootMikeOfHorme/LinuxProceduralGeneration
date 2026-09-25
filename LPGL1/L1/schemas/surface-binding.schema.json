@@ -1,0 +1,156 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "al1.schema.lpg-l1.surface-binding",
+  "_comment": "INERT DRAFT. Contract only. No renderer consumes this yet. Purpose: keep the first wizard Windows-style for ease of use WITHOUT letting that choice leak into authority. Every surface (windows-wizard, cli, tui, web, desktop, mcp, ai-agent) renders the same plan/choice/task records; only presentation and input handling differ. Refinement notes: input vocabulary and confirmation flow are intentionally generic; per-surface adapters will likely need their own small extension profiles rather than growing this schema.",
+  "title": "AL1/LPG-L1 Surface Binding",
+  "description": "UI-neutral binding between an authority record and a presentation surface. Describes pages, controls, authorization popups, dynamic updates, and help affordances as data, so no surface becomes the authority and every surface can be added or removed independently.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "profile", "surface", "binds_to", "pages"],
+  "properties": {
+    "schema_version": { "type": "string", "minLength": 1 },
+    "profile": { "type": "string", "const": "lpg-l1" },
+    "surface": {
+      "type": "string",
+      "enum": ["windows-wizard", "cli", "tui", "web", "desktop", "mcp", "ai-agent"]
+    },
+    "surface_role": {
+      "type": "string",
+      "enum": ["presentation", "presentation+input", "input-only"],
+      "description": "Surfaces may only present or collect decisions. No surface may compute authority state."
+    },
+    "binds_to": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["plan_schema", "plan_id"],
+      "properties": {
+        "plan_schema": { "type": "string", "const": "al1.schema.lpg-l1.install-plan" },
+        "plan_id": { "type": "string", "minLength": 1 },
+        "choice_schema": { "type": "string", "const": "al1.schema.lpg-l1.scan-choice" },
+        "task_schema": { "type": "string", "const": "al1.schema.lpg-l1.install-task" }
+      }
+    },
+    "pages": { "type": "array", "items": { "$ref": "#/$defs/page" } },
+    "authorization": { "$ref": "#/$defs/authorization" },
+    "dynamic_updates": { "type": "array", "items": { "$ref": "#/$defs/dynamicUpdate" } },
+    "help": { "type": "array", "items": { "$ref": "#/$defs/helpAffordance" } },
+    "prohibitions": {
+      "type": "array",
+      "items": { "type": "string", "enum": ["no-derive-authority", "no-execute-discovered-code", "no-silent-install", "no-silent-downgrade", "no-secret-read", "no-unapproved-network"] }
+    }
+  },
+  "allOf": [
+    {
+      "$comment": "Every surface must carry the full prohibition set. A surface may not opt out of a rule by simply omitting it.",
+      "properties": {
+        "prohibitions": {
+          "type": "array",
+          "uniqueItems": true,
+          "minItems": 6,
+          "items": {
+            "enum": ["no-derive-authority", "no-execute-discovered-code", "no-silent-install", "no-silent-downgrade", "no-secret-read", "no-unapproved-network"]
+          }
+        }
+      }
+    },
+    {
+      "$comment": "Help, documentation, and browser links are help affordances only. They are advisory, never authority, and the user must initiate them; a surface may not open a reference on the user's behalf or treat reading one as consent.",
+      "properties": {
+        "help": {
+          "items": {
+            "properties": {
+              "authority": { "const": "advisory" },
+              "user_initiated": { "const": true }
+            }
+          }
+        }
+      }
+    },
+    {
+      "$comment": "A surface presents and collects decisions; it does not compute authority. record-style and definition-style authority is not something a surface produces.",
+      "if": {
+        "properties": { "surface_role": { "const": "input-only" } },
+        "required": ["surface_role"]
+      },
+      "then": {
+        "properties": {
+          "authorization": {
+            "properties": { "mode": { "const": "none" } }
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "page": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title", "controls"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "stage_id": { "type": ["string", "null"] },
+        "tier": { "type": ["string", "null"], "enum": ["L1", "L2", "L3", "L4", "L5", "L6", null] },
+        "title": { "type": "string", "minLength": 1 },
+        "purpose": { "type": ["string", "null"] },
+        "blocks_on": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "controls": { "type": "array", "items": { "$ref": "#/$defs/control" } }
+      }
+    },
+    "control": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "kind", "label"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "kind": {
+          "type": "string",
+          "enum": ["checklist", "single-select", "multi-select", "yes-no", "details", "table", "log", "progress", "link", "diff", "addon-list"]
+        },
+        "label": { "type": "string", "minLength": 1 },
+        "explanation": { "type": ["string", "null"] },
+        "source": { "type": ["string", "null"], "description": "Authority record id this control renders. Null means presentational only." },
+        "read_only": { "type": "boolean" },
+        "risk": { "type": ["string", "null"], "enum": ["low", "medium", "high", "critical", null] },
+        "writes_declared": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "authorization": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "requires_explicit_approval"],
+      "properties": {
+        "mode": { "type": "string", "enum": ["popup", "inline", "prompt", "none"] },
+        "requires_explicit_approval": { "type": "boolean" },
+        "shows": {
+          "type": "array",
+          "items": { "type": "string", "enum": ["changes", "locations", "risk", "cost", "validation", "rollback", "evidence"] }
+        },
+        "options": { "type": "array", "items": { "type": "string", "enum": ["approve", "cancel", "defer", "show-details"] } }
+      }
+    },
+    "dynamicUpdate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["event", "effect"],
+      "properties": {
+        "event": {
+          "type": "string",
+          "enum": ["scan-progress", "candidate-discovered", "plan-changed", "task-started", "validation-failed", "task-complete", "environment-refreshed"]
+        },
+        "effect": { "type": "string", "minLength": 1 },
+        "replan": { "type": "boolean" }
+      }
+    },
+    "helpAffordance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "target", "authority", "user_initiated"],
+      "properties": {
+        "kind": { "type": "string", "enum": ["local-doc", "schema", "evidence", "external-doc", "browser"] },
+        "target": { "type": "string", "minLength": 1 },
+        "authority": { "type": "string", "const": "advisory" },
+        "user_initiated": { "type": "boolean" }
+      }
+    }
+  }
+}

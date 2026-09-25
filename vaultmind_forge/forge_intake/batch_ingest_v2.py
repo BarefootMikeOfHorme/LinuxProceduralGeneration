@@ -9,16 +9,36 @@ import os
 import json
 import hashlib
 import zipfile
-import rarfile
 import shutil
 from pathlib import Path
 from datetime import datetime
 from typing import Dict, List, Optional, Tuple
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
+# rarfile is an optional dependency: ZIP ingestion works without it, RAR
+# ingestion does not.
+try:
+    import rarfile
+    RARFILE_AVAILABLE = True
+except ImportError:
+    rarfile = None
+    RARFILE_AVAILABLE = False
+
 from . import IntakeStage, QualityLevel, AssetCategory
 from .multi_version_handler import MultiVersionHandler, process_with_multi_version
 from .unified_converter import UnifiedConverter, ConversionStatus
+
+RARFILE_REQUIREMENT_HINT = (
+    "rarfile is required to extract RAR archives "
+    "(vaultmind_forge.forge_intake.batch_ingest_v2). "
+    "Install with: pip install rarfile"
+)
+
+
+def _require_rarfile() -> None:
+    """Raise a clear, actionable error when rarfile is not installed."""
+    if not RARFILE_AVAILABLE:
+        raise ImportError(RARFILE_REQUIREMENT_HINT)
 
 
 class AssetIngestorV2:
@@ -66,6 +86,9 @@ class AssetIngestorV2:
             ext = filepath.suffix.lower()
 
             if ext in ['.zip', '.rar']:
+                if ext == '.rar':
+                    _require_rarfile()
+
                 try:
                     print(f"[*] Extracting: {filepath.name}")
                     extract_dir = self.input_dir / filepath.stem

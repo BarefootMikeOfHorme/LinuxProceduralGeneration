@@ -1,0 +1,437 @@
+{
+  // INERT EXAMPLES. Illustrative records only, showing the intended shape of the
+  // scan -> choice -> plan -> task flow on a real LPG machine. Nothing reads
+  // this file. The values are examples, not a captured scan result.
+  //
+  // Refinement notes for later edition:
+  //  - This deliberately shows the "present but invalid" case (python3.14)
+  //    alongside "present and valid" (python3.12) so the difference between
+  //    silent skip and explained fault is visible in one place.
+  //  - Optional external tools are shown as absent with an explicit statement of
+  //    what capability is lost, so skipping is never silent.
+  //  - The example plan is Windows-wizard-first but the same records are meant to
+  //    drive cli/tui/web/desktop/mcp/ai-agent unchanged.
+
+  "examples": {
+    "scan_choices": [
+      {
+        "schema_version": "0.1.0-alpha.1",
+        "profile": "lpg-l1",
+        "component_id": "lpg-l1.l2.environment.python312",
+        "stage_id": "lpg-l1.stage.l2.environment",
+        "tier": "L2",
+        "title": "Python 3.12 environment for LPG",
+        "explanation": "LPG's native geometry binding uses PyO3 0.22, which supports CPython up to 3.12. Python 3.12.13 is already installed and is the environment the Rust suite was last validated against.",
+        "detection_state": "present_and_valid",
+        "incompatibility_reasons": [],
+        "candidates": [
+          {
+            "path": "/home/user/.venv312/bin/python3.12",
+            "label": "project virtual environment",
+            "version": "3.12.13",
+            "source": "detected",
+            "validation_state": "valid",
+            "in_use_by_lpg": true,
+            "modifies_system": false
+          },
+          {
+            "path": "/usr/lib/python3.12/python3.12",
+            "label": "system interpreter",
+            "version": "3.12.3",
+            "source": "detected",
+            "validation_state": "valid",
+            "in_use_by_lpg": false,
+            "modifies_system": false
+          }
+        ],
+        "recommended_action": "adopt",
+        "skip_is_silent": false,
+        "requires_approval": true,
+        "options": [
+          {
+            "id": "link-project-venv",
+            "label": "Yes, link the project environment for LPG",
+            "kind": "accept",
+            "risk": "low",
+            "changes": ["LPG uses the existing project environment", "nothing is installed or removed"],
+            "writes": [".al1-state/environments/python312.json"],
+            "consequences": [
+              "No new Python is installed.",
+              "LPG programs in tier 3 will run inside this environment.",
+              "If this environment is later replaced, forge and the CAD adapter become affected components."
+            ]
+          },
+          {
+            "id": "link-system-python",
+            "label": "No, use the system interpreter instead",
+            "kind": "decline",
+            "risk": "low",
+            "changes": ["LPG uses the system Python 3.12"],
+            "writes": [".al1-state/environments/python312.json"],
+            "consequences": [
+              "System package changes could affect LPG later.",
+              "Project-local packages would be installed into the system environment."
+            ]
+          },
+          {
+            "id": "why",
+            "label": "Why does LPG need 3.12?",
+            "kind": "details",
+            "risk": "low",
+            "changes": [],
+            "writes": [],
+            "consequences": ["Shows the PyO3 compatibility evidence recorded by the last validation run."]
+          }
+        ],
+        "decision": "accepted",
+        "decided_action": "adopt",
+        "selected_candidate": "/home/user/.venv312/bin/python3.12",
+        "advisory_links": [
+          {
+            "kind": "local-doc",
+            "target": "LPGL1/README.md",
+            "authority": "advisory",
+            "user_initiated": true
+          }
+        ],
+        "evidence": ["scan:2026-09-25T00:00:00Z", "validation:python-version:pass", "validation:abi-probe:pass"]
+      },
+      {
+        "schema_version": "0.1.0-alpha.1",
+        "profile": "lpg-l1",
+        "component_id": "lpg-l1.l2.environment.python314",
+        "stage_id": "lpg-l1.stage.l2.environment",
+        "tier": "L2",
+        "title": "Python 3.14 detected",
+        "explanation": "Python 3.14 is installed and will be left completely untouched. It cannot serve as the LPG environment because the pinned PyO3 0.22 binding has no CPython 3.14 support. This is reported rather than skipped, because a present-but-wrong interpreter is the most common cause of native binding failures.",
+        "detection_state": "present_invalid",
+        "incompatibility_reasons": [
+          "pyo3 0.22 supports cpython up to 3.12",
+          "lpg requires cpython 3.12 for the native geometry binding"
+        ],
+        "candidates": [
+          {
+            "path": "/usr/bin/python3.14",
+            "label": "system interpreter",
+            "version": "3.14.0",
+            "source": "detected",
+            "validation_state": "invalid",
+            "in_use_by_lpg": false,
+            "modifies_system": true
+          }
+        ],
+        "recommended_action": "skip",
+        "skip_is_silent": false,
+        "requires_approval": false,
+        "options": [
+          {
+            "id": "leave-untouched",
+            "label": "Leave it alone and continue with Python 3.12",
+            "kind": "accept",
+            "risk": "low",
+            "changes": [],
+            "writes": [],
+            "consequences": [
+              "Python 3.14 is not modified or removed.",
+              "LPG records the incompatibility so it is not rediscovered as an unknown fault later."
+            ]
+          },
+          {
+            "id": "show-compatibility",
+            "label": "Show the compatibility evidence",
+            "kind": "details",
+            "risk": "low",
+            "changes": [],
+            "writes": [],
+            "consequences": ["Shows the exact pinned versions and the recorded incompatibility reason."]
+          }
+        ],
+        "decision": "accepted",
+        "decided_action": "skip",
+        "selected_candidate": null,
+        "advisory_links": [],
+        "evidence": ["scan:2026-09-25T00:00:00Z", "compatibility:pyo3-0.22:cpython-max-3.12"]
+      },
+      {
+        "schema_version": "0.1.0-alpha.1",
+        "profile": "lpg-l1",
+        "component_id": "lpg-l1.l3.capability.blender",
+        "stage_id": "lpg-l1.stage.l3.programs",
+        "tier": "L3",
+        "title": "Blender batch rendering",
+        "explanation": "Blender is an optional capability. It is not installed, and nothing about core LPG requires it.",
+        "detection_state": "absent",
+        "incompatibility_reasons": [],
+        "candidates": [],
+        "recommended_action": "skip",
+        "skip_is_silent": false,
+        "requires_approval": true,
+        "options": [
+          {
+            "id": "skip",
+            "label": "Skip for now",
+            "kind": "decline",
+            "risk": "low",
+            "changes": [],
+            "writes": [],
+            "consequences": [
+              "Batch rendering and scene export stay unavailable.",
+              "CAD, geometry, STEP/STL, and OpenSCAD paths are unaffected."
+            ]
+          },
+          {
+            "id": "install",
+            "label": "Link a locally installed Blender",
+            "kind": "accept",
+            "risk": "high",
+            "changes": ["detects Blender", "verifies its version and GPU profile", "registers it as an LPG capability"],
+            "writes": [".al1-state/capabilities/blender.json"],
+            "consequences": [
+              "Links an external binary and may expose GPU/driver requirements.",
+              "Validated with a batch smoke render before it is marked known-good."
+            ]
+          }
+        ],
+        "decision": "declined",
+        "decided_action": "skip",
+        "selected_candidate": null,
+        "advisory_links": [],
+        "evidence": ["scan:2026-09-25T00:00:00Z"]
+      }
+    ],
+
+    "install_plan": {
+      "schema_version": "0.1.0-alpha.1",
+      "profile": "lpg-l1",
+      "plan_id": "lpg-plan-0001",
+      "scan_ref": "scan:2026-09-25T00:00:00Z",
+      "scan_complete": true,
+      "platform": { "os": "ubuntu-24.04", "arch": "x86_64", "environment": "wsl2" },
+      "source_lineage": {
+        "repository": "LinuxProceduralGeneration",
+        "branch": "master",
+        "commit": "afde42a",
+        "tag": null,
+        "dirty": false
+      },
+      "generated_from": [
+        "scan:2026-09-25T00:00:00Z",
+        "profile:lpg-l1@0.1.0-alpha.1",
+        "stage-catalog:draft"
+      ],
+      "surfaces": ["windows-wizard", "cli", "tui", "web", "desktop", "mcp", "ai-agent"],
+      "default_surface": "windows-wizard",
+      "plan_state": "inert",
+      "blockers": [],
+      "evidence": ["scan:complete", "tier-closure:pending"],
+      "stages": [
+        {
+          "stage_id": "lpg-l1.stage.l1.machine",
+          "order": 0,
+          "tier": "L1",
+          "title": "Detect this machine",
+          "purpose": "Find the platform, architecture, interpreters, toolchains, and container support before anything is changed.",
+          "stage_state": "complete",
+          "tasks": [
+            { "task_id": "machine.inventory", "disposition": "already-satisfied", "reason": "baseline scan already complete", "requires_approval": false },
+            { "task_id": "machine.locations", "disposition": "already-satisfied", "reason": "expected location authority resolved", "requires_approval": false }
+          ]
+        },
+        {
+          "stage_id": "lpg-l1.stage.l2.environment",
+          "order": 2,
+          "tier": "L2",
+          "title": "Set up shells and environments",
+          "purpose": "Adopt or build the Python 3.12 environment and Rust toolchain that tier 3 programs will run inside.",
+          "stage_state": "pending",
+          "tasks": [
+            { "task_id": "env.link-python312", "disposition": "run", "reason": null, "requires_approval": true },
+            { "task_id": "env.create-python314", "disposition": "skip", "reason": "pyo3 0.22 does not support cpython 3.14", "requires_approval": false },
+            { "task_id": "env.link-rust", "disposition": "already-satisfied", "reason": "rust toolchain detected and cargo test passed", "requires_approval": true }
+          ]
+        },
+        {
+          "stage_id": "lpg-l1.stage.l3.programs",
+          "order": 3,
+          "tier": "L3",
+          "title": "Enable programs and addons",
+          "purpose": "Activate the forge CLI, CAD adapters, native geometry binding, and conversion workers inside the validated tier 2 environment.",
+          "stage_state": "pending",
+          "tasks": [
+            { "task_id": "prog.enable-forge", "disposition": "run", "reason": null, "requires_approval": true },
+            { "task_id": "prog.build-native-geometry", "disposition": "run", "reason": null, "requires_approval": true },
+            { "task_id": "prog.link-blender", "disposition": "skip", "reason": "user declined; batch rendering stays unavailable", "requires_approval": true }
+          ]
+        }
+      ]
+    },
+
+    "install_task": {
+      "schema_version": "0.1.0-alpha.1",
+      "profile": "lpg-l1",
+      "task_id": "prog.build-native-geometry",
+      "stage_id": "lpg-l1.stage.l3.programs",
+      "tier": "L3",
+      "component_id": "lpg-l1.l3.program.forge_native",
+      "kind": "rebuild",
+      "title": "Build the native geometry binding",
+      "explanation": "The Rust geometry crate is present and its test suite passes, but the Python extension module is not built for the current CPython ABI.",
+      "adapter": "python-pyo3",
+      "risk": "medium",
+      "fault_class": "missing",
+      "reads": ["rust_core/", "Cargo.lock", ".venv312 environment"],
+      "writes": [".al1-state/build/native", ".al1-state/artifacts/wheels"],
+      "dry_run": true,
+      "additive_only": true,
+      "overwrites_existing": false,
+      "requires_approval": true,
+      "validation": [
+        { "id": "cargo-test", "description": "Rust geometry suite passes", "check": "cargo test -p rust_core", "required": true, "result": null, "evidence": null },
+        { "id": "native-import", "description": "Native module imports under Python 3.12", "check": "python -c 'import vaultmind_forge.native'", "required": true, "result": null, "evidence": null },
+        { "id": "mesh-smoke", "description": "A known mesh round-trips through the binding", "check": "forge native-smoke", "required": true, "result": null, "evidence": null }
+      ],
+      "rollback": {
+        "strategy": "restore-snapshot",
+        "target": "snapshot-pre-native-build",
+        "source_commit": "afde42a",
+        "verified": true,
+        "reason_if_unavailable": null
+      },
+      "state": "planned",
+      "state_reasons": [],
+      "evidence": ["scan:complete", "validation:cargo-test:pass"]
+    },
+
+    "surface_binding": {
+      "schema_version": "0.1.0-alpha.1",
+      "profile": "lpg-l1",
+      "surface": "windows-wizard",
+      "surface_role": "presentation+input",
+      "binds_to": {
+        "plan_schema": "al1.schema.lpg-l1.install-plan",
+        "plan_id": "lpg-plan-0001",
+        "choice_schema": "al1.schema.lpg-l1.scan-choice",
+        "task_schema": "al1.schema.lpg-l1.install-task"
+      },
+      "prohibitions": [
+        "no-derive-authority",
+        "no-execute-discovered-code",
+        "no-silent-install",
+        "no-silent-downgrade",
+        "no-secret-read",
+        "no-unapproved-network"
+      ],
+      "pages": [
+        {
+          "id": "page.detected",
+          "stage_id": null,
+          "tier": null,
+          "title": "What this machine already has",
+          "purpose": "Show the scan checklist before asking for any decision.",
+          "blocks_on": ["scan:complete"],
+          "controls": [
+            {
+              "id": "detected.table",
+              "kind": "table",
+              "label": "Detected components",
+              "explanation": "Rows come from the scan. Nothing here is a recommendation yet.",
+              "source": null,
+              "read_only": true,
+              "risk": null,
+              "writes_declared": []
+            },
+            {
+              "id": "detected.filter",
+              "kind": "checklist",
+              "label": "Show only",
+              "explanation": null,
+              "source": null,
+              "read_only": false,
+              "risk": null,
+              "writes_declared": []
+            }
+          ]
+        },
+        {
+          "id": "page.python-choice",
+          "stage_id": "lpg-l1.stage.l2.environment",
+          "tier": "L2",
+          "title": "Python for LPG",
+          "purpose": "Offer the detected interpreters with the compatibility reason spelled out.",
+          "blocks_on": ["scan:complete"],
+          "controls": [
+            {
+              "id": "python.single",
+              "kind": "single-select",
+              "label": "Which Python should LPG use?",
+              "explanation": "Adopting a detected interpreter links it; it does not install or modify anything.",
+              "source": "lpg-l1.l2.environment.python312",
+              "read_only": false,
+              "risk": "low",
+              "writes_declared": [".al1-state/environments/python312.json"]
+            },
+            {
+              "id": "python.incompatible",
+              "kind": "details",
+              "label": "Python 3.14 is installed but not usable",
+              "explanation": "PyO3 0.22 has no CPython 3.14 support. It will be left untouched.",
+              "source": "lpg-l1.l2.environment.python314",
+              "read_only": true,
+              "risk": null,
+              "writes_declared": []
+            }
+          ]
+        },
+        {
+          "id": "page.native-build",
+          "stage_id": "lpg-l1.stage.l3.programs",
+          "tier": "L3",
+          "title": "Build the native geometry binding",
+          "purpose": "Explain the task, then require explicit approval before anything is written.",
+          "blocks_on": ["stage:lpg-l1.stage.l2.environment:complete"],
+          "controls": [
+            {
+              "id": "native.detail",
+              "kind": "details",
+              "label": "What this task will do",
+              "explanation": "Reads the Rust crate and the Python 3.12 environment; writes only to managed build and artifact locations.",
+              "source": "prog.build-native-geometry",
+              "read_only": true,
+              "risk": "medium",
+              "writes_declared": [".al1-state/build/native", ".al1-state/artifacts/wheels"]
+            },
+            {
+              "id": "native.progress",
+              "kind": "progress",
+              "label": "Build and validation",
+              "explanation": null,
+              "source": null,
+              "read_only": true,
+              "risk": null,
+              "writes_declared": []
+            }
+          ]
+        }
+      ],
+      "authorization": {
+        "mode": "popup",
+        "requires_explicit_approval": true,
+        "shows": ["changes", "locations", "risk", "validation", "rollback"],
+        "options": ["approve", "cancel", "defer", "show-details"]
+      },
+      "dynamic_updates": [
+        { "event": "scan-progress", "effect": "Update the detected table as entries are confirmed.", "replan": false },
+        { "event": "candidate-discovered", "effect": "Add a row to the checklist and mark the plan incomplete.", "replan": true },
+        { "event": "plan-changed", "effect": "Show what changed and why the affected tasks were added, skipped, or blocked.", "replan": true },
+        { "event": "task-started", "effect": "Disable further edits for this stage and show progress.", "replan": false },
+        { "event": "validation-failed", "effect": "Show the failing check, the evidence, and the smallest matching repair. Keep the stage incomplete.", "replan": true },
+        { "event": "task-complete", "effect": "Show validation results and enable the next stage.", "replan": false }
+      ],
+      "help": [
+        { "kind": "local-doc", "target": "LPGL1/README.md", "authority": "advisory", "user_initiated": true },
+        { "kind": "evidence", "target": "validation:cargo-test", "authority": "advisory", "user_initiated": true },
+        { "kind": "browser", "target": "https://pyo3.rs", "authority": "advisory", "user_initiated": true }
+      ]
+    }
+  }
+}

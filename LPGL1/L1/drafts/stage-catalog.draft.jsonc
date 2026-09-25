@@ -1,0 +1,227 @@
+{
+  // INERT DRAFT CATALOG. Nothing reads this file yet. It exists to fix the
+  // shape and wording of the tiered setup stages before a planner emits them.
+  //
+  // Refinement notes for later edition:
+  //  - Stages are currently per tier band. Later, subtier granularity
+  //    (lpg-l1.l2.environment.python312) may split a band into several stages.
+  //  - Order is a flat list. Later it may become a DAG with parallel-safe groups.
+  //  - Every stage here is repeatable on its own and never silently inherits
+  //    approval from a previous stage.
+  //  - Surfaces are declared, not assumed. The first surface will be a
+  //    Windows-style wizard for ease of use, but authority is surface-neutral.
+
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "al1.lpg-l1.draft.stage-catalog",
+  "schema_version": "0.1.0-alpha.1",
+  "profile": "lpg-l1",
+  "status": "inert-draft",
+  "default_surface": "windows-wizard",
+  "supported_surfaces": [
+    "windows-wizard",
+    "cli",
+    "tui",
+    "web",
+    "desktop",
+    "mcp",
+    "ai-agent"
+  ],
+
+  "stages": [
+    {
+      "stage_id": "lpg-l1.stage.l1.machine",
+      "order": 0,
+      "kind": "definition",
+      "status": "planned",
+      "tier": "L1",
+      "title": "Detect this machine",
+      "purpose": "Find the platform, architecture, interpreters, toolchains, and container support before anything is changed.",
+      "entry_criteria": [
+        { "id": "root-located", "description": "LPG program root is known", "required": true }
+      ],
+      "operations": [
+        "inventory platform and architecture",
+        "detect python interpreters",
+        "detect rust toolchain",
+        "detect optional external programs"
+      ],
+      "exit_validation": [
+        { "id": "baseline-recorded", "description": "Observed baseline is recorded, not promoted", "required": true },
+        { "id": "locations-resolved", "description": "Expected location authority is resolved", "required": true }
+      ],
+      "reversible": true,
+      "requires_approval": false
+    },
+    {
+      "stage_id": "lpg-l1.stage.l1.profile",
+      "order": 1,
+      "kind": "definition",
+      "status": "planned",
+      "tier": "L1",
+      "title": "Apply the LPG-L1 profile",
+      "purpose": "Install the AL1/LPG-L1 protocol layer and prove it can load without running a full task.",
+      "entry_criteria": [
+        { "id": "baseline-recorded", "description": "Stage l1.machine is validated", "required": true }
+      ],
+      "operations": [
+        "install AL1/LPG-L1 protocol packages",
+        "materialize L1 root structure",
+        "apply safety floor"
+      ],
+      "exit_validation": [
+        { "id": "protocol-load", "description": "L1 protocol loads", "required": true },
+        { "id": "dry-run", "description": "Dry run completes without mutation", "required": true },
+        { "id": "short-proof", "description": "Short LPG proof task completes", "required": true }
+      ],
+      "reversible": true,
+      "requires_approval": true
+    },
+    {
+      "stage_id": "lpg-l1.stage.l2.environment",
+      "order": 2,
+      "kind": "definition",
+      "status": "planned",
+      "tier": "L2",
+      "title": "Set up shells and environments",
+      "purpose": "Adopt or build the Python 3.12 environment and Rust toolchain that tier 3 programs will run inside.",
+      "entry_criteria": [
+        { "id": "protocol-load", "description": "Stage l1.profile is validated", "required": true }
+      ],
+      "operations": [
+        "link or create python 3.12 environment",
+        "link or create rust toolchain",
+        "register shell adapters (ubuntu/wsl, powershell)",
+        "configure isolated tool homes for optional binaries"
+      ],
+      "exit_validation": [
+        { "id": "python-version", "description": "Python reports 3.12", "required": true },
+        { "id": "abi-probe", "description": "CPython ABI probe succeeds", "required": true },
+        { "id": "cargo-test", "description": "Rust test suite passes", "required": true }
+      ],
+      "reversible": true,
+      "requires_approval": true
+    },
+    {
+      "stage_id": "lpg-l1.stage.l3.programs",
+      "order": 3,
+      "kind": "definition",
+      "status": "planned",
+      "tier": "L3",
+      "title": "Enable programs and addons",
+      "purpose": "Activate the forge CLI, CAD adapters, native geometry binding, and conversion workers inside the validated tier 2 environment.",
+      "entry_criteria": [
+        { "id": "python-version", "description": "Stage l2.environment is validated", "required": true },
+        { "id": "cargo-test", "description": "Stage l2.environment is validated", "required": true }
+      ],
+      "operations": [
+        "enable forge CLI",
+        "enable build123d adapter",
+        "build native geometry binding",
+        "enable conversion workers",
+        "link optional external programs the user selected"
+      ],
+      "exit_validation": [
+        { "id": "forge-doctor", "description": "forge doctor passes", "required": true },
+        { "id": "cad-smoke", "description": "CAD smoke task completes", "required": true },
+        { "id": "native-import", "description": "Native geometry module imports", "required": true },
+        { "id": "step-export", "description": "STEP and STL export succeeds", "required": true }
+      ],
+      "reversible": true,
+      "requires_approval": true
+    },
+    {
+      "stage_id": "lpg-l1.stage.l4.contracts",
+      "order": 4,
+      "kind": "definition",
+      "status": "planned",
+      "tier": "L4",
+      "title": "Load contracts and safety rules",
+      "purpose": "Bind schemas, validation profiles, guardrails, and repair/rollback policy for the active selection.",
+      "entry_criteria": [
+        { "id": "forge-doctor", "description": "Stage l3.programs is validated", "required": true }
+      ],
+      "operations": [
+        "bind component schemas",
+        "bind validation profiles",
+        "bind repair and rollback policy",
+        "bind security profile"
+      ],
+      "exit_validation": [
+        { "id": "schema-validated", "description": "Bound schemas validate", "required": true },
+        { "id": "policy-loaded", "description": "Safety floor is active", "required": true }
+      ],
+      "reversible": true,
+      "requires_approval": true
+    },
+    {
+      "stage_id": "lpg-l1.stage.l5.knowledge",
+      "order": 5,
+      "kind": "definition",
+      "status": "planned",
+      "tier": "L5",
+      "title": "Load documentation and templates",
+      "purpose": "Attach the usage knowledge and templates relevant to what is actually enabled.",
+      "entry_criteria": [
+        { "id": "schema-validated", "description": "Stage l4.contracts is validated", "required": true }
+      ],
+      "operations": [
+        "attach relevant documentation",
+        "attach templates and examples"
+      ],
+      "exit_validation": [
+        { "id": "docs-resolve", "description": "Help links resolve locally", "required": true }
+      ],
+      "reversible": true,
+      "requires_approval": false
+    },
+    {
+      "stage_id": "lpg-l1.stage.l6.content",
+      "order": 6,
+      "kind": "definition",
+      "status": "planned",
+      "tier": "L6",
+      "title": "Prepare output locations",
+      "purpose": "Confirm where generated artifacts will be written and mark user-owned locations read-only by default.",
+      "entry_criteria": [
+        { "id": "docs-resolve", "description": "Stage l5.knowledge is validated", "required": true }
+      ],
+      "operations": [
+        "resolve output roots",
+        "mark generated versus user-owned locations"
+      ],
+      "exit_validation": [
+        { "id": "closure-valid", "description": "Tier closure validation passes for the active set", "required": true }
+      ],
+      "reversible": true,
+      "requires_approval": true
+    }
+  ],
+
+  "choice_templates": [
+    {
+      "id": "single-candidate-adopt",
+      "use_when": "exactly_one_candidate",
+      "presentation": "yes-no",
+      "example_explanation": "LPG needs Python 3.12 because the PyO3 0.22 native binding supports CPython up to 3.12. The other interpreter is not modified or removed."
+    },
+    {
+      "id": "multi-candidate-select",
+      "use_when": "multiple_candidates",
+      "presentation": "checkable-list",
+      "rule": "multi_select_optional_single_choice"
+    },
+    {
+      "id": "absent-offer",
+      "use_when": "no_candidate",
+      "presentation": "install-or-skip",
+      "rule": "skip must state what capability is lost"
+    },
+    {
+      "id": "present-invalid",
+      "use_when": "present_invalid",
+      "presentation": "explain-and-offer",
+      "rule": "never_silent_skip",
+      "options": ["repair", "override", "skip_with_record"]
+    }
+  ]
+}
