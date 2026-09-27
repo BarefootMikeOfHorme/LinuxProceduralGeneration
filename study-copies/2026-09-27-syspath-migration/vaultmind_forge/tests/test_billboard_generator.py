@@ -3,9 +3,13 @@ Test procedural billboard generator
 Verifies billboard generation for game environments
 """
 
+import sys
 from pathlib import Path
 
-from vaultmind_forge.forge_procedural.billboard_generator import (
+# Add parent to path
+sys.path.insert(0, str(Path(__file__).parents[1]))
+
+from forge_procedural.billboard_generator import (
     BillboardGenerator, BillboardType, MaterialType, WeatheringLevel
 )
 import numpy as np
@@ -287,7 +291,7 @@ def test_billboard_presets():
     print("\n=== Test 8: Billboard Presets ===")
 
     try:
-        from vaultmind_forge.forge_procedural.billboard_generator import BILLBOARD_PRESETS
+        from forge_procedural.billboard_generator import BILLBOARD_PRESETS
 
         print(f"[OK] Found {len(BILLBOARD_PRESETS)} billboard presets:")
         for preset_name in BILLBOARD_PRESETS.keys():

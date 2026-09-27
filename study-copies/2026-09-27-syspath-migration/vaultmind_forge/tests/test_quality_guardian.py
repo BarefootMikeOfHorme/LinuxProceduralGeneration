@@ -2,11 +2,15 @@
 Test suite for Quality Guardian Agent
 """
 
+import sys
 from pathlib import Path
 import numpy as np
 from PIL import Image
 
-from vaultmind_forge.forge_agents.quality_guardian import (
+# Add parent to path
+sys.path.insert(0, str(Path(__file__).parents[1]))
+
+from forge_agents.quality_guardian import (
     QualityGuardianAgent,
     AutoFixType,
     QualityIssue,

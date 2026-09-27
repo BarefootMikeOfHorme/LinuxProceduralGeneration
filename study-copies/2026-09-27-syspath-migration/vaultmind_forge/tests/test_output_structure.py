@@ -3,9 +3,13 @@ Test comprehensive output structure for all media types
 Verifies directory creation and path resolution
 """
 
+import sys
 from pathlib import Path
 
-from vaultmind_forge.forge_procedural import ProceduralGenerator, get_output_structure, ensure_output_directories
+# Add parent to path
+sys.path.insert(0, str(Path(__file__).parents[1]))
+
+from forge_procedural import ProceduralGenerator, get_output_structure, ensure_output_directories
 
 
 def test_output_structure_creation():

@@ -5,14 +5,18 @@ Tests the Quick Win Trio: AI Validation + Lineage Tracking + Pipeline DAG
 
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 from typing import Dict, Any
 import logging
 
-from vaultmind_forge.forge_executor.pipeline import AssetPipeline, run_asset_pipeline
-from vaultmind_forge.forge_validator.ai_validator import AIValidator, ValidationDecision
-from vaultmind_forge.forge_lineage import LineageTracker, OperationType
-from vaultmind_forge.forge_converter.ai_control import AuthorityLevel
+# Add modules to path
+sys.path.insert(0, str(Path(__file__).parents[1]))
+
+from forge_executor.pipeline import AssetPipeline, run_asset_pipeline
+from forge_validator.ai_validator import AIValidator, ValidationDecision
+from forge_lineage import LineageTracker, OperationType
+from forge_converter.ai_control import AuthorityLevel
 
 
 def setup_test_environment():

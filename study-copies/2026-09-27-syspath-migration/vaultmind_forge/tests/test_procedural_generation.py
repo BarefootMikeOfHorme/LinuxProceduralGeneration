@@ -3,9 +3,13 @@ Test suite for forge_procedural module
 Verifies all procedural generation functionality end-to-end
 """
 
+import sys
 from pathlib import Path
 
-from vaultmind_forge.forge_procedural import ProceduralGenerator, NoiseType, NoisePreset
+# Add parent to path
+sys.path.insert(0, str(Path(__file__).parents[1]))
+
+from forge_procedural import ProceduralGenerator, NoiseType, NoisePreset
 import numpy as np
 
 

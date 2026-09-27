@@ -5,12 +5,16 @@ Tests for FBX, DDS, MaterialX, and USD handlers
 
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 from typing import Dict, Any
 import numpy as np
 from PIL import Image
 
-from vaultmind_forge.forge_converter.formats import (
+# Add modules to path
+sys.path.insert(0, str(Path(__file__).parents[1]))
+
+from forge_converter.formats import (
     create_registry_with_handlers,
     FBXHandler,
     DDSHandler,

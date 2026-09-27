@@ -10,10 +10,14 @@ Tests:
 6. Prompt enhancement
 """
 
+import sys
 from pathlib import Path
 import unittest
 
-from vaultmind_forge.forge_agents import (
+# Add parent to path
+sys.path.insert(0, str(Path(__file__).parents[1]))
+
+from forge_agents import (
     StyleProfile,
     ParameterRange,
     StyleProfileManager,

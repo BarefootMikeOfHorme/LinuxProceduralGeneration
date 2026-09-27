@@ -5,10 +5,14 @@ Tests for job queue, resource manager, and batch processor
 
 from __future__ import annotations
 
+import sys
 import time
 from pathlib import Path
 
-from vaultmind_forge.forge_batch import (
+# Add modules to path
+sys.path.insert(0, str(Path(__file__).parents[1]))
+
+from forge_batch import (
     JobQueue,
     BatchJob,
     JobPriority,
