@@ -70,7 +70,10 @@ class PathConfig:
         if venv_env := os.getenv("VAULTMIND_VENV_PATH"):
             self.venv_path = Path(venv_env)
         elif self.venv_path is None:
-            for venv_name in [".venv312", ".venv", "venv"]:
+            # `.venv-linux` is included because the validated Ubuntu/WSL2
+            # target uses it. Without it, a WSL2 checkout has no discoverable
+            # environment even though the project ships one.
+            for venv_name in [".venv312", ".venv-linux", ".venv", "venv"]:
                 candidate = self.project_root / venv_name
                 if candidate.exists():
                     self.venv_path = candidate

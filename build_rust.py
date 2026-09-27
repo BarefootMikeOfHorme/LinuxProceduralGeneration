@@ -52,18 +52,17 @@ def build_rust_core(
 
     # Build command
     if use_maturin:
-        # Get maturin from the Python 3.12 venv
-        maturin_exe = project_root / ".venv312" / "Scripts" / "maturin.exe"
-        if not maturin_exe.exists():
-            print(f"Error: maturin not found at {maturin_exe}")
-            print("Install it with: .venv312/Scripts/pip install maturin")
-            return False
-
-        # Maturin build with explicit interpreter
+        # Resolve maturin from the environment the compat handler selected,
+        # rather than assuming a Windows venv layout. The previous lookup was
+        # hardcoded to .venv312/Scripts/maturin.exe, so on WSL2 or Linux it
+        # never resolved and the build could not run at all on the platform
+        # this project targets. get_build_config already prefers a maturin
+        # inside the selected environment and falls back to PATH.
         cmd = [
-            str(maturin_exe), "build",
+            build_config["maturin_command"][0],
+            "build",
             f"--{mode}",
-            "--interpreter", build_config["python_executable"]
+            "--interpreter", build_config["python_executable"],
         ]
     else:
         # Cargo build (for Rust-only components)
@@ -111,7 +110,8 @@ def build_rust_core(
         print(f"Error: Build tool not found: {e}")
         print("\nMake sure you have installed:")
         if use_maturin:
-            print("  pip install maturin")
+            print(f"  maturin, in the selected environment or on PATH:")
+            print(f"    {build_config['python_executable']} -m pip install maturin")
         else:
             print("  Rust toolchain (cargo)")
         return False

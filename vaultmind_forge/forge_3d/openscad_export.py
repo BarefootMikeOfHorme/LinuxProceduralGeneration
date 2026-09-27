@@ -26,6 +26,8 @@ from typing import Union, List, Optional, Tuple
 import subprocess
 import sys
 
+from .openscad_import import _find_openscad
+
 # Import all primitives
 from .primitives_all import (
     Box, Sphere, Cylinder, Cone, Torus, Capsule, Pyramid,
@@ -48,12 +50,16 @@ class OpenSCADExporter:
             openscad_path: Path to OpenSCAD executable (auto-detected if None)
         """
         if openscad_path is None:
-            # Default Windows installation path
-            self.openscad_path = r"C:\Program Files\OpenSCAD\openscad.exe"
+            # Reuse the importer's cross-platform discovery rather than
+            # assuming a Windows install directory. The previous default was a
+            # hardcoded C:\Program Files path, so the exporter reported itself
+            # unavailable on WSL2 and Linux even when OpenSCAD was installed,
+            # while the importer found the same binary correctly.
+            self.openscad_path = _find_openscad()
         else:
             self.openscad_path = openscad_path
 
-        self.openscad_available = Path(self.openscad_path).exists()
+        self.openscad_available = self.openscad_path is not None
 
     def primitive_to_scad(self, primitive, name: str = "object",
                          parametric: bool = True) -> str:

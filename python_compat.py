@@ -7,9 +7,62 @@ import os
 import sys
 import subprocess
 import json
+import shutil
 from pathlib import Path
 from typing import Literal, Optional, Dict, Any
 from dataclasses import dataclass
+
+# Virtualenv directory names to probe, in priority order. The list is
+# deliberately platform-agnostic: the same names are searched on every host and
+# the interpreter layout inside them is resolved per platform by
+# `_interpreter_in_venv` below. `.venv-linux` is first-class because the
+# validated Ubuntu/WSL2 target uses it, not because Linux needs different names.
+VENV_CANDIDATES = (".venv312", ".venv-linux", ".venv", "venv")
+
+# Interpreters to probe on PATH for a non-venv install, newest first.
+PATH_PYTHON_CANDIDATES = ("python3.14", "python3.12")
+
+
+def _interpreter_in_venv(venv_dir: Path) -> Optional[Path]:
+    """
+    Return the interpreter inside a virtualenv directory, for this platform.
+
+    A venv puts executables in `Scripts` on Windows and `bin` on POSIX, and
+    Windows appends `.exe`. Hardcoding either layout means the lookup silently
+    finds nothing on the other platform, which is how a Linux or WSL2 host ends
+    up with no detected environments at all.
+    """
+    if os.name == "nt":
+        relative = (("Scripts", "python.exe"), ("Scripts", "python"))
+    else:
+        relative = (("bin", "python"), ("bin", "python3"))
+
+    for parts in relative:
+        candidate = venv_dir.joinpath(*parts)
+        if candidate.is_file():
+            return candidate
+    return None
+
+
+def _probe_version(executable: Path) -> Optional[str]:
+    """
+    Ask an interpreter for its version as `major.minor`, or None if unusable.
+
+    The version is read from the interpreter rather than inferred from the
+    directory name, so a mislabelled or stale venv cannot claim to be a
+    PyO3-compatible 3.12 when it is something else.
+    """
+    try:
+        result = subprocess.run(
+            [str(executable), "-c", "import sys; print('%d.%d' % sys.version_info[:2])"],
+            capture_output=True,
+            text=True,
+            timeout=30,
+            check=True,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return None
+    return result.stdout.strip() or None
 
 
 @dataclass
@@ -30,72 +83,145 @@ class PythonCompatHandler:
         self.environments = self._detect_environments()
 
     def _detect_environments(self) -> Dict[str, PythonEnvironment]:
-        """Detect and configure available Python environments"""
-        envs = {}
+        """
+        Detect and configure available Python environments.
 
-        # Python 3.12 (PyO3 compatible, production)
-        py312_path = self.project_root / ".venv312" / "Scripts" / "python.exe"
-        if py312_path.exists():
-            envs["3.12"] = PythonEnvironment(
-                version="3.12",
-                executable=py312_path,
-                venv_path=self.project_root / ".venv312",
-                use_case="Rust bindings (PyO3), production builds, stable features",
-                pyo3_compatible=True
+        An explicit VAULTMIND_VENV_PATH wins, then the running interpreter if it
+        is already a suitable virtualenv, then the known venv directory names,
+        then PATH. Every candidate is resolved through
+        `_interpreter_in_venv`, so the same code works on Windows and on
+        WSL2/Linux rather than only on the platform the venv was created on.
+        """
+        envs: Dict[str, PythonEnvironment] = {}
+
+        def register(executable: Path, venv_path: Optional[Path], use_case: str) -> None:
+            version = _probe_version(executable)
+            if version is None:
+                return
+            # First environment found for a version wins, so the priority
+            # order below decides the answer rather than dict ordering.
+            if version in envs:
+                return
+            envs[version] = PythonEnvironment(
+                version=version,
+                executable=executable,
+                venv_path=venv_path,
+                use_case=use_case,
+                # PyO3 0.22 does not support 3.14; 3.12 is the supported build
+                # target. Derived from the probed version so this stays true if
+                # the toolchain moves, instead of hardcoding one version.
+                pyo3_compatible=version == "3.12",
             )
 
-        # Python 3.14 (cutting-edge, experimental)
-        py314_path = Path(r"C:\Python314\python.exe")
-        if py314_path.exists():
-            envs["3.14"] = PythonEnvironment(
-                version="3.14",
-                executable=py314_path,
-                venv_path=None,
-                use_case="Experimental features, latest Python capabilities",
-                pyo3_compatible=False  # Not yet supported by PyO3
+        # 1. Explicit override, same env var config.py already honours.
+        override = os.getenv("VAULTMIND_VENV_PATH")
+        if override:
+            venv_dir = Path(override)
+            found = _interpreter_in_venv(venv_dir)
+            if found is not None:
+                register(found, venv_dir, "Explicit VAULTMIND_VENV_PATH override")
+
+        # 2. The interpreter running this code, when it is already a venv.
+        # This is the common case during a build and avoids depending on a
+        # directory name at all.
+        if sys.prefix != sys.base_prefix:
+            register(
+                Path(sys.executable),
+                Path(sys.prefix),
+                "Currently active virtualenv",
             )
+
+        # 3. Known venv directories, in priority order.
+        for venv_name in VENV_CANDIDATES:
+            venv_dir = self.project_root / venv_name
+            if not venv_dir.is_dir():
+                continue
+            found = _interpreter_in_venv(venv_dir)
+            if found is not None:
+                register(found, venv_dir, "Rust bindings (PyO3), production builds, stable features")
+
+        # 4. PATH interpreters, for hosts using a system or pyenv install with
+        # no project venv. This replaces a hardcoded C:\\Python314 path that
+        # could only ever be true on one machine.
+        for name in PATH_PYTHON_CANDIDATES:
+            found = shutil.which(name)
+            if found:
+                register(
+                    Path(found),
+                    None,
+                    "Interpreter found on PATH",
+                )
 
         return envs
 
+    def _version_key(self, version: str) -> tuple:
+        """Sort key for '3.9' < '3.10' < '3.14'. Plain string compare gets
+        that ordering wrong, which would make 3.9 look newer than 3.12."""
+        try:
+            parts = version.split(".")
+            return (int(parts[0]), int(parts[1]) if len(parts) > 1 else 0)
+        except (ValueError, IndexError):
+            return (0, 0)
+
     def get_environment(
         self,
-        version: Optional[Literal["3.12", "3.14"]] = None,
+        version: Optional[str] = None,
         purpose: Optional[Literal["pyo3", "rust", "general", "experimental"]] = None
     ) -> PythonEnvironment:
         """
         Get appropriate Python environment based on version or purpose
 
         Args:
-            version: Specific version to use ("3.12" or "3.14")
-            purpose: Use case ("pyo3"/"rust" -> 3.12, "experimental" -> 3.14, "general" -> auto)
+            version: Specific version to use, e.g. "3.12"
+            purpose: Use case ("pyo3"/"rust" -> PyO3-compatible, "experimental"
+                -> newest available, "general" -> PyO3-compatible then newest)
 
         Returns:
             PythonEnvironment configuration
+
+        Selection is derived from the probed `pyo3_compatible` flag and the
+        actual detected versions, not from hardcoded "3.12"/"3.14" keys, so it
+        keeps working when the toolchain moves to a new version.
         """
+        if not self.environments:
+            searched = ", ".join(VENV_CANDIDATES)
+            raise RuntimeError(
+                "No Python environment found. Searched virtualenv directories "
+                f"[{searched}] under {self.project_root}, the active "
+                "interpreter, and PATH. Create one, or point "
+                "VAULTMIND_VENV_PATH at an existing environment."
+            )
+
         if version:
             if version not in self.environments:
-                raise ValueError(f"Python {version} not available. Available: {list(self.environments.keys())}")
+                raise ValueError(
+                    f"Python {version} not available. "
+                    f"Available: {sorted(self.environments, key=self._version_key)}"
+                )
             return self.environments[version]
 
-        # Auto-select based on purpose
+        newest = max(
+            self.environments.values(), key=lambda e: self._version_key(e.version)
+        )
+
+        if purpose == "experimental":
+            return newest
+
+        # PyO3 builds need a compatible interpreter. This is also the default
+        # choice, because a PyO3-compatible interpreter is the one that can
+        # build and run the native core.
+        for env in self.environments.values():
+            if env.pyo3_compatible:
+                return env
+
         if purpose in ("pyo3", "rust"):
-            # PyO3 requires compatible version
-            for env in self.environments.values():
-                if env.pyo3_compatible:
-                    return env
-            raise RuntimeError("No PyO3-compatible Python environment found")
+            raise RuntimeError(
+                "No PyO3-compatible Python environment found. PyO3 0.22 requires "
+                f"Python 3.12. Detected: "
+                f"{sorted(self.environments, key=self._version_key)}"
+            )
 
-        elif purpose == "experimental":
-            # Prefer latest version
-            if "3.14" in self.environments:
-                return self.environments["3.14"]
-
-        # Default: prefer stable (3.12)
-        if "3.12" in self.environments:
-            return self.environments["3.12"]
-
-        # Fallback to any available
-        return next(iter(self.environments.values()))
+        return newest
 
     def run_command(
         self,
@@ -122,9 +248,12 @@ class PythonCompatHandler:
         if command[0] in ("python", "python.exe"):
             command[0] = str(env.executable)
 
-        # Set environment variables for PyO3 if needed
+        # Set environment variables for PyO3 if needed. Keyed off the resolved
+        # environment's compatibility flag rather than a hardcoded version
+        # string, so an explicitly requested 3.12 is covered even when no
+        # purpose was given.
         env_vars = os.environ.copy()
-        if purpose in ("pyo3", "rust") or version == "3.12":
+        if purpose in ("pyo3", "rust") or env.pyo3_compatible:
             env_vars["PYO3_PYTHON"] = str(env.executable)
 
         return subprocess.run(command, env=env_vars, **kwargs)
@@ -151,8 +280,23 @@ class PythonCompatHandler:
         }
 
         if for_rust:
+            # Prefer a maturin that lives in the selected environment, so the
+            # build uses the same interpreter it will be installed into.
+            # `maturin` is still the fallback for a host that installs it
+            # globally or on PATH. Resolution is platform-aware: a Windows venv
+            # has Scripts/maturin.exe, a POSIX one bin/maturin.
+            local_maturin = None
+            if env.venv_path is not None:
+                if os.name == "nt":
+                    local_maturin = env.venv_path / "Scripts" / "maturin.exe"
+                else:
+                    local_maturin = env.venv_path / "bin" / "maturin"
+                if not local_maturin.is_file():
+                    local_maturin = None
+
+            maturin = str(local_maturin) if local_maturin else (shutil.which("maturin") or "maturin")
             config["maturin_command"] = [
-                "maturin", "build", "--release",
+                maturin, "build", "--release",
                 "--interpreter", str(env.executable)
             ]
 
