@@ -222,6 +222,11 @@ class DistributedExecutor:
         # Locks
         self.queue_lock = asyncio.Lock()
         self.worker_lock = asyncio.Lock()
+        # Guards the assignment bookkeeping only, and is held for the shortest
+        # possible time. It is separate from queue_lock because task execution
+        # happens outside queue_lock but still needs assignment state to be
+        # consistent, and those two concerns nest differently.
+        self.assignment_lock = asyncio.Lock()
 
     async def initialize(self) -> None:
         """
@@ -358,36 +363,47 @@ class DistributedExecutor:
 
     async def _assign_tasks(self) -> None:
         """
-        Assign tasks to workers using load balancing strategy
+        Assign queued tasks to workers using the load balancing strategy.
 
-        Rembrandt delegating to skilled assistants
+        Locking note, because this function is the reason the executor used to
+        deadlock. The lock is taken in short, narrow sections rather than held
+        across the whole body. Executing a task is an await, and holding
+        queue_lock across it means any nested call that wants the same lock
+        waits on a lock its own caller already holds. asyncio.Lock is not
+        reentrant, so that wait never completes.
+
+        Previously the entire body ran inside one `async with self.queue_lock`,
+        and _execute_task_on_worker called back into this function, which is a
+        guaranteed self-deadlock. The fix is to hold the lock only while reading
+        and mutating the queue, and to do worker selection and execution outside
+        it. _select_worker takes worker_lock, which is a different lock, so
+        there is no ordering problem between the two.
         """
-        async with self.queue_lock:
-            if not self.task_queue:
-                return
+        while True:
+            # Claim one task under the lock, then release it.
+            async with self.queue_lock:
+                if not self.task_queue:
+                    return
 
-            assigned_count = 0
-
-            while self.task_queue:
                 queue_item = self.task_queue[0]
                 task = queue_item.task
 
-                # Find best worker for this task
-                worker = await self._select_worker(task)
+            # Worker selection and execution happen without queue_lock held.
+            # _select_worker acquires worker_lock itself.
+            worker = await self._select_worker(task)
 
-                if not worker:
-                    # No available workers, wait
-                    break
+            if not worker:
+                # No worker can take this task right now. Stop rather than spin;
+                # the next submit or completion re-enters this loop.
+                return
 
-                # Remove from queue
+            async with self.queue_lock:
+                # Re-check: the task may have been claimed while unlocked.
+                if not self.task_queue or self.task_queue[0].task.id != task.id:
+                    continue
                 self.task_queue.pop(0)
 
-                # Assign to worker
-                await self._assign_task_to_worker(worker, task)
-                assigned_count += 1
-
-            if assigned_count > 0:
-                console.print(f"[cyan]Assigned {assigned_count} tasks to workers[/cyan]")
+            await self._assign_task_to_worker(worker, task)
 
     async def _select_worker(self, task: Task) -> Optional[Worker]:
         """
@@ -481,8 +497,15 @@ class DistributedExecutor:
         return worker
 
     async def _assign_task_to_worker(self, worker: Worker, task: Task) -> None:
-        """Assign task to worker"""
-        self.task_assignments[task.id] = worker.id
+        """
+        Assign task to worker.
+
+        Called with queue_lock NOT held. That is required: this method awaits
+        task execution, and execution re-enters the assignment loop, so holding
+        the queue lock across it deadlocks against itself.
+        """
+        async with self.assignment_lock:
+            self.task_assignments[task.id] = worker.id
 
         # Update worker
         if worker.current_task is None:
@@ -551,8 +574,24 @@ class DistributedExecutor:
             else:
                 worker.status = WorkerStatus.IDLE
 
-            # Try to assign more tasks
-            await self._assign_tasks()
+        # Scheduling the next task happens here, outside the `finally` block
+        # and outside this method's call into _assign_tasks.
+        #
+        # It used to sit at the end of the finally block as
+        # `await self._assign_tasks()`, which is a self-deadlock. The call path
+        # is submit_task -> _assign_tasks -> _assign_task_to_worker ->
+        # _execute_task_on_worker -> _assign_tasks. The outer _assign_tasks
+        # holds self.queue_lock for its whole body, and asyncio.Lock is not
+        # reentrant, so the inner call waited forever for a lock its own
+        # caller already held. The task completed, the worker was marked idle,
+        # and then submit_task never returned. That is why the four
+        # submit/execute tests hung rather than failed: the work was correct and
+        # only the return path was stuck.
+        #
+        # _assign_tasks is also the function that acquires the lock, so calling
+        # it from a path that is already inside it can never be correct. It is
+        # now called only by submit_task, which is outside the lock.
+        await self._assign_tasks()
 
     async def _health_monitor_loop(self) -> None:
         """

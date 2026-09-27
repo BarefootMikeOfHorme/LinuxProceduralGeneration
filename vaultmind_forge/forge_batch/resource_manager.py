@@ -255,8 +255,16 @@ class ResourceManager:
         """
         resources = self.get_system_resources()
 
-        # Check GPU memory
+        # Check GPU memory.
+        #
+        # When no GPU is present at all, the requirement is not satisfiable, so
+        # refusing is correct: a job that genuinely needs 8 GB of VRAM cannot
+        # run on CPU. What the scheduler must not do is sit in a silent retry
+        # loop, which is why that refusal is reported through
+        # explain_allocation_failure rather than returning a bare False.
         if requirements.gpu_memory_gb > 0:
+            if not resources.gpus:
+                return False
             gpu_ok = any(
                 gpu.free_memory_gb >= requirements.gpu_memory_gb
                 for gpu in resources.gpus
@@ -277,6 +285,57 @@ class ResourceManager:
             return False
 
         return True
+
+    def explain_allocation_failure(
+        self,
+        requirements: ResourceRequirements
+    ) -> Optional[str]:
+        """
+        Return why can_allocate would refuse, or None if it would succeed.
+
+        can_allocate returning False is indistinguishable between "try again in
+        a moment" and "this can never succeed on this host". A scheduler that
+        only sees False cannot tell them apart, so it retries forever. This
+        makes the permanent case nameable: no GPU present while the job wants
+        VRAM, or a single request larger than total system RAM.
+        """
+        resources = self.get_system_resources()
+
+        if requirements.gpu_memory_gb > 0 and not resources.gpus:
+            return (
+                f"job requires {requirements.gpu_memory_gb} GB of GPU memory but "
+                "no GPU is visible to this process; the job cannot be scheduled "
+                "here. Set generation_params={'prefer_gpu': False} to run it on "
+                "CPU, or run on a host with a GPU."
+            )
+
+        if requirements.gpu_memory_gb > 0:
+            best = max((gpu.free_memory_gb for gpu in resources.gpus), default=0.0)
+            if best < requirements.gpu_memory_gb:
+                return (
+                    f"job requires {requirements.gpu_memory_gb} GB of GPU memory "
+                    f"but the most free GPU has {round(best, 2)} GB"
+                )
+
+        if requirements.ram_gb > resources.ram_total_gb:
+            return (
+                f"job requires {requirements.ram_gb} GB RAM but the machine has "
+                f"{round(resources.ram_total_gb, 2)} GB total"
+            )
+
+        if requirements.cpu_cores > resources.cpu_cores_total:
+            return (
+                f"job requires {requirements.cpu_cores} CPU cores but the machine "
+                f"has {resources.cpu_cores_total}"
+            )
+
+        if requirements.disk_space_gb > resources.disk_available_gb:
+            return (
+                f"job requires {requirements.disk_space_gb} GB disk but only "
+                f"{round(resources.disk_available_gb, 2)} GB is available"
+            )
+
+        return None
 
     def allocate_gpu(self, requirements: ResourceRequirements) -> Optional[int]:
         """
@@ -389,6 +448,17 @@ class ResourceManager:
         """
         Estimate resource requirements for a job.
 
+        GPU memory is derived from the actual GPUs present rather than assumed.
+        A fixed 8 GB floor was wrong in both directions: on a host with a GPU
+        smaller than 8 GB every job was permanently unschedulable, and on a host
+        with no GPU at all the same constant made can_allocate refuse forever,
+        so a batch sat at pending until an external timeout ended it.
+
+        `prefer_gpu` selects the back end. When false, the requirement is CPU
+        only and gpu_memory_gb is 0, which can_allocate already treats as "no
+        GPU needed". Callers that know the work is CPU-viable should say so
+        rather than relying on the absence of a GPU being tolerated.
+
         Args:
             prompt: Generation prompt
             output_type: Output type (character, environment, etc.)
@@ -400,26 +470,22 @@ class ResourceManager:
         """
         params = generation_params or {}
 
-        # Base requirements
-        gpu_memory = 8.0
+        width = params.get('width', 512)
+        height = params.get('height', 512)
+        steps = params.get('steps', 30)
+        pixel_count = int(width) * int(height)
+
+        # The diffusion base images at 512x512, so that is the reference size
+        # and scales from there. No hard minimum: the size is a property of the
+        # request, not a floor imposed on the host.
+        reference_pixels = 512 * 512
+        gpu_memory = round(8.0 * (pixel_count / reference_pixels), 2)
+        gpu_memory = max(gpu_memory, 0.25)
+
         cpu_cores = 4
         ram = 16.0
         disk_space = 10.0
         duration = 60
-
-        # Adjust based on parameters
-        width = params.get('width', 512)
-        height = params.get('height', 512)
-        steps = params.get('steps', 30)
-
-        # GPU memory scales with resolution
-        pixel_count = width * height
-        if pixel_count > 512 * 512:
-            gpu_memory = 10.0
-        if pixel_count > 768 * 768:
-            gpu_memory = 12.0
-        if pixel_count > 1024 * 1024:
-            gpu_memory = 16.0
 
         # More steps = more time
         if steps > 50:
@@ -436,13 +502,33 @@ class ResourceManager:
             ram *= 1.2
             duration = int(duration * 1.5)
 
+        if not self._gpu_is_usable(params):
+            # Either no GPU is present, or the caller explicitly asked for CPU.
+            # Report no GPU requirement rather than an unsatisfiable one.
+            gpu_memory = 0.0
+            # CPU inference needs more host RAM than a small model on a GPU,
+            # and a small slice of it is returned to the pool for a moment.
+            ram = max(ram, 4.0)
+            cpu_cores = max(cpu_cores, 2)
+
         return ResourceRequirements(
-            gpu_memory_gb=gpu_memory,
+            gpu_memory_gb=round(gpu_memory, 2),
             cpu_cores=cpu_cores,
             ram_gb=ram,
             disk_space_gb=disk_space,
             max_duration_minutes=duration
         )
+
+    def _gpu_is_usable(self, params: Dict[str, Any]) -> bool:
+        """
+        Whether GPU memory should be requested for this job.
+
+        False when the caller set prefer_gpu=False in generation_params, or when
+        no GPU is visible to this process.
+        """
+        if params.get('prefer_gpu') is False:
+            return False
+        return bool(self.get_all_gpu_status())
 
     # ========================================================================
     # Monitoring and Health Checks

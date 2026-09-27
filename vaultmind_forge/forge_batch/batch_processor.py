@@ -218,7 +218,14 @@ class BatchProcessor:
 
         # Check if resources available
         if not self.resource_manager.can_allocate(requirements):
-            logger.debug("Insufficient resources, waiting...")
+            # Distinguish "not yet" from "never". can_allocate returning False
+            # for a permanent condition made this loop spin silently, leaving
+            # every job pending until some external timeout ended the run.
+            permanent = self.resource_manager.explain_allocation_failure(requirements)
+            if permanent:
+                self._fail_unschedulable(job, permanent)
+            else:
+                logger.debug("Insufficient resources, waiting...")
             return
 
         # Allocate resources
@@ -249,6 +256,19 @@ class BatchProcessor:
         worker_thread.start()
 
         logger.info(f"Worker {worker_id} started for job {job.id}")
+
+    def _fail_unschedulable(self, job: BatchJob, reason: str) -> None:
+        """
+        Mark a job failed because it can never run on this host.
+
+        Retrying is pointless when the cause is a missing or too-small GPU, and
+        `mark_failed(can_retry=True)` would put the job straight back in the
+        queue. It is marked non-retryable so the batch terminates with a stated
+        reason instead of stalling.
+        """
+        logger.error("Job %s cannot be scheduled: %s", job.id, reason)
+        self.queue.mark_failed(job.id, f"unschedulable: {reason}", can_retry=False)
+        self._emit_progress(job.id, 0.0, f"Cannot schedule: {reason}")
 
     def _worker_loop(
         self,

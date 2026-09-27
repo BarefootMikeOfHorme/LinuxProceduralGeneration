@@ -76,24 +76,6 @@ def build_rust_core(
 
     # Execute build
     try:
-        # Reading the child's output as UTF-8 is only half the problem. Printing
-        # it is the other half: on a Windows console Python encodes stdout with
-        # the active code page, and cargo's diagnostics contain characters that
-        # cp1252 cannot represent, such as the U+1F517 wrench it uses to mark an
-        # error. Printing the captured stderr then raised UnicodeEncodeError
-        # from inside the failure handler, so a real build failure reported as a
-        # crash in this script rather than as a build error.
-        #
-        # Reconfiguring to UTF-8 with replacement keeps the diagnostics readable
-        # instead of mangled or fatal. Done here rather than at import so the
-        # module stays importable in contexts where stdout is redirected.
-        for stream in (sys.stdout, sys.stderr):
-            try:
-                stream.reconfigure(encoding="utf-8", errors="replace")
-            except (AttributeError, ValueError):
-                # Not a TextIOBase, or already detached. Nothing to fix.
-                pass
-
         result = subprocess.run(
             cmd,
             cwd=rust_core_dir,

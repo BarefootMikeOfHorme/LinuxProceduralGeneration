@@ -13,7 +13,63 @@ from dataclasses import dataclass, field
 from enum import Enum
 from datetime import datetime
 
-# Add modules to path
+# Canonical generation output types, mapped to their directory name under
+# assets/generated/diffusion. Both the plural key and the singular alias
+# resolve to the same directory, so callers may use whichever reads naturally.
+GENERATED_SUBCATEGORIES: Dict[str, str] = {
+    "textures": "textures",
+    "models": "models",
+    "materials": "materials",
+    "animations": "animations",
+    "environments": "environments",
+    "characters": "characters",
+    "props": "props",
+    "weapons": "weapons",
+    "effects": "effects",
+    "audio": "audio",
+    "standard": "standard",
+}
+
+# Which canonical names have a distinct singular form. Declared rather than
+# derived by stripping a trailing "s": that rule is a guess about English, and
+# it silently produces "ga" for a type named "gas" or "len" for "lens". The two
+# names that are already singular (audio, standard) are simply absent here,
+# because their own name is the singular.
+SINGULAR_FORMS: Dict[str, str] = {
+    "textures": "texture",
+    "models": "model",
+    "materials": "material",
+    "animations": "animation",
+    "environments": "environment",
+    "characters": "character",
+    "props": "prop",
+    "weapons": "weapon",
+    "effects": "effect",
+}
+
+# Fail loudly at import if the two tables disagree, rather than letting a
+# singular alias point at a type that was renamed or removed.
+_unknown = set(SINGULAR_FORMS) - set(GENERATED_SUBCATEGORIES)
+if _unknown:  # pragma: no cover - guards a developer edit, not runtime input
+    raise RuntimeError(
+        "SINGULAR_FORMS references canonical names that do not exist in "
+        f"GENERATED_SUBCATEGORIES: {sorted(_unknown)}"
+    )
+
+# alias -> canonical, built once so both lookup forms resolve from one source.
+SINGULAR_ALIASES: Dict[str, str] = {alias: name for name, alias in SINGULAR_FORMS.items()}
+
+
+def _generated_subcategory_paths(base_path: Path) -> Dict[str, Path]:
+    """Build the generated-output path map, including singular aliases."""
+    root = base_path / "generated" / "diffusion"
+    paths: Dict[str, Path] = {
+        name: root / directory for name, directory in GENERATED_SUBCATEGORIES.items()
+    }
+    for alias, canonical in SINGULAR_ALIASES.items():
+        paths[alias] = paths[canonical]
+    return paths
+
 
 # Configure logging
 logging.basicConfig(
@@ -227,22 +283,21 @@ class AssetPipeline:
 
         # Define structured output paths for different asset types
         self.paths = {
-            # Generation outputs by type
+            # Generation outputs by type.
+            #
+            # Every asset type accepts both the plural canonical name and the
+            # singular form. Previously only environments, characters and
+            # weapons had singular aliases, so "texture", "model", "prop",
+            # "effect", "material" and "animation" were rejected while their
+            # plural counterparts worked. That inconsistency was not a
+            # contract, it was three hand-added aliases, and callers using the
+            # natural singular form got
+            # "Unknown subcategory 'texture' in 'generated'" at generation
+            # time. All singulars are now generated from the canonical set
+            # below rather than listed by hand, so the two forms cannot drift
+            # apart again.
             'generated': {
-                'textures': self.base_path / "generated" / "diffusion" / "textures",
-                'models': self.base_path / "generated" / "diffusion" / "models",
-                'materials': self.base_path / "generated" / "diffusion" / "materials",
-                'animations': self.base_path / "generated" / "diffusion" / "animations",
-                'environments': self.base_path / "generated" / "diffusion" / "environments",
-                'environment': self.base_path / "generated" / "diffusion" / "environments",  # Alias
-                'characters': self.base_path / "generated" / "diffusion" / "characters",
-                'character': self.base_path / "generated" / "diffusion" / "characters",  # Alias
-                'props': self.base_path / "generated" / "diffusion" / "props",
-                'weapons': self.base_path / "generated" / "diffusion" / "weapons",
-                'weapon': self.base_path / "generated" / "diffusion" / "weapons",  # Alias
-                'effects': self.base_path / "generated" / "diffusion" / "effects",
-                'audio': self.base_path / "generated" / "diffusion" / "audio",
-                'standard': self.base_path / "generated" / "diffusion" / "standard"
+                **_generated_subcategory_paths(self.base_path)
             },
             # Validation outputs
             'validated': {
