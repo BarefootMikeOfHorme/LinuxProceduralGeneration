@@ -5,45 +5,66 @@ Integrates AIDecisionEngine with quality validation for autonomous decision-maki
 
 from __future__ import annotations
 
-import sys
+import logging
 from pathlib import Path
-from typing import Dict, Optional, Tuple, Any
+from typing import Dict, Optional, Any
 from dataclasses import dataclass
 from enum import Enum
 
-# Add forge_converter to path for AI control
+# Inert note, kept deliberately rather than deleted. These two were imported
+# but unreferenced. They are recorded so the intent is not lost and so whoever
+# needs them does not rediscover that the import was already considered.
+#
+# sys    - LPG has real Windows/WSL divergence, so platform detection is a
+#          genuine need in this codebase, not a hypothetical one. Known
+#          instances today: al1scan.exe vs al1scan (forge_l1.py), the cp1252
+#          console workaround, Scripts/ vs bin/ venv layout, and the
+#          ProgramFiles-based OpenSCAD/FreeCAD discovery. If this validator
+#          ever needs to report or branch on the host platform, sys.platform is
+#          the hook; sys.executable is the other likely one, for locating the
+#          interpreter actually running validation.
+#          This module needs neither today: it does PIL/numpy/scipy arithmetic
+#          on a caller-supplied Path, with no subprocess, no binary lookup and
+#          no path construction, so it has nothing to branch on.
+# Tuple  - held for the case where a metric accessor grows a multi-value
+#          return (score plus the reason it failed, say) where a heterogeneous
+#          shape reads better than a dataclass. Not used today.
+#
+# import sys
+# from typing import Tuple
 
-try:
-    from ..forge_converter.ai_control import (
-        AIDecisionEngine,
-        AuthorityLevel,
-        DecisionOutcome,
-        QualityMetrics as AIQualityMetrics
-    )
-except ImportError:
-    from forge_converter.ai_control import (
-        AIDecisionEngine,
-        AuthorityLevel,
-        DecisionOutcome,
-        QualityMetrics as AIQualityMetrics
-    )
+# numpy, Pillow and scipy are declared core dependencies in pyproject.toml.
+# They are imported here, once, at module scope rather than re-imported inside
+# each scoring method. The previous per-method imports sat inside try blocks
+# whose handlers returned fixed mid-range scores, so any failure to import a
+# core dependency silently degraded the validator into one that approved
+# everything. A missing core dependency is an environment fault and belongs at
+# import time, where it is visible.
+import numpy as np
+from PIL import Image, UnidentifiedImageError
+from scipy import ndimage
+
+logger = logging.getLogger(__name__)
+
+from ..forge_converter.ai_control import (
+    AIDecisionEngine,
+    AuthorityLevel,
+    DecisionOutcome,
+    QualityMetrics as AIQualityMetrics
+)
 from .validator import Validator, ValidationResult
 
-# Import metrics functions carefully - some are in metrics.py, others need to be computed
-try:
-    from .metrics import (
-        anatomy_score,
-        prompt_alignment_score,
-        consistency_score
-    )
-except ImportError:
-    # Fallback implementations if metrics not available
-    def anatomy_score(asset_path):
-        return 0.7
-    def prompt_alignment_score(asset_path, prompt=None):
-        return 0.7
-    def consistency_score(asset_path, reference=None):
-        return 0.8
+# These metrics are built on numpy and Pillow, both declared as core
+# dependencies in pyproject.toml. There is no legitimate state in which they
+# are unavailable, so the import is direct and a failure is reported rather
+# than absorbed. The previous guard substituted constant scores here, which
+# meant a broken install produced a validator that passed every asset with a
+# fabricated 0.7 instead of failing.
+from .metrics import (
+    anatomy_score,
+    prompt_alignment_score,
+    consistency_score
+)
 
 
 class ValidationDecision(Enum):
@@ -174,36 +195,55 @@ class AIValidator:
         """
         Compute comprehensive quality metrics for AI decision
         """
-        # Get individual metric scores from validation checks first
-        sharpness = validation.checks.get("sharpness", 0.0)
-        anatomy = validation.checks.get("anatomy", 0.0)
-        prompt_align = validation.checks.get("prompt_alignment", 0.0)
-        color_fid = validation.checks.get("color_fidelity", 0.0)
+        # Get individual metric scores from validation checks first.
+        # `None` means "the validator did not report this check"; 0.0 is a
+        # real, meaningful score. The previous code used `== 0.0` as the
+        # absent-test sentinel, so a genuine zero was indistinguishable from
+        # a missing check and got silently recomputed.
+        sharpness = validation.checks.get("sharpness")
+        anatomy = validation.checks.get("anatomy")
+        prompt_align = validation.checks.get("prompt_alignment")
+        color_fid = validation.checks.get("color_fidelity")
 
-        # If not in validation checks, compute them
-        if sharpness == 0.0:
+        # If the validator did not report a check, compute it here. An
+        # unexpected failure leaves the metric at 0.0 and is logged. It is not
+        # defaulted to 0.5: that is a passing score, and a crash inside a
+        # metric is not evidence that the asset is average.
+        if sharpness is None:
             try:
                 sharpness = self._compute_sharpness(asset_path)
-            except:
-                sharpness = 0.5
+            except Exception as exc:
+                logger.warning("sharpness computation raised for %s: %s", asset_path, exc)
+                sharpness = 0.0
 
-        if anatomy == 0.0:
+        if anatomy is None:
             try:
                 anatomy = float(anatomy_score(asset_path))
-            except:
-                anatomy = 0.5
+            except Exception as exc:
+                logger.warning("anatomy computation raised for %s: %s", asset_path, exc)
+                anatomy = 0.0
 
-        if prompt_align == 0.0 and prompt:
+        if prompt_align is None and prompt:
             try:
                 prompt_align = float(prompt_alignment_score(asset_path, prompt))
-            except:
-                prompt_align = 0.5
+            except Exception as exc:
+                logger.warning("prompt alignment computation raised for %s: %s", asset_path, exc)
+                prompt_align = 0.0
 
-        if color_fid == 0.0:
+        if color_fid is None:
             try:
                 color_fid = self._compute_color_fidelity(asset_path)
-            except:
-                color_fid = 0.5
+            except Exception as exc:
+                logger.warning("color fidelity computation raised for %s: %s", asset_path, exc)
+                color_fid = 0.0
+
+        # prompt_alignment is only measurable when a prompt was supplied, so it
+        # is the one metric that can still be absent here. Resolve it to 0.0
+        # explicitly rather than passing None into the metrics contract, and
+        # coerce the rest so a caller that stored ints or Decimals upstream
+        # still gets a clean float.
+        if prompt_align is None:
+            prompt_align = 0.0
 
         # Artifact detection (simple heuristic)
         artifact_score = self._detect_artifacts(asset_path)
@@ -215,55 +255,48 @@ class AIValidator:
         overall = validation.score
 
         return AIQualityMetrics(
-            sharpness=sharpness,
-            anatomy=anatomy,
-            prompt_alignment=prompt_align,
-            color_fidelity=color_fid,
-            artifact_score=artifact_score,
-            consistency=consistency_val,
-            overall_score=overall
+            sharpness=float(sharpness),
+            anatomy=float(anatomy),
+            prompt_alignment=float(prompt_align),
+            color_fidelity=float(color_fid),
+            artifact_score=float(artifact_score),
+            consistency=float(consistency_val),
+            overall_score=float(overall)
         )
 
     def _compute_sharpness(self, asset_path: Path) -> float:
         """
-        Compute sharpness score using Laplacian variance
+        Compute sharpness score using Laplacian variance.
+
+        An asset that cannot be read or decoded scores 0.0 and is logged.
+        It does not score a mid-range default: this is a quality gate, and a
+        file the validator cannot measure has not been shown to be good.
         """
         try:
-            from PIL import Image
-            import numpy as np
-
             with Image.open(asset_path) as img:
                 gray = np.array(img.convert("L"), dtype=np.float32) / 255.0
 
-            # Laplacian variance (sharpness metric)
-            try:
-                from scipy import ndimage
-                laplacian = ndimage.laplace(gray)
-                sharpness = float(np.var(laplacian)) / 1000.0
-                return np.clip(sharpness, 0.0, 1.0)
-            except ImportError:
-                # Simple gradient-based sharpness if scipy not available
-                gx = np.gradient(gray, axis=1)
-                gy = np.gradient(gray, axis=0)
-                gradient_magnitude = np.sqrt(gx**2 + gy**2)
-                sharpness = float(np.mean(gradient_magnitude))
-                return min(sharpness * 3.0, 1.0)  # Scale to 0-1
-        except:
-            return 0.5
+            laplacian = ndimage.laplace(gray)
+            sharpness = float(np.var(laplacian)) / 1000.0
+            return float(np.clip(sharpness, 0.0, 1.0))
+        except (OSError, UnidentifiedImageError, ValueError) as exc:
+            # Unreadable or corrupt input. Scored as a failure on purpose.
+            logger.warning("sharpness unmeasurable for %s: %s", asset_path, exc)
+            return 0.0
 
     def _compute_color_fidelity(self, asset_path: Path) -> float:
         """
-        Compute color fidelity score
+        Compute color fidelity score.
+
+        Returns 0.0 for an unreadable asset, with the reason logged, rather
+        than a passing default that would let a corrupt file through.
         """
         try:
-            from PIL import Image
-            import numpy as np
-
             with Image.open(asset_path) as img:
                 arr = np.array(img.convert("RGB"), dtype=np.float32) / 255.0
 
             # Check color distribution
-            r, g, b = arr[:,:,0], arr[:,:,1], arr[:,:,2]
+            r, g, b = arr[:, :, 0], arr[:, :, 1], arr[:, :, 2]
 
             # Good color fidelity means balanced channels and no clipping
             balance_score = 1.0 - abs(np.mean(r) - 0.5) - abs(np.mean(g) - 0.5) - abs(np.mean(b) - 0.5)
@@ -278,18 +311,19 @@ class AIValidator:
             # Combine scores
             color_fid = (balance_score * 0.6 + clipping_score * 0.4)
             return float(np.clip(color_fid, 0.0, 1.0))
-        except:
-            return 0.7
+        except (OSError, UnidentifiedImageError, ValueError) as exc:
+            logger.warning("color fidelity unmeasurable for %s: %s", asset_path, exc)
+            return 0.0
 
     def _detect_artifacts(self, asset_path: Path) -> float:
         """
         Simple artifact detection
         Returns score where 1.0 = no artifacts, 0.0 = severe artifacts
+
+        An unreadable asset returns 0.0 and is logged, rather than the 0.7
+        default that previously let undecodable files pass artifact scoring.
         """
         try:
-            from PIL import Image
-            import numpy as np
-
             with Image.open(asset_path) as img:
                 arr = np.array(img.convert("RGB"), dtype=np.float32) / 255.0
 
@@ -307,8 +341,9 @@ class AIValidator:
             artifact_score *= (1.0 - min(variance * 2.0, 0.5))
 
             return float(np.clip(artifact_score, 0.0, 1.0))
-        except:
-            return 0.7  # Default if detection fails
+        except (OSError, UnidentifiedImageError, ValueError) as exc:
+            logger.warning("artifact detection failed for %s: %s", asset_path, exc)
+            return 0.0
 
     def _compute_consistency(
         self,
@@ -318,14 +353,15 @@ class AIValidator:
         """
         Compute style consistency with reference images
         Returns score where 1.0 = highly consistent, 0.0 = inconsistent
+
+        An unreadable asset returns 0.0 and is logged, rather than the 0.8
+        default that previously reported near-perfect consistency for a file
+        that could not be opened.
         """
         if not reference_images:
             return 1.0  # No references = perfect consistency
 
         try:
-            from PIL import Image
-            import numpy as np
-
             # Load asset
             with Image.open(asset_path) as asset_img:
                 asset_img_resized = asset_img.convert("RGB").resize((256, 256))
@@ -351,16 +387,15 @@ class AIValidator:
 
             if similarities:
                 consistency = float(np.mean(similarities))
-                return np.clip(consistency, 0.0, 1.0)
+                return float(np.clip(consistency, 0.0, 1.0))
             else:
                 return 1.0
-        except:
-            return 0.8  # Default if consistency check fails
+        except (OSError, UnidentifiedImageError, ValueError) as exc:
+            logger.warning("consistency unmeasurable for %s: %s", asset_path, exc)
+            return 0.0
 
-    def _compute_color_histogram(self, img_array: 'np.ndarray') -> 'np.ndarray':
+    def _compute_color_histogram(self, img_array: np.ndarray) -> np.ndarray:
         """Compute normalized color histogram"""
-        import numpy as np
-
         hist = np.zeros(16 * 16 * 16)  # 16 bins per channel
         h, w, c = img_array.shape
 
