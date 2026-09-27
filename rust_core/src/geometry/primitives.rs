@@ -148,8 +148,24 @@ impl Primitive for Box {
         let flip = |lo: f32, hi: f32, v: f32| (hi - v) / (hi - lo);
 
         // Face order matches the index order above.
-        let face_uv = |p: Point3<f32>, face: usize| -> (f32, f32) {
-            match face {
+        //
+        // `quad` is the *quad* index 0..6, not the triangle index. Each quad is
+        // two triangles, so the triangle to quad map is `triangle / 2`. Passing
+        // the triangle index here unwrapped the second triangle of every quad
+        // with the *next* quad's axes: the -Z quad's second half came out in the
+        // +Z frame, and so on around the box. That is three wrong frames out of
+        // six, and it is wrong in a way nothing downstream could recover:
+        //
+        //   - The texture does not line up across the quad diagonal, so a
+        //     texture continuous across a face tears along it.
+        //   - `u x v` is no longer the face normal, so the tangent frame is not
+        //     right-handed, which the comment above this function promises, and a
+        //     normal map applied on top of it is mirrored on half the box.
+        //   - A shared corner receives two different UVs from the two triangles,
+        //     so no render form can ever merge them, which is what pinned the box
+        //     at 36 output vertices when the reference glTF cube has 24.
+        let face_uv = |p: Point3<f32>, quad: usize| -> (f32, f32) {
+            match quad {
                 0 => (flip(min_x, max_x, p.x), span(min_y, max_y, p.y)), // -Z: u=-X v=+Y
                 1 => (span(min_x, max_x, p.x), span(min_y, max_y, p.y)), // +Z: u=+X v=+Y
                 2 => (flip(min_y, max_y, p.y), span(min_z, max_z, p.z)), // -X: u=-Y v=+Z
@@ -162,10 +178,11 @@ impl Primitive for Box {
         mesh.face_uvs = (0..mesh.triangle_count())
             .map(|f| {
                 let base = f * 3;
+                let quad = f / 2;
                 [
-                    face_uv(mesh.vertices[mesh.indices[base] as usize], f),
-                    face_uv(mesh.vertices[mesh.indices[base + 1] as usize], f),
-                    face_uv(mesh.vertices[mesh.indices[base + 2] as usize], f),
+                    face_uv(mesh.vertices[mesh.indices[base] as usize], quad),
+                    face_uv(mesh.vertices[mesh.indices[base + 1] as usize], quad),
+                    face_uv(mesh.vertices[mesh.indices[base + 2] as usize], quad),
                 ]
             })
             .collect();

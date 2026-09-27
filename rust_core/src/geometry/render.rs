@@ -178,12 +178,117 @@ enum Group {
     Fan(usize),
 }
 
+/// Replace `-0.0` with `0.0` in a normal.
+///
+/// A cross product produces signed zeros readily. LPG's own +Z box quad is the
+/// worked example: its two triangles are coplanar, so they ought to yield the
+/// same normal, and they do — as `(0, 0, 1)` and `(0, -0, 1)`. The directions are
+/// identical and `0.0 == -0.0` is true, but the bit patterns differ, so a
+/// bitwise corner key splits two corners that are in fact the same. That defeats
+/// the entire keyed strategy on a case that should have been free.
+///
+/// The fix is to canonicalise rather than to loosen the comparison. Loosening
+/// would mean a tolerance on the normal, which is precisely the thing that
+/// swallows a 0.33-degree crease. Canonicalising keeps the contract exact —
+/// "the same bits" still means the same bits — while making those bits mean the
+/// same thing for two normals that agree, which they already did.
+///
+/// Nothing is lost. `-0.0` carries no directional information: the IEEE-754
+/// comparison `-0.0 == 0.0` is true by definition, and only the sign bit differs.
+fn canonical_normal(mut n: Vector3<f32>) -> Vector3<f32> {
+    // The comparison covers both 0.0 and -0.0, and is false for NaN, which must
+    // not be silently turned into a direction. Written as three statements
+    // because an array of simultaneous mutable borrows of three fields is not a
+    // thing the borrow checker will allow, and this is not worth a helper type.
+    if n.x == 0.0 {
+        n.x = 0.0;
+    }
+    if n.y == 0.0 {
+        n.y = 0.0;
+    }
+    if n.z == 0.0 {
+        n.z = 0.0;
+    }
+    n
+}
+
+/// How two corners are decided to be the same vertex.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum CornerKeying {
+    /// On the source vertex, the smoothing group, and the UV.
+    ///
+    /// Conservative, and correct by construction: a pinned corner is alone on its
+    /// face by identity, so it can never merge with the corner across the marked
+    /// edge. It is also lossy in the other direction — the two triangles of a
+    /// coplanar face are different faces, so different groups, so they never
+    /// merge even when they are the same quad and should.
+    SmoothingGroup,
+    /// On the source vertex, the resolved normal, and the UV, compared exactly.
+    ///
+    /// Carries the same crease information as `SmoothingGroup` because the normal
+    /// is derived from the group, but it no longer distinguishes two faces that
+    /// resolved to the same normal. That is the whole difference, and it is worth
+    /// 36 corners down to 24 on a cube.
+    Attributes,
+}
+
 /// Identity of one output vertex.
+///
+/// `uv` and, under [`CornerKeying::Attributes`], `normal` are stored as bit
+/// patterns rather than floats so the comparison is bitwise. A float key would
+/// need `PartialEq` on `f32`, which has three legal NaN representations that are
+/// not `==` to themselves, and which would silently split a corner in two.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 struct CornerKey {
     vertex: u32,
     group: Group,
     uv: (u32, u32),
+    normal: (u32, u32, u32),
+}
+
+/// Build the key for one corner under the given strategy.
+fn corner_key(corner: &Corner, keying: CornerKeying) -> CornerKey {
+    let uv = (corner.uv.0.to_bits(), corner.uv.1.to_bits());
+    match keying {
+        CornerKeying::SmoothingGroup => CornerKey {
+            vertex: corner.vertex,
+            group: corner.group,
+            uv,
+            normal: (0, 0, 0),
+        },
+        CornerKeying::Attributes => CornerKey {
+            vertex: corner.vertex,
+            group: Group::Pinned(0),
+            uv,
+            normal: (
+                corner.normal.x.to_bits(),
+                corner.normal.y.to_bits(),
+                corner.normal.z.to_bits(),
+            ),
+        },
+    }
+}
+
+/// One corner of the output mesh, fully resolved: where it points, which way it
+/// faces, and where it lands in UV space.
+#[derive(Debug, Clone, Copy)]
+struct Corner {
+    vertex: u32,
+    normal: Vector3<f32>,
+    uv: (f32, f32),
+    group: Group,
+}
+
+/// Everything the two split strategies share.
+///
+/// The expensive part of splitting — face normals, smoothing fans, fan normals —
+/// does not depend on how corners are keyed, so it is computed once here and
+/// both strategies read from it. Two copies of this logic would be two chances
+/// for the strategies to disagree about a mesh, which is precisely the kind of
+/// drift that makes an "equivalent" second code path a lie.
+struct CornerAttributes {
+    corners: Vec<Corner>,
+    face_count: usize,
 }
 
 impl Mesh {
@@ -199,12 +304,57 @@ impl Mesh {
     /// everything not explicitly marked; 0.0 flattens everything; a negative
     /// value is treated as 180.0.
     pub fn split_for_render(&self, smooth_angle_degrees: f32) -> RenderMesh {
-        let mut out = RenderMesh::default();
-        if self.indices.is_empty() || self.indices.len() % 3 != 0 {
-            return out;
-        }
+        self.finish_render(self.corner_attributes(smooth_angle_degrees), CornerKeying::SmoothingGroup)
+    }
 
+    /// Derive the render form, merging corners on `(position, normal, uv)`
+    /// compared **bit for bit**.
+    ///
+    /// This is MikkTSpace's rule, and it is the rule glTF's reference cube obeys:
+    /// `Box.gltf` ships 24 positions for 36 indices, meaning the two triangles of
+    /// each face share their corner attributes. [`Self::split_for_render`] cannot
+    /// get there on a cube, because it keys on the smoothing group and the two
+    /// triangles of a face are different groups. It emits 36.
+    ///
+    /// # Why the comparison is exact and not a tolerance
+    ///
+    /// A crease is exactly the case where the normal differs between two corners
+    /// sharing a position, so the normal is the one field that must never be
+    /// quantised. Put it on a grid of step `h` and two normals separated by
+    /// `h / sqrt(3)` collapse onto the same key; at `h = 1e-2` that is 0.33
+    /// degrees, and a 0.33-degree crease across a 2000-unit model is invisible.
+    /// Every other field — position, UV — is either genuinely shared or genuinely
+    /// not, and welding those is what the key is for. So there is no tolerance to
+    /// tune and no way to mis-tune it; a crease survives because its normals are
+    /// not the same bits, and two corners merge exactly when nothing about them
+    /// needs to be distinguished.
+    ///
+    /// The cost of exactness is that a *nearly* coplanar pair does not merge: the
+    /// face normals of a non-axis-aligned quad are computed from different vertex
+    /// triples, and in f32 those can differ in the last bit. That is not a defect
+    /// to be papered over with an epsilon — it is the behaviour of the reference
+    /// implementation, and matching it is the point. Meshes whose faces are
+    /// exactly coplanar, which includes every axis-aligned solid this crate
+    /// generates, merge fully.
+    ///
+    /// # What it costs
+    ///
+    /// Nothing, as far as this mesh is concerned: the attribute tuple is
+    /// complete, so every corner that merges shares the position, the normal and
+    /// the UV, and the render form is the same mesh drawn with fewer vertices.
+    /// The count can only go down, never up, which
+    /// [`Self::split_for_render_keyed_never_grows`] asserts for every primitive.
+    pub fn split_for_render_keyed(&self, smooth_angle_degrees: f32) -> RenderMesh {
+        self.finish_render(self.corner_attributes(smooth_angle_degrees), CornerKeying::Attributes)
+    }
+
+    /// Resolve every corner of every face: position, normal, UV, smoothing group.
+    fn corner_attributes(&self, smooth_angle_degrees: f32) -> CornerAttributes {
+        let mut corners = Vec::new();
         let face_count = self.indices.len() / 3;
+        if self.indices.is_empty() || self.indices.len() % 3 != 0 {
+            return CornerAttributes { corners, face_count: 0 };
+        }
 
         // See `wide_face_normals` for why this is f64 arithmetic on f32
         // positions, and why widening an f32 result is not good enough.
@@ -222,7 +372,6 @@ impl Mesh {
         let cos_threshold = threshold.cos();
 
         let table = edge_face_table(self, face_count);
-
         let fans = self.build_fans(&normals, cos_threshold, &table, face_count);
 
         // Averaged normal per fan, computed once so every corner in it agrees.
@@ -256,7 +405,7 @@ impl Mesh {
 
         let has_face_uvs = self.face_uvs.len() == face_count;
         let has_vertex_uvs = self.uvs.len() == self.vertices.len();
-        let mut emitted: HashMap<CornerKey, u32> = HashMap::new();
+        corners.reserve(self.indices.len());
 
         for face in 0..face_count {
             for k in 0..3 {
@@ -276,6 +425,10 @@ impl Mesh {
                 } else {
                     Group::Fan(fan_of[vi].get(&face).copied().unwrap_or(0))
                 };
+                let normal = canonical_normal(match group {
+                    Group::Pinned(_) => normals32[face],
+                    Group::Fan(fi) => fan_normal[vi][fi],
+                });
 
                 let uv = if has_face_uvs {
                     self.face_uvs[face][k]
@@ -285,28 +438,36 @@ impl Mesh {
                     (0.0, 0.0)
                 };
 
-                let key = CornerKey {
-                    vertex: v,
-                    group,
-                    uv: (uv.0.to_bits(), uv.1.to_bits()),
-                };
-
-                let index = match emitted.get(&key) {
-                    Some(&index) => index,
-                    None => {
-                        let index = out.vertices.len() as u32;
-                        out.vertices.push(self.vertices[vi]);
-                        out.normals.push(match group {
-                            Group::Pinned(_) => normals32[face],
-                            Group::Fan(fi) => fan_normal[vi][fi],
-                        });
-                        out.uvs.push(uv);
-                        emitted.insert(key, index);
-                        index
-                    }
-                };
-                out.indices.push(index);
+                corners.push(Corner { vertex: v, normal, uv, group });
             }
+        }
+
+        CornerAttributes { corners, face_count }
+    }
+
+    /// Walk resolved corners in face order, merging according to `keying`.
+    fn finish_render(&self, attributes: CornerAttributes, keying: CornerKeying) -> RenderMesh {
+        let mut out = RenderMesh::default();
+        let CornerAttributes { corners, face_count } = attributes;
+        if face_count == 0 {
+            return out;
+        }
+
+        let mut emitted: HashMap<CornerKey, u32> = HashMap::new();
+        for corner in &corners {
+            let key = corner_key(corner, keying);
+            let index = match emitted.get(&key) {
+                Some(&index) => index,
+                None => {
+                    let index = out.vertices.len() as u32;
+                    out.vertices.push(self.vertices[corner.vertex as usize]);
+                    out.normals.push(corner.normal);
+                    out.uvs.push(corner.uv);
+                    emitted.insert(key, index);
+                    index
+                }
+            };
+            out.indices.push(index);
         }
 
         if self.materials.len() >= face_count {

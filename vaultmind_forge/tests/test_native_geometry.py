@@ -483,3 +483,70 @@ class TestObjExportCarriesAttributes:
         for line in faces:
             for reference in line.split()[1:]:
                 assert reference.count("/") == 2, f"incomplete face reference {reference}"
+
+
+class TestKeyedRenderSplit:
+    """The attribute-keyed split, which is MikkTSpace's rule.
+
+    The reference is Khronos `Models/Box.gltf`: 24 positions, 36 indices. The
+    legacy split keys on the smoothing group, so the two triangles of a coplanar
+    quad are always different groups and it emits 36. The keyed split merges on
+    `(position, normal, uv)` compared bit for bit, and gets to 24.
+    """
+
+    def test_box_matches_the_gltf_reference_count(self):
+        box = native.create_box((1.0, 1.0, 1.0))
+        render = box.split_for_render_keyed(30.0)
+        assert (
+            render.vertex_count == 24
+        ), f"the reference glTF cube has 24 positions, got {render.vertex_count}"
+        assert render.triangle_count == 12
+        assert len(render.indices) == 36
+
+    def test_keyed_never_emits_more_than_legacy(self):
+        shapes = [
+            ("box", native.create_box((1.0, 1.0, 1.0))),
+            ("sphere", native.create_sphere(1.0)),
+            ("cylinder", native.create_cylinder(1.0, 2.0)),
+            ("cone", native.create_cone(1.0, 2.0)),
+            ("torus", native.create_torus(2.0, 1.0)),
+        ]
+        for name, mesh in shapes:
+            for angle in (0.0, 30.0, 180.0):
+                legacy = mesh.split_for_render(angle)
+                keyed = mesh.split_for_render_keyed(angle)
+                assert keyed.vertex_count <= legacy.vertex_count, (
+                    f"{name} at {angle} degrees: keyed {keyed.vertex_count} "
+                    f"exceeded legacy {legacy.vertex_count}"
+                )
+
+    def test_keyed_keeps_positions_welded(self):
+        # Splitting duplicates attributes, never positions. A render form that
+        # broke the weld would mean the source mesh was modified.
+        for mesh in (native.create_box((1.0, 1.0, 1.0)), native.create_sphere(1.0)):
+            keyed = mesh.split_for_render_keyed(30.0)
+            assert keyed.unique_position_count == mesh.vertex_count, (
+                f"{keyed.unique_position_count} welded positions in the render "
+                f"form against {mesh.vertex_count} in the source"
+            )
+
+    def test_a_smooth_sphere_is_identical_either_way(self):
+        # The case where the two strategies should agree exactly, and the guard
+        # against a change to the shared fan or UV logic leaking into one path.
+        sphere = native.create_sphere(1.0)
+        legacy = sphere.split_for_render(30.0)
+        keyed = sphere.split_for_render_keyed(30.0)
+        assert keyed.vertex_count == legacy.vertex_count
+        assert list(keyed.indices) == list(legacy.indices)
+
+    def test_creases_survive(self):
+        # Merging must never round off an edge. A cube has six face normals; if
+        # any two merged, the box would have a bevelled edge.
+        box = native.create_box((1.0, 1.0, 1.0))
+        for angle in (0.0, 30.0, 180.0):
+            render = box.split_for_render_keyed(angle)
+            normals = {tuple(round(c, 3) for c in n) for n in render.normals}
+            assert len(normals) == 6, (
+                f"at {angle} degrees got {len(normals)} distinct normals, "
+                f"expected 6: {sorted(normals)}"
+            )

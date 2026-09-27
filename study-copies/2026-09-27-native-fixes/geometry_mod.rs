@@ -40,6 +40,8 @@ pub mod operations;
 pub mod render;
 
 #[cfg(test)]
+mod render_keyed_tests;
+#[cfg(test)]
 mod render_tests;
 
 #[cfg(test)]
