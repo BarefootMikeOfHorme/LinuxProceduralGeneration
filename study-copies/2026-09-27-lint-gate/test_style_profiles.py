@@ -78,7 +78,9 @@ class TestStyleProfiles(unittest.TestCase):
         profile = get_profile("anime")
 
         self.assertEqual(
-            profile.generation_params.get("clip_skip", 1), 2, "Anime profile MUST have clip_skip=2"
+            profile.generation_params.get("clip_skip", 1),
+            2,
+            "Anime profile MUST have clip_skip=2"
         )
 
 
@@ -107,9 +109,7 @@ class TestStyleDetection(unittest.TestCase):
 
         for prompt in prompts:
             detected = quick_style_detection(prompt)
-            self.assertEqual(
-                detected, "photorealistic", f"Should detect photorealistic in: {prompt}"
-            )
+            self.assertEqual(detected, "photorealistic", f"Should detect photorealistic in: {prompt}")
 
     def test_3_detect_pixel_art(self):
         """Test pixel art style detection"""
@@ -130,9 +130,7 @@ class TestStyleDetection(unittest.TestCase):
         prompt = "a character [style:anime]"
         profile = manager.detect_style(prompt)
 
-        self.assertEqual(
-            profile.name, "Anime", "Explicit tag should override"
-        )  # Name is capitalized
+        self.assertEqual(profile.name, "Anime", "Explicit tag should override")  # Name is capitalized
 
 
 class TestParameterOptimization(unittest.TestCase):
@@ -162,9 +160,15 @@ class TestParameterOptimization(unittest.TestCase):
         params3 = manager.get_optimized_params(profile, attempt_num=3)
 
         # Steps and CFG should increase on retries
-        self.assertGreater(params3["steps"], params1["steps"], "Steps should increase on retry")
         self.assertGreater(
-            params3["cfg_scale"], params1["cfg_scale"], "CFG should increase on retry"
+            params3["steps"],
+            params1["steps"],
+            "Steps should increase on retry"
+        )
+        self.assertGreater(
+            params3["cfg_scale"],
+            params1["cfg_scale"],
+            "CFG should increase on retry"
         )
 
     def test_3_user_overrides(self):
@@ -177,7 +181,10 @@ class TestParameterOptimization(unittest.TestCase):
             "cfg_scale": 8.0,
         }
 
-        params = manager.get_optimized_params(profile, user_overrides=user_overrides)
+        params = manager.get_optimized_params(
+            profile,
+            user_overrides=user_overrides
+        )
 
         self.assertEqual(params["steps"], 35)
         self.assertEqual(params["cfg_scale"], 8.0)
@@ -194,7 +201,7 @@ class TestParameterOptimization(unittest.TestCase):
         self.assertGreaterEqual(
             char_params["steps"],
             bg_params["steps"],
-            "Character should get more steps than background",
+            "Character should get more steps than background"
         )
 
 
@@ -296,7 +303,7 @@ class TestQualityGuardianIntegration(unittest.TestCase):
         self.assertGreater(
             photo_guardian.min_quality_threshold,
             pixel_guardian.min_quality_threshold,
-            "Photorealistic should have stricter threshold than pixel art",
+            "Photorealistic should have stricter threshold than pixel art"
         )
 
 
@@ -341,7 +348,10 @@ class TestPromptEnhancement(unittest.TestCase):
         self.assertGreater(len(negative), 0)
 
         # Should contain some defaults from profile
-        self.assertTrue(any(default in negative for default in profile.negative_prompt_defaults))
+        self.assertTrue(any(
+            default in negative
+            for default in profile.negative_prompt_defaults
+        ))
 
 
 class TestCompletePipeline(unittest.TestCase):
@@ -352,7 +362,8 @@ class TestCompletePipeline(unittest.TestCase):
         prompt = "anime magical girl"
 
         params, enhanced_prompt, guardian = create_style_aware_pipeline(
-            prompt=prompt, quality_level="high"
+            prompt=prompt,
+            quality_level="high"
         )
 
         # Check we got all components
@@ -373,7 +384,8 @@ class TestCompletePipeline(unittest.TestCase):
         prompt = "a character"
 
         params, _, _ = create_style_aware_pipeline(
-            prompt=prompt, style="pixel_art"  # Explicit override
+            prompt=prompt,
+            style="pixel_art"  # Explicit override
         )
 
         # Pixel art should have specific settings
@@ -389,9 +401,9 @@ def run_tests():
     result = runner.run(suite)
 
     # Print summary
-    print("\n" + "=" * 70)
+    print("\n" + "="*70)
     print("TEST SUMMARY")
-    print("=" * 70)
+    print("="*70)
     print(f"Tests run: {result.testsRun}")
     print(f"Successes: {result.testsRun - len(result.failures) - len(result.errors)}")
     print(f"Failures: {len(result.failures)}")

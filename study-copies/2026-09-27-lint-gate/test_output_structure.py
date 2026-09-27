@@ -1,5 +1,3 @@
-import sys
-
 """
 Test comprehensive output structure for all media types
 Verifies directory creation and path resolution
@@ -7,11 +5,7 @@ Verifies directory creation and path resolution
 
 from pathlib import Path
 
-from vaultmind_forge.forge_procedural import (
-    ProceduralGenerator,
-    get_output_structure,
-    ensure_output_directories,
-)
+from vaultmind_forge.forge_procedural import ProceduralGenerator, get_output_structure, ensure_output_directories
 
 
 def test_output_structure_creation():
@@ -26,11 +20,11 @@ def test_output_structure_creation():
 
         # Verify some key paths exist
         test_paths = [
-            structure.get_path("procedural", "textures", "clouds"),
-            structure.get_path("procedural", "terrain", "mountains"),
-            structure.get_path("3d", "meshes", "fbx"),
-            structure.get_path("audio", "music", "ambient"),
-            structure.get_path("engines", "unity", "packages"),
+            structure.get_path('procedural', 'textures', 'clouds'),
+            structure.get_path('procedural', 'terrain', 'mountains'),
+            structure.get_path('3d', 'meshes', 'fbx'),
+            structure.get_path('audio', 'music', 'ambient'),
+            structure.get_path('engines', 'unity', 'packages'),
         ]
 
         for path in test_paths:
@@ -57,16 +51,7 @@ def test_category_listing():
             print(f"  - {category}: {len(subcategories)} subcategories")
 
         # Verify expected categories
-        expected = [
-            "procedural",
-            "2d",
-            "3d",
-            "audio",
-            "video",
-            "environments",
-            "special",
-            "engines",
-        ]
+        expected = ['procedural', '2d', '3d', 'audio', 'video', 'environments', 'special', 'engines']
         for cat in expected:
             assert cat in categories, f"Missing category: {cat}"
 
@@ -85,43 +70,50 @@ def test_path_resolution():
     structure = get_output_structure()
     test_cases = [
         # Procedural paths
-        ("procedural", "noise", "perlin"),
-        ("procedural", "textures", "marble"),
-        ("procedural", "terrain", "islands"),
-        ("procedural", "patterns", "fractals"),
+        ('procedural', 'noise', 'perlin'),
+        ('procedural', 'textures', 'marble'),
+        ('procedural', 'terrain', 'islands'),
+        ('procedural', 'patterns', 'fractals'),
+
         # 2D paths
-        ("2d", "images", "png"),
-        ("2d", "textures", "normal"),
-        ("2d", "sprites", "characters"),
-        ("2d", "ui", "icons"),
+        ('2d', 'images', 'png'),
+        ('2d', 'textures', 'normal'),
+        ('2d', 'sprites', 'characters'),
+        ('2d', 'ui', 'icons'),
+
         # 3D paths
-        ("3d", "meshes", "obj"),
-        ("3d", "meshes", "fbx"),
-        ("3d", "meshes", "gltf"),
-        ("3d", "models", "weapons"),
-        ("3d", "materials", "pbr"),
-        ("3d", "animations", "skeletal"),
+        ('3d', 'meshes', 'obj'),
+        ('3d', 'meshes', 'fbx'),
+        ('3d', 'meshes', 'gltf'),
+        ('3d', 'models', 'weapons'),
+        ('3d', 'materials', 'pbr'),
+        ('3d', 'animations', 'skeletal'),
+
         # Audio paths
-        ("audio", "music", "combat"),
-        ("audio", "sfx", "weapons"),
-        ("audio", "voice", "dialogue"),
-        ("audio", "formats", "wav"),
+        ('audio', 'music', 'combat'),
+        ('audio', 'sfx', 'weapons'),
+        ('audio', 'voice', 'dialogue'),
+        ('audio', 'formats', 'wav'),
+
         # Video paths
-        ("video", "cutscenes"),
-        ("video", "formats", "mp4"),
+        ('video', 'cutscenes'),
+        ('video', 'formats', 'mp4'),
+
         # Environment paths
-        ("environments", "biomes", "forest"),
-        ("environments", "levels", "dungeons"),
-        ("environments", "skyboxes", "space"),
+        ('environments', 'biomes', 'forest'),
+        ('environments', 'levels', 'dungeons'),
+        ('environments', 'skyboxes', 'space'),
+
         # Special paths
-        ("special", "vfx", "particles"),
-        ("special", "shaders", "hlsl"),
-        ("special", "lighting", "hdri"),
+        ('special', 'vfx', 'particles'),
+        ('special', 'shaders', 'hlsl'),
+        ('special', 'lighting', 'hdri'),
+
         # Engine paths
-        ("engines", "unity", "prefabs"),
-        ("engines", "unreal", "blueprints"),
-        ("engines", "godot", "scenes"),
-        ("engines", "web", "threejs"),
+        ('engines', 'unity', 'prefabs'),
+        ('engines', 'unreal', 'blueprints'),
+        ('engines', 'godot', 'scenes'),
+        ('engines', 'web', 'threejs'),
     ]
 
     passed = 0
@@ -178,13 +170,13 @@ def test_generator_integration():
         print(f"[OK] Generator initialized with output structure")
 
         # Verify generator has output structure
-        assert hasattr(gen, "output"), "Generator missing output attribute"
+        assert hasattr(gen, 'output'), "Generator missing output attribute"
         assert gen.output is not None, "Generator output is None"
 
         print(f"[OK] Generator has access to output structure")
 
         # Test path access through generator
-        clouds_path = gen.output.get_path("procedural", "textures", "clouds")
+        clouds_path = gen.output.get_path('procedural', 'textures', 'clouds')
         print(f"[OK] Can access paths through generator: {clouds_path}")
 
         return True
@@ -192,7 +184,6 @@ def test_generator_integration():
     except Exception as e:
         print(f"[FAIL] {e}")
         import traceback
-
         traceback.print_exc()
         return False
 
@@ -205,11 +196,11 @@ def test_auto_save_paths():
         gen = ProceduralGenerator()
 
         # Generate a texture
-        texture = gen.generate_texture("clouds", size=(256, 256), seed=42)
+        texture = gen.generate_texture('clouds', size=(256, 256), seed=42)
         print(f"[OK] Generated clouds texture: {texture.shape}")
 
         # Save with automatic path resolution
-        saved_path = gen.save_texture_auto(texture, "test_clouds_auto", category="clouds")
+        saved_path = gen.save_texture_auto(texture, 'test_clouds_auto', category='clouds')
         print(f"[OK] Saved to: {saved_path}")
 
         assert saved_path.exists(), "File wasn't saved"
@@ -217,13 +208,11 @@ def test_auto_save_paths():
         print(f"[OK] File verified: {saved_path.stat().st_size} bytes")
 
         # Generate terrain
-        terrain = gen.generate_terrain("mountains", size=(256, 256), seed=42)
+        terrain = gen.generate_terrain('mountains', size=(256, 256), seed=42)
         print(f"[OK] Generated mountains terrain: {terrain.shape}")
 
         # Save with automatic path resolution
-        saved_path = gen.save_heightmap_auto(
-            terrain, "test_mountains_auto", terrain_type="mountains"
-        )
+        saved_path = gen.save_heightmap_auto(terrain, 'test_mountains_auto', terrain_type='mountains')
         print(f"[OK] Saved to: {saved_path}")
 
         assert saved_path.exists(), "File wasn't saved"
@@ -235,7 +224,6 @@ def test_auto_save_paths():
     except Exception as e:
         print(f"[FAIL] {e}")
         import traceback
-
         traceback.print_exc()
         return False
 
@@ -262,7 +250,6 @@ def run_all_tests():
         except Exception as e:
             print(f"\n[ERROR] Test crashed: {e}")
             import traceback
-
             traceback.print_exc()
             results.append(False)
 

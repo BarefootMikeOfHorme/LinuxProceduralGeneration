@@ -24,16 +24,18 @@ from .terminal_ui import TerminalUI, console
 
 class TaskComplexity(str, Enum):
     """Task complexity levels"""
-    TRIVIAL = "trivial"      # <30s, single agent
-    SIMPLE = "simple"         # <2min, 1-2 agents
-    MODERATE = "moderate"     # <10min, 2-4 agents
-    COMPLEX = "complex"       # <30min, 4-6 agents
-    EPIC = "epic"            # >30min, 6+ agents, multi-stage
+
+    TRIVIAL = "trivial"  # <30s, single agent
+    SIMPLE = "simple"  # <2min, 1-2 agents
+    MODERATE = "moderate"  # <10min, 2-4 agents
+    COMPLEX = "complex"  # <30min, 4-6 agents
+    EPIC = "epic"  # >30min, 6+ agents, multi-stage
 
 
 @dataclass
 class TaskContext:
     """Rich context for task decomposition"""
+
     description: str
     keywords: List[str] = field(default_factory=list)
     requirements: Dict[str, Any] = field(default_factory=dict)
@@ -47,6 +49,7 @@ class TaskContext:
 @dataclass
 class DecompositionResult:
     """Result of task decomposition"""
+
     workflow: Workflow
     tasks: List[Task]
     estimated_duration: float
@@ -78,23 +81,56 @@ class IntelligentTaskDecomposer:
 
         # Keywords for task type inference
         self.generation_keywords = {
-            'generate', 'create', 'produce', 'make', 'render', 'draw', 'paint',
-            'synthesize', 'build', 'design', 'compose', 'craft'
+            "generate",
+            "create",
+            "produce",
+            "make",
+            "render",
+            "draw",
+            "paint",
+            "synthesize",
+            "build",
+            "design",
+            "compose",
+            "craft",
         }
 
         self.validation_keywords = {
-            'validate', 'verify', 'check', 'test', 'quality', 'review',
-            'inspect', 'audit', 'assess', 'evaluate'
+            "validate",
+            "verify",
+            "check",
+            "test",
+            "quality",
+            "review",
+            "inspect",
+            "audit",
+            "assess",
+            "evaluate",
         }
 
         self.enhancement_keywords = {
-            'enhance', 'improve', 'optimize', 'refine', 'polish', 'upgrade',
-            'enrich', 'augment', 'boost', 'perfect'
+            "enhance",
+            "improve",
+            "optimize",
+            "refine",
+            "polish",
+            "upgrade",
+            "enrich",
+            "augment",
+            "boost",
+            "perfect",
         }
 
         self.analysis_keywords = {
-            'analyze', 'examine', 'study', 'investigate', 'explore', 'research',
-            'measure', 'profile', 'diagnose'
+            "analyze",
+            "examine",
+            "study",
+            "investigate",
+            "explore",
+            "research",
+            "measure",
+            "profile",
+            "diagnose",
         }
 
     def _load_task_patterns(self) -> Dict[str, Dict[str, Any]]:
@@ -105,6 +141,7 @@ class IntelligentTaskDecomposer:
         masterpiece workflows with real module execution paths.
         """
         from pathlib import Path
+
         project_root = Path(__file__).parent.parent.parent
 
         return {
@@ -123,108 +160,120 @@ class IntelligentTaskDecomposer:
                         "params": {
                             "cli_command": "generate",
                             "default_width": 1024,
-                            "default_height": 1024
+                            "default_height": 1024,
                         },
                         "requires_gpu": True,
-                        "estimated_duration": 60.0
+                        "estimated_duration": 60.0,
                     },
                     "validate": {
                         "type": TaskType.VALIDATION,
-                        "command": str(project_root / "vaultmind_forge" / "forge_validator" / "validator.py"),
+                        "command": str(
+                            project_root / "vaultmind_forge" / "forge_validator" / "validator.py"
+                        ),
                         "executor": "python",
-                        "params": {
-                            "backend": "basic"
-                        },
-                        "estimated_duration": 5.0
+                        "params": {"backend": "basic"},
+                        "estimated_duration": 5.0,
                     },
                     "package": {
                         "type": TaskType.PROCESSING,
-                        "command": str(project_root / "vaultmind_forge" / "forge_packaging" / "packager.py"),
+                        "command": str(
+                            project_root / "vaultmind_forge" / "forge_packaging" / "packager.py"
+                        ),
                         "executor": "python",
-                        "estimated_duration": 3.0
-                    }
+                        "estimated_duration": 3.0,
+                    },
                 },
                 "agents": [AgentType.PROMPT, AgentType.QUALITY],
                 "requires_gpu": True,
                 "complexity": TaskComplexity.MODERATE,
             },
-
             "character_creation": {
-                "stages": ["concept", "prompt_design", "generate_variations", "select_best", "refine", "validate"],
+                "stages": [
+                    "concept",
+                    "prompt_design",
+                    "generate_variations",
+                    "select_best",
+                    "refine",
+                    "validate",
+                ],
                 "executors": {
                     "concept": {
                         "type": TaskType.ANALYSIS,
                         "requires_agent": "style_profiler",
-                        "estimated_duration": 10.0
+                        "estimated_duration": 10.0,
                     },
                     "prompt_design": {
                         "type": TaskType.ENHANCEMENT,
                         "requires_agent": "prompt_refiner",
-                        "estimated_duration": 15.0
+                        "estimated_duration": 15.0,
                     },
                     "generate_variations": {
                         "type": TaskType.GENERATION,
                         "command": str(project_root / "vaultmind_cli.py"),
                         "executor": "python",
-                        "params": {
-                            "cli_command": "generate",
-                            "batch": 5
-                        },
+                        "params": {"cli_command": "generate", "batch": 5},
                         "requires_gpu": True,
-                        "estimated_duration": 180.0
+                        "estimated_duration": 180.0,
                     },
                     "select_best": {
                         "type": TaskType.VALIDATION,
                         "requires_agent": "quality_guardian",
-                        "estimated_duration": 10.0
+                        "estimated_duration": 10.0,
                     },
                     "refine": {
                         "type": TaskType.ENHANCEMENT,
-                        "command": str(project_root / "vaultmind_forge" / "forge_sr" / "upscaler.py"),
+                        "command": str(
+                            project_root / "vaultmind_forge" / "forge_sr" / "upscaler.py"
+                        ),
                         "executor": "python",
                         "requires_gpu": True,
-                        "estimated_duration": 45.0
+                        "estimated_duration": 45.0,
                     },
                     "validate": {
                         "type": TaskType.VALIDATION,
-                        "command": str(project_root / "vaultmind_forge" / "forge_validator" / "validator.py"),
+                        "command": str(
+                            project_root / "vaultmind_forge" / "forge_validator" / "validator.py"
+                        ),
                         "executor": "python",
-                        "estimated_duration": 5.0
-                    }
+                        "estimated_duration": 5.0,
+                    },
                 },
-                "agents": [AgentType.PROMPT, AgentType.PARAMETER, AgentType.QUALITY, AgentType.MATERIAL],
+                "agents": [
+                    AgentType.PROMPT,
+                    AgentType.PARAMETER,
+                    AgentType.QUALITY,
+                    AgentType.MATERIAL,
+                ],
                 "requires_gpu": True,
                 "complexity": TaskComplexity.COMPLEX,
             },
-
             "batch_validation": {
                 "stages": ["collect_assets", "parallel_validate", "aggregate_results"],
                 "executors": {
                     "collect_assets": {
                         "type": TaskType.PROCESSING,
                         "executor": "python",
-                        "estimated_duration": 2.0
+                        "estimated_duration": 2.0,
                     },
                     "parallel_validate": {
                         "type": TaskType.VALIDATION,
-                        "command": str(project_root / "vaultmind_forge" / "forge_validator" / "validator.py"),
+                        "command": str(
+                            project_root / "vaultmind_forge" / "forge_validator" / "validator.py"
+                        ),
                         "executor": "python",
-                        "params": {
-                            "batch_mode": True
-                        },
-                        "estimated_duration": 15.0
+                        "params": {"batch_mode": True},
+                        "estimated_duration": 15.0,
                     },
                     "aggregate_results": {
                         "type": TaskType.ANALYSIS,
                         "executor": "python",
-                        "estimated_duration": 1.0
-                    }
+                        "estimated_duration": 1.0,
+                    },
                 },
                 "agents": [AgentType.QUALITY],
                 "requires_gpu": False,
                 "complexity": TaskComplexity.SIMPLE,
             },
-
             # 🔥 NEW: Multi-language terrain pipeline
             "terrain_generation": {
                 "stages": ["rust_heightmap", "python_texture", "cpp_validate", "package"],
@@ -233,41 +282,41 @@ class IntelligentTaskDecomposer:
                         "type": TaskType.GENERATION,
                         "command": str(project_root / "target" / "release" / "terrain_gen"),
                         "executor": "rust",
-                        "params": {
-                            "resolution": 2048
-                        },
-                        "estimated_duration": 30.0
+                        "params": {"resolution": 2048},
+                        "estimated_duration": 30.0,
                     },
                     "python_texture": {
                         "type": TaskType.GENERATION,
                         "command": str(project_root / "vaultmind_cli.py"),
                         "executor": "python",
-                        "params": {
-                            "cli_command": "generate"
-                        },
+                        "params": {"cli_command": "generate"},
                         "requires_gpu": True,
-                        "estimated_duration": 120.0
+                        "estimated_duration": 120.0,
                     },
                     "cpp_validate": {
                         "type": TaskType.VALIDATION,
                         "command": str(project_root / "build" / "terrain_validator"),
                         "executor": "cpp",
-                        "estimated_duration": 10.0
+                        "estimated_duration": 10.0,
                     },
                     "package": {
                         "type": TaskType.PROCESSING,
-                        "command": str(project_root / "vaultmind_forge" / "forge_packaging" / "packager.py"),
+                        "command": str(
+                            project_root / "vaultmind_forge" / "forge_packaging" / "packager.py"
+                        ),
                         "executor": "python",
-                        "estimated_duration": 5.0
-                    }
+                        "estimated_duration": 5.0,
+                    },
                 },
                 "agents": [AgentType.PARAMETER],
                 "requires_gpu": True,
                 "complexity": TaskComplexity.EPIC,
-            }
+            },
         }
 
-    async def decompose(self, description: str, context: Optional[TaskContext] = None) -> DecompositionResult:
+    async def decompose(
+        self, description: str, context: Optional[TaskContext] = None
+    ) -> DecompositionResult:
         """
         Decompose natural language task into optimized workflow
 
@@ -320,7 +369,7 @@ class IntelligentTaskDecomposer:
         Rembrandt studying the subject before painting
         """
         description_lower = description.lower()
-        words = set(re.findall(r'\b\w+\b', description_lower))
+        words = set(re.findall(r"\b\w+\b", description_lower))
 
         # Extract keywords
         keywords = []
@@ -345,11 +394,16 @@ class IntelligentTaskDecomposer:
 
         # Detect requirements
         # GPU is needed for generation/rendering, but not validation/analysis
-        requires_gpu = (
-            any(word in description_lower for word in ['render', 'generate', 'sdxl', 'diffusion', 'create']) and
-            not any(word in description_lower for word in ['validate', 'check', 'assess', 'analyze', 'inspect'])
+        requires_gpu = any(
+            word in description_lower
+            for word in ["render", "generate", "sdxl", "diffusion", "create"]
+        ) and not any(
+            word in description_lower
+            for word in ["validate", "check", "assess", "analyze", "inspect"]
         )
-        requires_internet = any(word in description_lower for word in ['download', 'fetch', 'api', 'cloud'])
+        requires_internet = any(
+            word in description_lower for word in ["download", "fetch", "api", "cloud"]
+        )
 
         # Estimate complexity
         complexity = self._estimate_complexity(description, task_types)
@@ -379,13 +433,13 @@ class IntelligentTaskDecomposer:
         # rule was unreachable for any description that mentioned images, which
         # is precisely the case it exists to handle. A GPU was then requested
         # for work that only reads and scores existing files.
-        if 'validate' in description_lower and 'batch' in description_lower:
+        if "validate" in description_lower and "batch" in description_lower:
             return "batch_validation"
 
-        if 'image' in description_lower or 'picture' in description_lower:
-            if 'character' in description_lower or 'person' in description_lower:
+        if "image" in description_lower or "picture" in description_lower:
+            if "character" in description_lower or "person" in description_lower:
                 return "character_creation"
-            elif 'terrain' in description_lower or 'landscape' in description_lower:
+            elif "terrain" in description_lower or "landscape" in description_lower:
                 return "terrain_generation"
             else:
                 return "image_generation"
@@ -393,10 +447,7 @@ class IntelligentTaskDecomposer:
         return None
 
     async def _generate_from_pattern(
-        self,
-        description: str,
-        pattern_name: str,
-        context: TaskContext
+        self, description: str, pattern_name: str, context: TaskContext
     ) -> Workflow:
         """Generate workflow from known pattern"""
         pattern = self.task_patterns[pattern_name]
@@ -419,7 +470,7 @@ class IntelligentTaskDecomposer:
             # Create task
             task = self.workflow_engine.add_task_to_workflow(
                 workflow_id=workflow.id,
-                name=stage_name.replace('_', ' ').title(),
+                name=stage_name.replace("_", " ").title(),
                 task_type=task_type,
                 executor=agent.value,
                 depends_on=[previous_task_id] if previous_task_id else None,
@@ -449,16 +500,16 @@ class IntelligentTaskDecomposer:
         tasks_to_create = []
 
         if "generation" in context.keywords:
-            tasks_to_create.extend([
-                ("Enhance Prompt", TaskType.ENHANCEMENT, AgentType.PROMPT),
-                ("Optimize Parameters", TaskType.ENHANCEMENT, AgentType.PARAMETER),
-                ("Generate Content", TaskType.GENERATION, None),
-            ])
+            tasks_to_create.extend(
+                [
+                    ("Enhance Prompt", TaskType.ENHANCEMENT, AgentType.PROMPT),
+                    ("Optimize Parameters", TaskType.ENHANCEMENT, AgentType.PARAMETER),
+                    ("Generate Content", TaskType.GENERATION, None),
+                ]
+            )
 
         if "validation" in context.keywords:
-            tasks_to_create.append(
-                ("Validate Output", TaskType.VALIDATION, AgentType.QUALITY)
-            )
+            tasks_to_create.append(("Validate Output", TaskType.VALIDATION, AgentType.QUALITY))
 
         if "enhancement" in context.keywords:
             # Previously unhandled. A description such as "generate textures,
@@ -467,14 +518,10 @@ class IntelligentTaskDecomposer:
             # because only generation, validation and analysis were consulted.
             # The word was recognised and then discarded, so the workflow came
             # back with fewer stages than the description asked for.
-            tasks_to_create.append(
-                ("Enhance Result", TaskType.ENHANCEMENT, AgentType.PARAMETER)
-            )
+            tasks_to_create.append(("Enhance Result", TaskType.ENHANCEMENT, AgentType.PARAMETER))
 
         if "analysis" in context.keywords:
-            tasks_to_create.append(
-                ("Analyze Results", TaskType.ANALYSIS, AgentType.MATERIAL)
-            )
+            tasks_to_create.append(("Analyze Results", TaskType.ANALYSIS, AgentType.MATERIAL))
 
         # Default to simple generation if no specific keywords
         if not tasks_to_create:
@@ -508,15 +555,15 @@ class IntelligentTaskDecomposer:
         """Infer task type from stage name"""
         stage_lower = stage_name.lower()
 
-        if any(word in stage_lower for word in ['generate', 'create', 'produce', 'render']):
+        if any(word in stage_lower for word in ["generate", "create", "produce", "render"]):
             return TaskType.GENERATION
-        elif any(word in stage_lower for word in ['validate', 'verify', 'check', 'test']):
+        elif any(word in stage_lower for word in ["validate", "verify", "check", "test"]):
             return TaskType.VALIDATION
-        elif any(word in stage_lower for word in ['enhance', 'optimize', 'refine', 'improve']):
+        elif any(word in stage_lower for word in ["enhance", "optimize", "refine", "improve"]):
             return TaskType.ENHANCEMENT
-        elif any(word in stage_lower for word in ['analyze', 'examine', 'study']):
+        elif any(word in stage_lower for word in ["analyze", "examine", "study"]):
             return TaskType.ANALYSIS
-        elif any(word in stage_lower for word in ['process', 'convert', 'export']):
+        elif any(word in stage_lower for word in ["process", "convert", "export"]):
             return TaskType.PROCESSING
         else:
             return TaskType.ORCHESTRATION
@@ -586,7 +633,9 @@ class IntelligentTaskDecomposer:
 
         return duration
 
-    def _calculate_confidence(self, workflow: Workflow, context: TaskContext, matched_pattern: bool) -> float:
+    def _calculate_confidence(
+        self, workflow: Workflow, context: TaskContext, matched_pattern: bool
+    ) -> float:
         """
         Calculate confidence in decomposition
 
@@ -620,9 +669,13 @@ class IntelligentTaskDecomposer:
         console.print(f"[bold]Reasoning:[/bold] {result.reasoning}\n")
 
         console.print(f"[cyan]Tasks:[/cyan] {len(result.tasks)}")
-        console.print(f"[cyan]Estimated Duration:[/cyan] {result.estimated_duration:.1f}s ({result.estimated_duration/60:.1f} min)")
+        console.print(
+            f"[cyan]Estimated Duration:[/cyan] {result.estimated_duration:.1f}s ({result.estimated_duration/60:.1f} min)"
+        )
         console.print(f"[cyan]Required Agents:[/cyan] {len(result.required_agents)}")
-        console.print(f"[cyan]GPU Required:[/cyan] {'Yes' if result.resource_requirements['gpu'] else 'No'}\n")
+        console.print(
+            f"[cyan]GPU Required:[/cyan] {'Yes' if result.resource_requirements['gpu'] else 'No'}\n"
+        )
 
         # Show workflow visualization
         self.workflow_engine.visualize_workflow(result.workflow.id)
@@ -637,12 +690,14 @@ class IntelligentTaskDecomposer:
         if not workflow:
             return
 
-        self.execution_history.append({
-            "workflow_id": workflow_id,
-            "estimated_duration": workflow.estimate_duration(),
-            "actual_duration": actual_duration,
-            "success": success,
-            "task_count": len(workflow.tasks),
-        })
+        self.execution_history.append(
+            {
+                "workflow_id": workflow_id,
+                "estimated_duration": workflow.estimate_duration(),
+                "actual_duration": actual_duration,
+                "success": success,
+                "task_count": len(workflow.tasks),
+            }
+        )
 
         # TODO: Use history to improve future estimations (ML model)

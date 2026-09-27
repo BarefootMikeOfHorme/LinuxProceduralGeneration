@@ -4,7 +4,6 @@ Tests the Quick Win Trio: AI Validation + Lineage Tracking + Pipeline DAG
 """
 
 from __future__ import annotations
-import sys
 
 from pathlib import Path
 from typing import Dict, Any
@@ -27,7 +26,7 @@ def setup_test_environment():
         "assets/output/godot",
         "assets/packages",
         "assets/lineage",
-        "tests/output",
+        "tests/output"
     ]
 
     for dir_path in test_dirs:
@@ -38,12 +37,15 @@ def setup_test_environment():
 
 def test_1_ai_validator_standalone():
     """Test 1: AI Validator standalone"""
-    print("\n" + "=" * 60)
+    print("\n" + "="*60)
     print("TEST 1: AI Validator Standalone")
-    print("=" * 60)
+    print("="*60)
 
     # Create validator with high autonomy
-    validator = AIValidator(authority_level=AuthorityLevel.HIGH_AUTONOMY, threshold=0.7)
+    validator = AIValidator(
+        authority_level=AuthorityLevel.HIGH_AUTONOMY,
+        threshold=0.7
+    )
 
     # Create dummy test image
     test_asset = Path("tests/output/test_asset.png")
@@ -51,8 +53,7 @@ def test_1_ai_validator_standalone():
 
     # Create minimal PNG (1x1 pixel)
     from PIL import Image
-
-    img = Image.new("RGB", (512, 512), color="gray")
+    img = Image.new('RGB', (512, 512), color='gray')
     img.save(test_asset)
 
     print(f"[TEST] Created test asset: {test_asset}")
@@ -60,8 +61,12 @@ def test_1_ai_validator_standalone():
     # Validate with AI
     result = validator.validate_with_ai(
         asset_path=test_asset,
-        context={"output_type": "character", "is_hero_asset": False, "attempt_number": 1},
-        prompt="medieval knight armor",
+        context={
+            "output_type": "character",
+            "is_hero_asset": False,
+            "attempt_number": 1
+        },
+        prompt="medieval knight armor"
     )
 
     # Check results
@@ -78,7 +83,7 @@ def test_1_ai_validator_standalone():
         ValidationDecision.APPROVED,
         ValidationDecision.REJECTED,
         ValidationDecision.RETRY_RECOMMENDED,
-        ValidationDecision.FLAG_FOR_HUMAN,
+        ValidationDecision.FLAG_FOR_HUMAN
     ], "Invalid decision"
     assert 0.0 <= result.confidence <= 1.0, "Invalid confidence"
 
@@ -89,9 +94,9 @@ def test_1_ai_validator_standalone():
 
 def test_2_lineage_tracker_standalone():
     """Test 2: Lineage Tracker standalone"""
-    print("\n" + "=" * 60)
+    print("\n" + "="*60)
     print("TEST 2: Lineage Tracker Standalone")
-    print("=" * 60)
+    print("="*60)
 
     # Create tracker
     tracker = LineageTracker()
@@ -102,10 +107,9 @@ def test_2_lineage_tracker_standalone():
     asset3 = Path("tests/output/asset3.dds")
 
     from PIL import Image
-
-    Image.new("RGB", (256, 256), color="red").save(asset1)
-    Image.new("RGB", (256, 256), color="blue").save(asset2)
-    Image.new("RGB", (256, 256), color="green").save(asset3)
+    Image.new('RGB', (256, 256), color='red').save(asset1)
+    Image.new('RGB', (256, 256), color='blue').save(asset2)
+    Image.new('RGB', (256, 256), color='green').save(asset3)
 
     print(f"[TEST] Created test assets: {asset1}, {asset2}, {asset3}")
 
@@ -113,7 +117,7 @@ def test_2_lineage_tracker_standalone():
     checksum1 = tracker.record_generation(
         asset_path=asset1,
         parameters={"prompt": "red texture", "steps": 30, "cfg_scale": 7.5},
-        generator="forge_diffusion",
+        generator="forge_diffusion"
     )
     print(f"\n[LINEAGE] Generation recorded: {checksum1[:16]}...")
 
@@ -121,7 +125,7 @@ def test_2_lineage_tracker_standalone():
     checksum1_val = tracker.record_validation(
         asset_path=asset1,
         scores={"sharpness": 0.75, "overall": 0.80},
-        ai_decision={"decision": "approved", "confidence": 0.85},
+        ai_decision={"decision": "approved", "confidence": 0.85}
     )
     print(f"[LINEAGE] Validation recorded: {checksum1_val[:16]}...")
 
@@ -130,7 +134,7 @@ def test_2_lineage_tracker_standalone():
         original_asset=asset1,
         retry_asset=asset2,
         attempt_number=2,
-        adjustments={"cfg_scale": 8.0, "steps": 35},
+        adjustments={"cfg_scale": 8.0, "steps": 35}
     )
     print(f"[LINEAGE] Retry recorded: {checksum2[:16]}...")
 
@@ -140,7 +144,7 @@ def test_2_lineage_tracker_standalone():
         output_asset=asset3,
         format="dds",
         converter="forge_converter",
-        parameters={"compression": "BC7"},
+        parameters={"compression": "BC7"}
     )
     print(f"[LINEAGE] Conversion recorded: {checksum3[:16]}...")
 
@@ -185,13 +189,15 @@ def test_2_lineage_tracker_standalone():
 
 def test_3_pipeline_dag():
     """Test 3: Full Pipeline DAG Execution"""
-    print("\n" + "=" * 60)
+    print("\n" + "="*60)
     print("TEST 3: Full Pipeline DAG Execution")
-    print("=" * 60)
+    print("="*60)
 
     # Create pipeline with high autonomy
     pipeline = AssetPipeline(
-        ai_authority=AuthorityLevel.HIGH_AUTONOMY, max_retries=2, enable_lineage=True
+        ai_authority=AuthorityLevel.HIGH_AUTONOMY,
+        max_retries=2,
+        enable_lineage=True
     )
 
     print("[PIPELINE] Created pipeline with HIGH_AUTONOMY")
@@ -204,7 +210,7 @@ def test_3_pipeline_dag():
         output_type="weapon",
         target_engines=["unity", "unreal"],
         is_hero_asset=False,
-        generation_params={"steps": 30, "cfg_scale": 7.5},
+        generation_params={"steps": 30, "cfg_scale": 7.5}
     )
 
     print(f"\n[PIPELINE] Execution complete")
@@ -240,16 +246,16 @@ def test_3_pipeline_dag():
 
 def test_4_integrated_workflow():
     """Test 4: Complete Integrated Workflow"""
-    print("\n" + "=" * 60)
+    print("\n" + "="*60)
     print("TEST 4: Complete Integrated Workflow")
-    print("=" * 60)
+    print("="*60)
 
     # Use convenience function
     result = run_asset_pipeline(
         prompt="medieval castle wall texture",
         target_engines=["unity", "unreal", "godot"],
         output_type="environment",
-        is_hero_asset=False,
+        is_hero_asset=False
     )
 
     print(f"\n[WORKFLOW] Pipeline complete")
@@ -283,13 +289,15 @@ def test_4_integrated_workflow():
 
 def test_5_retry_logic():
     """Test 5: Retry Logic with AI Adjustments"""
-    print("\n" + "=" * 60)
+    print("\n" + "="*60)
     print("TEST 5: Retry Logic with AI Adjustments")
-    print("=" * 60)
+    print("="*60)
 
     # Create pipeline with supervised mode (more likely to retry)
     pipeline = AssetPipeline(
-        ai_authority=AuthorityLevel.SUPERVISED, max_retries=3, enable_lineage=True
+        ai_authority=AuthorityLevel.SUPERVISED,
+        max_retries=3,
+        enable_lineage=True
     )
 
     print("[RETRY] Testing retry logic with SUPERVISED authority")
@@ -300,7 +308,7 @@ def test_5_retry_logic():
         output_type="character",
         target_engines=["unity"],
         is_hero_asset=True,  # Hero assets have stricter validation
-        generation_params={"steps": 20, "cfg_scale": 5.0},
+        generation_params={"steps": 20, "cfg_scale": 5.0}
     )
 
     print(f"\n[RETRY] Pipeline complete")
@@ -320,8 +328,7 @@ def test_5_retry_logic():
 
             # Get all retry operations
             retry_records = [
-                r
-                for r in tracker.get_asset_history(gen_checksum)
+                r for r in tracker.get_asset_history(gen_checksum)
                 if r.operation == OperationType.RETRY.value
             ]
 
@@ -341,10 +348,10 @@ def test_5_retry_logic():
 
 def run_all_tests():
     """Run all integration tests"""
-    print("\n" + "=" * 80)
+    print("\n" + "="*80)
     print("VAULTMIND FORGE - INTEGRATION TEST SUITE")
     print("Testing: AI Validation + Lineage Tracking + Pipeline DAG")
-    print("=" * 80)
+    print("="*80)
 
     # Set up environment
     setup_test_environment()
@@ -357,9 +364,9 @@ def run_all_tests():
         test_4_integrated_workflow()
         test_5_retry_logic()
 
-        print("\n" + "=" * 80)
+        print("\n" + "="*80)
         print("ALL TESTS PASSED")
-        print("=" * 80)
+        print("="*80)
         print("\nIntegration Summary:")
         print("  [OK] AI Validator: Autonomous decision making")
         print("  [OK] Lineage Tracker: Complete genealogy tracking")
@@ -377,7 +384,6 @@ def run_all_tests():
     except Exception as e:
         print(f"\n[ERROR] Test failed: {e}")
         import traceback
-
         traceback.print_exc()
         return False
 

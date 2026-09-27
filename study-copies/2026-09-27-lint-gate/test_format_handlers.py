@@ -4,7 +4,6 @@ Tests for FBX, DDS, MaterialX, and USD handlers
 """
 
 from __future__ import annotations
-import sys
 
 from pathlib import Path
 from typing import Dict, Any
@@ -23,7 +22,7 @@ from vaultmind_forge.forge_converter.formats import (
     CompressionQuality,
     MaterialParameters,
     ShaderModel,
-    USDLayerType,
+    USDLayerType
 )
 
 
@@ -34,7 +33,7 @@ def setup_test_environment():
         "tests/format_test/output/fbx",
         "tests/format_test/output/dds",
         "tests/format_test/output/materialx",
-        "tests/format_test/output/usd",
+        "tests/format_test/output/usd"
     ]
 
     for dir_path in test_dirs:
@@ -46,7 +45,7 @@ def setup_test_environment():
 def create_test_image(path: Path, size: tuple[int, int] = (512, 512)):
     """Create test image"""
     # Create gradient image
-    img = Image.new("RGBA", size)
+    img = Image.new('RGBA', size)
     pixels = np.zeros((size[1], size[0], 4), dtype=np.uint8)
 
     for y in range(size[1]):
@@ -54,11 +53,11 @@ def create_test_image(path: Path, size: tuple[int, int] = (512, 512)):
             pixels[y, x] = [
                 int(255 * x / size[0]),  # R
                 int(255 * y / size[1]),  # G
-                128,  # B
-                255,  # A
+                128,                      # B
+                255                       # A
             ]
 
-    img = Image.fromarray(pixels, "RGBA")
+    img = Image.fromarray(pixels, 'RGBA')
     img.save(path)
     print(f"[TEST] Created test image: {path}")
     return path
@@ -66,9 +65,9 @@ def create_test_image(path: Path, size: tuple[int, int] = (512, 512)):
 
 def test_1_format_registry():
     """Test 1: Format Registry"""
-    print("\n" + "=" * 60)
+    print("\n" + "="*60)
     print("TEST 1: Format Registry")
-    print("=" * 60)
+    print("="*60)
 
     # Create registry with all handlers
     registry = create_registry_with_handlers()
@@ -96,7 +95,7 @@ def test_1_format_registry():
         "test.fbx": FormatType.MODEL,
         "test.dds": FormatType.TEXTURE,
         "test.usd": FormatType.MODEL,
-        "test.usda": FormatType.MODEL,
+        "test.usda": FormatType.MODEL
     }
 
     print("\n[REGISTRY] Format detection:")
@@ -109,9 +108,9 @@ def test_1_format_registry():
 
 def test_2_dds_handler():
     """Test 2: DDS Handler (PNG → DDS conversion)"""
-    print("\n" + "=" * 60)
+    print("\n" + "="*60)
     print("TEST 2: DDS Handler")
-    print("=" * 60)
+    print("="*60)
 
     # Create handler
     handler = DDSHandler()
@@ -131,7 +130,9 @@ def test_2_dds_handler():
     target_path = Path("tests/format_test/output/dds/test_texture.dds")
 
     options = TextureOptions(
-        compression_quality=CompressionQuality.HIGH, generate_mipmaps=True, flip_y=False
+        compression_quality=CompressionQuality.HIGH,
+        generate_mipmaps=True,
+        flip_y=False
     )
 
     try:
@@ -159,9 +160,9 @@ def test_2_dds_handler():
 
 def test_3_materialx_handler():
     """Test 3: MaterialX Handler"""
-    print("\n" + "=" * 60)
+    print("\n" + "="*60)
     print("TEST 3: MaterialX Handler")
-    print("=" * 60)
+    print("="*60)
 
     # Create handler
     handler = MaterialXHandler()
@@ -175,7 +176,7 @@ def test_3_materialx_handler():
         metalness=0.9,
         roughness=0.3,
         emission_color=(1.0, 0.5, 0.0),
-        emission_strength=2.0,
+        emission_strength=2.0
     )
 
     print(f"\n[MaterialX] Material parameters:")
@@ -215,9 +216,9 @@ def test_3_materialx_handler():
 
 def test_4_usd_handler():
     """Test 4: USD Handler"""
-    print("\n" + "=" * 60)
+    print("\n" + "="*60)
     print("TEST 4: USD Handler")
-    print("=" * 60)
+    print("="*60)
 
     # Create handler
     handler = USDHandler()
@@ -234,7 +235,6 @@ def test_4_usd_handler():
     try:
         # Create simple cube mesh
         import trimesh
-
         mesh = trimesh.creation.box((1.0, 1.0, 1.0))
 
         # Save as temporary OBJ
@@ -250,7 +250,7 @@ def test_4_usd_handler():
         print(f"[USD] File size: {usd_path.stat().st_size} bytes")
 
         # Read USD header
-        with open(usd_path, "r") as f:
+        with open(usd_path, 'r') as f:
             header = f.read(200)
             print(f"\n[USD] File header:")
             print(header[:100] + "...")
@@ -270,9 +270,9 @@ def test_4_usd_handler():
 
 def test_5_fbx_handler():
     """Test 5: FBX Handler"""
-    print("\n" + "=" * 60)
+    print("\n" + "="*60)
     print("TEST 5: FBX Handler")
-    print("=" * 60)
+    print("="*60)
 
     # Create handler
     handler = FBXHandler()
@@ -328,10 +328,10 @@ def test_5_fbx_handler():
 
 def run_all_tests():
     """Run all format handler tests"""
-    print("\n" + "=" * 80)
+    print("\n" + "="*80)
     print("VAULTMIND FORGE - FORMAT HANDLER TEST SUITE")
     print("Testing: FBX, DDS, MaterialX, USD")
-    print("=" * 80)
+    print("="*80)
 
     # Set up environment
     setup_test_environment()
@@ -344,9 +344,9 @@ def run_all_tests():
         test_4_usd_handler()
         test_5_fbx_handler()
 
-        print("\n" + "=" * 80)
+        print("\n" + "="*80)
         print("ALL TESTS PASSED")
-        print("=" * 80)
+        print("="*80)
         print("\nFormat Handler Summary:")
         print("  [OK] Format Registry: Handler registration and detection")
         print("  [OK] DDS Handler: PNG -> DDS with mipmaps")
@@ -366,7 +366,6 @@ def run_all_tests():
     except Exception as e:
         print(f"\n[ERROR] Test failed: {e}")
         import traceback
-
         traceback.print_exc()
         return False
 

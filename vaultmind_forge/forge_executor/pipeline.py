@@ -74,8 +74,8 @@ def _generated_subcategory_paths(base_path: Path) -> Dict[str, Path]:
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S'
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
 )
 logger = logging.getLogger(__name__)
 
@@ -88,6 +88,7 @@ from ..forge_converter.ai_control import AuthorityLevel
 @dataclass
 class Task:
     """Simple task for synchronous execution"""
+
     id: str
     func: Callable
     args: tuple = ()
@@ -100,6 +101,7 @@ class Task:
 
 class DAG:
     """Simple synchronous DAG executor"""
+
     def __init__(self):
         self.tasks: Dict[str, Task] = {}
         self.results: Dict[str, Any] = {}
@@ -133,6 +135,7 @@ class DAG:
 
 class Executor:
     """Simple synchronous executor with error handling and progress tracking"""
+
     def execute(self, dag: DAG, on_progress: Optional[Callable[[str, str], None]] = None):
         """
         Execute DAG tasks in order
@@ -199,6 +202,7 @@ class Executor:
 
 class PipelineStage(Enum):
     """Pipeline stages"""
+
     GENERATE = "generate"
     VALIDATE = "validate"
     RETRY = "retry"
@@ -213,6 +217,7 @@ class PipelineStage(Enum):
 @dataclass
 class PipelineResult:
     """Result from pipeline execution"""
+
     success: bool
     outputs: Dict[str, Path]
     lineage_checksums: Dict[str, str]
@@ -260,7 +265,7 @@ class AssetPipeline:
         ai_authority: AuthorityLevel = AuthorityLevel.HIGH_AUTONOMY,
         max_retries: int = 3,
         enable_lineage: bool = True,
-        base_path: Optional[Path] = None
+        base_path: Optional[Path] = None,
     ):
         """
         Initialize pipeline
@@ -296,26 +301,24 @@ class AssetPipeline:
             # time. All singulars are now generated from the canonical set
             # below rather than listed by hand, so the two forms cannot drift
             # apart again.
-            'generated': {
-                **_generated_subcategory_paths(self.base_path)
-            },
+            "generated": {**_generated_subcategory_paths(self.base_path)},
             # Validation outputs
-            'validated': {
-                'winners': self.base_path / "validated" / "winners",
-                'rejected': self.base_path / "validated" / "rejected",
-                'flagged': self.base_path / "validated" / "flagged_for_review"
+            "validated": {
+                "winners": self.base_path / "validated" / "winners",
+                "rejected": self.base_path / "validated" / "rejected",
+                "flagged": self.base_path / "validated" / "flagged_for_review",
             },
             # Engine-specific outputs
-            'output': {
-                'unity': self.base_path / "output" / "unity",
-                'unreal': self.base_path / "output" / "unreal",
-                'godot': self.base_path / "output" / "godot",
-                'web': self.base_path / "output" / "web",
-                'blender': self.base_path / "output" / "blender"
+            "output": {
+                "unity": self.base_path / "output" / "unity",
+                "unreal": self.base_path / "output" / "unreal",
+                "godot": self.base_path / "output" / "godot",
+                "web": self.base_path / "output" / "web",
+                "blender": self.base_path / "output" / "blender",
             },
             # Packaging and distribution
-            'packages': self.base_path / "packages",
-            'temp': self.base_path / "temp"
+            "packages": self.base_path / "packages",
+            "temp": self.base_path / "temp",
         }
 
         # Flatten and ensure all directories exist
@@ -329,6 +332,7 @@ class AssetPipeline:
 
     def _ensure_directories_exist(self):
         """Create all required directories"""
+
         def create_dirs(path_dict):
             for key, value in path_dict.items():
                 if isinstance(value, dict):
@@ -379,7 +383,7 @@ class AssetPipeline:
         target_engines: Optional[List[str]] = None,
         is_hero_asset: bool = False,
         generation_params: Optional[Dict[str, Any]] = None,
-        **kwargs
+        **kwargs,
     ) -> PipelineResult:
         """
         Run complete generation pipeline
@@ -402,7 +406,7 @@ class AssetPipeline:
             "is_hero_asset": is_hero_asset,
             "target_engines": target_engines or ["unity"],
             "generation_params": generation_params or {},
-            **kwargs
+            **kwargs,
         }
 
         # Build DAG
@@ -422,7 +426,7 @@ class AssetPipeline:
                 outputs={},
                 lineage_checksums={},
                 stages_completed=[],
-                errors=[str(e)]
+                errors=[str(e)],
             )
 
     def _build_pipeline_dag(self) -> DAG:
@@ -430,51 +434,39 @@ class AssetPipeline:
         dag = DAG()
 
         # Stage 1: Generate
-        dag.add_task(Task(
-            id="generate",
-            func=self._generate_task,
-            args=(self.current_job,)
-        ))
+        dag.add_task(Task(id="generate", func=self._generate_task, args=(self.current_job,)))
 
         # Stage 2: Validate (AI-powered)
-        dag.add_task(Task(
-            id="validate",
-            func=self._validate_task,
-            deps=["generate"]
-        ))
+        dag.add_task(Task(id="validate", func=self._validate_task, deps=["generate"]))
 
         # Stage 3: Retry (conditional - only if validation failed)
-        dag.add_task(Task(
-            id="retry_check",
-            func=self._retry_check_task,
-            deps=["validate"]
-        ))
+        dag.add_task(Task(id="retry_check", func=self._retry_check_task, deps=["validate"]))
 
         # Stage 4: Optimize
-        dag.add_task(Task(
-            id="optimize",
-            func=self._optimize_task,
-            deps=["retry_check"]
-        ))
+        dag.add_task(Task(id="optimize", func=self._optimize_task, deps=["retry_check"]))
 
         # Stage 5: Export (parallel for multiple engines)
         target_engines = self.current_job.get("target_engines", ["unity"])
 
         for engine in target_engines:
             task_id = f"export_{engine}"
-            dag.add_task(Task(
-                id=task_id,
-                func=lambda result, eng=engine: self._export_task(eng, result),
-                deps=["optimize"]
-            ))
+            dag.add_task(
+                Task(
+                    id=task_id,
+                    func=lambda result, eng=engine: self._export_task(eng, result),
+                    deps=["optimize"],
+                )
+            )
 
         # Stage 6: Package (depends on all exports)
         export_tasks = [f"export_{engine}" for engine in target_engines]
-        dag.add_task(Task(
-            id="package",
-            func=lambda *results: self._package_task(list(results)),
-            deps=export_tasks
-        ))
+        dag.add_task(
+            Task(
+                id="package",
+                func=lambda *results: self._package_task(list(results)),
+                deps=export_tasks,
+            )
+        )
 
         return dag
 
@@ -490,35 +482,36 @@ class AssetPipeline:
         logger.info(f"[GENERATE] Generating: {job_config['prompt']}")
 
         # Get output type and determine file extension
-        output_type = job_config.get('output_type', 'standard')
+        output_type = job_config.get("output_type", "standard")
 
         # Map output types to file extensions
         type_extensions = {
-            'textures': '.png',
-            'models': '.fbx',
-            'materials': '.mtl',
-            'animations': '.fbx',
-            'environments': '.gltf',
-            'characters': '.fbx',
-            'props': '.fbx',
-            'effects': '.vfx',
-            'audio': '.wav',
-            'standard': '.png'
+            "textures": ".png",
+            "models": ".fbx",
+            "materials": ".mtl",
+            "animations": ".fbx",
+            "environments": ".gltf",
+            "characters": ".fbx",
+            "props": ".fbx",
+            "effects": ".vfx",
+            "audio": ".wav",
+            "standard": ".png",
         }
 
         # Get the proper path using the helper method
-        output_dir = self.get_path('generated', output_type)
+        output_dir = self.get_path("generated", output_type)
 
         # Generate unique filename with timestamp
-        timestamp = datetime.utcnow().strftime('%Y%m%d_%H%M%S')
-        ext = type_extensions.get(output_type, '.png')
+        timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+        ext = type_extensions.get(output_type, ".png")
         output_path = output_dir / f"job_{timestamp}_{id(job_config)}{ext}"
 
         # Placeholder: simulate generation
         # For image types, create a valid placeholder image
-        if ext == '.png':
+        if ext == ".png":
             from PIL import Image
-            img = Image.new('RGB', (512, 512), color='gray')
+
+            img = Image.new("RGB", (512, 512), color="gray")
             img.save(output_path)
         else:
             output_path.touch()  # Create placeholder file for non-image types
@@ -530,9 +523,9 @@ class AssetPipeline:
                 parameters={
                     "prompt": job_config["prompt"],
                     "output_type": job_config["output_type"],
-                    **job_config.get("generation_params", {})
+                    **job_config.get("generation_params", {}),
                 },
-                generator="forge_diffusion"
+                generator="forge_diffusion",
             )
             job_config["generation_checksum"] = checksum
 
@@ -555,13 +548,11 @@ class AssetPipeline:
         context = {
             "output_type": self.current_job["output_type"],
             "is_hero_asset": self.current_job["is_hero_asset"],
-            "attempt_number": self.retry_count + 1
+            "attempt_number": self.retry_count + 1,
         }
 
         ai_result = self.ai_validator.validate_with_ai(
-            asset_path=generate_result,
-            context=context,
-            prompt=self.current_job["prompt"]
+            asset_path=generate_result, context=context, prompt=self.current_job["prompt"]
         )
 
         # Record lineage
@@ -572,11 +563,13 @@ class AssetPipeline:
                 ai_decision={
                     "decision": ai_result.decision.value,
                     "confidence": ai_result.confidence,
-                    "reasoning": ai_result.reasoning
-                }
+                    "reasoning": ai_result.reasoning,
+                },
             )
 
-        logger.info(f"[VALIDATE] Decision: {ai_result.decision.value} (confidence: {ai_result.confidence:.2f})")
+        logger.info(
+            f"[VALIDATE] Decision: {ai_result.decision.value} (confidence: {ai_result.confidence:.2f})"
+        )
         logger.info(f"[VALIDATE] Reasoning: {ai_result.reasoning}")
 
         return {
@@ -584,7 +577,7 @@ class AssetPipeline:
             "decision": ai_result.decision,
             "confidence": ai_result.confidence,
             "reasoning": ai_result.reasoning,
-            "adjustments": ai_result.suggested_adjustments
+            "adjustments": ai_result.suggested_adjustments,
         }
 
     def _retry_check_task(self, validate_result: Dict[str, Any]) -> Optional[Path]:
@@ -600,7 +593,9 @@ class AssetPipeline:
         decision = validate_result["decision"]
 
         if decision == ValidationDecision.RETRY_RECOMMENDED and self.retry_count < self.max_retries:
-            logger.info(f"[RETRY] Retry recommended (attempt {self.retry_count + 1}/{self.max_retries})")
+            logger.info(
+                f"[RETRY] Retry recommended (attempt {self.retry_count + 1}/{self.max_retries})"
+            )
             logger.info(f"[RETRY] Adjustments: {validate_result['adjustments']}")
 
             # Apply adjustments and regenerate
@@ -624,7 +619,7 @@ class AssetPipeline:
                     original_asset=original_asset,
                     retry_asset=new_asset,
                     attempt_number=self.retry_count,
-                    adjustments=adjustments
+                    adjustments=adjustments,
                 )
 
             # Re-validate
@@ -658,12 +653,13 @@ class AssetPipeline:
         logger.info(f"[OPTIMIZE] Optimizing: {validated_asset}")
 
         # Use defined validated winners path
-        output_path = self.get_path('validated', 'winners') / validated_asset.name
+        output_path = self.get_path("validated", "winners") / validated_asset.name
 
         # In production: actually optimize the asset
         # For now: just reference original
         if validated_asset.exists():
             import shutil
+
             shutil.copy(validated_asset, output_path)
 
         # Record lineage
@@ -672,7 +668,7 @@ class AssetPipeline:
                 input_asset=validated_asset,
                 output_asset=output_path,
                 optimization_type="quality_approved",
-                parameters={"stage": "validated"}
+                parameters={"stage": "validated"},
             )
 
         logger.info(f"[OPTIMIZE] Optimized: {output_path}")
@@ -689,24 +685,25 @@ class AssetPipeline:
         logger.info(f"[EXPORT-{engine.upper()}] Exporting for {engine}")
 
         # Use defined engine-specific output path
-        engine_dir = self.get_path('output', engine)
+        engine_dir = self.get_path("output", engine)
 
         # Determine proper file extension for each engine
         engine_extensions = {
-            'unity': '.prefab',
-            'unreal': '.uasset',
-            'godot': '.tscn',
-            'web': '.gltf',
-            'blender': '.blend'
+            "unity": ".prefab",
+            "unreal": ".uasset",
+            "godot": ".tscn",
+            "web": ".gltf",
+            "blender": ".blend",
         }
 
-        ext = engine_extensions.get(engine, f'.{engine}')
+        ext = engine_extensions.get(engine, f".{engine}")
         output_path = engine_dir / f"{optimized_asset.stem}{ext}"
 
         # In production: actually convert to engine format
         # For now: just create placeholder
         if optimized_asset.exists():
             import shutil
+
             shutil.copy(optimized_asset, output_path)
 
         # Record lineage
@@ -716,7 +713,7 @@ class AssetPipeline:
                 output_asset=output_path,
                 format=engine,
                 converter="forge_converter",
-                parameters={"target_engine": engine}
+                parameters={"target_engine": engine},
             )
 
         logger.info(f"[EXPORT-{engine.upper()}] Exported: {output_path}")
@@ -733,9 +730,9 @@ class AssetPipeline:
         logger.info(f"[PACKAGE] Packaging {len(export_results)} exports")
 
         # Use defined packages path
-        timestamp = datetime.utcnow().strftime('%Y%m%d_%H%M%S')
+        timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
         package_name = f"package_{timestamp}_{id(self.current_job)}"
-        package_path = self.get_path('packages', None) / package_name
+        package_path = self.get_path("packages", None) / package_name
         package_path.mkdir(parents=True, exist_ok=True)
 
         # In production: create actual package with metadata, README, etc.
@@ -760,17 +757,13 @@ class AssetPipeline:
                 "retry_check" if self.retry_count > 0 else "",
                 "optimize",
                 *[f"export_{e}" for e in self.current_job.get("target_engines", ["unity"])],
-                "package"
-            ]
+                "package",
+            ],
         )
 
 
 # Convenience function
-def run_asset_pipeline(
-    prompt: str,
-    target_engines: List[str] = None,
-    **kwargs
-) -> PipelineResult:
+def run_asset_pipeline(prompt: str, target_engines: List[str] = None, **kwargs) -> PipelineResult:
     """
     Quick pipeline execution
 
@@ -789,8 +782,4 @@ def run_asset_pipeline(
         ... )
     """
     pipeline = AssetPipeline()
-    return pipeline.run_generation_pipeline(
-        prompt=prompt,
-        target_engines=target_engines,
-        **kwargs
-    )
+    return pipeline.run_generation_pipeline(prompt=prompt, target_engines=target_engines, **kwargs)

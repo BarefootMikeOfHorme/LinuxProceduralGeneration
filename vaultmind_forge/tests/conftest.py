@@ -90,8 +90,7 @@ def pytest_collection_modifyitems(config, items):
     offenders = sorted(
         str(item.module.__file__)
         for item in items
-        if getattr(item.module, "__file__", None)
-        and _module_mutated_path(item.module, package_dir)
+        if getattr(item.module, "__file__", None) and _module_mutated_path(item.module, package_dir)
     )
 
     detail = "\n".join(f"  added: {entry}" for entry in intruders)

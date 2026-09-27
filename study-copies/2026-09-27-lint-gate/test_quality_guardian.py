@@ -1,5 +1,3 @@
-import sys
-
 """
 Test suite for Quality Guardian Agent
 """
@@ -21,28 +19,31 @@ def create_test_image(path: Path, quality_type: str = "good"):
 
     if quality_type == "good":
         # High quality image
-        img = Image.new("RGB", (512, 512))
+        img = Image.new('RGB', (512, 512))
         pixels = np.zeros((512, 512, 3), dtype=np.uint8)
 
         # Create sharp gradient with good contrast
         for y in range(512):
             for x in range(512):
-                pixels[y, x] = [int(255 * x / 512), int(255 * y / 512), 128]
+                pixels[y, x] = [
+                    int(255 * x / 512),
+                    int(255 * y / 512),
+                    128
+                ]
 
-        img = Image.fromarray(pixels, "RGB")
+        img = Image.fromarray(pixels, 'RGB')
 
     elif quality_type == "blurry":
         # Blurry image (needs sharpening)
-        img = Image.new("RGB", (512, 512), color=(128, 128, 128))
+        img = Image.new('RGB', (512, 512), color=(128, 128, 128))
         # Add minimal detail
         from PIL import ImageDraw
-
         draw = ImageDraw.Draw(img)
         draw.ellipse([100, 100, 400, 400], fill=(150, 150, 150))
 
     elif quality_type == "low_contrast":
         # Low contrast image
-        img = Image.new("RGB", (512, 512))
+        img = Image.new('RGB', (512, 512))
         pixels = np.zeros((512, 512, 3), dtype=np.uint8)
 
         # Very similar colors (low contrast)
@@ -51,21 +52,21 @@ def create_test_image(path: Path, quality_type: str = "good"):
                 val = 120 + int(10 * np.sin(x / 50))
                 pixels[y, x] = [val, val, val]
 
-        img = Image.fromarray(pixels, "RGB")
+        img = Image.fromarray(pixels, 'RGB')
 
     elif quality_type == "dark":
         # Too dark
-        img = Image.new("RGB", (512, 512), color=(30, 30, 30))
+        img = Image.new('RGB', (512, 512), color=(30, 30, 30))
 
     elif quality_type == "bright":
         # Too bright
-        img = Image.new("RGB", (512, 512), color=(240, 240, 240))
+        img = Image.new('RGB', (512, 512), color=(240, 240, 240))
 
     else:  # noisy
         # Noisy image
-        img = Image.new("RGB", (512, 512))
+        img = Image.new('RGB', (512, 512))
         pixels = np.random.randint(0, 256, (512, 512, 3), dtype=np.uint8)
-        img = Image.fromarray(pixels, "RGB")
+        img = Image.fromarray(pixels, 'RGB')
 
     img.save(path)
     return path
@@ -73,12 +74,14 @@ def create_test_image(path: Path, quality_type: str = "good"):
 
 def test_1_agent_initialization():
     """Test 1: Agent initialization"""
-    print("\n" + "=" * 60)
+    print("\n" + "="*60)
     print("TEST 1: Quality Guardian Initialization")
-    print("=" * 60)
+    print("="*60)
 
     agent = QualityGuardianAgent(
-        min_quality_threshold=0.7, auto_fix_enabled=True, aggressive_fixing=False
+        min_quality_threshold=0.7,
+        auto_fix_enabled=True,
+        aggressive_fixing=False
     )
 
     print(f"[OK] Agent created: {agent.name}")
@@ -95,9 +98,9 @@ def test_1_agent_initialization():
 
 def test_2_assess_good_quality():
     """Test 2: Assess high-quality image"""
-    print("\n" + "=" * 60)
+    print("\n" + "="*60)
     print("TEST 2: Assess Good Quality Image")
-    print("=" * 60)
+    print("="*60)
 
     agent = QualityGuardianAgent(min_quality_threshold=0.7, confidence_threshold=0.4)
 
@@ -125,11 +128,14 @@ def test_2_assess_good_quality():
 
 def test_3_auto_fix_blurry():
     """Test 3: Auto-fix blurry image"""
-    print("\n" + "=" * 60)
+    print("\n" + "="*60)
     print("TEST 3: Auto-Fix Blurry Image")
-    print("=" * 60)
+    print("="*60)
 
-    agent = QualityGuardianAgent(min_quality_threshold=0.7, auto_fix_enabled=True)
+    agent = QualityGuardianAgent(
+        min_quality_threshold=0.7,
+        auto_fix_enabled=True
+    )
 
     # Create blurry test image
     test_img = Path("tests/quality_guardian_test/blurry.png")
@@ -139,16 +145,8 @@ def test_3_auto_fix_blurry():
     report = agent.assess_and_fix(test_img)
 
     print(f"\n[REPORT] Before quality: {report.before_quality:.3f}")
-    print(
-        f"[REPORT] After quality: {report.after_quality:.3f}"
-        if report.after_quality
-        else "[REPORT] No fixes applied"
-    )
-    print(
-        f"[REPORT] Improvement: {(report.after_quality - report.before_quality):.3f}"
-        if report.after_quality
-        else "N/A"
-    )
+    print(f"[REPORT] After quality: {report.after_quality:.3f}" if report.after_quality else "[REPORT] No fixes applied")
+    print(f"[REPORT] Improvement: {(report.after_quality - report.before_quality):.3f}" if report.after_quality else "N/A")
     print(f"[REPORT] Fixes applied: {report.fixes_applied}")
 
     # Should have attempted to fix
@@ -162,9 +160,9 @@ def test_3_auto_fix_blurry():
 
 def test_4_auto_fix_contrast():
     """Test 4: Auto-fix low contrast"""
-    print("\n" + "=" * 60)
+    print("\n" + "="*60)
     print("TEST 4: Auto-Fix Low Contrast")
-    print("=" * 60)
+    print("="*60)
 
     agent = QualityGuardianAgent(auto_fix_enabled=True)
 
@@ -174,15 +172,11 @@ def test_4_auto_fix_contrast():
     report = agent.assess_and_fix(test_img)
 
     print(f"\n[REPORT] Before quality: {report.before_quality:.3f}")
-    print(
-        f"[REPORT] After quality: {report.after_quality:.3f}"
-        if report.after_quality
-        else "[REPORT] No fixes"
-    )
+    print(f"[REPORT] After quality: {report.after_quality:.3f}" if report.after_quality else "[REPORT] No fixes")
     print(f"[REPORT] Fixes: {report.fixes_applied}")
 
     # Should detect contrast issue
-    issues = [issue for issue in report.issues_found if "contrast" in issue.description.lower()]
+    issues = [issue for issue in report.issues_found if 'contrast' in issue.description.lower()]
     if issues:
         print(f"[OK] Detected contrast issue: {issues[0].description}")
 
@@ -192,9 +186,9 @@ def test_4_auto_fix_contrast():
 
 def test_5_auto_fix_brightness():
     """Test 5: Auto-fix brightness"""
-    print("\n" + "=" * 60)
+    print("\n" + "="*60)
     print("TEST 5: Auto-Fix Brightness Issues")
-    print("=" * 60)
+    print("="*60)
 
     agent = QualityGuardianAgent(auto_fix_enabled=True)
 
@@ -205,11 +199,7 @@ def test_5_auto_fix_brightness():
     report_dark = agent.assess_and_fix(dark_img)
 
     print(f"\n[DARK] Before: {report_dark.before_quality:.3f}")
-    print(
-        f"[DARK] After: {report_dark.after_quality:.3f}"
-        if report_dark.after_quality
-        else "[DARK] No fixes"
-    )
+    print(f"[DARK] After: {report_dark.after_quality:.3f}" if report_dark.after_quality else "[DARK] No fixes")
     print(f"[DARK] Fixes: {report_dark.fixes_applied}")
 
     # Test bright image
@@ -219,11 +209,7 @@ def test_5_auto_fix_brightness():
     report_bright = agent.assess_and_fix(bright_img)
 
     print(f"\n[BRIGHT] Before: {report_bright.before_quality:.3f}")
-    print(
-        f"[BRIGHT] After: {report_bright.after_quality:.3f}"
-        if report_bright.after_quality
-        else "[BRIGHT] No fixes"
-    )
+    print(f"[BRIGHT] After: {report_bright.after_quality:.3f}" if report_bright.after_quality else "[BRIGHT] No fixes")
     print(f"[BRIGHT] Fixes: {report_bright.fixes_applied}")
 
     print("\n[TEST 5] PASSED")
@@ -232,9 +218,9 @@ def test_5_auto_fix_brightness():
 
 def test_6_metrics_and_reporting():
     """Test 6: Metrics and reporting"""
-    print("\n" + "=" * 60)
+    print("\n" + "="*60)
     print("TEST 6: Metrics and Reporting")
-    print("=" * 60)
+    print("="*60)
 
     agent = QualityGuardianAgent()
 
@@ -272,7 +258,7 @@ def test_6_metrics_and_reporting():
             print(f"    Avg improvement: {stats['avg_improvement']:.3f}")
             print(f"    Success rate: {stats['success_rate']:.3f}")
 
-    assert metrics["total_decisions"] >= 3
+    assert metrics['total_decisions'] >= 3
 
     print("\n[TEST 6] PASSED")
     return True
@@ -280,13 +266,14 @@ def test_6_metrics_and_reporting():
 
 def test_7_escalation_logic():
     """Test 7: Escalation logic"""
-    print("\n" + "=" * 60)
+    print("\n" + "="*60)
     print("TEST 7: Escalation Logic")
-    print("=" * 60)
+    print("="*60)
 
     # High threshold agent (more likely to escalate)
     agent = QualityGuardianAgent(
-        min_quality_threshold=0.9, auto_fix_enabled=True  # Very high threshold
+        min_quality_threshold=0.9,  # Very high threshold
+        auto_fix_enabled=True
     )
 
     # Medium quality image
@@ -307,9 +294,9 @@ def test_7_escalation_logic():
 
 def test_8_agent_status():
     """Test 8: Agent status and info"""
-    print("\n" + "=" * 60)
+    print("\n" + "="*60)
     print("TEST 8: Agent Status")
-    print("=" * 60)
+    print("="*60)
 
     agent = QualityGuardianAgent()
 
@@ -321,9 +308,9 @@ def test_8_agent_status():
     print(f"[STATUS] Learning enabled: {status['learning_enabled']}")
     print(f"[STATUS] Decision history size: {status['decision_history_size']}")
 
-    assert status["name"] == "QualityGuardian"
-    assert "quality_assessment" in status["capabilities"]
-    assert "auto_fix" in status["capabilities"]
+    assert status['name'] == "QualityGuardian"
+    assert 'quality_assessment' in status['capabilities']
+    assert 'auto_fix' in status['capabilities']
 
     print("\n[TEST 8] PASSED")
     return True
@@ -331,9 +318,9 @@ def test_8_agent_status():
 
 def run_all_tests():
     """Run all Quality Guardian tests"""
-    print("\n" + "=" * 80)
+    print("\n" + "="*80)
     print("QUALITY GUARDIAN AGENT - COMPREHENSIVE TEST SUITE")
-    print("=" * 80)
+    print("="*80)
 
     tests = [
         test_1_agent_initialization,
@@ -353,13 +340,12 @@ def run_all_tests():
         except Exception as e:
             print(f"\n[ERROR] Test crashed: {e}")
             import traceback
-
             traceback.print_exc()
             results.append(False)
 
-    print("\n" + "=" * 80)
+    print("\n" + "="*80)
     print("TEST SUMMARY")
-    print("=" * 80)
+    print("="*80)
 
     passed = sum(results)
     total = len(results)

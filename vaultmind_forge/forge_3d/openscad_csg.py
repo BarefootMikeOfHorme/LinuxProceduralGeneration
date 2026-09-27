@@ -24,11 +24,19 @@ Usage:
 """
 
 from pathlib import Path
-from typing import List, Tuple, Optional, Union
+from typing import TYPE_CHECKING, List, Tuple, Optional, Union
 import tempfile
 
 from .openscad_export import OpenSCADExporter
 from .openscad_import import OpenSCADImporter
+
+if TYPE_CHECKING:
+    # Mesh is the quoted return type of the CSG helpers below. The annotations
+    # are string literals and are not evaluated at runtime, so the name only has
+    # to resolve for a type checker. Imported under TYPE_CHECKING rather than at
+    # module scope to avoid pulling the mesh machinery in for callers that only
+    # want the CSG combinators.
+    from .mesh import Mesh
 
 
 class CSGBuilder:
@@ -51,8 +59,7 @@ class CSGBuilder:
         self.temp_dir = Path(tempfile.gettempdir()) / "vaultmind_csg"
         self.temp_dir.mkdir(exist_ok=True)
 
-    def _primitives_to_scad(self, primitives: List[Tuple],
-                           operation: str) -> str:
+    def _primitives_to_scad(self, primitives: List[Tuple], operation: str) -> str:
         """
         Convert primitives to SCAD script with CSG operation.
 
@@ -79,14 +86,12 @@ class CSGBuilder:
 
             # Generate module
             module_code = self.exporter.primitive_to_scad(
-                primitive,
-                name=f"obj{i}",
-                parametric=False
+                primitive, name=f"obj{i}", parametric=False
             )
 
             # Extract just the geometry (remove comments)
-            lines = [l for l in module_code.split('\n') if not l.strip().startswith('//')]
-            geometry = '\n'.join(lines).strip()
+            lines = [l for l in module_code.split("\n") if not l.strip().startswith("//")]
+            geometry = "\n".join(lines).strip()
 
             # Wrap with transforms
             x, y, z = position
@@ -119,7 +124,7 @@ class CSGBuilder:
 
         return scad_code
 
-    def _execute_csg(self, scad_code: str, operation_name: str) -> 'Mesh':
+    def _execute_csg(self, scad_code: str, operation_name: str) -> "Mesh":
         """
         Execute CSG operation and return mesh.
 
@@ -132,7 +137,7 @@ class CSGBuilder:
         """
         # Write SCAD file
         scad_path = self.temp_dir / f"{operation_name}.scad"
-        with open(scad_path, 'w') as f:
+        with open(scad_path, "w") as f:
             f.write(scad_code)
 
         # Render to mesh
@@ -141,7 +146,7 @@ class CSGBuilder:
 
         return mesh
 
-    def union(self, *primitives: Union[Tuple, object]) -> 'Mesh':
+    def union(self, *primitives: Union[Tuple, object]) -> "Mesh":
         """
         Combine multiple objects into one.
 
@@ -173,7 +178,7 @@ class CSGBuilder:
         scad_code = self._primitives_to_scad(prim_list, "union")
         return self._execute_csg(scad_code, "union_result")
 
-    def difference(self, base, *subtract) -> 'Mesh':
+    def difference(self, base, *subtract) -> "Mesh":
         """
         Subtract objects from base object.
 
@@ -214,7 +219,7 @@ class CSGBuilder:
         scad_code = self._primitives_to_scad(prim_list, "difference")
         return self._execute_csg(scad_code, "difference_result")
 
-    def intersection(self, *primitives) -> 'Mesh':
+    def intersection(self, *primitives) -> "Mesh":
         """
         Keep only overlapping parts of objects.
 
@@ -241,7 +246,7 @@ class CSGBuilder:
         scad_code = self._primitives_to_scad(prim_list, "intersection")
         return self._execute_csg(scad_code, "intersection_result")
 
-    def hull(self, *primitives) -> 'Mesh':
+    def hull(self, *primitives) -> "Mesh":
         """
         Create convex hull around objects.
 
@@ -271,7 +276,7 @@ class CSGBuilder:
         scad_code = self._primitives_to_scad(prim_list, "hull")
         return self._execute_csg(scad_code, "hull_result")
 
-    def minkowski(self, base, shape) -> 'Mesh':
+    def minkowski(self, base, shape) -> "Mesh":
         """
         Minkowski sum - rounds edges by sweeping shape around base.
 
@@ -297,7 +302,7 @@ class CSGBuilder:
         scad_code = self._primitives_to_scad([base_prim, shape_prim], "minkowski")
         return self._execute_csg(scad_code, "minkowski_result")
 
-    def custom_operation(self, scad_code: str, name: str = "custom") -> 'Mesh':
+    def custom_operation(self, scad_code: str, name: str = "custom") -> "Mesh":
         """
         Execute custom SCAD code.
 
@@ -329,8 +334,7 @@ class CSGPresets:
     def __init__(self, builder: Optional[CSGBuilder] = None):
         self.builder = builder or CSGBuilder()
 
-    def hollow_sphere(self, outer_radius: float, thickness: float,
-                     detail: str = "high") -> 'Mesh':
+    def hollow_sphere(self, outer_radius: float, thickness: float, detail: str = "high") -> "Mesh":
         """Create hollow sphere"""
         from .primitives_all import Sphere
 
@@ -339,8 +343,9 @@ class CSGPresets:
 
         return self.builder.difference(outer, inner)
 
-    def hollow_cylinder(self, outer_radius: float, inner_radius: float,
-                       height: float, detail: str = "high") -> 'Mesh':
+    def hollow_cylinder(
+        self, outer_radius: float, inner_radius: float, height: float, detail: str = "high"
+    ) -> "Mesh":
         """Create hollow cylinder (tube)"""
         from .primitives_all import Cylinder
 
@@ -349,21 +354,28 @@ class CSGPresets:
 
         return self.builder.difference(outer, inner)
 
-    def rounded_box(self, width: float, height: float, depth: float,
-                   rounding: float = 0.1) -> 'Mesh':
+    def rounded_box(
+        self, width: float, height: float, depth: float, rounding: float = 0.1
+    ) -> "Mesh":
         """Create box with rounded edges"""
         from .primitives_all import Box, Sphere
 
-        box = Box(width=width - rounding * 2,
-                 height=height - rounding * 2,
-                 depth=depth - rounding * 2)
+        box = Box(
+            width=width - rounding * 2, height=height - rounding * 2, depth=depth - rounding * 2
+        )
         round_shape = Sphere(radius=rounding, detail="low")
 
         return self.builder.minkowski(box, round_shape)
 
-    def perforated_plate(self, width: float, height: float, thickness: float,
-                        hole_radius: float, hole_spacing: float,
-                        detail: str = "medium") -> 'Mesh':
+    def perforated_plate(
+        self,
+        width: float,
+        height: float,
+        thickness: float,
+        hole_radius: float,
+        hole_spacing: float,
+        detail: str = "medium",
+    ) -> "Mesh":
         """Create plate with evenly spaced holes"""
         from .primitives_all import Box, Cylinder
         import math
@@ -389,9 +401,14 @@ class CSGPresets:
         # Subtract all holes
         return self.builder.difference(plate, *holes)
 
-    def gear_wheel(self, outer_radius: float, inner_radius: float,
-                  thickness: float, teeth: int = 12,
-                  tooth_depth: float = 0.2) -> 'Mesh':
+    def gear_wheel(
+        self,
+        outer_radius: float,
+        inner_radius: float,
+        thickness: float,
+        teeth: int = 12,
+        tooth_depth: float = 0.2,
+    ) -> "Mesh":
         """Create simple gear wheel"""
         from .primitives_all import Cylinder, Box
         import math

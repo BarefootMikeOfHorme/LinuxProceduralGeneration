@@ -89,3 +89,60 @@ markers = [
   "slow: tests that take minutes to run",
   "network: tests that make live network calls",
 ]
+
+# ---------------------------------------------------------------------------
+# Static analysis
+# ---------------------------------------------------------------------------
+# mypy is advisory for now, not a gate. It currently reports errors that have
+# been present for a long time and are not all defects: a large share come from
+# untyped third-party stubs (build123d, trimesh, torch) and from Optional values
+# that are genuinely checked at runtime. Turning those into a blocking gate
+# would mean either hundreds of `type: ignore` comments, which hide real
+# problems, or a large refactor unrelated to any current work.
+#
+# The number is recorded so it cannot silently grow. `scripts/verify.ps1`
+# fails if the error count rises above this baseline, and prints the current
+# count so a reduction is visible. Raise the number only alongside a
+# deliberate decision to accept more debt, and never to make a gate pass.
+#
+# Baseline measured 2026-09-27 on mypy 2.3.1. See docs/STATIC_ANALYSIS.md.
+[tool.mypy]
+python_version = "3.12"
+ignore_missing_imports = true
+# Untyped third-party surfaces produce noise that says nothing about this
+# codebase's correctness, so they are not reported as errors.
+disallow_untyped_defs = false
+check_untyped_defs = false
+warn_unused_configs = true
+# Redundant casts and unreachable branches are real defects more often than
+# they are style, so they stay on even while the rest is advisory.
+warn_redundant_casts = true
+warn_unreachable = true
+exclude = [
+  # Study copies of pre-repair sources. Not program source; excluded so the
+  # baseline reflects live code only.
+  "study-copies/",
+  # Generated and vendored trees.
+  "build/",
+  "target/",
+  "dist/",
+  "\\.venv",
+  "\\.venv312",
+  "\\.venv-linux",
+]
+
+[tool.black]
+line-length = 100
+target-version = ["py312"]
+# Study copies record the exact bytes of earlier revisions. Reformatting them
+# would destroy the only record of what those files looked like before a repair.
+extend-exclude = '''
+/(
+    study-copies
+  | \.venv312
+  | \.venv-linux
+  | build
+  | target
+  | dist
+)/
+'''

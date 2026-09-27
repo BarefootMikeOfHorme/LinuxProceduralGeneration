@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import pytest
 
+
 @pytest.fixture
 def process_orchestrator():
     from pathlib import Path
@@ -49,7 +50,6 @@ def workflow_engine(agent_manager, process_orchestrator):
 @pytest.fixture
 def decomposer(workflow_engine):
     return IntelligentTaskDecomposer(workflow_engine)
-
 
 
 from vaultmind_forge.cli.task_decomposer import (
@@ -108,19 +108,15 @@ class TestPatternOrdering:
 
     @pytest.mark.anyio
     async def test_batch_validation_wins_over_image_generation(self, decomposer):
-        result = await decomposer.decompose(
-            "Validate batch of generated images for quality"
-        )
+        result = await decomposer.decompose("Validate batch of generated images for quality")
         assert not result.resource_requirements["gpu"], (
             "validating a batch of existing images must not request a GPU; the "
             "image_generation pattern was matching first and claiming one"
         )
 
     @pytest.mark.anyio
-    async def test_image_generation_still_matches_without_batch_validate(
-        self, decomposer
-    ):
+    async def test_image_generation_still_matches_without_batch_validate(self, decomposer):
         result = await decomposer.decompose("Create an image of a mountain range")
-        assert result.resource_requirements["gpu"], (
-            "a plain image request should still route to a GPU-requiring pattern"
-        )
+        assert result.resource_requirements[
+            "gpu"
+        ], "a plain image request should still route to a GPU-requiring pattern"

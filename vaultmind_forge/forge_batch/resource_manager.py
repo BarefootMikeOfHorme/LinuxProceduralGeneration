@@ -22,16 +22,18 @@ class ResourceRequirements:
 
     Default values are for typical diffusion generation job.
     """
-    gpu_memory_gb: float = 8.0      # GPU VRAM needed
-    cpu_cores: int = 4               # CPU cores needed
-    ram_gb: float = 16.0             # System RAM needed
-    disk_space_gb: float = 10.0      # Temp disk space needed
-    max_duration_minutes: int = 60   # Timeout
+
+    gpu_memory_gb: float = 8.0  # GPU VRAM needed
+    cpu_cores: int = 4  # CPU cores needed
+    ram_gb: float = 16.0  # System RAM needed
+    disk_space_gb: float = 10.0  # Temp disk space needed
+    max_duration_minutes: int = 60  # Timeout
 
 
 @dataclass
 class GPUStatus:
     """GPU status information"""
+
     gpu_id: int
     name: str
     total_memory_gb: float
@@ -45,6 +47,7 @@ class GPUStatus:
 @dataclass
 class SystemResources:
     """Current system resource availability"""
+
     # CPU
     cpu_cores_total: int
     cpu_cores_available: int
@@ -111,6 +114,7 @@ class ResourceManager:
         """Check if GPU and monitoring libraries are available"""
         try:
             import pynvml
+
             pynvml.nvmlInit()
             return True
         except:
@@ -123,6 +127,7 @@ class ResourceManager:
 
         try:
             import pynvml
+
             return pynvml.nvmlDeviceGetCount()
         except:
             return 0
@@ -147,14 +152,14 @@ class ResourceManager:
 
             # Get memory info
             mem_info = pynvml.nvmlDeviceGetMemoryInfo(handle)
-            total_mem = mem_info.total / (1024 ** 3)  # Convert to GB
-            used_mem = mem_info.used / (1024 ** 3)
-            free_mem = mem_info.free / (1024 ** 3)
+            total_mem = mem_info.total / (1024**3)  # Convert to GB
+            used_mem = mem_info.used / (1024**3)
+            free_mem = mem_info.free / (1024**3)
 
             # Get name
             name = pynvml.nvmlDeviceGetName(handle)
             if isinstance(name, bytes):
-                name = name.decode('utf-8')
+                name = name.decode("utf-8")
 
             # Get utilization
             util = pynvml.nvmlDeviceGetUtilizationRates(handle)
@@ -174,7 +179,7 @@ class ResourceManager:
                 free_memory_gb=free_mem,
                 utilization_percent=utilization,
                 temperature_celsius=temp,
-                current_jobs=self.allocated_gpus.get(gpu_id, 0)
+                current_jobs=self.allocated_gpus.get(gpu_id, 0),
             )
 
         except Exception as e:
@@ -211,17 +216,17 @@ class ResourceManager:
 
         # Memory
         mem = psutil.virtual_memory()
-        ram_total = mem.total / (1024 ** 3)
-        ram_available = mem.available / (1024 ** 3)
+        ram_total = mem.total / (1024**3)
+        ram_available = mem.available / (1024**3)
 
         # Reserve some memory for system
         reserve_gb = ram_total * (self.reserve_memory_percent / 100.0)
         ram_available = max(0, ram_available - reserve_gb - self.allocated_ram_gb)
 
         # Disk
-        disk = psutil.disk_usage('/')
-        disk_total = disk.total / (1024 ** 3)
-        disk_available = disk.free / (1024 ** 3)
+        disk = psutil.disk_usage("/")
+        disk_total = disk.total / (1024**3)
+        disk_available = disk.free / (1024**3)
 
         # GPU
         gpus = self.get_all_gpu_status()
@@ -236,7 +241,7 @@ class ResourceManager:
             disk_total_gb=disk_total,
             disk_available_gb=disk_available,
             disk_percent=disk.percent,
-            gpus=gpus
+            gpus=gpus,
         )
 
     # ========================================================================
@@ -265,10 +270,7 @@ class ResourceManager:
         if requirements.gpu_memory_gb > 0:
             if not resources.gpus:
                 return False
-            gpu_ok = any(
-                gpu.free_memory_gb >= requirements.gpu_memory_gb
-                for gpu in resources.gpus
-            )
+            gpu_ok = any(gpu.free_memory_gb >= requirements.gpu_memory_gb for gpu in resources.gpus)
             if not gpu_ok:
                 return False
 
@@ -286,10 +288,7 @@ class ResourceManager:
 
         return True
 
-    def explain_allocation_failure(
-        self,
-        requirements: ResourceRequirements
-    ) -> Optional[str]:
+    def explain_allocation_failure(self, requirements: ResourceRequirements) -> Optional[str]:
         """
         Return why can_allocate would refuse, or None if it would succeed.
 
@@ -393,15 +392,15 @@ class ResourceManager:
         # Allocate GPU
         gpu_id = self.allocate_gpu(requirements)
         if gpu_id is not None:
-            allocation['gpu_id'] = gpu_id
+            allocation["gpu_id"] = gpu_id
 
         # Allocate CPU cores
         self.allocated_cpu_cores += requirements.cpu_cores
-        allocation['cpu_cores'] = requirements.cpu_cores
+        allocation["cpu_cores"] = requirements.cpu_cores
 
         # Allocate RAM
         self.allocated_ram_gb += requirements.ram_gb
-        allocation['ram_gb'] = requirements.ram_gb
+        allocation["ram_gb"] = requirements.ram_gb
 
         logger.info(f"Allocated resources: {allocation}")
         return allocation
@@ -414,8 +413,8 @@ class ResourceManager:
             allocation: Allocation info from allocate_resources()
         """
         # Release GPU
-        if 'gpu_id' in allocation:
-            gpu_id = allocation['gpu_id']
+        if "gpu_id" in allocation:
+            gpu_id = allocation["gpu_id"]
             if gpu_id in self.allocated_gpus:
                 self.allocated_gpus[gpu_id] -= 1
                 if self.allocated_gpus[gpu_id] <= 0:
@@ -423,13 +422,13 @@ class ResourceManager:
                 logger.info(f"Released GPU {gpu_id}")
 
         # Release CPU cores
-        if 'cpu_cores' in allocation:
-            self.allocated_cpu_cores -= allocation['cpu_cores']
+        if "cpu_cores" in allocation:
+            self.allocated_cpu_cores -= allocation["cpu_cores"]
             self.allocated_cpu_cores = max(0, self.allocated_cpu_cores)
 
         # Release RAM
-        if 'ram_gb' in allocation:
-            self.allocated_ram_gb -= allocation['ram_gb']
+        if "ram_gb" in allocation:
+            self.allocated_ram_gb -= allocation["ram_gb"]
             self.allocated_ram_gb = max(0, self.allocated_ram_gb)
 
         logger.debug(f"Released resources: {allocation}")
@@ -443,7 +442,7 @@ class ResourceManager:
         prompt: str,
         output_type: str,
         target_engines: List[str],
-        generation_params: Optional[Dict[str, Any]] = None
+        generation_params: Optional[Dict[str, Any]] = None,
     ) -> ResourceRequirements:
         """
         Estimate resource requirements for a job.
@@ -470,9 +469,9 @@ class ResourceManager:
         """
         params = generation_params or {}
 
-        width = params.get('width', 512)
-        height = params.get('height', 512)
-        steps = params.get('steps', 30)
+        width = params.get("width", 512)
+        height = params.get("height", 512)
+        steps = params.get("steps", 30)
         pixel_count = int(width) * int(height)
 
         # The diffusion base images at 512x512, so that is the reference size
@@ -497,7 +496,7 @@ class ResourceManager:
         disk_space = 10.0 * len(target_engines)
 
         # Hero assets need more resources
-        if params.get('is_hero_asset', False):
+        if params.get("is_hero_asset", False):
             gpu_memory *= 1.2
             ram *= 1.2
             duration = int(duration * 1.5)
@@ -516,7 +515,7 @@ class ResourceManager:
             cpu_cores=cpu_cores,
             ram_gb=ram,
             disk_space_gb=disk_space,
-            max_duration_minutes=duration
+            max_duration_minutes=duration,
         )
 
     def _gpu_is_usable(self, params: Dict[str, Any]) -> bool:
@@ -526,7 +525,7 @@ class ResourceManager:
         False when the caller set prefer_gpu=False in generation_params, or when
         no GPU is visible to this process.
         """
-        if params.get('prefer_gpu') is False:
+        if params.get("prefer_gpu") is False:
             return False
         return bool(self.get_all_gpu_status())
 
@@ -581,7 +580,7 @@ class ResourceManager:
             "status": health_status,
             "warnings": warnings,
             "errors": errors,
-            "resources": resources
+            "resources": resources,
         }
 
     def get_resource_summary(self) -> str:
@@ -592,20 +591,28 @@ class ResourceManager:
         lines.append("=== System Resources ===")
 
         # CPU
-        lines.append(f"CPU: {resources.cpu_cores_available}/{resources.cpu_cores_total} cores available ({resources.cpu_percent:.1f}% used)")
+        lines.append(
+            f"CPU: {resources.cpu_cores_available}/{resources.cpu_cores_total} cores available ({resources.cpu_percent:.1f}% used)"
+        )
 
         # RAM
-        lines.append(f"RAM: {resources.ram_available_gb:.1f}/{resources.ram_total_gb:.1f} GB available ({resources.ram_percent:.1f}% used)")
+        lines.append(
+            f"RAM: {resources.ram_available_gb:.1f}/{resources.ram_total_gb:.1f} GB available ({resources.ram_percent:.1f}% used)"
+        )
 
         # Disk
-        lines.append(f"Disk: {resources.disk_available_gb:.1f}/{resources.disk_total_gb:.1f} GB available ({resources.disk_percent:.1f}% used)")
+        lines.append(
+            f"Disk: {resources.disk_available_gb:.1f}/{resources.disk_total_gb:.1f} GB available ({resources.disk_percent:.1f}% used)"
+        )
 
         # GPUs
         if resources.gpus:
             lines.append(f"\nGPUs: {len(resources.gpus)} detected")
             for gpu in resources.gpus:
                 lines.append(f"  GPU {gpu.gpu_id} ({gpu.name}):")
-                lines.append(f"    Memory: {gpu.free_memory_gb:.1f}/{gpu.total_memory_gb:.1f} GB free")
+                lines.append(
+                    f"    Memory: {gpu.free_memory_gb:.1f}/{gpu.total_memory_gb:.1f} GB free"
+                )
                 lines.append(f"    Utilization: {gpu.utilization_percent:.0f}%")
                 if gpu.temperature_celsius:
                     lines.append(f"    Temperature: {gpu.temperature_celsius}°C")

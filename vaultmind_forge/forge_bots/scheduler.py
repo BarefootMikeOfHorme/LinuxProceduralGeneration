@@ -12,12 +12,20 @@ import time
 import json
 from pathlib import Path
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Type
+from typing import TYPE_CHECKING, Dict, List, Optional, Type
 from datetime import datetime
 from enum import Enum
 import logging
 
-# Add parent to path
+if TYPE_CHECKING:
+    # BatchProcessor is only referenced in the type annotation on __init__'s
+    # batch_processor parameter. The module is imported lazily inside the
+    # scheduler to avoid a circular import between forge_batch and forge_bots,
+    # so it cannot be imported at runtime here. Under `from __future__ import
+    # annotations` the annotation is a string, so a TYPE_CHECKING import is
+    # enough to make the name resolvable for type checkers without creating the
+    # cycle. Without it the annotation referenced an undefined name.
+    from ..forge_batch import BatchProcessor
 
 from .base_bot import BaseBot, BotConfig, BotStatus, BotPriority
 from .monitor_bot import AssetMonitorBot, FolderWatchConfig
@@ -30,6 +38,7 @@ logger = logging.getLogger(__name__)
 
 class BotType(Enum):
     """Available bot types"""
+
     ASSET_MONITOR = "asset_monitor"
     QA_BOT = "qa_bot"
     OPTIMIZER = "optimizer"
@@ -39,6 +48,7 @@ class BotType(Enum):
 @dataclass
 class ScheduleConfig:
     """Bot scheduler configuration"""
+
     enable_health_monitoring: bool = True
     health_check_interval: float = 60.0  # Check every minute
     enable_metrics_export: bool = True
@@ -94,7 +104,7 @@ class BotScheduler:
     def __init__(
         self,
         config: Optional[ScheduleConfig] = None,
-        batch_processor: Optional['BatchProcessor'] = None
+        batch_processor: Optional["BatchProcessor"] = None,
     ):
         """
         Initialize bot scheduler.
@@ -132,7 +142,7 @@ class BotScheduler:
         name: str,
         config: Dict,
         priority: BotPriority = BotPriority.NORMAL,
-        auto_start: bool = False
+        auto_start: bool = False,
     ) -> str:
         """
         Deploy a bot.
@@ -155,7 +165,7 @@ class BotScheduler:
             name=name,
             priority=priority,
             alert_callback=self._handle_bot_alert,
-            **config.get('bot_config', {})
+            **config.get("bot_config", {}),
         )
 
         # Create bot based on type
@@ -173,12 +183,7 @@ class BotScheduler:
 
         return name
 
-    def _create_bot(
-        self,
-        bot_type: BotType,
-        bot_config: BotConfig,
-        config: Dict
-    ) -> BaseBot:
+    def _create_bot(self, bot_type: BotType, bot_config: BotConfig, config: Dict) -> BaseBot:
         """
         Create bot instance.
 
@@ -194,29 +199,25 @@ class BotScheduler:
             if not self.batch_processor:
                 raise ValueError("Asset monitor requires batch_processor")
 
-            watch_configs = [
-                FolderWatchConfig(**wc) for wc in config.get('watch_folders', [])
-            ]
+            watch_configs = [FolderWatchConfig(**wc) for wc in config.get("watch_folders", [])]
 
             return AssetMonitorBot(
-                config=bot_config,
-                batch_processor=self.batch_processor,
-                watch_configs=watch_configs
+                config=bot_config, batch_processor=self.batch_processor, watch_configs=watch_configs
             )
 
         elif bot_type == BotType.QA_BOT:
-            qa_config = QAConfig(**config.get('qa_config', {}))
+            qa_config = QAConfig(**config.get("qa_config", {}))
             return QualityAssuranceBot(bot_config, qa_config)
 
         elif bot_type == BotType.OPTIMIZER:
             if not self.batch_processor:
                 raise ValueError("Optimizer requires batch_processor")
 
-            optimizer_config = OptimizerConfig(**config.get('optimizer_config', {}))
+            optimizer_config = OptimizerConfig(**config.get("optimizer_config", {}))
             return ResourceOptimizerBot(bot_config, self.batch_processor, optimizer_config)
 
         elif bot_type == BotType.LINEAGE_INSPECTOR:
-            lineage_config = LineageConfig(**config.get('lineage_config', {}))
+            lineage_config = LineageConfig(**config.get("lineage_config", {}))
             return LineageInspectorBot(bot_config, lineage_config)
 
         else:
@@ -308,7 +309,7 @@ class BotScheduler:
 
         # Keep alerts within limit
         if len(self.alerts) > self.max_alerts:
-            self.alerts = self.alerts[-self.max_alerts:]
+            self.alerts = self.alerts[-self.max_alerts :]
 
         # Trigger scheduler callback
         if self.config.alert_callback:
@@ -330,7 +331,7 @@ class BotScheduler:
             status = bot.status
 
             if status == BotStatus.ERROR:
-                health_status[name] = 'error'
+                health_status[name] = "error"
 
                 # Attempt restart if enabled
                 if self.config.enable_auto_restart:
@@ -342,16 +343,16 @@ class BotScheduler:
                         self.restart_counts[name] += 1
                     else:
                         logger.error(f"Bot {name} exceeded restart attempts")
-                        health_status[name] = 'failed'
+                        health_status[name] = "failed"
 
             elif status == BotStatus.STOPPED:
-                health_status[name] = 'stopped'
+                health_status[name] = "stopped"
             elif status == BotStatus.PAUSED:
-                health_status[name] = 'paused'
+                health_status[name] = "paused"
             elif status == BotStatus.RUNNING:
-                health_status[name] = 'healthy'
+                health_status[name] = "healthy"
             else:
-                health_status[name] = 'idle'
+                health_status[name] = "idle"
 
         self.last_health_check = datetime.now()
         return health_status
@@ -375,21 +376,21 @@ class BotScheduler:
             metrics = bot.get_metrics()
             bot_metrics[name] = metrics
 
-            total_cycles += metrics.get('total_cycles', 0)
-            total_successful += metrics.get('successful_actions', 0)
-            total_failed += metrics.get('failed_actions', 0)
-            total_alerts += metrics.get('total_alerts', 0)
+            total_cycles += metrics.get("total_cycles", 0)
+            total_successful += metrics.get("successful_actions", 0)
+            total_failed += metrics.get("failed_actions", 0)
+            total_alerts += metrics.get("total_alerts", 0)
 
         return {
-            'uptime_hours': uptime,
-            'total_bots': len(self.bots),
-            'active_bots': sum(1 for b in self.bots.values() if b.running),
-            'total_cycles': total_cycles,
-            'total_successful_actions': total_successful,
-            'total_failed_actions': total_failed,
-            'total_alerts': total_alerts,
-            'active_alerts': len(self.alerts),
-            'bot_metrics': bot_metrics,
+            "uptime_hours": uptime,
+            "total_bots": len(self.bots),
+            "active_bots": sum(1 for b in self.bots.values() if b.running),
+            "total_cycles": total_cycles,
+            "total_successful_actions": total_successful,
+            "total_failed_actions": total_failed,
+            "total_alerts": total_alerts,
+            "active_alerts": len(self.alerts),
+            "bot_metrics": bot_metrics,
         }
 
     def export_metrics(self) -> None:
@@ -398,18 +399,19 @@ class BotScheduler:
             return
 
         metrics = self.get_aggregate_metrics()
-        metrics['timestamp'] = datetime.now().isoformat()
+        metrics["timestamp"] = datetime.now().isoformat()
 
         # Add bot statuses
-        metrics['bot_statuses'] = {
-            name: bot.get_status() for name, bot in self.bots.items()
-        }
+        metrics["bot_statuses"] = {name: bot.get_status() for name, bot in self.bots.items()}
 
         # Export
-        output_file = self.config.metrics_export_path / f"bot_metrics_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        output_file = (
+            self.config.metrics_export_path
+            / f"bot_metrics_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        )
         output_file.parent.mkdir(parents=True, exist_ok=True)
 
-        with open(output_file, 'w') as f:
+        with open(output_file, "w") as f:
             json.dump(metrics, f, indent=2)
 
         logger.info(f"Metrics exported: {output_file}")
@@ -430,7 +432,11 @@ class BotScheduler:
         print(f"\n{'BOT STATUS':-^80}")
         for name, bot in self.bots.items():
             status = bot.status.value.upper()
-            health_icon = "[OK]" if health[name] == 'healthy' else ("[WARN]" if health[name] in ['paused', 'idle'] else "[X]")
+            health_icon = (
+                "[OK]"
+                if health[name] == "healthy"
+                else ("[WARN]" if health[name] in ["paused", "idle"] else "[X]")
+            )
             priority = bot.config.priority.name
             print(f"  {health_icon} {name:<30} {status:<12} Priority: {priority}")
 
@@ -439,12 +445,12 @@ class BotScheduler:
         print(f"  Successful Actions: {metrics['total_successful_actions']}")
         print(f"  Failed Actions: {metrics['total_failed_actions']}")
 
-        if metrics['active_alerts'] > 0:
+        if metrics["active_alerts"] > 0:
             print(f"\n{'RECENT ALERTS':-^80}")
             for alert in self.alerts[-5:]:
-                severity = alert['severity'].upper()
-                bot_name = alert['bot']
-                message = alert['message']
+                severity = alert["severity"].upper()
+                bot_name = alert["bot"]
+                message = alert["message"]
                 print(f"  [{severity}] {bot_name}: {message}")
 
         print(f"{'='*80}\n")
@@ -456,37 +462,37 @@ class BotScheduler:
     def save_configuration(self, output_path: Path) -> None:
         """Save current bot configuration"""
         config_data = {
-            'scheduler_config': {
-                'enable_health_monitoring': self.config.enable_health_monitoring,
-                'health_check_interval': self.config.health_check_interval,
-                'enable_metrics_export': self.config.enable_metrics_export,
-                'metrics_export_interval': self.config.metrics_export_interval,
-                'enable_auto_restart': self.config.enable_auto_restart,
-                'max_restart_attempts': self.config.max_restart_attempts,
+            "scheduler_config": {
+                "enable_health_monitoring": self.config.enable_health_monitoring,
+                "health_check_interval": self.config.health_check_interval,
+                "enable_metrics_export": self.config.enable_metrics_export,
+                "metrics_export_interval": self.config.metrics_export_interval,
+                "enable_auto_restart": self.config.enable_auto_restart,
+                "max_restart_attempts": self.config.max_restart_attempts,
             },
-            'bots': {}
+            "bots": {},
         }
 
         # Save bot configurations
         for name, bot in self.bots.items():
-            config_data['bots'][name] = {
-                'type': self.bot_types[name].value,
-                'status': bot.get_status(),
-                'config': {
-                    'enabled': bot.config.enabled,
-                    'check_interval_seconds': bot.config.check_interval_seconds,
-                    'priority': bot.config.priority.value,
-                }
+            config_data["bots"][name] = {
+                "type": self.bot_types[name].value,
+                "status": bot.get_status(),
+                "config": {
+                    "enabled": bot.config.enabled,
+                    "check_interval_seconds": bot.config.check_interval_seconds,
+                    "priority": bot.config.priority.value,
+                },
             }
 
-        with open(output_path, 'w') as f:
+        with open(output_path, "w") as f:
             json.dump(config_data, f, indent=2)
 
         logger.info(f"Configuration saved: {output_path}")
 
     def load_configuration(self, config_path: Path) -> None:
         """Load bot configuration"""
-        with open(config_path, 'r') as f:
+        with open(config_path, "r") as f:
             config_data = json.load(f)
 
         logger.info(f"Configuration loaded: {config_path}")

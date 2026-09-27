@@ -1,5 +1,3 @@
-import sys
-
 """
 Test suite for forge_procedural module
 Verifies all procedural generation functionality end-to-end
@@ -28,7 +26,7 @@ def test_texture_presets():
     print("\n=== Test 2: Texture Presets ===")
     gen = ProceduralGenerator()
 
-    texture_presets = ["clouds", "marble", "wood_grain", "water", "fire", "smoke"]
+    texture_presets = ['clouds', 'marble', 'wood_grain', 'water', 'fire', 'smoke']
     passed = 0
     failed = 0
 
@@ -42,9 +40,7 @@ def test_texture_presets():
             assert texture.dtype == np.uint8, f"Wrong dtype: {texture.dtype}"
             assert texture.min() >= 0 and texture.max() <= 255, "Values out of range"
 
-            print(
-                f"[OK] Preset '{preset_name}': {texture.shape}, range [{texture.min()}-{texture.max()}]"
-            )
+            print(f"[OK] Preset '{preset_name}': {texture.shape}, range [{texture.min()}-{texture.max()}]")
             passed += 1
 
         except Exception as e:
@@ -60,7 +56,7 @@ def test_terrain_presets():
     print("\n=== Test 3: Terrain Presets ===")
     gen = ProceduralGenerator()
 
-    terrain_presets = ["rolling_hills", "mountains", "desert_dunes", "rocky"]
+    terrain_presets = ['rolling_hills', 'mountains', 'desert_dunes', 'rocky']
     passed = 0
     failed = 0
 
@@ -74,9 +70,7 @@ def test_terrain_presets():
             assert heightmap.dtype == np.float32, f"Wrong dtype: {heightmap.dtype}"
             assert heightmap.min() >= 0.0 and heightmap.max() <= 1.0, "Values out of range"
 
-            print(
-                f"[OK] Preset '{preset_name}': {heightmap.shape}, range [{heightmap.min():.3f}-{heightmap.max():.3f}]"
-            )
+            print(f"[OK] Preset '{preset_name}': {heightmap.shape}, range [{heightmap.min():.3f}-{heightmap.max():.3f}]")
             passed += 1
 
         except Exception as e:
@@ -93,12 +87,9 @@ def test_noise_types():
     gen = ProceduralGenerator()
 
     tests = [
-        (NoiseType.PERLIN, {"scale": 4.0, "octaves": 4}),
-        (NoiseType.SIMPLEX, {"frequency": 0.02}),
-        (
-            NoiseType.PERLIN_ADVANCED,
-            {"scale": 3.0, "octaves": 6, "contrast": 1.2, "brightness": 0.1},
-        ),
+        (NoiseType.PERLIN, {'scale': 4.0, 'octaves': 4}),
+        (NoiseType.SIMPLEX, {'frequency': 0.02}),
+        (NoiseType.PERLIN_ADVANCED, {'scale': 3.0, 'octaves': 6, 'contrast': 1.2, 'brightness': 0.1}),
     ]
 
     passed = 0
@@ -128,7 +119,7 @@ def test_variations():
     gen = ProceduralGenerator()
 
     try:
-        variations = gen.generate_variations("clouds", count=5, size=(128, 128), base_seed=42)
+        variations = gen.generate_variations('clouds', count=5, size=(128, 128), base_seed=42)
 
         # Validate
         assert len(variations) == 5, f"Expected 5 variations, got {len(variations)}"
@@ -140,7 +131,7 @@ def test_variations():
         # Check that variations are actually different
         unique_count = 0
         for i in range(len(variations)):
-            for j in range(i + 1, len(variations)):
+            for j in range(i+1, len(variations)):
                 if not np.array_equal(variations[i], variations[j]):
                     unique_count += 1
 
@@ -161,10 +152,10 @@ def test_parameter_override():
 
     try:
         # Generate with preset defaults
-        texture1 = gen.generate_texture("clouds", size=(128, 128), seed=42)
+        texture1 = gen.generate_texture('clouds', size=(128, 128), seed=42)
 
         # Generate with overridden parameters
-        texture2 = gen.generate_texture("clouds", size=(128, 128), seed=42, octaves=12, scale=10.0)
+        texture2 = gen.generate_texture('clouds', size=(128, 128), seed=42, octaves=12, scale=10.0)
 
         # They should be different due to parameter override
         assert not np.array_equal(texture1, texture2), "Parameter override had no effect!"
@@ -183,8 +174,8 @@ def test_seed_reproducibility():
     gen = ProceduralGenerator()
 
     try:
-        texture1 = gen.generate_texture("marble", size=(128, 128), seed=999)
-        texture2 = gen.generate_texture("marble", size=(128, 128), seed=999)
+        texture1 = gen.generate_texture('marble', size=(128, 128), seed=999)
+        texture2 = gen.generate_texture('marble', size=(128, 128), seed=999)
 
         assert np.array_equal(texture1, texture2), "Same seed produced different outputs!"
 
@@ -201,9 +192,9 @@ def test_list_presets():
     print("\n=== Test 8: List Presets ===")
 
     try:
-        all_presets = ProceduralGenerator.list_presets("all")
-        texture_presets = ProceduralGenerator.list_presets("texture")
-        terrain_presets = ProceduralGenerator.list_presets("terrain")
+        all_presets = ProceduralGenerator.list_presets('all')
+        texture_presets = ProceduralGenerator.list_presets('texture')
+        terrain_presets = ProceduralGenerator.list_presets('terrain')
 
         assert len(all_presets) == 10, f"Expected 10 presets, got {len(all_presets)}"
         assert len(texture_presets) == 6, f"Expected 6 texture presets, got {len(texture_presets)}"
@@ -230,7 +221,7 @@ def test_file_save():
 
     try:
         # Generate and save texture
-        texture = gen.generate_texture("fire", size=(256, 256), seed=42)
+        texture = gen.generate_texture('fire', size=(256, 256), seed=42)
         texture_path = output_dir / "test_fire_texture.png"
         ProceduralGenerator.save_texture(texture, texture_path)
 
@@ -240,16 +231,14 @@ def test_file_save():
         print(f"[OK] Saved texture: {texture_path.name} ({texture_path.stat().st_size} bytes)")
 
         # Generate and save heightmap
-        heightmap = gen.generate_terrain("mountains", size=(256, 256), seed=42)
+        heightmap = gen.generate_terrain('mountains', size=(256, 256), seed=42)
         heightmap_path = output_dir / "test_mountains_heightmap.png"
         ProceduralGenerator.save_heightmap(heightmap, heightmap_path)
 
         assert heightmap_path.exists(), "Heightmap file not saved"
         assert heightmap_path.stat().st_size > 0, "Heightmap file is empty"
 
-        print(
-            f"[OK] Saved heightmap: {heightmap_path.name} ({heightmap_path.stat().st_size} bytes)"
-        )
+        print(f"[OK] Saved heightmap: {heightmap_path.name} ({heightmap_path.stat().st_size} bytes)")
 
         print(f"\nTest outputs saved to: {output_dir}")
         return True

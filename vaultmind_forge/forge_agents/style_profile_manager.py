@@ -10,7 +10,7 @@ This manager:
 
 from __future__ import annotations
 from pathlib import Path
-from typing import Optional, Dict, Any, List
+from typing import TYPE_CHECKING, Optional, Dict, Any, List
 import re
 import logging
 
@@ -26,6 +26,15 @@ from .style_profiles import (
     HORROR_PROFILE,
     PAINTERLY_PROFILE,
 )
+
+if TYPE_CHECKING:
+    # QualityGuardianAgent appears in three quoted annotations. It is
+    # deliberately imported inside the function that constructs one, so this
+    # module does not depend on quality_guardian at import time. Under
+    # `from __future__ import annotations` the annotations are strings and are
+    # never evaluated, so a TYPE_CHECKING import is sufficient to make the name
+    # resolvable without creating the runtime dependency.
+    from .quality_guardian import QualityGuardianAgent
 
 logger = logging.getLogger(__name__)
 
@@ -60,32 +69,66 @@ class StyleProfileManager:
         # Style detection keywords (ordered by priority)
         self.style_keywords = {
             "anime": [
-                r'\banime\b', r'\bmanga\b', r'\bchibi\b', r'\bmoe\b',
-                r'\bwaifu\b', r'\bcartoon\b', r'\bcel.?shad', r'\b2d\b',
+                r"\banime\b",
+                r"\bmanga\b",
+                r"\bchibi\b",
+                r"\bmoe\b",
+                r"\bwaifu\b",
+                r"\bcartoon\b",
+                r"\bcel.?shad",
+                r"\b2d\b",
             ],
             "photorealistic": [
-                r'\bphoto\b', r'\brealistic\b', r'\bphotorealistic\b',
-                r'\b4k\b', r'\b8k\b', r'\bunreal engine\b', r'\bcinematic\b',
-                r'\bray.?trac', r'\bhyper.?realistic\b',
+                r"\bphoto\b",
+                r"\brealistic\b",
+                r"\bphotorealistic\b",
+                r"\b4k\b",
+                r"\b8k\b",
+                r"\bunreal engine\b",
+                r"\bcinematic\b",
+                r"\bray.?trac",
+                r"\bhyper.?realistic\b",
             ],
             "fantasy_game": [
-                r'\bgame\s+art\b', r'\bfantasy\b', r'\brpg\b', r'\bmmorpg\b',
-                r'\bworld\s+of\s+warcraft\b', r'\bleague\s+of\s+legends\b',
-                r'\bstylized\b', r'\bhero\s+art\b', r'\bcharacter\s+design\b',
+                r"\bgame\s+art\b",
+                r"\bfantasy\b",
+                r"\brpg\b",
+                r"\bmmorpg\b",
+                r"\bworld\s+of\s+warcraft\b",
+                r"\bleague\s+of\s+legends\b",
+                r"\bstylized\b",
+                r"\bhero\s+art\b",
+                r"\bcharacter\s+design\b",
             ],
             "pixel_art": [
-                r'\bpixel\s+art\b', r'\b8.?bit\b', r'\b16.?bit\b',
-                r'\bretro\b', r'\bpixelated\b', r'\bsprite\b',
+                r"\bpixel\s+art\b",
+                r"\b8.?bit\b",
+                r"\b16.?bit\b",
+                r"\bretro\b",
+                r"\bpixelated\b",
+                r"\bsprite\b",
             ],
             "horror": [
-                r'\bhorror\b', r'\bcreepy\b', r'\bscary\b', r'\bgothic\b',
-                r'\bdark\s+fantasy\b', r'\bnightmare\b', r'\beldritch\b',
-                r'\bbody\s+horror\b', r'\bzombie\b', r'\bmonster\b',
+                r"\bhorror\b",
+                r"\bcreepy\b",
+                r"\bscary\b",
+                r"\bgothic\b",
+                r"\bdark\s+fantasy\b",
+                r"\bnightmare\b",
+                r"\beldritch\b",
+                r"\bbody\s+horror\b",
+                r"\bzombie\b",
+                r"\bmonster\b",
             ],
             "painterly": [
-                r'\bpainting\b', r'\boil\s+painting\b', r'\bimpressionist\b',
-                r'\bbrush\s+strokes\b', r'\bartistic\b', r'\bfine\s+art\b',
-                r'\bdigital\s+painting\b', r'\bhand.?painted\b',
+                r"\bpainting\b",
+                r"\boil\s+painting\b",
+                r"\bimpressionist\b",
+                r"\bbrush\s+strokes\b",
+                r"\bartistic\b",
+                r"\bfine\s+art\b",
+                r"\bdigital\s+painting\b",
+                r"\bhand.?painted\b",
             ],
         }
 
@@ -117,7 +160,7 @@ class StyleProfileManager:
             text_to_check += " " + negative_prompt.lower()
 
         # Check for explicit style tags first (e.g., [style:anime])
-        style_tag_match = re.search(r'\[style:(\w+)\]', prompt, re.IGNORECASE)
+        style_tag_match = re.search(r"\[style:(\w+)\]", prompt, re.IGNORECASE)
         if style_tag_match:
             style_name = style_tag_match.group(1).lower()
             profile = get_profile(style_name)
@@ -138,7 +181,9 @@ class StyleProfileManager:
         if style_scores and max(style_scores.values()) > 0:
             detected_style = max(style_scores, key=style_scores.get)
             profile = get_profile(detected_style)
-            logger.info(f"Auto-detected style: {detected_style} (score: {style_scores[detected_style]})")
+            logger.info(
+                f"Auto-detected style: {detected_style} (score: {style_scores[detected_style]})"
+            )
             return profile
 
         # Context-based detection
@@ -232,7 +277,7 @@ class StyleProfileManager:
 
     def integrate_with_quality_guardian(
         self,
-        guardian: 'QualityGuardianAgent',
+        guardian: "QualityGuardianAgent",
         profile: StyleProfile,
     ):
         """
@@ -244,8 +289,7 @@ class StyleProfileManager:
         """
         # Apply quality thresholds from profile
         guardian.min_quality_threshold = profile.quality_thresholds.get(
-            "min_overall_quality",
-            guardian.min_quality_threshold
+            "min_overall_quality", guardian.min_quality_threshold
         )
 
         # Store profile reference for style-aware checking
@@ -261,7 +305,7 @@ class StyleProfileManager:
         profile: StyleProfile,
         auto_fix_enabled: bool = True,
         **guardian_kwargs,
-    ) -> 'QualityGuardianAgent':
+    ) -> "QualityGuardianAgent":
         """
         Create Quality Guardian pre-configured for a specific style.
 
@@ -280,9 +324,7 @@ class StyleProfileManager:
 
         # Create guardian with style-specific settings
         guardian = QualityGuardianAgent(
-            min_quality_threshold=min_quality,
-            auto_fix_enabled=auto_fix_enabled,
-            **guardian_kwargs
+            min_quality_threshold=min_quality, auto_fix_enabled=auto_fix_enabled, **guardian_kwargs
         )
 
         # Apply full profile integration
@@ -387,16 +429,12 @@ class StyleProfileManager:
         if profile.name.lower() == "anime":
             # Critical: anime models need clip_skip 2
             if params.get("clip_skip", 1) != 2:
-                warnings.append(
-                    "Anime style requires clip_skip=2 for proper model behavior!"
-                )
+                warnings.append("Anime style requires clip_skip=2 for proper model behavior!")
 
         if profile.name.lower() == "pixel art":
             # Pixel art shouldn't use hires fix (creates antialiasing)
             if params.get("enable_hires_fix", False):
-                warnings.append(
-                    "Pixel art should not use hires_fix (causes unwanted antialiasing)"
-                )
+                warnings.append("Pixel art should not use hires_fix (causes unwanted antialiasing)")
 
         # General validations
         if params.get("steps", 20) < 15:
@@ -438,12 +476,13 @@ class StyleProfileManager:
 
 # Convenience functions for common workflows
 
+
 def create_style_aware_pipeline(
     prompt: str,
     style: Optional[str] = None,
     quality_level: str = "standard",
     user_params: Optional[Dict[str, Any]] = None,
-) -> tuple[Dict[str, Any], str, 'QualityGuardianAgent']:
+) -> tuple[Dict[str, Any], str, "QualityGuardianAgent"]:
     """
     Create complete style-aware generation pipeline.
 

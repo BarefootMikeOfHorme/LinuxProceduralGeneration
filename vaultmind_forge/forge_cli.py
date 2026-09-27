@@ -13,13 +13,16 @@ from .forge_lineage.logger import LineageLogger
 app = typer.Typer(add_completion=False, help="VaultMind Forge CLI")
 console = Console()
 
+
 @app.callback()
 def main_callback():
     pass
 
+
 @app.command()
 def version():
     console.print(f"VaultMind Forge v{__version__}")
+
 
 @app.command()
 def doctor():
@@ -168,7 +171,9 @@ def cad_capabilities():
 
 @app.command("cad-execute")
 def cad_execute(
-    plan: Path = typer.Argument(..., exists=True, readable=True, help="Structured build123d plan JSON"),
+    plan: Path = typer.Argument(
+        ..., exists=True, readable=True, help="Structured build123d plan JSON"
+    ),
     output_dir: Path = typer.Option("./output/cad", help="Output directory"),
     timeout: int = typer.Option(60, min=1, help="Worker timeout in seconds"),
 ):
@@ -191,7 +196,9 @@ def cad_execute(
 def logo(style: str = typer.Option("compact", help="Logo style: compact, simple, full")):
     """Display VaultMind Forge ASCII art logo"""
     from .forge_ascii_art import print_logo
+
     print_logo(console, style=style)
+
 
 @app.command()
 def monitor(
@@ -207,6 +214,7 @@ def monitor(
     console.print("[dim]Press Ctrl+C to exit[/dim]\n")
 
     run_monitor(refresh_rate=refresh)
+
 
 @app.command()
 def generate(
@@ -246,7 +254,7 @@ def generate(
             config_table,
             title="[yellow]GENERATION CONFIG[/yellow]",
             border_style="yellow",
-            padding=(1, 2)
+            padding=(1, 2),
         )
         console.print(config_panel)
         console.print()
@@ -255,7 +263,7 @@ def generate(
         with Progress(
             SpinnerColumn(style="cyan"),
             TextColumn("[cyan]{task.description}[/cyan]"),
-            console=console
+            console=console,
         ) as progress:
             task = progress.add_task("INITIALIZING SDXL MODEL", total=None)
             generator = SDXLGenerator()
@@ -267,11 +275,7 @@ def generate(
 
         # Generation
         config = GenerationConfig(
-            prompt=prompt,
-            width=width,
-            height=height,
-            steps=steps,
-            guidance_scale=cfg_scale
+            prompt=prompt, width=width, height=height, steps=steps, guidance_scale=cfg_scale
         )
 
         console.rule("[yellow]GENERATION PHASE[/yellow]", style="yellow")
@@ -282,7 +286,7 @@ def generate(
             TextColumn("[yellow]{task.description}[/yellow]"),
             BarColumn(complete_style="yellow", finished_style="green"),
             TaskProgressColumn(),
-            console=console
+            console=console,
         ) as progress:
             task = progress.add_task(f"GENERATING IMAGE ({steps} steps)", total=steps)
             result = generator.generate(config)
@@ -303,10 +307,7 @@ def generate(
         output_table.add_row("SIZE", f"{width}x{height}")
 
         output_panel = Panel(
-            output_table,
-            title="[green]OUTPUT[/green]",
-            border_style="green",
-            padding=(1, 2)
+            output_table, title="[green]OUTPUT[/green]", border_style="green", padding=(1, 2)
         )
         console.print(output_panel)
         console.print()
@@ -322,11 +323,7 @@ def generate(
             generator.initialize()
 
         config = GenerationConfig(
-            prompt=prompt,
-            width=width,
-            height=height,
-            steps=steps,
-            guidance_scale=cfg_scale
+            prompt=prompt, width=width, height=height, steps=steps, guidance_scale=cfg_scale
         )
 
         with console.status(f"[bold green]Generating image ({steps} steps)..."):
@@ -335,9 +332,12 @@ def generate(
         result.images[0].save(output)
         console.print(f"[green]Saved:[/green] {output}")
 
+
 @app.command()
 def workflow(
-    workflow_file: Path = typer.Argument(..., exists=True, readable=True, help="Workflow JSON file"),
+    workflow_file: Path = typer.Argument(
+        ..., exists=True, readable=True, help="Workflow JSON file"
+    ),
     output_dir: Path = typer.Option("./outputs", help="Output directory"),
     fui: bool = typer.Option(True, help="Use FUI styling (disable for plain output)"),
 ):
@@ -380,7 +380,9 @@ def workflow(
     if not fui:
         # Plain output mode
         console.print(f"[cyan]Executing workflow:[/cyan] {workflow_file}")
-        console.print(f"[dim]Nodes: {len(workflow.nodes)}, Connections: {len(workflow.connections)}[/dim]")
+        console.print(
+            f"[dim]Nodes: {len(workflow.nodes)}, Connections: {len(workflow.connections)}[/dim]"
+        )
 
     # Create engine
     registry = create_default_registry()
@@ -406,10 +408,7 @@ def workflow(
         system_table.add_row("EXECUTORS", f"{registry.count()} registered")
 
         system_panel = Panel(
-            system_table,
-            title="[cyan]SYSTEM STATUS[/cyan]",
-            border_style="cyan",
-            padding=(1, 2)
+            system_table, title="[cyan]SYSTEM STATUS[/cyan]", border_style="cyan", padding=(1, 2)
         )
 
         # Workflow Info Panel
@@ -426,11 +425,12 @@ def workflow(
             workflow_table,
             title="[magenta]WORKFLOW CONFIG[/magenta]",
             border_style="magenta",
-            padding=(1, 2)
+            padding=(1, 2),
         )
 
         # Print top panels side by side
         from rich.columns import Columns
+
         console.print(Columns([system_panel, workflow_panel], equal=True))
         console.print()
 
@@ -440,7 +440,7 @@ def workflow(
             with Progress(
                 SpinnerColumn(style="cyan"),
                 TextColumn("[cyan]{task.description}[/cyan]"),
-                console=console
+                console=console,
             ) as progress:
                 task = progress.add_task("VALIDATING WORKFLOW", total=None)
                 engine.validate_workflow(workflow)
@@ -477,7 +477,7 @@ def workflow(
                 TextColumn("[yellow]{task.description}[/yellow]"),
                 BarColumn(complete_style="yellow", finished_style="green"),
                 TaskProgressColumn(),
-                console=console
+                console=console,
             ) as progress:
                 task = progress.add_task("EXECUTING NODES", total=len(workflow.nodes))
 
@@ -506,7 +506,7 @@ def workflow(
                 order_text,
                 title="[yellow]EXECUTION ORDER[/yellow]",
                 border_style="yellow",
-                padding=(1, 2)
+                padding=(1, 2),
             )
             console.print(order_panel)
             console.print()
@@ -516,7 +516,9 @@ def workflow(
             console.print()
 
             for node_id, outputs in results.items():
-                result_table = Table(show_header=True, header_style="bold green", border_style="green")
+                result_table = Table(
+                    show_header=True, header_style="bold green", border_style="green"
+                )
                 result_table.add_column("Output", style="dim")
                 result_table.add_column("Value", style="white")
 
@@ -532,7 +534,7 @@ def workflow(
                     result_table,
                     title=f"[green]{node_id}[/green]",
                     border_style="green",
-                    padding=(1, 2)
+                    padding=(1, 2),
                 )
                 console.print(result_panel)
 
@@ -557,7 +559,7 @@ def workflow(
                 f"[red]{e}[/red]",
                 title="[bold red]VALIDATION ERROR[/bold red]",
                 border_style="red",
-                padding=(1, 2)
+                padding=(1, 2),
             )
             console.print(error_panel)
         else:
@@ -571,7 +573,7 @@ def workflow(
                 f"[red]{e}[/red]",
                 title="[bold red]EXECUTION ERROR[/bold red]",
                 border_style="red",
-                padding=(1, 2)
+                padding=(1, 2),
             )
             console.print(error_panel)
         else:
@@ -579,10 +581,12 @@ def workflow(
             console.print(f"{e}")
         raise typer.Exit(code=1)
 
+
 @app.command()
 def validate(config: Path = typer.Argument(..., exists=True, readable=True)):
     import json
     from jsonschema import Draft202012Validator
+
     schema_path = Path(__file__).resolve().parent / "config" / "schemas" / "job.schema.json"
     schema = json.loads(Path(schema_path).read_text(encoding="utf-8"))
     instance = json.loads(Path(config).read_text(encoding="utf-8"))
@@ -593,11 +597,16 @@ def validate(config: Path = typer.Argument(..., exists=True, readable=True)):
         raise typer.Exit(code=1)
     console.print("[green]Valid configuration[/green]")
 
+
 @app.command()
 def evaluate(
     config: Path = typer.Argument(..., exists=True, readable=True),
-    asset: Path = typer.Option(..., exists=True, readable=True, help="Path to asset (image) to evaluate"),
-    color_ref: Optional[Path] = typer.Option(None, help="Optional reference image for color fidelity"),
+    asset: Path = typer.Option(
+        ..., exists=True, readable=True, help="Path to asset (image) to evaluate"
+    ),
+    color_ref: Optional[Path] = typer.Option(
+        None, help="Optional reference image for color fidelity"
+    ),
     html_report: bool = typer.Option(False, help="Write HTML report (default off)"),
     studio: bool = typer.Option(False, help="Studio mode: more verbose diagnostics"),
     prefer_rust: bool = typer.Option(False, help="Prefer Rust backends when available"),
@@ -632,7 +641,10 @@ def evaluate(
 
     if html_report:
         from vaultmind_forge.forge_cli_html_report import write_html_report
-        html_out = write_html_report(job_id, reports, diagnostics, root / "lineage_logs" / "reports")
+
+        html_out = write_html_report(
+            job_id, reports, diagnostics, root / "lineage_logs" / "reports"
+        )
         console.print(f"HTML report: {html_out}")
 
     archive = lineage.finalize(job_id, written)

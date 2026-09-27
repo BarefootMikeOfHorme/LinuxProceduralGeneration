@@ -31,6 +31,7 @@ from .terminal_ui import TerminalUI, console
 
 class WorkerStatus(str, Enum):
     """Worker status"""
+
     INITIALIZING = "initializing"
     IDLE = "idle"
     BUSY = "busy"
@@ -41,15 +42,17 @@ class WorkerStatus(str, Enum):
 
 class WorkerType(str, Enum):
     """Worker specialization types"""
-    GENERAL = "general"          # General purpose
+
+    GENERAL = "general"  # General purpose
     GPU_COMPUTE = "gpu_compute"  # GPU-intensive tasks
     CPU_COMPUTE = "cpu_compute"  # CPU-intensive tasks
-    IO_BOUND = "io_bound"        # I/O heavy tasks
-    AGENT = "agent"              # Agent-specific tasks
+    IO_BOUND = "io_bound"  # I/O heavy tasks
+    AGENT = "agent"  # Agent-specific tasks
 
 
 class LoadBalancingStrategy(str, Enum):
     """Load balancing strategies"""
+
     ROUND_ROBIN = "round_robin"
     LEAST_LOADED = "least_loaded"
     RESOURCE_AWARE = "resource_aware"  # Best fit based on resources
@@ -60,6 +63,7 @@ class LoadBalancingStrategy(str, Enum):
 @dataclass
 class WorkerMetrics:
     """Worker performance metrics"""
+
     tasks_completed: int = 0
     tasks_failed: int = 0
     total_execution_time: float = 0.0
@@ -99,12 +103,13 @@ class WorkerMetrics:
         utilization = min(self.cpu_usage / 100.0, 1.0)
         queue_penalty = max(0, 1.0 - (self.queue_length / 10.0))
 
-        return (success_rate * 0.5 + utilization * 0.3 + queue_penalty * 0.2)
+        return success_rate * 0.5 + utilization * 0.3 + queue_penalty * 0.2
 
 
 @dataclass
 class Worker:
     """Execution worker"""
+
     id: str
     name: str
     type: WorkerType
@@ -164,8 +169,7 @@ class Worker:
 
         # Resource usage
         resource_load = (
-            self.metrics.cpu_usage / 100.0 * 0.3 +
-            self.metrics.memory_usage / 100.0 * 0.2
+            self.metrics.cpu_usage / 100.0 * 0.3 + self.metrics.memory_usage / 100.0 * 0.2
         )
         base_load += resource_load
 
@@ -175,6 +179,7 @@ class Worker:
 @dataclass
 class TaskQueueItem:
     """Item in task queue"""
+
     task: Task
     priority: int
     enqueued_at: float = field(default_factory=time.time)
@@ -234,7 +239,9 @@ class DistributedExecutor:
 
         Rembrandt setting up the studio before the work begins
         """
-        console.print(f"[cyan]Initializing distributed executor with {self.num_workers} workers...[/cyan]")
+        console.print(
+            f"[cyan]Initializing distributed executor with {self.num_workers} workers...[/cyan]"
+        )
 
         # Detect system capabilities
         capabilities = self._detect_system_capabilities()
@@ -256,6 +263,7 @@ class DistributedExecutor:
         """Detect system capabilities"""
         try:
             import torch
+
             has_cuda = torch.cuda.is_available()
             gpu_count = torch.cuda.device_count() if has_cuda else 0
         except ImportError:
@@ -279,36 +287,42 @@ class DistributedExecutor:
         # GPU workers (if available)
         if capabilities["has_cuda"] and capabilities["gpu_count"] > 0:
             for i in range(min(capabilities["gpu_count"], 2)):
-                workers.append({
-                    "name": f"GPU Worker {i+1}",
-                    "type": WorkerType.GPU_COMPUTE,
-                    "has_gpu": True,
-                    "cpu_cores": 2,
-                    "memory_gb": 8.0,
-                })
+                workers.append(
+                    {
+                        "name": f"GPU Worker {i+1}",
+                        "type": WorkerType.GPU_COMPUTE,
+                        "has_gpu": True,
+                        "cpu_cores": 2,
+                        "memory_gb": 8.0,
+                    }
+                )
 
         # CPU compute workers
         cpu_workers = max(self.num_workers - len(workers) - 2, 1)
         for i in range(cpu_workers):
-            workers.append({
-                "name": f"CPU Worker {i+1}",
-                "type": WorkerType.CPU_COMPUTE,
-                "has_gpu": False,
-                "cpu_cores": 2,
-                "memory_gb": 4.0,
-            })
+            workers.append(
+                {
+                    "name": f"CPU Worker {i+1}",
+                    "type": WorkerType.CPU_COMPUTE,
+                    "has_gpu": False,
+                    "cpu_cores": 2,
+                    "memory_gb": 4.0,
+                }
+            )
 
         # I/O workers
         for i in range(min(2, self.num_workers - len(workers))):
-            workers.append({
-                "name": f"I/O Worker {i+1}",
-                "type": WorkerType.IO_BOUND,
-                "has_gpu": False,
-                "cpu_cores": 1,
-                "memory_gb": 2.0,
-            })
+            workers.append(
+                {
+                    "name": f"I/O Worker {i+1}",
+                    "type": WorkerType.IO_BOUND,
+                    "has_gpu": False,
+                    "cpu_cores": 1,
+                    "memory_gb": 2.0,
+                }
+            )
 
-        return workers[:self.num_workers]
+        return workers[: self.num_workers]
 
     async def _spawn_worker(self, spec: Dict[str, Any]) -> Worker:
         """Spawn a new worker process"""
@@ -350,10 +364,12 @@ class DistributedExecutor:
     ) -> None:
         """Submit task to execution queue"""
         async with self.queue_lock:
-            self.task_queue.append(TaskQueueItem(
-                task=task,
-                priority=priority,
-            ))
+            self.task_queue.append(
+                TaskQueueItem(
+                    task=task,
+                    priority=priority,
+                )
+            )
 
             # Sort by priority
             self.task_queue.sort(key=lambda x: x.priority, reverse=True)
@@ -413,10 +429,7 @@ class DistributedExecutor:
         """
         async with self.worker_lock:
             # Filter capable workers
-            capable_workers = [
-                w for w in self.workers.values()
-                if w.can_handle_task(task)
-            ]
+            capable_workers = [w for w in self.workers.values() if w.can_handle_task(task)]
 
             if not capable_workers:
                 return None
@@ -610,7 +623,9 @@ class DistributedExecutor:
                     time_since_heartbeat = current_time - worker.metrics.last_heartbeat
 
                     if time_since_heartbeat > 30 and worker.status != WorkerStatus.ERROR:
-                        console.print(f"[yellow][WARN][/yellow] Worker {worker.name} heartbeat timeout")
+                        console.print(
+                            f"[yellow][WARN][/yellow] Worker {worker.name} heartbeat timeout"
+                        )
                         worker.status = WorkerStatus.ERROR
 
                         # Attempt recovery
@@ -657,14 +672,28 @@ class DistributedExecutor:
         """Get executor statistics"""
         total_completed = sum(w.metrics.tasks_completed for w in self.workers.values())
         total_failed = sum(w.metrics.tasks_failed for w in self.workers.values())
-        avg_efficiency = sum(w.metrics.efficiency_score() for w in self.workers.values()) / len(self.workers) if self.workers else 0
+        avg_efficiency = (
+            sum(w.metrics.efficiency_score() for w in self.workers.values()) / len(self.workers)
+            if self.workers
+            else 0
+        )
 
         return {
             "num_workers": len(self.workers),
-            "active_workers": len([w for w in self.workers.values() if w.status in [WorkerStatus.IDLE, WorkerStatus.BUSY]]),
+            "active_workers": len(
+                [
+                    w
+                    for w in self.workers.values()
+                    if w.status in [WorkerStatus.IDLE, WorkerStatus.BUSY]
+                ]
+            ),
             "total_completed": total_completed,
             "total_failed": total_failed,
-            "success_rate": total_completed / (total_completed + total_failed) if (total_completed + total_failed) > 0 else 0,
+            "success_rate": (
+                total_completed / (total_completed + total_failed)
+                if (total_completed + total_failed) > 0
+                else 0
+            ),
             "queue_length": len(self.task_queue),
             "average_efficiency": avg_efficiency,
             "strategy": self.strategy.value,
@@ -676,7 +705,9 @@ class DistributedExecutor:
         TerminalUI.header("Distributed Executor", f"{len(self.workers)} Workers")
 
         stats = self.get_stats()
-        console.print(f"[bold cyan]Active Workers:[/bold cyan] {stats['active_workers']}/{stats['num_workers']}")
+        console.print(
+            f"[bold cyan]Active Workers:[/bold cyan] {stats['active_workers']}/{stats['num_workers']}"
+        )
         console.print(f"[bold green]Completed:[/bold green] {stats['total_completed']}")
         console.print(f"[bold red]Failed:[/bold red] {stats['total_failed']}")
         console.print(f"[bold]Success Rate:[/bold] {stats['success_rate']:.2%}")
@@ -693,6 +724,12 @@ class DistributedExecutor:
                 WorkerStatus.ERROR: "red",
             }.get(worker.status, "white")
 
-            console.print(f"  [{status_color}]*[/{status_color}] {worker.name} ({worker.type.value})")
-            console.print(f"      Status: {worker.status.value} | Load: {worker.load_score():.2f} | Efficiency: {worker.metrics.efficiency_score():.2%}")
-            console.print(f"      Completed: {worker.metrics.tasks_completed} | Failed: {worker.metrics.tasks_failed}")
+            console.print(
+                f"  [{status_color}]*[/{status_color}] {worker.name} ({worker.type.value})"
+            )
+            console.print(
+                f"      Status: {worker.status.value} | Load: {worker.load_score():.2f} | Efficiency: {worker.metrics.efficiency_score():.2%}"
+            )
+            console.print(
+                f"      Completed: {worker.metrics.tasks_completed} | Failed: {worker.metrics.tasks_failed}"
+            )

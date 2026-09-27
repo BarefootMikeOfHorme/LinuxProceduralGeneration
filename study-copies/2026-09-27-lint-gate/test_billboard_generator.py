@@ -1,5 +1,3 @@
-import sys
-
 """
 Test procedural billboard generator
 Verifies billboard generation for game environments
@@ -8,10 +6,7 @@ Verifies billboard generation for game environments
 from pathlib import Path
 
 from vaultmind_forge.forge_procedural.billboard_generator import (
-    BillboardGenerator,
-    BillboardType,
-    MaterialType,
-    WeatheringLevel,
+    BillboardGenerator, BillboardType, MaterialType, WeatheringLevel
 )
 import numpy as np
 
@@ -27,7 +22,6 @@ def test_billboard_initialization():
     except Exception as e:
         print(f"[FAIL] {e}")
         import traceback
-
         traceback.print_exc()
         return False
 
@@ -46,17 +40,17 @@ def test_generate_industrial_billboard():
             weathering=WeatheringLevel.HEAVY,
             text_content="FACTORY 7",
             size=(1024, 512),
-            seed=42,
+            seed=42
         )
 
         # Verify outputs
-        assert "diffuse" in billboard, "Missing diffuse map"
-        assert "normal" in billboard, "Missing normal map"
-        assert "roughness" in billboard, "Missing roughness map"
-        assert "metallic" in billboard, "Missing metallic map"
-        assert "config" in billboard, "Missing config"
+        assert 'diffuse' in billboard, "Missing diffuse map"
+        assert 'normal' in billboard, "Missing normal map"
+        assert 'roughness' in billboard, "Missing roughness map"
+        assert 'metallic' in billboard, "Missing metallic map"
+        assert 'config' in billboard, "Missing config"
 
-        diffuse = billboard["diffuse"]
+        diffuse = billboard['diffuse']
         assert diffuse.shape == (512, 1024, 3), f"Wrong diffuse shape: {diffuse.shape}"
         assert diffuse.dtype == np.uint8, f"Wrong diffuse dtype: {diffuse.dtype}"
 
@@ -70,7 +64,6 @@ def test_generate_industrial_billboard():
     except Exception as e:
         print(f"[FAIL] {e}")
         import traceback
-
         traceback.print_exc()
         return False
 
@@ -97,11 +90,15 @@ def test_generate_all_billboard_types():
 
     for btype in billboard_types:
         try:
-            billboard = gen.generate_billboard(billboard_type=btype, size=(512, 256), seed=123)
+            billboard = gen.generate_billboard(
+                billboard_type=btype,
+                size=(512, 256),
+                seed=123
+            )
 
-            assert "diffuse" in billboard
-            assert billboard["diffuse"].shape[0] == 256
-            assert billboard["diffuse"].shape[1] == 512
+            assert 'diffuse' in billboard
+            assert billboard['diffuse'].shape[0] == 256
+            assert billboard['diffuse'].shape[1] == 512
 
             print(f"[OK] {btype.value}: {billboard['diffuse'].shape}")
             passed += 1
@@ -137,12 +134,12 @@ def test_material_variations():
                 billboard_type=BillboardType.INDUSTRIAL,
                 material=material,
                 size=(512, 256),
-                seed=456,
+                seed=456
             )
 
-            diffuse = billboard["diffuse"]
-            roughness = billboard["roughness"]
-            metallic = billboard["metallic"]
+            diffuse = billboard['diffuse']
+            roughness = billboard['roughness']
+            metallic = billboard['metallic']
 
             # Verify material-specific properties
             if material in [MaterialType.METAL, MaterialType.PAINTED_METAL]:
@@ -152,9 +149,7 @@ def test_material_variations():
                 # Non-metals should have low metallic values
                 assert metallic.mean() < 50, f"Non-metal should have low metallic values"
 
-            print(
-                f"[OK] {material.value}: metallic avg={metallic.mean():.1f}, roughness avg={roughness.mean():.1f}"
-            )
+            print(f"[OK] {material.value}: metallic avg={metallic.mean():.1f}, roughness avg={roughness.mean():.1f}")
             passed += 1
 
         except Exception as e:
@@ -189,18 +184,18 @@ def test_weathering_levels():
                 material=MaterialType.METAL,
                 weathering=weathering,
                 size=(512, 256),
-                seed=789,
+                seed=789
             )
 
-            config = billboard["config"]
+            config = billboard['config']
 
             # Verify weathering effects increase with level
             total_weathering = (
-                config.rust_amount
-                + config.dirt_amount
-                + config.scratch_amount
-                + config.fade_amount
-                + config.crack_amount
+                config.rust_amount +
+                config.dirt_amount +
+                config.scratch_amount +
+                config.fade_amount +
+                config.crack_amount
             )
 
             print(f"[OK] {weathering.name}: total weathering={total_weathering:.2f}")
@@ -222,14 +217,17 @@ def test_billboard_variations():
         gen = BillboardGenerator()
 
         variations = gen.generate_billboard_variations(
-            billboard_type=BillboardType.COMMERCIAL, count=5, size=(512, 256), base_seed=999
+            billboard_type=BillboardType.COMMERCIAL,
+            count=5,
+            size=(512, 256),
+            base_seed=999
         )
 
         assert len(variations) == 5, f"Expected 5 variations, got {len(variations)}"
 
         # Verify variations are different
-        diffuse_0 = variations[0]["diffuse"]
-        diffuse_1 = variations[1]["diffuse"]
+        diffuse_0 = variations[0]['diffuse']
+        diffuse_1 = variations[1]['diffuse']
 
         assert not np.array_equal(diffuse_0, diffuse_1), "Variations should be different"
 
@@ -240,7 +238,6 @@ def test_billboard_variations():
     except Exception as e:
         print(f"[FAIL] {e}")
         import traceback
-
         traceback.print_exc()
         return False
 
@@ -258,16 +255,16 @@ def test_save_billboard():
             material=MaterialType.NEON_GLASS,
             weathering=WeatheringLevel.MODERATE,
             size=(1024, 512),
-            seed=1234,
+            seed=1234
         )
 
         # Save complete billboard
         paths = gen.save_billboard_complete(billboard, "test_neon_sign_01")
 
         # Verify files were saved
-        assert "diffuse" in paths, "Missing diffuse path"
-        assert "normal" in paths, "Missing normal path"
-        assert "roughness" in paths, "Missing roughness path"
+        assert 'diffuse' in paths, "Missing diffuse path"
+        assert 'normal' in paths, "Missing normal path"
+        assert 'roughness' in paths, "Missing roughness path"
 
         for map_type, path in paths.items():
             assert path.exists(), f"{map_type} file not found: {path}"
@@ -281,7 +278,6 @@ def test_save_billboard():
     except Exception as e:
         print(f"[FAIL] {e}")
         import traceback
-
         traceback.print_exc()
         return False
 
@@ -304,7 +300,7 @@ def test_billboard_presets():
             material=MaterialType.PAINTED_METAL,
             weathering=WeatheringLevel.HEAVY,
             size=(512, 256),
-            seed=42,
+            seed=42
         )
 
         print(f"[OK] Generated billboard from industrial preset concept")
@@ -324,10 +320,10 @@ def test_output_structure_integration():
         gen = BillboardGenerator()
 
         # Test path access for all billboard types
-        billboard_types = ["commercial", "industrial", "road_signs", "posters", "neon"]
+        billboard_types = ['commercial', 'industrial', 'road_signs', 'posters', 'neon']
 
         for btype in billboard_types:
-            path = gen.output.get_path("environments", "billboards", btype)
+            path = gen.output.get_path('environments', 'billboards', btype)
             assert path.exists(), f"Billboard path doesn't exist: {path}"
             print(f"  [OK] {btype}: {path}")
 
@@ -338,7 +334,6 @@ def test_output_structure_integration():
     except Exception as e:
         print(f"[FAIL] {e}")
         import traceback
-
         traceback.print_exc()
         return False
 
@@ -368,7 +363,6 @@ def run_all_tests():
         except Exception as e:
             print(f"\n[ERROR] Test crashed: {e}")
             import traceback
-
             traceback.print_exc()
             results.append(False)
 
@@ -388,9 +382,7 @@ def run_all_tests():
         print("  - 10 billboard types (commercial, industrial, neon, etc.)")
         print("  - 8 material types (metal, wood, plastic, concrete, etc.)")
         print("  - 5 weathering levels (pristine to extreme)")
-        print(
-            "  - Complete PBR texture sets (diffuse, normal, roughness, metallic, emissive, opacity)"
-        )
+        print("  - Complete PBR texture sets (diffuse, normal, roughness, metallic, emissive, opacity)")
         print("  - 10 dedicated output directories")
         return 0
     else:

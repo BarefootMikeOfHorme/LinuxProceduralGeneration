@@ -10,11 +10,7 @@ from pathlib import Path
 from python_compat import PythonCompatHandler
 
 
-def build_rust_core(
-    mode: str = "release",
-    use_maturin: bool = True,
-    verbose: bool = True
-):
+def build_rust_core(mode: str = "release", use_maturin: bool = True, verbose: bool = True):
     """
     Build Rust core with proper Python compatibility handling
 
@@ -62,7 +58,8 @@ def build_rust_core(
             build_config["maturin_command"][0],
             "build",
             f"--{mode}",
-            "--interpreter", build_config["python_executable"],
+            "--interpreter",
+            build_config["python_executable"],
         ]
     else:
         # Cargo build (for Rust-only components)
@@ -109,7 +106,7 @@ def build_rust_core(
             # passed, so a failed run was reported as a success.
             encoding="utf-8",
             errors="replace",
-            capture_output=not verbose
+            capture_output=not verbose,
         )
 
         if verbose:
@@ -174,11 +171,7 @@ def install_rust_package(verbose: bool = True):
         print("=" * 70)
 
     # Use maturin develop for development installation
-    cmd = [
-        "maturin", "develop",
-        "--release",
-        "-m", "rust_core/Cargo.toml"
-    ]
+    cmd = ["maturin", "develop", "--release", "-m", "rust_core/Cargo.toml"]
 
     env_vars = os.environ.copy()
     env_vars["PYO3_PYTHON"] = str(env.executable)
@@ -204,23 +197,15 @@ def main():
         "--mode",
         choices=["release", "debug"],
         default="release",
-        help="Build mode (default: release)"
+        help="Build mode (default: release)",
     )
-    parser.add_argument(
-        "--cargo",
-        action="store_true",
-        help="Use cargo instead of maturin"
-    )
+    parser.add_argument("--cargo", action="store_true", help="Use cargo instead of maturin")
     parser.add_argument(
         "--install",
         action="store_true",
-        help="Install the package after building (maturin develop)"
+        help="Install the package after building (maturin develop)",
     )
-    parser.add_argument(
-        "--quiet",
-        action="store_true",
-        help="Suppress verbose output"
-    )
+    parser.add_argument("--quiet", action="store_true", help="Suppress verbose output")
 
     args = parser.parse_args()
 
@@ -228,11 +213,7 @@ def main():
     use_maturin = not args.cargo
 
     # Build
-    success = build_rust_core(
-        mode=args.mode,
-        use_maturin=use_maturin,
-        verbose=verbose
-    )
+    success = build_rust_core(mode=args.mode, use_maturin=use_maturin, verbose=verbose)
 
     if not success:
         sys.exit(1)

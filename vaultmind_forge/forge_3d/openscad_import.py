@@ -22,13 +22,23 @@ Usage:
 """
 
 from pathlib import Path
-from typing import Optional, Dict, List, Union
+from typing import TYPE_CHECKING, Optional, Dict, List, Union
 import os
 import platform
 import shutil
 import subprocess
 import tempfile
 import time
+
+if TYPE_CHECKING:
+    # Mesh is the return type of several public methods on this module, and the
+    # annotations are written as string literals so they are not evaluated at
+    # runtime. The class lives in a sibling module and is only imported inside
+    # the function that constructs it, so a module-level import is not wanted
+    # here. Under TYPE_CHECKING the name is resolvable for type checkers, which
+    # is what the quoted annotations need. Previously the name existed nowhere
+    # in the module, so every one of those annotations was unresolvable.
+    from .mesh import Mesh
 
 
 def _find_openscad() -> Optional[Path]:
@@ -49,9 +59,7 @@ def _find_openscad() -> Optional[Path]:
             if root:
                 candidates.append(Path(root) / "OpenSCAD" / "openscad.exe")
     elif system == "Darwin":
-        candidates.append(
-            Path("/Applications/OpenSCAD.app/Contents/MacOS/OpenSCAD")
-        )
+        candidates.append(Path("/Applications/OpenSCAD.app/Contents/MacOS/OpenSCAD"))
     else:
         candidates.extend(
             [
@@ -93,11 +101,14 @@ class OpenSCADImporter:
             print(f"[WARNING] OpenSCAD not found at: {location}")
             print("[INFO] Set OPENSCAD_PATH or pass openscad_path explicitly")
 
-    def scad_to_mesh(self, scad_file: str,
-                     output_format: str = "obj",
-                     output_path: Optional[str] = None,
-                     parameters: Optional[Dict[str, Union[int, float, str]]] = None,
-                     timeout: int = 60) -> 'Mesh':
+    def scad_to_mesh(
+        self,
+        scad_file: str,
+        output_format: str = "obj",
+        output_path: Optional[str] = None,
+        parameters: Optional[Dict[str, Union[int, float, str]]] = None,
+        timeout: int = 60,
+    ) -> "Mesh":
         """
         Render .scad file to mesh using OpenSCAD.
 
@@ -163,12 +174,7 @@ class OpenSCADImporter:
             print(f"[INFO] Parameters: {parameters}")
 
         try:
-            result = subprocess.run(
-                cmd,
-                capture_output=True,
-                text=True,
-                timeout=timeout
-            )
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
 
             if result.returncode != 0:
                 print(f"[ERROR] OpenSCAD render failed:")
@@ -180,6 +186,7 @@ class OpenSCADImporter:
             # Load the rendered mesh through the explicit native loader.
             from ._native import load_native
             from .mesh import Mesh
+
             vfc = load_native()
 
             # Load the rendered mesh
@@ -195,10 +202,13 @@ class OpenSCADImporter:
             print(f"[ERROR] Failed to render: {e}")
             raise
 
-    def batch_render(self, scad_files: List[str],
-                    output_dir: str,
-                    output_format: str = "obj",
-                    timeout_per_file: int = 60) -> List['Mesh']:
+    def batch_render(
+        self,
+        scad_files: List[str],
+        output_dir: str,
+        output_format: str = "obj",
+        timeout_per_file: int = 60,
+    ) -> List["Mesh"]:
         """
         Render multiple .scad files in batch.
 
@@ -231,7 +241,7 @@ class OpenSCADImporter:
                     scad_file,
                     output_format=output_format,
                     output_path=str(output_file),
-                    timeout=timeout_per_file
+                    timeout=timeout_per_file,
                 )
 
                 meshes.append(mesh)
@@ -244,10 +254,13 @@ class OpenSCADImporter:
         print(f"\n[OK] Batch render complete: {len(meshes)}/{total} succeeded")
         return meshes
 
-    def render_with_variations(self, scad_file: str,
-                              parameter_variations: List[Dict],
-                              output_dir: str,
-                              output_format: str = "obj") -> List['Mesh']:
+    def render_with_variations(
+        self,
+        scad_file: str,
+        parameter_variations: List[Dict],
+        output_dir: str,
+        output_format: str = "obj",
+    ) -> List["Mesh"]:
         """
         Render same .scad file with different parameter sets.
 
@@ -293,7 +306,7 @@ class OpenSCADImporter:
                     scad_file,
                     output_format=output_format,
                     output_path=str(output_file),
-                    parameters=params
+                    parameters=params,
                 )
 
                 meshes.append(mesh)
@@ -306,8 +319,9 @@ class OpenSCADImporter:
         print(f"\n[OK] Variations complete: {len(meshes)}/{total} succeeded")
         return meshes
 
-    def scad_to_obj(self, scad_file: str, output_path: Optional[str] = None,
-                   parameters: Optional[Dict] = None) -> str:
+    def scad_to_obj(
+        self, scad_file: str, output_path: Optional[str] = None, parameters: Optional[Dict] = None
+    ) -> str:
         """
         Convenience method: Render .scad to OBJ file.
 
@@ -320,10 +334,7 @@ class OpenSCADImporter:
             Path to rendered OBJ file
         """
         mesh = self.scad_to_mesh(
-            scad_file,
-            output_format="obj",
-            output_path=output_path,
-            parameters=parameters
+            scad_file, output_format="obj", output_path=output_path, parameters=parameters
         )
 
         # Return the output path
@@ -332,8 +343,9 @@ class OpenSCADImporter:
         else:
             return str(Path(scad_file).with_suffix(".obj"))
 
-    def scad_to_stl(self, scad_file: str, output_path: Optional[str] = None,
-                   parameters: Optional[Dict] = None) -> str:
+    def scad_to_stl(
+        self, scad_file: str, output_path: Optional[str] = None, parameters: Optional[Dict] = None
+    ) -> str:
         """
         Convenience method: Render .scad to STL file.
 
@@ -346,10 +358,7 @@ class OpenSCADImporter:
             Path to rendered STL file
         """
         mesh = self.scad_to_mesh(
-            scad_file,
-            output_format="stl",
-            output_path=output_path,
-            parameters=parameters
+            scad_file, output_format="stl", output_path=output_path, parameters=parameters
         )
 
         # Return the output path
@@ -381,7 +390,9 @@ class OpenSCADImporter:
         try:
             # If parameters provided, create temp file with overrides
             if parameters:
-                with tempfile.NamedTemporaryFile(mode='w', suffix='.scad', delete=False) as temp_file:
+                with tempfile.NamedTemporaryFile(
+                    mode="w", suffix=".scad", delete=False
+                ) as temp_file:
                     # Write parameter overrides
                     for key, value in parameters.items():
                         if isinstance(value, str):
@@ -390,7 +401,7 @@ class OpenSCADImporter:
                             temp_file.write(f"{key} = {value};\n")
 
                     # Include original file
-                    temp_file.write(f'\ninclude <{scad_path.absolute()}>\n')
+                    temp_file.write(f"\ninclude <{scad_path.absolute()}>\n")
                     temp_path = temp_file.name
 
                 subprocess.Popen([self.openscad_path, temp_path])
@@ -415,12 +426,13 @@ class OpenSCADRoundTrip:
 
     def __init__(self):
         from .openscad_export import OpenSCADExporter
+
         self.exporter = OpenSCADExporter()
         self.importer = OpenSCADImporter()
 
-    def export_edit_import(self, primitive, name: str,
-                          working_dir: str = "temp/openscad",
-                          auto_open: bool = True) -> 'Mesh':
+    def export_edit_import(
+        self, primitive, name: str, working_dir: str = "temp/openscad", auto_open: bool = True
+    ) -> "Mesh":
         """
         Complete round-trip workflow.
 

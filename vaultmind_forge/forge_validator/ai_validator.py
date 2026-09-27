@@ -50,7 +50,7 @@ from ..forge_converter.ai_control import (
     AIDecisionEngine,
     AuthorityLevel,
     DecisionOutcome,
-    QualityMetrics as AIQualityMetrics
+    QualityMetrics as AIQualityMetrics,
 )
 from .validator import Validator, ValidationResult
 
@@ -60,15 +60,12 @@ from .validator import Validator, ValidationResult
 # than absorbed. The previous guard substituted constant scores here, which
 # meant a broken install produced a validator that passed every asset with a
 # fabricated 0.7 instead of failing.
-from .metrics import (
-    anatomy_score,
-    prompt_alignment_score,
-    consistency_score
-)
+from .metrics import anatomy_score, prompt_alignment_score, consistency_score
 
 
 class ValidationDecision(Enum):
     """AI validation decisions"""
+
     APPROVED = "approved"
     REJECTED = "rejected"
     RETRY_RECOMMENDED = "retry_recommended"
@@ -78,6 +75,7 @@ class ValidationDecision(Enum):
 @dataclass
 class AIValidationResult:
     """Extended validation result with AI decision"""
+
     validation: ValidationResult
     decision: ValidationDecision
     confidence: float
@@ -108,7 +106,7 @@ class AIValidator:
         self,
         authority_level: AuthorityLevel = AuthorityLevel.HIGH_AUTONOMY,
         threshold: float = 0.7,
-        ai_config_path: Optional[Path] = None
+        ai_config_path: Optional[Path] = None,
     ):
         """
         Initialize AI validator
@@ -123,8 +121,7 @@ class AIValidator:
 
         # AI decision engine
         self.ai_engine = AIDecisionEngine(
-            config_path=ai_config_path,
-            authority_level=authority_level
+            config_path=ai_config_path, authority_level=authority_level
         )
 
         self.threshold = threshold
@@ -134,7 +131,7 @@ class AIValidator:
         asset_path: Path | str,
         context: Optional[Dict[str, Any]] = None,
         prompt: Optional[str] = None,
-        reference_images: Optional[list[Path]] = None
+        reference_images: Optional[list[Path]] = None,
     ) -> AIValidationResult:
         """
         Validate asset with AI-powered decision making
@@ -155,18 +152,11 @@ class AIValidator:
         validation = self.validator.validate_asset(asset_path)
 
         # 2. Compute detailed quality metrics
-        metrics = self._compute_quality_metrics(
-            asset_path,
-            validation,
-            prompt,
-            reference_images
-        )
+        metrics = self._compute_quality_metrics(asset_path, validation, prompt, reference_images)
 
         # 3. AI decision
         outcome, confidence, reasoning = self.ai_engine.assess_quality(
-            asset_path=asset_path,
-            metrics=metrics,
-            context=context
+            asset_path=asset_path, metrics=metrics, context=context
         )
 
         # 4. Convert to validation decision
@@ -182,7 +172,7 @@ class AIValidator:
             decision=decision,
             confidence=confidence,
             reasoning=reasoning,
-            suggested_adjustments=adjustments
+            suggested_adjustments=adjustments,
         )
 
     def _compute_quality_metrics(
@@ -190,7 +180,7 @@ class AIValidator:
         asset_path: Path,
         validation: ValidationResult,
         prompt: Optional[str],
-        reference_images: Optional[list[Path]]
+        reference_images: Optional[list[Path]],
     ) -> AIQualityMetrics:
         """
         Compute comprehensive quality metrics for AI decision
@@ -261,7 +251,7 @@ class AIValidator:
             color_fidelity=float(color_fid),
             artifact_score=float(artifact_score),
             consistency=float(consistency_val),
-            overall_score=float(overall)
+            overall_score=float(overall),
         )
 
     def _compute_sharpness(self, asset_path: Path) -> float:
@@ -299,7 +289,9 @@ class AIValidator:
             r, g, b = arr[:, :, 0], arr[:, :, 1], arr[:, :, 2]
 
             # Good color fidelity means balanced channels and no clipping
-            balance_score = 1.0 - abs(np.mean(r) - 0.5) - abs(np.mean(g) - 0.5) - abs(np.mean(b) - 0.5)
+            balance_score = (
+                1.0 - abs(np.mean(r) - 0.5) - abs(np.mean(g) - 0.5) - abs(np.mean(b) - 0.5)
+            )
             balance_score = max(0.0, balance_score)
 
             # Check for clipping
@@ -309,7 +301,7 @@ class AIValidator:
             clipping_score = 1.0 - min(clipping_ratio * 5.0, 1.0)
 
             # Combine scores
-            color_fid = (balance_score * 0.6 + clipping_score * 0.4)
+            color_fid = balance_score * 0.6 + clipping_score * 0.4
             return float(np.clip(color_fid, 0.0, 1.0))
         except (OSError, UnidentifiedImageError, ValueError) as exc:
             logger.warning("color fidelity unmeasurable for %s: %s", asset_path, exc)
@@ -338,7 +330,7 @@ class AIValidator:
 
             # Score: penalize extreme values and high noise
             artifact_score = 1.0 - min(extreme_ratio * 5.0, 1.0)
-            artifact_score *= (1.0 - min(variance * 2.0, 0.5))
+            artifact_score *= 1.0 - min(variance * 2.0, 0.5)
 
             return float(np.clip(artifact_score, 0.0, 1.0))
         except (OSError, UnidentifiedImageError, ValueError) as exc:
@@ -346,9 +338,7 @@ class AIValidator:
             return 0.0
 
     def _compute_consistency(
-        self,
-        asset_path: Path,
-        reference_images: Optional[list[Path]]
+        self, asset_path: Path, reference_images: Optional[list[Path]]
     ) -> float:
         """
         Compute style consistency with reference images
@@ -420,14 +410,12 @@ class AIValidator:
             DecisionOutcome.REJECTED: ValidationDecision.REJECTED,
             DecisionOutcome.RETRY: ValidationDecision.RETRY_RECOMMENDED,
             DecisionOutcome.FLAG_FOR_REVIEW: ValidationDecision.FLAG_FOR_HUMAN,
-            DecisionOutcome.ESCALATE: ValidationDecision.FLAG_FOR_HUMAN
+            DecisionOutcome.ESCALATE: ValidationDecision.FLAG_FOR_HUMAN,
         }
         return mapping.get(outcome, ValidationDecision.FLAG_FOR_HUMAN)
 
     def validate_batch_with_ai(
-        self,
-        asset_paths: list[Path | str],
-        context: Optional[Dict[str, Any]] = None
+        self, asset_paths: list[Path | str], context: Optional[Dict[str, Any]] = None
     ) -> list[AIValidationResult]:
         """
         Validate multiple assets with AI decisions
@@ -439,17 +427,14 @@ class AIValidator:
         Returns:
             List of AIValidationResult objects
         """
-        return [
-            self.validate_with_ai(path, context)
-            for path in asset_paths
-        ]
+        return [self.validate_with_ai(path, context) for path in asset_paths]
 
     def record_human_feedback(
         self,
         asset_path: Path | str,
         ai_decision: ValidationDecision,
         human_decision: str,
-        decision_id: Optional[str] = None
+        decision_id: Optional[str] = None,
     ):
         """
         Record human feedback for AI learning
@@ -460,13 +445,13 @@ class AIValidator:
             human_decision: What human decided
             decision_id: Optional decision ID to track
         """
-        was_correct = (ai_decision.value == human_decision)
+        was_correct = ai_decision.value == human_decision
 
         if decision_id:
             self.ai_engine.record_human_feedback(
                 decision_id=decision_id,
                 was_correct=was_correct,
-                human_override=human_decision if not was_correct else None
+                human_override=human_decision if not was_correct else None,
             )
 
     def get_performance_stats(self) -> Dict[str, Any]:
@@ -487,7 +472,7 @@ def validate_asset_ai(
     asset_path: Path | str,
     authority_level: AuthorityLevel = AuthorityLevel.HIGH_AUTONOMY,
     context: Optional[Dict[str, Any]] = None,
-    prompt: Optional[str] = None
+    prompt: Optional[str] = None,
 ) -> AIValidationResult:
     """
     Quick AI-powered validation of a single asset

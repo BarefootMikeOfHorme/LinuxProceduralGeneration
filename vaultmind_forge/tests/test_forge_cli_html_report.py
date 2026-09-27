@@ -58,9 +58,9 @@ def test_html_report_module_is_importable_as_a_module():
         "forge_cli became a package; vaultmind_forge.forge_cli_html_report and "
         "the console script entry point would need re-checking"
     )
-    assert not (Path(forge_cli.__file__).parent / "forge_cli").exists(), (
-        "a forge_cli/ directory has reappeared and will shadow forge_cli.py"
-    )
+    assert not (
+        Path(forge_cli.__file__).parent / "forge_cli"
+    ).exists(), "a forge_cli/ directory has reappeared and will shadow forge_cli.py"
 
 
 def test_html_report_renders_when_diagnostic_has_no_timing(tmp_path: Path):

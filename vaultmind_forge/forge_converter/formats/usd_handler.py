@@ -17,7 +17,7 @@ from .format_registry import (
     ConversionOptions,
     RepairOptions,
     FormatError,
-    ConversionError
+    ConversionError,
 )
 
 logger = logging.getLogger(__name__)
@@ -25,17 +25,19 @@ logger = logging.getLogger(__name__)
 
 class USDLayerType(Enum):
     """USD layer types following LIVRPS composition arc system"""
-    LOCAL = "local"              # Local opinions (strongest)
-    INHERITS = "inherits"         # Class inheritance
-    VARIANTS = "variants"         # Variant sets
-    REFERENCES = "references"     # Reference other USD files
-    PAYLOADS = "payloads"         # Deferred loading references
-    SPECIALIZES = "specializes"   # Template specialization
+
+    LOCAL = "local"  # Local opinions (strongest)
+    INHERITS = "inherits"  # Class inheritance
+    VARIANTS = "variants"  # Variant sets
+    REFERENCES = "references"  # Reference other USD files
+    PAYLOADS = "payloads"  # Deferred loading references
+    SPECIALIZES = "specializes"  # Template specialization
 
 
 @dataclass
 class USDExportOptions:
     """USD export options"""
+
     # File format
     format: str = "usda"  # usda (ASCII) or usdc (binary)
 
@@ -46,7 +48,7 @@ class USDExportOptions:
 
     # Composition
     use_references: bool = True  # Use references for assets
-    use_payloads: bool = False   # Use payloads for heavy assets
+    use_payloads: bool = False  # Use payloads for heavy assets
     create_variants: bool = True  # Create variant sets for LODs
 
     # Geometry
@@ -105,6 +107,7 @@ class USDHandler(ModelFormatHandler):
         """Check if USD library is available"""
         try:
             from pxr import Usd, UsdGeom, UsdShade
+
             return True
         except ImportError:
             return False
@@ -119,7 +122,7 @@ class USDHandler(ModelFormatHandler):
 
     def get_extensions(self) -> List[str]:
         """Get supported file extensions"""
-        return ['.usd', '.usda', '.usdc', '.usdz', '.USD', '.USDA', '.USDC', '.USDZ']
+        return [".usd", ".usda", ".usdc", ".usdz", ".USD", ".USDA", ".USDC", ".USDZ"]
 
     def can_read(self) -> bool:
         """Can this handler read files?"""
@@ -146,20 +149,20 @@ class USDHandler(ModelFormatHandler):
             return False
 
         try:
-            with open(file_path, 'rb') as f:
+            with open(file_path, "rb") as f:
                 header = f.read(32)
 
                 # Check for USDA
-                if header.startswith(b'#usda'):
+                if header.startswith(b"#usda"):
                     return True
 
                 # Check for USDC
-                if b'PXR-USDC' in header:
+                if b"PXR-USDC" in header:
                     return True
 
                 # Check for USDZ (ZIP archive)
-                if header.startswith(b'PK\x03\x04'):
-                    return file_path.suffix.lower() == '.usdz'
+                if header.startswith(b"PK\x03\x04"):
+                    return file_path.suffix.lower() == ".usdz"
 
             return False
         except:
@@ -169,12 +172,7 @@ class USDHandler(ModelFormatHandler):
     # ModelFormatHandler Interface
     # ========================================================================
 
-    def convert_to(
-        self,
-        source_path: Path,
-        target_path: Path,
-        options: ConversionOptions
-    ) -> None:
+    def convert_to(self, source_path: Path, target_path: Path, options: ConversionOptions) -> None:
         """
         Convert model to USD format.
 
@@ -197,7 +195,7 @@ class USDHandler(ModelFormatHandler):
             export_normals=True,
             export_uvs=True,
             export_materials=options.keep_materials,
-            triangulate=False
+            triangulate=False,
         )
 
         if self.usd_available:
@@ -207,12 +205,7 @@ class USDHandler(ModelFormatHandler):
 
         logger.info(f"Converted {source_path} → {target_path}")
 
-    def optimize(
-        self,
-        source_path: Path,
-        target_path: Path,
-        level: int
-    ) -> None:
+    def optimize(self, source_path: Path, target_path: Path, level: int) -> None:
         """
         Optimize USD stage (flatten layers, remove unused prims).
 
@@ -246,15 +239,11 @@ class USDHandler(ModelFormatHandler):
         else:
             # Fallback: just copy
             import shutil
+
             shutil.copy(source_path, target_path)
             logger.warning("USD optimization requires usd-core library")
 
-    def repair(
-        self,
-        source_path: Path,
-        target_path: Path,
-        options: RepairOptions
-    ) -> None:
+    def repair(self, source_path: Path, target_path: Path, options: RepairOptions) -> None:
         """
         Repair USD stage (fix normals, validate structure).
 
@@ -291,9 +280,7 @@ class USDHandler(ModelFormatHandler):
                             face_vertex_indices = mesh.GetFaceVertexIndicesAttr().Get()
 
                             normals = self._compute_normals(
-                                points,
-                                face_vertex_counts,
-                                face_vertex_indices
+                                points, face_vertex_counts, face_vertex_indices
                             )
                             mesh.GetNormalsAttr().Set(normals)
                             mesh.SetNormalsInterpolation(UsdGeom.Tokens.vertex)
@@ -305,6 +292,7 @@ class USDHandler(ModelFormatHandler):
         else:
             # Fallback: just copy
             import shutil
+
             shutil.copy(source_path, target_path)
             logger.warning("USD repair requires usd-core library")
 
@@ -320,7 +308,7 @@ class USDHandler(ModelFormatHandler):
         idx = 0
         for count in face_vertex_counts:
             # Get face vertices
-            face_indices = face_vertex_indices[idx:idx+count]
+            face_indices = face_vertex_indices[idx : idx + count]
 
             # Compute face normal
             v0 = np.array(points[face_indices[0]])
@@ -411,11 +399,7 @@ class USDHandler(ModelFormatHandler):
     # USD-specific Features
     # ========================================================================
 
-    def create_layered_stage(
-        self,
-        root_path: Path,
-        layer_paths: Dict[USDLayerType, Path]
-    ) -> None:
+    def create_layered_stage(self, root_path: Path, layer_paths: Dict[USDLayerType, Path]) -> None:
         """
         Create USD stage with LIVRPS layer composition.
 
@@ -468,11 +452,7 @@ class USDHandler(ModelFormatHandler):
         logger.info(f"Created layered USD stage: {root_path}")
 
     def create_variant_set(
-        self,
-        stage_path: Path,
-        prim_path: str,
-        variant_set_name: str,
-        variants: Dict[str, Path]
+        self, stage_path: Path, prim_path: str, variant_set_name: str, variants: Dict[str, Path]
     ) -> None:
         """
         Create variant set for LODs or material variations.
@@ -540,26 +520,34 @@ class USDHandler(ModelFormatHandler):
     # ========================================================================
 
     def _convert_with_usd(
-        self,
-        source_path: Path,
-        target_path: Path,
-        options: USDExportOptions
+        self, source_path: Path, target_path: Path, options: USDExportOptions
     ) -> None:
         """Convert using USD library"""
-        from pxr import Usd, UsdGeom
+        # Gf and Sdf are needed further down: Gf.Vec2f for UV pairs and
+        # Sdf.ValueTypeNames for the texcoord primvar. The previous import was
+        # only `Usd, UsdGeom`, so any conversion with export_uvs enabled raised
+        # NameError on Gf or Sdf. It went unnoticed because the UV branch is
+        # only reached when the source mesh carries a uv attribute, and the
+        # bare `except` below converted a load failure into a clean
+        # ConversionError, so a NameError raised later was not attributable to
+        # the import from the outside.
+        from pxr import Usd, UsdGeom, Gf, Sdf
 
         # Load source mesh using trimesh
         try:
             import trimesh
+
             mesh = trimesh.load(str(source_path))
-        except:
-            raise ConversionError("Failed to load source mesh (trimesh required)")
+        except Exception as exc:
+            raise ConversionError(f"Failed to load source mesh (trimesh required): {exc}") from exc
 
         # Create USD stage
         stage = Usd.Stage.CreateNew(str(target_path))
 
         # Set stage metadata
-        UsdGeom.SetStageUpAxis(stage, UsdGeom.Tokens.y if options.up_axis == "Y" else UsdGeom.Tokens.z)
+        UsdGeom.SetStageUpAxis(
+            stage, UsdGeom.Tokens.y if options.up_axis == "Y" else UsdGeom.Tokens.z
+        )
         UsdGeom.SetStageMetersPerUnit(stage, options.meters_per_unit)
 
         # Create root prim
@@ -571,6 +559,7 @@ class USDHandler(ModelFormatHandler):
 
         # Set points
         from pxr import Vt, Gf
+
         points = [Gf.Vec3f(v[0], v[1], v[2]) for v in mesh.vertices]
         mesh_prim.GetPointsAttr().Set(points)
 
@@ -582,13 +571,13 @@ class USDHandler(ModelFormatHandler):
         mesh_prim.GetFaceVertexIndicesAttr().Set(face_vertex_indices)
 
         # Set normals if available
-        if options.export_normals and hasattr(mesh, 'vertex_normals'):
+        if options.export_normals and hasattr(mesh, "vertex_normals"):
             normals = [Gf.Vec3f(n[0], n[1], n[2]) for n in mesh.vertex_normals]
             mesh_prim.GetNormalsAttr().Set(normals)
             mesh_prim.SetNormalsInterpolation(UsdGeom.Tokens.vertex)
 
         # Set UVs if available
-        if options.export_uvs and hasattr(mesh.visual, 'uv'):
+        if options.export_uvs and hasattr(mesh.visual, "uv"):
             uvs_data = mesh.visual.uv
             uvs = [Gf.Vec2f(uv[0], uv[1]) for uv in uvs_data]
             primvars = UsdGeom.PrimvarsAPI(mesh_prim)
@@ -601,31 +590,29 @@ class USDHandler(ModelFormatHandler):
         logger.info(f"Converted to USD: {target_path}")
 
     def _convert_with_fallback(
-        self,
-        source_path: Path,
-        target_path: Path,
-        options: USDExportOptions
+        self, source_path: Path, target_path: Path, options: USDExportOptions
     ) -> None:
         """Convert using fallback USDA writer"""
         # Load mesh using trimesh
         try:
             import trimesh
+
             mesh = trimesh.load(str(source_path))
         except:
             raise ConversionError("Failed to load source mesh (trimesh required)")
 
         # Write basic USDA file
-        with open(target_path, 'w') as f:
+        with open(target_path, "w") as f:
             f.write("#usda 1.0\n")
             f.write("(\n")
-            f.write("    defaultPrim = \"World\"\n")
-            f.write(f"    upAxis = \"{options.up_axis}\"\n")
+            f.write('    defaultPrim = "World"\n')
+            f.write(f'    upAxis = "{options.up_axis}"\n')
             f.write(f"    metersPerUnit = {options.meters_per_unit}\n")
             f.write(")\n\n")
 
-            f.write("def Xform \"World\"\n")
+            f.write('def Xform "World"\n')
             f.write("{\n")
-            f.write("    def Mesh \"Mesh\"\n")
+            f.write('    def Mesh "Mesh"\n')
             f.write("    {\n")
 
             # Write points

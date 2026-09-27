@@ -4,7 +4,6 @@ Tests for job queue, resource manager, and batch processor
 """
 
 from __future__ import annotations
-import sys
 
 import time
 from pathlib import Path
@@ -16,23 +15,32 @@ from vaultmind_forge.forge_batch import (
     JobStatus,
     ResourceManager,
     ResourceRequirements,
-    BatchProcessor,
+    BatchProcessor
 )
 
 
 def test_1_job_queue():
     """Test 1: Job Queue Operations"""
-    print("\n" + "=" * 60)
+    print("\n" + "="*60)
     print("TEST 1: Job Queue Operations")
-    print("=" * 60)
+    print("="*60)
 
     # Create queue
     queue = JobQueue()
 
     # Submit jobs
-    job1 = BatchJob(prompt="medieval knight armor", priority=JobPriority.HIGH)
-    job2 = BatchJob(prompt="fantasy sword", priority=JobPriority.NORMAL)
-    job3 = BatchJob(prompt="dragon texture", priority=JobPriority.LOW)
+    job1 = BatchJob(
+        prompt="medieval knight armor",
+        priority=JobPriority.HIGH
+    )
+    job2 = BatchJob(
+        prompt="fantasy sword",
+        priority=JobPriority.NORMAL
+    )
+    job3 = BatchJob(
+        prompt="dragon texture",
+        priority=JobPriority.LOW
+    )
 
     id1 = queue.submit(job1)
     id2 = queue.submit(job2)
@@ -75,17 +83,25 @@ def test_1_job_queue():
 
 def test_2_priority_ordering():
     """Test 2: Priority Ordering"""
-    print("\n" + "=" * 60)
+    print("\n" + "="*60)
     print("TEST 2: Priority Ordering")
-    print("=" * 60)
+    print("="*60)
 
     queue = JobQueue()
 
     # Submit jobs in reverse priority order
-    priorities = [JobPriority.LOW, JobPriority.NORMAL, JobPriority.HIGH, JobPriority.URGENT]
+    priorities = [
+        JobPriority.LOW,
+        JobPriority.NORMAL,
+        JobPriority.HIGH,
+        JobPriority.URGENT
+    ]
 
     for priority in priorities:
-        job = BatchJob(prompt=f"test {priority.name}", priority=priority)
+        job = BatchJob(
+            prompt=f"test {priority.name}",
+            priority=priority
+        )
         queue.submit(job)
 
     # Get jobs - should come out in priority order
@@ -101,7 +117,12 @@ def test_2_priority_ordering():
             queue.mark_completed(job.id)
 
     # Verify order (highest priority first)
-    expected_order = [JobPriority.URGENT, JobPriority.HIGH, JobPriority.NORMAL, JobPriority.LOW]
+    expected_order = [
+        JobPriority.URGENT,
+        JobPriority.HIGH,
+        JobPriority.NORMAL,
+        JobPriority.LOW
+    ]
 
     assert retrieved_priorities == expected_order, "Jobs should be retrieved in priority order"
 
@@ -110,9 +131,9 @@ def test_2_priority_ordering():
 
 def test_3_dependencies():
     """Test 3: Job Dependencies"""
-    print("\n" + "=" * 60)
+    print("\n" + "="*60)
     print("TEST 3: Job Dependencies")
-    print("=" * 60)
+    print("="*60)
 
     queue = JobQueue()
 
@@ -122,7 +143,10 @@ def test_3_dependencies():
     print(f"\n[QUEUE] Submitted job A: {id_a}")
 
     # Submit job B (depends on A)
-    job_b = BatchJob(prompt="variation texture", dependencies=[id_a])
+    job_b = BatchJob(
+        prompt="variation texture",
+        dependencies=[id_a]
+    )
     id_b = queue.submit(job_b)
     print(f"[QUEUE] Submitted job B: {id_b} (depends on A)")
 
@@ -152,9 +176,9 @@ def test_3_dependencies():
 
 def test_4_resource_manager():
     """Test 4: Resource Manager"""
-    print("\n" + "=" * 60)
+    print("\n" + "="*60)
     print("TEST 4: Resource Manager")
-    print("=" * 60)
+    print("="*60)
 
     manager = ResourceManager()
 
@@ -165,9 +189,7 @@ def test_4_resource_manager():
     print(f"  CPU cores: {resources.cpu_cores_total} ({resources.cpu_cores_available} available)")
     print(f"  CPU usage: {resources.cpu_percent:.1f}%")
     print(f"  RAM: {resources.ram_total_gb:.1f} GB ({resources.ram_available_gb:.1f} GB available)")
-    print(
-        f"  Disk: {resources.disk_total_gb:.1f} GB ({resources.disk_available_gb:.1f} GB available)"
-    )
+    print(f"  Disk: {resources.disk_total_gb:.1f} GB ({resources.disk_available_gb:.1f} GB available)")
     print(f"  GPUs: {len(resources.gpus)}")
 
     for gpu in resources.gpus:
@@ -180,7 +202,7 @@ def test_4_resource_manager():
         prompt="knight armor",
         output_type="character",
         target_engines=["unity", "unreal"],
-        generation_params={"width": 512, "height": 512},
+        generation_params={"width": 512, "height": 512}
     )
 
     print(f"\n[RESOURCES] Estimated requirements for 512x512 character:")
@@ -205,9 +227,9 @@ def test_4_resource_manager():
     # System health check
     health = manager.check_system_health()
     print(f"\n[RESOURCES] System health: {health['status']}")
-    if health["warnings"]:
+    if health['warnings']:
         print(f"  Warnings: {health['warnings']}")
-    if health["errors"]:
+    if health['errors']:
         print(f"  Errors: {health['errors']}")
 
     print("\n[TEST 4] PASSED: Resource Manager working correctly")
@@ -215,9 +237,9 @@ def test_4_resource_manager():
 
 def test_5_batch_processor():
     """Test 5: Batch Processor"""
-    print("\n" + "=" * 60)
+    print("\n" + "="*60)
     print("TEST 5: Batch Processor")
-    print("=" * 60)
+    print("="*60)
 
     # Create processor
     processor = BatchProcessor(max_workers=2)
@@ -235,7 +257,7 @@ def test_5_batch_processor():
             prompt=f"test asset {i}",
             output_type="texture",
             target_engines=["unity"],
-            priority=JobPriority.NORMAL,
+            priority=JobPriority.NORMAL
         )
         jobs.append(job)
 
@@ -249,12 +271,8 @@ def test_5_batch_processor():
 
     while not processor.is_batch_complete(job_ids):
         progress = processor.get_batch_progress(job_ids)
-        print(
-            f"  Progress: {progress.completed}/{progress.total} completed ({progress.percent:.1f}%)"
-        )
-        print(
-            f"  Running: {progress.running}, Pending: {progress.pending}, Failed: {progress.failed}"
-        )
+        print(f"  Progress: {progress.completed}/{progress.total} completed ({progress.percent:.1f}%)")
+        print(f"  Running: {progress.running}, Pending: {progress.pending}, Failed: {progress.failed}")
 
         # Print processor status
         processor.print_status()
@@ -281,9 +299,9 @@ def test_5_batch_processor():
 
 def test_6_persistence():
     """Test 6: Job Queue Persistence"""
-    print("\n" + "=" * 60)
+    print("\n" + "="*60)
     print("TEST 6: Job Queue Persistence")
-    print("=" * 60)
+    print("="*60)
 
     persistence_path = Path("tests/batch_test/queue_state.json")
     persistence_path.parent.mkdir(parents=True, exist_ok=True)
@@ -294,7 +312,7 @@ def test_6_persistence():
     jobs = [
         BatchJob(prompt="job 1", priority=JobPriority.HIGH),
         BatchJob(prompt="job 2", priority=JobPriority.NORMAL),
-        BatchJob(prompt="job 3", priority=JobPriority.LOW),
+        BatchJob(prompt="job 3", priority=JobPriority.LOW)
     ]
 
     job_ids = []
@@ -322,10 +340,10 @@ def test_6_persistence():
 
 def run_all_tests():
     """Run all batch processing tests"""
-    print("\n" + "=" * 80)
+    print("\n" + "="*80)
     print("VAULTMIND FORGE - BATCH PROCESSING TEST SUITE")
     print("Testing: Job Queue, Resource Manager, Batch Processor")
-    print("=" * 80)
+    print("="*80)
 
     try:
         test_1_job_queue()
@@ -335,9 +353,9 @@ def run_all_tests():
         # test_5_batch_processor()  # Skip in automated tests (long running)
         test_6_persistence()
 
-        print("\n" + "=" * 80)
+        print("\n" + "="*80)
         print("ALL TESTS PASSED")
-        print("=" * 80)
+        print("="*80)
         print("\nBatch Processing Summary:")
         print("  [OK] Job Queue: Priority ordering, dependencies, persistence")
         print("  [OK] Resource Manager: GPU/CPU/Memory monitoring and allocation")
@@ -365,7 +383,6 @@ def run_all_tests():
     except Exception as e:
         print(f"\n[ERROR] Test failed: {e}")
         import traceback
-
         traceback.print_exc()
         return False
 

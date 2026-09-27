@@ -24,6 +24,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class WorkerStatus:
     """Worker status information"""
+
     worker_id: int
     is_active: bool
     current_job_id: Optional[str]
@@ -35,6 +36,7 @@ class WorkerStatus:
 @dataclass
 class BatchProgress:
     """Batch progress information"""
+
     total: int
     completed: int
     running: int
@@ -66,7 +68,7 @@ class BatchProcessor:
         self,
         max_workers: int = 4,
         persistence_path: Optional[Path] = None,
-        ai_authority: AuthorityLevel = AuthorityLevel.HIGH_AUTONOMY
+        ai_authority: AuthorityLevel = AuthorityLevel.HIGH_AUTONOMY,
     ):
         """
         Initialize batch processor.
@@ -151,10 +153,7 @@ class BatchProcessor:
         self._stop_event.clear()
 
         # Start scheduler thread
-        self._scheduler_thread = threading.Thread(
-            target=self._scheduler_loop,
-            daemon=True
-        )
+        self._scheduler_thread = threading.Thread(target=self._scheduler_loop, daemon=True)
         self._scheduler_thread.start()
 
         logger.info("Batch processor started")
@@ -210,10 +209,7 @@ class BatchProcessor:
 
         # Estimate resources
         requirements = self.resource_manager.estimate_requirements(
-            job.prompt,
-            job.output_type,
-            job.target_engines,
-            job.generation_params
+            job.prompt, job.output_type, job.target_engines, job.generation_params
         )
 
         # Check if resources available
@@ -243,14 +239,12 @@ class BatchProcessor:
             current_job_id=job.id,
             jobs_completed=0,
             jobs_failed=0,
-            allocated_resources=allocation
+            allocated_resources=allocation,
         )
 
         # Start worker thread
         worker_thread = threading.Thread(
-            target=self._worker_loop,
-            args=(worker_id, job, allocation),
-            daemon=True
+            target=self._worker_loop, args=(worker_id, job, allocation), daemon=True
         )
         self.workers[worker_id] = worker_thread
         worker_thread.start()
@@ -270,12 +264,7 @@ class BatchProcessor:
         self.queue.mark_failed(job.id, f"unschedulable: {reason}", can_retry=False)
         self._emit_progress(job.id, 0.0, f"Cannot schedule: {reason}")
 
-    def _worker_loop(
-        self,
-        worker_id: int,
-        job: BatchJob,
-        allocation: Dict[str, Any]
-    ) -> None:
+    def _worker_loop(self, worker_id: int, job: BatchJob, allocation: Dict[str, Any]) -> None:
         """Worker thread loop"""
         try:
             # Mark job as running
@@ -283,16 +272,15 @@ class BatchProcessor:
 
             # Create pipeline
             pipeline = AssetPipeline(
-                ai_authority=self.ai_authority,
-                max_retries=3,
-                enable_lineage=True
+                ai_authority=self.ai_authority, max_retries=3, enable_lineage=True
             )
 
             # Setup GPU if allocated
-            if 'gpu_id' in allocation:
-                gpu_id = allocation['gpu_id']
+            if "gpu_id" in allocation:
+                gpu_id = allocation["gpu_id"]
                 import os
-                os.environ['CUDA_VISIBLE_DEVICES'] = str(gpu_id)
+
+                os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_id)
 
             # Execute pipeline
             self._emit_progress(job.id, 0.0, "Starting generation")
@@ -302,17 +290,20 @@ class BatchProcessor:
                 output_type=job.output_type,
                 target_engines=job.target_engines,
                 is_hero_asset=job.is_hero_asset,
-                generation_params=job.generation_params
+                generation_params=job.generation_params,
             )
 
             # Handle result
             if result.success:
                 # Mark completed
-                self.queue.mark_completed(job.id, result={
-                    "outputs": {k: str(v) for k, v in result.outputs.items()},
-                    "lineage_checksums": result.lineage_checksums,
-                    "stages_completed": result.stages_completed
-                })
+                self.queue.mark_completed(
+                    job.id,
+                    result={
+                        "outputs": {k: str(v) for k, v in result.outputs.items()},
+                        "lineage_checksums": result.lineage_checksums,
+                        "stages_completed": result.stages_completed,
+                    },
+                )
 
                 self.worker_status[worker_id].jobs_completed += 1
                 self._emit_progress(job.id, 1.0, "Completed")
@@ -349,8 +340,7 @@ class BatchProcessor:
     def _cleanup_workers(self) -> None:
         """Clean up finished worker threads"""
         finished_workers = [
-            worker_id for worker_id, thread in self.workers.items()
-            if not thread.is_alive()
+            worker_id for worker_id, thread in self.workers.items() if not thread.is_alive()
         ]
 
         for worker_id in finished_workers:
@@ -360,10 +350,7 @@ class BatchProcessor:
     # Progress Tracking
     # ========================================================================
 
-    def add_progress_callback(
-        self,
-        callback: Callable[[str, float, str], None]
-    ) -> None:
+    def add_progress_callback(self, callback: Callable[[str, float, str], None]) -> None:
         """
         Add progress callback.
 
@@ -394,9 +381,7 @@ class BatchProcessor:
         return self.queue.get_job(job_id)
 
     def list_jobs(
-        self,
-        status: Optional[JobStatus] = None,
-        priority: Optional[JobPriority] = None
+        self, status: Optional[JobStatus] = None, priority: Optional[JobPriority] = None
     ) -> List[BatchJob]:
         """List jobs with filters"""
         return self.queue.list_jobs(status=status, priority=priority)
@@ -428,7 +413,7 @@ class BatchProcessor:
             running=running,
             pending=pending,
             failed=failed,
-            percent=percent
+            percent=percent,
         )
 
     def is_batch_complete(self, job_ids: List[str]) -> bool:
@@ -437,9 +422,7 @@ class BatchProcessor:
         return progress.completed + progress.failed == progress.total
 
     def wait_for_job(
-        self,
-        job_id: str,
-        timeout: Optional[float] = None
+        self, job_id: str, timeout: Optional[float] = None
     ) -> Optional[PipelineResult]:
         """
         Wait for job to complete.
@@ -471,11 +454,7 @@ class BatchProcessor:
 
             time.sleep(1.0)
 
-    def wait_for_batch(
-        self,
-        job_ids: List[str],
-        timeout: Optional[float] = None
-    ) -> bool:
+    def wait_for_batch(self, job_ids: List[str], timeout: Optional[float] = None) -> bool:
         """
         Wait for entire batch to complete.
 
@@ -515,15 +494,15 @@ class BatchProcessor:
                 "max_workers": self.max_workers,
                 "active_workers": active_workers,
                 "total_jobs_completed": total_completed,
-                "total_jobs_failed": total_failed
+                "total_jobs_failed": total_failed,
             },
             "queue": queue_stats,
             "resources": {
                 "cpu_percent": resources.cpu_percent,
                 "ram_percent": resources.ram_percent,
                 "disk_percent": resources.disk_percent,
-                "gpu_count": len(resources.gpus)
-            }
+                "gpu_count": len(resources.gpus),
+            },
         }
 
     def get_worker_status(self) -> List[WorkerStatus]:
@@ -536,7 +515,9 @@ class BatchProcessor:
 
         print("\n=== Batch Processor Status ===")
         print(f"Running: {stats['processor']['running']}")
-        print(f"Workers: {stats['processor']['active_workers']}/{stats['processor']['max_workers']} active")
+        print(
+            f"Workers: {stats['processor']['active_workers']}/{stats['processor']['max_workers']} active"
+        )
         print(f"Completed: {stats['processor']['total_jobs_completed']}")
         print(f"Failed: {stats['processor']['total_jobs_failed']}")
 

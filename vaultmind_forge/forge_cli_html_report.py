@@ -75,7 +75,9 @@ TEMPLATE = """
 """
 
 
-def write_html_report(job_id: str, reports: List[Dict], diagnostics: Dict[str, Dict], out_dir: Path) -> Path:
+def write_html_report(
+    job_id: str, reports: List[Dict], diagnostics: Dict[str, Dict], out_dir: Path
+) -> Path:
     env = Environment(autoescape=select_autoescape())
     tmpl = env.from_string(TEMPLATE)
     # Timezone-aware rather than the deprecated naive utcnow(), which is
