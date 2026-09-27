@@ -784,6 +784,183 @@ Next smallest step: enable pyright LSP, add a non-polluting conftest.py, then
 
 At the end of each future work session, update the same fields with current evidence.
 
+## Arm 2 (continued) - Attribute layer, smoothing, and winding integrity
+
+**Date:** 2026-09-27
+**Status:** `[V]` render split validated; four primitive defects repaired; one placeholder found and not yet repaired
+**Commits:** `6832aea` (sphere + CSG), `af4a944` (attribute layer + winding)
+
+### The problem this pass addresses
+
+One mesh has to serve two consumers with opposite requirements. CAD booleans,
+collision, and simulation need positions **welded**, so a closed solid stays
+manifold. A renderer needs **one normal and one UV per output vertex**, so a hard
+edge or a UV seam has to produce a duplicated position. Previously LPG stored only
+welded positions with per-vertex normals and per-vertex UVs, and `v`/`vt`/`vn`
+were always 1:1. That combination cannot express a crease or a seam at all: a
+cube's eight vertices are shared by three faces each, so no single UV per vertex
+was ever correct for one of them, and the OBJ writer emitted eight copies of
+`vt 0 0`.
+
+### Design decision
+
+Adopted the Blender model, not the Assimp model. Blender keeps custom split
+normals per face corner and marks edges sharp, leaving the topology buffer
+welded. Assimp duplicates vertices outright and documents
+`aiProcess_JoinIdenticalVertices` as incompatible with smooth normals. Both work;
+keeping the welded form is the one that also serves CAD, which is a stated LPG
+requirement.
+
+- `Mesh` gains `face_uvs` (three UVs per triangle) and `sharp_edges`. Both are
+  additive; both default to the previous behaviour, so nothing had to migrate.
+- `RenderMesh` plus `Mesh::split_for_render(smooth_angle_degrees)` derives the
+  render form. A separate type on purpose: a render mesh is not manifold, and
+  making that a type error stops it being fed back into CSG by accident.
+
+### Smoothing: why flood fill is the wrong algorithm here
+
+The obvious implementation groups faces into smoothing groups by flooding outward
+across non-sharp edges. It is wrong, and wrong invisibly. **The faces around a
+vertex form a cycle**, so removing one link leaves it connected: a flood fill
+walks straight around a marked edge and reunites the two faces it was supposed to
+separate. On a sphere, marking a single edge sharp changed *nothing* - no crease,
+no split, not one extra vertex. An artist marks an edge, sees no result, and
+concludes the feature is broken.
+
+LPG instead **pins** the corners touching a marked edge to their own face normal.
+That is local, cannot route around anything, and produces a crease along the
+whole edge including its endpoints. Grouping is then by final attribute value,
+which is what Assimp effectively does, so there is no smoothing traversal left to
+get wrong.
+
+### Precision: three separate silent failures
+
+The auto-smooth angle test failed to flatten a sphere at 0 degrees, for three
+distinct reasons, each of which had to be fixed at the source:
+
+1. An f32 dot product saturates at 1.0, so the many near-coplanar triangles packed
+   around a pole compared exactly equal.
+2. Widening an f32 result fixes none of it: the rounding error is preserved,
+   leaving a norm of about 1.0000000858, and the dot product of two such "unit"
+   vectors comes out *above* 1.0. Measured dots were 1.0000001716.
+3. `(b.x - a.x) as f64` looks equivalent to widening and is not: the subtraction
+   happens in f32, and f32 subtraction of two nearby floats discards about half
+   the digits, enough to round two distinct face normals onto each other.
+
+LPG computes face normals in f64 **from the f32 positions, widened before any
+arithmetic touches them**.
+
+A fourth bug was in the ring walk: taking the `(corner + 1)` edge unconditionally
+re-selects the edge just crossed, so the walk ping-ponged between two faces and
+produced a ring of length 2 that smoothed corners it should have split.
+
+### Defects repaired, each previously invisible to the checks in place
+
+| Shape | Defect | Why it hid |
+|---|---|---|
+| Box | All six faces wound **inward**, signed volume -1.0 | Vertex and triangle counts unchanged; still reported manifold |
+| Sphere | **Both pole caps** wound inward, bands correct | Total volume read +3.96 vs ideal 4.19, so a volume check passed throughout. Only a per-region check finds it. |
+| Cylinder | 6 boundary edges | Seam closed with a spare column at theta = 2*PI |
+| Cone | 4 boundary edges | Same |
+| Torus | 144 boundary edges | Same, at both the major and minor wrap |
+| OBJ writer | Emitted `-0` | Same direction spelled two ways; a cube exported as 7 distinct normals |
+
+The seam defect is the most dangerous and the least visible. `sin(2*PI)` in f32 is
+about -2.4e-7, not 0, so the spare wrap column was a **near** duplicate of column
+0 rather than an exact one, no edge ever joined them, and the solid was not
+watertight. An unwatertight solid cannot answer point-in-solid queries, which is
+precisely what makes CSG misclassify triangles against it. All five primitives
+now report zero boundary and zero non-manifold edges.
+
+Sphere is now 4.1219, 98.4% of the ideal 4.18879, the expected inscribed-polyhedron
+deficit for 32 segments and 16 rings. It was 3.9635 (94.6%) with both caps
+inverted; the deficit was silently absorbing the defect.
+
+### Tests that had recorded defects as expected behaviour
+
+- `test_cylinder_is_capped_and_outward` asserted 20 vertices for an 8-segment
+  cylinder. That is `2 * (8 + 1) + 2`: the extra column *was* the unjoined seam.
+  Rewritten to assert watertightness rather than deleted.
+- `test_obj_export` asserted a round trip preserved the welded vertex count. The
+  writer now deliberately emits the render form, so the assertion was rewritten to
+  require topology preservation plus the render vertex count, and to state why a
+  cube becomes 36 rather than 24 (`Mesh` is triangles-only and carries no polygon
+  identity, so each triangle pins its own three corners).
+- One of my own new assertions was wrong too: `zero_angle_flattens_everything`
+  demanded one vertex per face corner, assuming no two sphere faces are coplanar.
+  32 pairs have normals identical to f64 precision, so they legitimately share.
+  Replaced with the stronger normal-level contract: no vertex may be shared by
+  faces that disagree, which is the only way sharing could be an actual defect.
+
+### Evidence
+
+- `cargo test --lib`: 71 passed, 0 failed (was 35, then 44).
+- `pytest test_native_geometry.py`: 37 passed, 1 skipped (was 20).
+- `scripts/run-test-suite.ps1`: 20 modules, 20 passed, 0 failed, 0 timeout.
+- `scripts/verify.ps1`: VERIFICATION PASSED, mypy 431/431 and black 194/194,
+  both ratchets unchanged from baseline.
+- Sphere inspected visually in terminal and as a 900x900 PNG.
+
+### Not repaired yet, and why it matters
+
+- **`rust_core/src/mesh/lod.rs` is a placeholder being treated as finished.**
+  `LodGenerator::generate` computes `target_triangles`, discards it, and pushes
+  `mesh.clone()` once per level while documenting itself as "Generate LOD chain for
+  a mesh". A caller receives N identical meshes and a success. `with_levels`
+  accepts any values including empty, unsorted, and greater than 1. `select_lod`
+  returns `thresholds.len()` when the distance exceeds every threshold, which is
+  out of range for any real level set. Next repair: a real QEM edge collapse,
+  carrying the attribute-error and normal-flip lessons from above.
+- **Sphere and torus have no `face_uvs`**, so their UV seam is still welded and a
+  wrap column of UVs is lost. The representation now exists; a seam-aware
+  generator does not.
+- **No tangents.** The corner layer makes correct per-corner tangents possible
+  for the first time. Gram-Schmidt against the split normal with explicit
+  handedness is the next feature.
+- **No vertex cache optimisation** of the index buffer, the largest single
+  GPU-side lever available, untouched.
+- **Weld tolerance policy is undecided.** Bit-exact hashing is what exposed the
+  sphere's duplicate seam, but a library that welds user-supplied meshes needs a
+  documented spatial tolerance. Recorded as an open decision, not an oversight.
+
+## Arm 2 (continued) - Research findings
+
+**Date:** 2026-09-27
+
+Web research was run before the next repair round, on five lines. Findings that
+change LPG's plan:
+
+- **LOD.** QEM (Garland & Heckbeck 1997) is still the industry standard. Three
+  consequences for LPG specifically: boundary edges need a penalty weight or
+  collapses eat the rim; a collapse must be rejected if it flips an adjacent face
+  normal; and **UV error must be part of the quadric**, because once UVs are
+  per-corner an attribute that cannot be interpolated makes the error
+  unaccountable. Nanite's "Lerp UVs" toggle exists for exactly this reason.
+  Nanite itself is a cluster hierarchy plus a view-dependent cut selected by
+  screen-space error, which is not a drop-in for a procedural library.
+- **Index layout.** Post-transform/vertex-cache reordering (Forsyth, Tipsify) is
+  the largest available GPU win and is orthogonal to everything above, provided it
+  runs *after* `split_for_render`: by then positions are already split and cache
+  order can be chosen freely. Strips and fans are a mistake and 16-bit indices are
+  a legacy constraint, so LPG's exporter should stay triangles with 32-bit
+  indices.
+- **Tangents.** Tangents must be per-corner and orthogonalised against the split
+  normal, with an explicit handedness sign matching the target convention.
+  MikkTSpace is the de-facto standard for agreeing with other tools; a correct
+  Gram-Schmidt is the floor. Validation is unit length, orthogonality to the
+  normal, consistent handedness, and consistency with winding.
+- **Representation.** LPG's plain index/vertex arrays remain the right call for
+  triangle soup. Half-edge and DCEL earn their cost in CAD kernels doing booleans
+  and topology queries, not in a library that hands meshes to a GPU. Recorded so
+  it is not relitigated.
+- **Robustness.** Shewchuk-style exact predicates answer "at what magnitude does
+  naive orientation testing start lying", and "no epsilon, use exact predicates"
+  is current best practice.
+- **Degenerate triangles.** Keep-or-delete is not settled by consensus; the
+  relevant point for LPG is that a zero-area triangle is actively harmful to
+  normal and tangent generation, so validation should report them rather than
+  silently tolerate them.
+
 ## Decisions to revisit at gates
 
 - Primary LPG interface and Node API role.
@@ -801,7 +978,30 @@ At the end of each future work session, update the same fields with current evid
 
 ## Immediate next action
 
-The scanner/monitor foundation, LPG-L1 schemas, candidate generator, resolver, promotion gate, dependency impact graph, tier-closure validator, known-good persistence, rollback verification, scoped repair rescans, and read-only `forge` integration are validated. The inert wizard contracts and the repository integrity pass are also validated.
+Arm 2 (native geometry) is now the active arm, and its next steps are concrete and
+evidence-backed rather than open-ended. In priority order:
+
+1. **Repair `rust_core/src/mesh/lod.rs`.** It is a placeholder currently
+   presented as a finished feature: `generate` computes a target triangle count,
+   discards it, and returns one clone of the input per level. Either implement a
+   real QEM edge collapse - boundary penalty, normal-flip rejection, and UV error
+   folded into the quadric, per the research above - or make it fail explicitly.
+   Returning success with N identical meshes is the one option that is not
+   available. `select_lod` also returns an out-of-range index when the distance
+   exceeds every threshold, and `with_levels` accepts empty, unsorted, and
+   out-of-range ratios.
+2. **Give the sphere and torus real `face_uvs`**, with a seam at the wrap so the
+   lost UV column is recovered. The representation exists; the generator does not.
+3. **Per-corner tangents** with explicit handedness, which the corner layer has
+   now made possible for the first time.
+4. **Vertex cache reordering** of the index buffer, applied after
+   `split_for_render`.
+5. **Decide the weld tolerance policy.** Bit-exact hashing exposed the sphere's
+   duplicate seam, but welding user-supplied meshes needs a documented spatial
+   tolerance. This is a decision to make, not an oversight to leave.
+
+The earlier LPG-L1 and import-hygiene blockers below remain valid and are recorded
+unchanged; they are simply no longer the most valuable next work.
 
 Immediate blockers, in the order they should be cleared:
 
