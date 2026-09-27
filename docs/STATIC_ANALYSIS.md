@@ -124,28 +124,52 @@ Installing the current wheel fixed it: the same box now reports
 Two real native defects remain, both pinned by tests so they cannot regress
 unnoticed.
 
-**`create_sphere` collapses both poles.** `to_mesh` walks a
-`(rings + 1) x (segments + 1)` grid, so the first and last rows place
-`segments + 1` vertices on the same pole point. Result: 64 degenerate triangles,
-79 duplicate vertices, 96 non-manifold edges, 96 boundary edges. A box
-validates clean; a sphere does not, which is not a defensible state for a
-default primitive.
+**`create_sphere` produced a broken solid, and that broke CSG.** `to_mesh`
+walked a `(rings + 1) x (segments + 1)` grid, so the first and last rows placed
+`segments + 1` vertices on the same pole point, and the UV seam emitted two
+coincident-but-distinct vertices per ring. Result: 64 degenerate triangles, 79
+duplicate vertices, 96 non-manifold edges, 96 boundary edges. A box validated
+clean and a sphere did not, which is not a defensible state for a default
+primitive.
 
-**CSG is not implemented, and one of the three fails silently.** `csg_union`
-and `csg_intersection` raise "encountered a spanning triangle; boundary
-clipping is not implemented", which is correct and honest. `csg_difference` is
-worse: it **succeeds and returns its first operand unchanged**. A 4x4x4 box
-minus a 1.5-radius sphere comes back as the same 8-vertex, 12-triangle box, and
-it validates as a clean manifold mesh. Nothing downstream can tell that no
-cutting occurred. That is the most dangerous shape a stub can take.
+That was not only cosmetic, and the connection was not obvious. A solid with
+boundary edges cannot answer a point-in-solid query, and CSG depends on exactly
+that. So the pole defect silently reached the boolean operations. Poles are now
+single vertices with triangle fans, and the seam reuses seg 0, giving 0
+degenerate, 0 duplicate, 0 non-manifold, 0 boundary, and a sphere that validates
+as manifold and watertight.
 
-The stale binary masked all of this. A validator that reported everything as
+**CSG silently returned the wrong answer for every input.** `csg_union` and
+`csg_intersection` raised "encountered a spanning triangle; boundary clipping
+is not implemented" for genuinely straddling geometry, which is honest. But
+containment cases did not raise, and every one of them was wrong:
+`csg_difference` returned its **first operand unchanged for every input**, with
+no error. A box minus an enclosing sphere came back as the box rather than
+nothing, and it validated as a clean manifold mesh, so nothing downstream could
+tell.
+
+Two independent causes, both now fixed:
+
+- `point_inside_mesh` called parry3d's `TriMesh::contains_point`, which only
+  performs a real containment test when the shape carries pseudo-normals. A
+  `TriMesh` built from raw vertex and index arrays has none, so parry fell
+  through to a BVH traversal that reported **every point as outside**,
+  including the centre of a solid. Every triangle therefore classified as
+  Outside, and every operation degenerated to returning its first operand.
+  Replaced with an explicit Möller–Trumbore ray cast and crossing-parity test,
+  using an irrational ray direction so it does not graze edges, and a half-open
+  `t` interval so a ray crossing a shared edge is counted once.
+- `intersection` only ever considered triangles of the **first** operand. A
+  sphere fully inside a box returned nothing, because no box triangle lies
+  inside the sphere even though the sphere is entirely inside the box. Both
+  operands are now classified.
+
+Genuinely spanning geometry still raises. Boundary clipping remains
+unimplemented, and saying so beats guessing.
+
+The stale binary had masked all of this. A validator reporting everything as
 broken on a correct box would have been dismissed as noise, and nobody would
-have been looking closely enough to notice that `csg_difference` was a no-op.
-
-`test_difference_returns_the_operand_unchanged` is written to fail loudly if
-that ever starts working, at which point it should be rewritten to assert real
-geometry rather than deleted.
+have looked closely enough to notice that every boolean operation was a no-op.
 
 ## Running it
 

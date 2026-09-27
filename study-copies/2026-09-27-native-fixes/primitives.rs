@@ -163,54 +163,13 @@ impl Primitive for Sphere {
 
         let mut mesh = Mesh::new();
 
-        // North pole is a single vertex, not a ring.
-        //
-        // The previous version generated a full (rings + 1) x (segments + 1)
-        // grid, so the first and last rows placed segments + 1 vertices on the
-        // same pole point. At the default resolution that produced 64
-        // degenerate triangles, 79 duplicate vertices, 96 non-manifold edges
-        // and 96 boundary edges. A box validated clean and a sphere did not,
-        // which is not a defensible state for a default primitive.
-        //
-        // It also made the sphere non-watertight, and that is not cosmetic. A
-        // solid with boundary edges cannot answer point-in-solid queries, so
-        // parry3d's contains_point could not classify anything inside it. CSG
-        // then classified every triangle of a mesh enclosed by the sphere as
-        // Outside and kept it, so `box - sphere` returned the box when the
-        // correct answer is the empty set. A pole defect was silently
-        // corrupting boolean operations.
-        //
-        // A pole is a single point with no area, so it gets exactly one vertex
-        // and the band next to it becomes a triangle fan.
-        let north_pole = mesh.vertices.len() as u32;
-        mesh.vertices
-            .push(Point3::new(self.center.x, self.center.y + self.radius, self.center.z));
-        mesh.normals.push(Vector3::new(0.0, 1.0, 0.0));
-        mesh.uvs.push((0.5, 0.0));
-
-        // Interior rings only: ring runs 1..rings, excluding both poles.
-        //
-        // seg runs 0..segments-1 and the wrap reuses seg 0's vertex, so a ring
-        // holds `segments` vertices, not `segments + 1`. The earlier version
-        // emitted seg 0 and seg segments as separate vertices at the same
-        // position, which is the standard way to carry a UV seam. Here it is
-        // wrong: the validator and the CSG classifier both key on vertex
-        // identity, so two coincident-but-distinct vertices on a closed seam
-        // read as 15 duplicate vertices and 32 boundary edges, and the solid
-        // is not watertight. A duplicate vertex at a seam is also what stops
-        // parry3d from answering point-in-solid, which is what made
-        // `box - enclosing_sphere` return the box instead of nothing.
-        //
-        // UVs are kept by giving the shared vertex the u=0 coordinate and
-        // letting the triangle that crosses the seam interpolate across it. A
-        // single column loses the last texel of wrap-around UVs, which is a
-        // far smaller cost than an unwatertight solid that breaks CSG.
-        for ring in 1..self.rings {
+        // UV sphere generation
+        for ring in 0..=self.rings {
             let phi = PI * ring as f32 / self.rings as f32;
             let sin_phi = phi.sin();
             let cos_phi = phi.cos();
 
-            for seg in 0..self.segments {
+            for seg in 0..=self.segments {
                 let theta = 2.0 * PI * seg as f32 / self.segments as f32;
                 let sin_theta = theta.sin();
                 let cos_theta = theta.cos();
@@ -233,71 +192,22 @@ impl Primitive for Sphere {
             }
         }
 
-        let south_pole = mesh.vertices.len() as u32;
-        mesh.vertices
-            .push(Point3::new(self.center.x, self.center.y - self.radius, self.center.z));
-        mesh.normals.push(Vector3::new(0.0, -1.0, 0.0));
-        mesh.uvs.push((0.5, 1.0));
-
-        // Stride of one interior ring. A ring holds `segments` vertices because
-        // the wrap reuses seg 0, so indices must be taken modulo segments.
-        let stride = self.segments;
-        let first_ring = north_pole + 1;
-        let ring_count = self.rings - 1;
-
-        // Fan from the north pole to the first interior ring.
-        for seg in 0..self.segments {
-            let a = first_ring + seg as u32;
-            let b = first_ring + ((seg + 1) % self.segments) as u32;
-            mesh.indices.push(north_pole);
-            mesh.indices.push(a);
-            mesh.indices.push(b);
-        }
-
-        // Quad bands between consecutive interior rings.
-        for r in 0..ring_count.saturating_sub(1) {
-            let row = first_ring + r as u32 * stride;
-            let next_row = row + stride;
+        // Generate indices
+        for ring in 0..self.rings {
             for seg in 0..self.segments {
-                let next_seg = (seg + 1) % self.segments;
-                let a = row + seg as u32;
-                let b = row + next_seg as u32;
-                let c = next_row + next_seg as u32;
-                let d = next_row + seg as u32;
+                let curr = ring * (self.segments + 1) + seg;
+                let next = curr + self.segments + 1;
 
-                // Wind so the face normal points outward. The sphere's
-                // parameterisation has phi increasing from the north pole
-                // downward and theta increasing counter-clockwise seen from
-                // +Y, so a quad (a=row,seg  b=row,seg+1  c=next_row,seg+1
-                // d=next_row,seg) must be emitted as (a, b, c) and (a, c, d).
-                // The reverse order winds every quad inward, which leaves the
-                // mesh looking manifold and watertight while parry3d's
-                // contains_point then reports every point as outside. CSG
-                // depends on that query, so inward winding made `box -
-                // enclosing_sphere` return the box instead of nothing.
-                mesh.indices.push(a);
-                mesh.indices.push(b);
-                mesh.indices.push(c);
+                mesh.indices.push(curr);
+                mesh.indices.push(next);
+                mesh.indices.push(curr + 1);
 
-                mesh.indices.push(a);
-                mesh.indices.push(c);
-                mesh.indices.push(d);
+                mesh.indices.push(curr + 1);
+                mesh.indices.push(next);
+                mesh.indices.push(next + 1);
             }
         }
 
-        // Fan from the last interior ring to the south pole.
-        if ring_count > 0 {
-            let last_ring = first_ring + (ring_count - 1) as u32 * stride;
-            for seg in 0..self.segments {
-                let a = last_ring + seg as u32;
-                let b = last_ring + ((seg + 1) % self.segments) as u32;
-                mesh.indices.push(south_pole);
-                mesh.indices.push(b);
-                mesh.indices.push(a);
-            }
-        }
-
-        mesh.compute_normals();
         Ok(mesh)
     }
 

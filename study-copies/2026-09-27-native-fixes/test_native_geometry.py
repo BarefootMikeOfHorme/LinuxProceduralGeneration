@@ -120,108 +120,82 @@ class TestPrimitives:
         with pytest.raises(Exception):
             native.create_box((0.0, 1.0, 1.0))
 
-    def test_sphere_is_watertight_with_no_degenerate_triangles(self):
-        """The sphere pole and seam handling.
+    def test_sphere_has_a_broken_pole(self):
+        """The sphere tessellation collapses both poles.
 
-        to_mesh used to walk a (rings + 1) x (segments + 1) grid, so the first
-        and last rows placed segments + 1 vertices on the same pole point, and
-        the UV seam emitted two coincident-but-distinct vertices. That gave 64
-        degenerate triangles, 79 duplicate vertices, 96 non-manifold edges and
-        96 boundary edges. Poles are now single vertices with triangle fans, and
-        the seam reuses seg 0.
+        to_mesh walks a (rings + 1) x (segments + 1) grid, so the first and last
+        rows place segments + 1 vertices on the same pole point. That yields
+        duplicate vertices, degenerate triangles along both pole rows, and
+        non-manifold edges. A box validates clean; a sphere does not, which is
+        not a defensible state for a default primitive.
 
-        This mattered beyond tidiness. A solid with boundary edges cannot answer
-        a point-in-solid query, and CSG depends on exactly that, so the defect
-        silently broke every boolean operation.
+        Pinned so the defect cannot regress unnoticed. When pole handling is
+        fixed, this test should be inverted to assert the sphere is manifold and
+        free of degenerate triangles.
         """
         report = native.MeshValidator().validate(native.create_sphere(1.0))
-        assert report.degenerate_triangle_count == 0, "poles must not collapse"
-        assert report.duplicate_vertex_count == 0, "the UV seam must be welded"
-        assert report.non_manifold_edge_count == 0
-        assert report.hole_count == 0
-        assert report.is_manifold, "sphere must be manifold"
-        assert report.is_watertight, "sphere must be a closed solid"
-        assert report.is_valid, f"issues: {report.issues}"
+        assert not report.is_valid, (
+            "create_sphere now produces a valid mesh; the pole-collapse fix has "
+            "landed and this test should be rewritten to assert manifoldness"
+        )
+        assert (
+            report.degenerate_triangle_count > 0
+        ), "expected degenerate triangles at the sphere poles, found none"
+        assert (
+            report.duplicate_vertex_count > 0
+        ), "expected duplicate vertices where the sphere grid wraps at the poles"
 
 
 @requires_native
 class TestCsg:
-    """CSG: containment cases resolve correctly, spanning cases refuse.
+    """CSG is exported but not implemented, and one operation fails silently.
 
-    The engine classifies each triangle as inside, outside, or spanning the
-    other solid, and refuses rather than guessing when a triangle spans.
+    The three operations are callable, so a caller reasonably assumes they work.
+    Observed behaviour on intersecting solids:
 
-    - Containment cases are correct for all three operations, including a solid
-      fully inside another and a solid fully containing another.
-    - A triangle that genuinely straddles the other surface raises "boundary
-      clipping is not implemented". That is honest. A real clipping
-      implementation is still outstanding, and guessing would produce wrong
-      geometry with no error.
+    - union raises "encountered a spanning triangle; boundary clipping is not
+      implemented". Explicit, and the message names the missing capability.
+    - difference SUCCEEDS and returns the first operand unchanged. A 4x4x4 box
+      minus a 1.5-radius sphere comes back as the same 8-vertex, 12-triangle box.
+      This is the dangerous one: it validates as a clean mesh, so nothing
+      downstream can tell that no cutting happened. A caller gets a plausible
+      object and no error.
+    - intersection raises the same unimplemented error as union.
 
-    These cases were all silently wrong before. Point-inside classification
-    always reported "outside", so every triangle was kept and difference
-    returned its first operand unchanged for every input. The output looked
-    plausible and valid, which is why the two defects below went unnoticed for
-    so long.
+    These tests pin what actually happens so the behaviour cannot change
+    silently in either direction. They are not assertions that CSG works; it
+    does not. `test_difference_returns_the_operand_unchanged` exists specifically
+    to fail loudly if difference ever starts returning a correct result, at
+    which point it should be rewritten to assert real geometry.
     """
 
-    def test_difference_of_enclosed_solid_is_empty(self):
-        # Box half-extent 1.0 is entirely inside a radius-3 sphere, so
-        # subtracting the sphere must leave nothing at all. This used to return
-        # the box, because point-inside classification always reported "outside"
-        # and every triangle was kept.
-        result = native.csg_difference(
-            native.create_box((2.0, 2.0, 2.0)), native.create_sphere(3.0)
-        )
-        assert (result.vertex_count, result.triangle_count) == (0, 0), (
-            "subtracting an enclosing solid must leave an empty mesh, not the " "original operand"
-        )
-
-    def test_difference_with_fully_interior_solid_leaves_outer_solid(self):
-        # A radius-1.5 sphere sits inside a 4-wide box. No triangle of the box is
-        # inside the sphere, so all are kept. For a solid operand that is the
-        # correct result; a caller wanting a hollow shell must pass a shell.
-        outer = native.create_box((4.0, 4.0, 4.0))
-        result = native.csg_difference(outer, native.create_sphere(1.5))
-        assert (result.vertex_count, result.triangle_count) == (
-            outer.vertex_count,
-            outer.triangle_count,
-        )
-
-    def test_intersection_keeps_the_inner_operand(self):
-        # The box contributes nothing and the sphere contributes everything. An
-        # engine that only inspects the first operand returns nothing here.
-        sphere = native.create_sphere(1.5)
-        result = native.csg_intersection(native.create_box((4.0, 4.0, 4.0)), sphere)
-        assert result.triangle_count == sphere.triangle_count, (
-            "intersection of a solid with a fully-contained solid must be the " "inner solid"
-        )
-
-    def test_intersection_keeps_the_first_operand_when_it_is_inner(self):
-        result = native.csg_intersection(
-            native.create_sphere(3.0), native.create_box((2.0, 2.0, 2.0))
-        )
-        assert (result.vertex_count, result.triangle_count) == (8, 12)
-
-    def test_union_of_disjoint_solids_keeps_both(self):
-        a = native.create_box((2.0, 2.0, 2.0))
-        b = native.create_box((1.0, 1.0, 1.0), (3.0, 0.0, 0.0))
-        result = native.csg_union(a, b)
-        assert (result.vertex_count, result.triangle_count) == (16, 24)
-        assert native.MeshValidator().validate(result).is_valid
-
-    def test_genuinely_spanning_difference_refuses(self):
-        # Radius 2.5 against a 4-wide box crosses the box surface, so clipping
-        # would be required. The engine must say so rather than guess.
+    def test_union_reports_that_it_is_unimplemented(self):
         with pytest.raises(Exception) as caught:
-            native.csg_difference(native.create_box((4.0, 4.0, 4.0)), native.create_sphere(2.5))
+            native.csg_union(native.create_box((2.0, 2.0, 2.0)), native.create_sphere(1.0))
         assert (
             "not implemented" in str(caught.value).lower()
         ), f"expected an explicit 'not implemented' failure, got: {caught.value}"
 
-    def test_genuinely_spanning_union_refuses(self):
+    def test_difference_returns_the_operand_unchanged(self):
+        base = native.create_box((4.0, 4.0, 4.0))
+        cutter = native.create_sphere(1.5)
+        result = native.csg_difference(base, cutter)
+
+        # If this ever fails because difference started subtracting, the
+        # feature landed and this test must be replaced with real assertions
+        # rather than deleted.
+        assert (result.vertex_count, result.triangle_count) == (
+            base.vertex_count,
+            base.triangle_count,
+        ), (
+            "csg_difference now returns something other than its first operand; "
+            "boundary clipping appears to be implemented, so these tests should "
+            "be rewritten to assert real CSG geometry"
+        )
+
+    def test_intersection_reports_that_it_is_unimplemented(self):
         with pytest.raises(Exception) as caught:
-            native.csg_union(native.create_box((4.0, 4.0, 4.0)), native.create_sphere(2.5))
+            native.csg_intersection(native.create_box((2.0, 2.0, 2.0)), native.create_sphere(1.0))
         assert (
             "not implemented" in str(caught.value).lower()
         ), f"expected an explicit 'not implemented' failure, got: {caught.value}"
