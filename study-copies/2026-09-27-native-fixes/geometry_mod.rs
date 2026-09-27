@@ -9,49 +9,20 @@ use crate::{Result, GeometryError};
 
 pub mod primitives;
 pub mod operations;
-pub mod render;
-
-#[cfg(test)]
-mod render_tests;
-
-#[cfg(test)]
-mod render_winding_tests;
-
-pub use render::RenderMesh;
 
 pub use primitives::{Box, Sphere, Cylinder, Cone, Torus};
 pub use operations::{extrude, revolve, loft, sweep};
 
-/// Core mesh representation.
-///
-/// This is the **topology** mesh: positions are welded, so a closed solid stays
-/// manifold and remains usable for collision, simulation, and CAD boolean work.
-/// Rendering needs something different, because one position cannot carry two
-/// normals or two UVs at once. Rather than compromise one for the other, this
-/// type records *where a corner disagrees with its vertex* in `sharp_edges` and
-/// `face_uvs`, and `render::split_for_render` derives the render form.
-///
-/// That division is the same one Blender draws: it keeps custom split normals
-/// per face corner and marks edges sharp, rather than duplicating positions in
-/// the topology buffer. Assimp takes the opposite approach, duplicating
-/// vertices outright and documenting `aiProcess_JoinIdenticalVertices` as
-/// incompatible with smooth normals. Both are workable; keeping the welded form
-/// is the one that also serves CAD, which is a requirement here.
+/// Core mesh representation
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Mesh {
-    /// Vertex positions. Welded: shared by every face touching this point.
+    /// Vertex positions
     pub vertices: Vec<Point3<f32>>,
 
-    /// Vertex normals, averaged across adjacent faces. A hard edge needs
-    /// `sharp_edges` or a per-corner value to survive.
+    /// Vertex normals
     pub normals: Vec<Vector3<f32>>,
 
-    /// UV coordinates, one per vertex.
-    ///
-    /// A single UV per vertex cannot describe a surface needing different
-    /// coordinates either side of an edge, which is every UV seam. Primitives
-    /// that need that store it in `face_uvs`; this remains the smooth,
-    /// continuous parameterisation.
+    /// UV coordinates
     pub uvs: Vec<(f32, f32)>,
 
     /// Triangle indices (triplets)
@@ -59,22 +30,6 @@ pub struct Mesh {
 
     /// Material assignments per face
     pub materials: Vec<u32>,
-
-    /// Edges that smoothing must not cross, as sorted vertex pairs.
-    ///
-    /// This is Blender's "Mark Sharp". A listed edge gets its own face normal on
-    /// each side, so a cube keeps crisp corners while a sphere, with no marked
-    /// edges, stays smooth. `split_for_render` also treats an edge as sharp when
-    /// its dihedral angle exceeds the threshold, so marking is additive rather
-    /// than the only mechanism.
-    pub sharp_edges: Vec<(u32, u32)>,
-
-    /// UVs per face corner: three per triangle, parallel to `indices`.
-    ///
-    /// Empty means "fall back to `uvs`", which preserves the previous behaviour
-    /// for any mesh that has not opted in. When present it takes precedence,
-    /// because it is the only representation that can express a seam.
-    pub face_uvs: Vec<[(f32, f32); 3]>,
 }
 
 impl Mesh {
@@ -86,32 +41,7 @@ impl Mesh {
             uvs: Vec::new(),
             indices: Vec::new(),
             materials: Vec::new(),
-            sharp_edges: Vec::new(),
-            face_uvs: Vec::new(),
         }
-    }
-
-    /// Mark an edge sharp so smoothing will not cross it.
-    ///
-    /// The pair is stored sorted, so the same edge is a single entry whichever
-    /// order it is added from.
-    pub fn mark_edge_sharp(&mut self, a: u32, b: u32) {
-        if a == b {
-            return;
-        }
-        let key = if a < b { (a, b) } else { (b, a) };
-        if !self.sharp_edges.contains(&key) {
-            self.sharp_edges.push(key);
-        }
-    }
-
-    /// Whether an edge is marked sharp.
-    pub fn is_edge_sharp(&self, a: u32, b: u32) -> bool {
-        if a == b {
-            return false;
-        }
-        let key = if a < b { (a, b) } else { (b, a) };
-        self.sharp_edges.contains(&key)
     }
 
     /// Get the number of vertices
@@ -178,7 +108,6 @@ impl Mesh {
     /// Merge another mesh into this one
     pub fn merge(&mut self, other: &Mesh) {
         let vertex_offset = self.vertices.len() as u32;
-        let face_offset = self.indices.len();
 
         self.vertices.extend_from_slice(&other.vertices);
         self.normals.extend_from_slice(&other.normals);
@@ -190,21 +119,6 @@ impl Mesh {
         }
 
         self.materials.extend_from_slice(&other.materials);
-
-        // Per-corner UVs stay per corner, and sharp edges move with their
-        // vertices. Dropping either would silently attach UVs to the wrong face
-        // or lose a crease at the seam between the two meshes.
-        if self.face_uvs.is_empty() {
-            self.face_uvs = other.face_uvs.clone();
-        } else if !other.face_uvs.is_empty() {
-            self.face_uvs.extend_from_slice(&other.face_uvs);
-        }
-
-        for &(a, b) in &other.sharp_edges {
-            self.sharp_edges.push((a + vertex_offset, b + vertex_offset));
-        }
-
-        let _ = face_offset;
     }
 
     /// Transform mesh by matrix

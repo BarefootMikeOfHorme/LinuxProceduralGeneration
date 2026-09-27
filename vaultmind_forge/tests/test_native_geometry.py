@@ -43,6 +43,20 @@ requires_native = pytest.mark.skipif(
     reason=f"native geometry extension unavailable: {NATIVE_ERROR}",
 )
 
+
+def _ext() -> ModuleType:
+    """The loaded extension, narrowed for the type checker.
+
+    ``requires_native`` skips these tests when the extension is missing, but
+    ``skipif`` is invisible to mypy, so a direct ``native.`` reference is a
+    possible None dereference as far as the checker is concerned. Parametrised
+    cases need a callable at decoration time, which is where that surfaces
+    hardest, so the narrowing lives in one named place.
+    """
+    assert native is not None, "requires_native should have skipped this test"
+    return native
+
+
 # Every export the Python side is documented to rely on. A rename or removal in
 # the Rust crate should fail here rather than at a call site.
 EXPECTED_EXPORTS = (
@@ -281,3 +295,191 @@ class TestLoaderContract:
         added = [entry for entry in sys.path if entry not in before]
         generated = [e for e in added if "target" in e and "rust_core" in e]
         assert not generated, f"loader added a generated build directory to sys.path: {generated}"
+
+
+@requires_native
+class TestRenderSplit:
+    """One welded mesh, two usable representations.
+
+    A ``Mesh`` keeps positions welded so a closed solid stays manifold for CSG
+    and collision. A renderer needs one normal and one UV per output vertex,
+    which forces duplication at every crease and seam. These tests pin the
+    derivation between the two.
+    """
+
+    def test_smooth_sphere_needs_no_duplication(self):
+        sphere = native.create_sphere(1.0)
+        render = sphere.split_for_render(180.0)
+
+        # A sphere has no sharp edges and only shallow angles, so splitting it
+        # must not invent a single vertex. If this regresses, every sphere in the
+        # pipeline silently triples in size.
+        assert render.vertex_count == sphere.vertex_count
+        assert render.unique_position_count == sphere.vertex_count
+        assert render.triangle_count == sphere.triangle_count
+
+    def test_split_never_changes_topology(self):
+        for name, mesh in [
+            ("box", native.create_box((1.0, 1.0, 1.0))),
+            ("sphere", native.create_sphere(1.0)),
+            ("cylinder", native.create_cylinder(1.0, 2.0)),
+            ("cone", native.create_cone(1.0, 2.0)),
+            ("torus", native.create_torus(2.0, 1.0)),
+        ]:
+            render = mesh.split_for_render(180.0)
+            assert render.triangle_count == mesh.triangle_count, name
+            assert render.uvs.__len__() == render.vertex_count, name
+            assert render.normals.__len__() == render.vertex_count, name
+            # Positions stay welded: the render mesh may repeat a position, but
+            # it never invents one that is not in the topology.
+            source = {tuple(v) for v in mesh.vertices}
+            for position in render.vertices:
+                assert tuple(position) in source, f"{name} invented a position {position}"
+
+    def test_cube_renders_flat_with_uv_islands(self):
+        box = native.create_box((1.0, 1.0, 1.0))
+        render = box.split_for_render(180.0)
+
+        assert box.vertex_count == 8, "the topology must stay welded"
+        assert box.sharp_edge_count == 12, "a cube has twelve hard edges"
+        assert render.unique_position_count == 8, "positions must still be the 8 corners"
+        assert render.vertex_count > 8, "flat shading must duplicate corners"
+
+        # A planar box mapping puts each face's four corners at the unit square's
+        # corners. Before per-corner UVs existed, every UV was (0, 0) and the cube
+        # was untexturable.
+        corners = {(round(u, 4), round(v, 4)) for u, v in render.uvs}
+        assert corners == {(0.0, 0.0), (1.0, 0.0), (1.0, 1.0), (0.0, 1.0)}
+
+        # Exactly six distinct face normals, all axis aligned.
+        directions = {tuple(round(c, 4) for c in n) for n in render.normals}
+        assert len(directions) == 6, f"expected 6 face normals, got {directions}"
+        for normal in directions:
+            assert sorted(abs(c) for c in normal)[-1] == 1.0, normal
+
+    def test_flat_shaded_faces_use_axis_aligned_normals(self):
+        # A cube's face normal must equal its own plane normal, not an average
+        # with its neighbours. This is what "Mark Sharp" buys.
+        box = native.create_box((1.0, 1.0, 1.0))
+        render = box.split_for_render(180.0)
+        indices = render.indices
+        positions = render.vertices
+        for t in range(0, len(indices), 3):
+            a, b, c = (positions[indices[t + k]] for k in range(3))
+            u = (b[0] - a[0], b[1] - a[1], b[2] - a[2])
+            v = (c[0] - a[0], c[1] - a[1], c[2] - a[2])
+            normal = (
+                u[1] * v[2] - u[2] * v[1],
+                u[2] * v[0] - u[0] * v[2],
+                u[0] * v[1] - u[1] * v[0],
+            )
+            length = sum(component * component for component in normal) ** 0.5
+            assert length > 1e-6, "degenerate face"
+            shading = render.normals[indices[t]]
+            dot = sum(n * s for n, s in zip(normal, shading)) / length
+            assert dot > 0.999, f"face is smoothed, not flat: {dot}"
+
+    def test_zero_angle_flattens_and_180_smoothes(self):
+        sphere = native.create_sphere(1.0)
+        flat = sphere.split_for_render(0.0)
+        smooth = sphere.split_for_render(180.0)
+        assert flat.vertex_count > smooth.vertex_count
+        assert flat.triangle_count == smooth.triangle_count
+
+    def test_negative_angle_behaves_as_180(self):
+        sphere = native.create_sphere(1.0)
+        assert (
+            sphere.split_for_render(-1.0).vertex_count
+            == sphere.split_for_render(180.0).vertex_count
+        )
+
+
+@requires_native
+class TestPrimitiveWatertightness:
+    """Every primitive must be a closed, correctly wound solid.
+
+    An unwatertight solid cannot answer point-in-solid queries, so CSG
+    misclassifies triangles against it. That is not theoretical: cylinder, cone,
+    and torus each shipped with an unjoined seam column, because the wrap vertex
+    sat at theta = 2*PI where sin is about -2.4e-7 rather than 0, making it a
+    *near* duplicate that no edge ever joined.
+    """
+
+    @staticmethod
+    def _edge_defects(mesh):
+        seen = {}
+        indices = mesh.indices
+        for t in range(0, len(indices), 3):
+            for k in range(3):
+                a, b = indices[t + k], indices[t + (k + 1) % 3]
+                key = (a, b) if a < b else (b, a)
+                seen[key] = seen.get(key, 0) + 1
+        boundary = [e for e, c in seen.items() if c == 1]
+        non_manifold = [e for e, c in seen.items() if c > 2]
+        return boundary, non_manifold
+
+    @pytest.mark.parametrize(
+        "name, mesh",
+        [
+            ("box", lambda: _ext().create_box((1.0, 1.0, 1.0))),
+            ("sphere", lambda: _ext().create_sphere(1.0)),
+            ("cylinder", lambda: _ext().create_cylinder(1.0, 2.0)),
+            ("cone", lambda: _ext().create_cone(1.0, 2.0)),
+            ("torus", lambda: _ext().create_torus(2.0, 1.0)),
+        ],
+    )
+    def test_primitive_is_closed_and_manifold(self, name, mesh):
+        built = mesh()
+        boundary, non_manifold = self._edge_defects(built)
+        assert not boundary, f"{name} has {len(boundary)} boundary edges: {boundary[:8]}"
+        assert not non_manifold, f"{name} has {len(non_manifold)} non-manifold edges"
+
+    @pytest.mark.parametrize(
+        "name, mesh",
+        [
+            ("box", lambda: _ext().create_box((1.0, 1.0, 1.0))),
+            ("sphere", lambda: _ext().create_sphere(1.0)),
+            ("cylinder", lambda: _ext().create_cylinder(1.0, 2.0)),
+            ("cone", lambda: _ext().create_cone(1.0, 2.0)),
+            ("torus", lambda: _ext().create_torus(2.0, 1.0)),
+        ],
+    )
+    def test_primitive_normals_point_outward(self, name, mesh):
+        built = mesh()
+        positions = built.vertices
+        centre = [sum(p[axis] for p in positions) / len(positions) for axis in range(3)]
+        for i, normal in enumerate(built.normals):
+            outward = [positions[i][axis] - centre[axis] for axis in range(3)]
+            dot = sum(n * o for n, o in zip(normal, outward))
+            # A torus has a hole, so its inner surface legitimately faces the
+            # centre. The assertion is only meaningful for the star-shaped
+            # solids, and the torus is excluded rather than quietly excused.
+            if name == "torus":
+                continue
+            assert dot > 0.0, f"{name} vertex {i} normal points inward: {dot}"
+
+
+@requires_native
+class TestObjExportCarriesAttributes:
+    def test_export_writes_real_uvs_and_no_negative_zero(self, tmp_path):
+        box = native.create_box((1.0, 1.0, 1.0))
+        path = tmp_path / "cube.obj"
+        box.export_obj(str(path))
+        text = path.read_text(encoding="utf-8")
+
+        vt = [line for line in text.splitlines() if line.startswith("vt ")]
+        vn = [line for line in text.splitlines() if line.startswith("vn ")]
+        faces = [line for line in text.splitlines() if line.startswith("f ")]
+
+        assert len(faces) == 12, "a cube has twelve triangles"
+        assert len(vt) == len(vn), "position, UV, and normal streams must line up"
+        # Negative zero would spell one normal direction two ways, which is how a
+        # cube came to export six distinct faces as seven. It has to be tested per
+        # token: "-0.5" is a legitimate coordinate that contains the substring.
+        for line in text.splitlines():
+            for token in line.split():
+                assert token != "-0", f"negative zero reached the export: {line!r}"
+        assert len(set(vn)) == 6, f"a cube has six face normals: {sorted(set(vn))}"
+        for line in faces:
+            for reference in line.split()[1:]:
+                assert reference.count("/") == 2, f"incomplete face reference {reference}"

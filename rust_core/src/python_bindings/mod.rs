@@ -62,6 +62,78 @@ impl PyMesh {
         ((min.x, min.y, min.z), (max.x, max.y, max.z))
     }
 
+    /// Vertex positions as a list of (x, y, z).
+    ///
+    /// Exposed so callers can verify topology directly instead of inferring it
+    /// from a count. Positions stay welded, which is what makes a mesh usable for
+    /// CSG and collision.
+    #[getter]
+    fn vertices(&self) -> Vec<(f32, f32, f32)> {
+        self.inner
+            .vertices
+            .iter()
+            .map(|v| (v.x, v.y, v.z))
+            .collect()
+    }
+
+    /// Triangle indices, three per triangle.
+    #[getter]
+    fn indices(&self) -> Vec<u32> {
+        self.inner.indices.clone()
+    }
+
+    /// Per-vertex normals as (x, y, z).
+    ///
+    /// These are the topology normals, averaged across adjacent faces, so a hard
+    /// edge needs a marked sharp edge to survive. Use `split_for_render` for the
+    /// flat-or-smooth form a renderer wants.
+    #[getter]
+    fn normals(&self) -> Vec<(f32, f32, f32)> {
+        self.inner
+            .normals
+            .iter()
+            .map(|n| (n.x, n.y, n.z))
+            .collect()
+    }
+
+    /// Per-vertex UV coordinates as (u, v).
+    ///
+    /// A single UV per vertex cannot express a seam, so a box or cylinder reports
+    /// zeros here while `face_uvs` carries the real mapping. Use
+    /// `split_for_render`, which prefers `face_uvs`, when you want usable UVs.
+    #[getter]
+    fn uvs(&self) -> Vec<(f32, f32)> {
+        self.inner.uvs.clone()
+    }
+
+    /// Per-face-corner UVs, three (u, v) pairs per triangle, or empty when the
+    /// mesh has no per-corner mapping.
+    #[getter]
+    fn face_uvs(&self) -> Vec<Vec<(f32, f32)>> {
+        self.inner
+            .face_uvs
+            .iter()
+            .map(|tri| vec![tri[0], tri[1], tri[2]])
+            .collect()
+    }
+
+    /// Number of edges marked sharp, the edges smoothing must not cross.
+    #[getter]
+    fn sharp_edge_count(&self) -> usize {
+        self.inner.sharp_edges.len()
+    }
+
+    /// Derive the render form: positions duplicated wherever a crease or a UV
+    /// seam needs it, with exactly one normal and one UV per output vertex.
+    ///
+    /// `smooth_angle_degrees` is the auto-smooth threshold. 180.0 smooths
+    /// everything not explicitly marked sharp, 0.0 flattens everything.
+    fn split_for_render(&self, smooth_angle_degrees: f32) -> PyRenderMesh {
+        PyRenderMesh {
+            inner: self.inner.split_for_render(smooth_angle_degrees),
+        }
+    }
+
     /// Export mesh to file
     fn export(&self, path: String, format: String) -> PyResult<()> {
         let export_format = match format.as_str() {
@@ -91,6 +163,81 @@ impl PyMesh {
             "Mesh(vertices={}, triangles={})",
             self.vertex_count(),
             self.triangle_count()
+        )
+    }
+}
+
+/// A render-ready mesh produced by `PyMesh::split_for_render`.
+///
+/// A separate type on purpose. A render mesh is not manifold, so handing one back
+/// to something expecting welded topology would quietly break CSG and collision;
+/// keeping the types distinct makes that a mistake the compiler catches.
+#[pyclass]
+pub struct PyRenderMesh {
+    inner: crate::geometry::RenderMesh,
+}
+
+#[pymethods]
+impl PyRenderMesh {
+    /// Number of output vertices, larger than the source wherever a split
+    /// happened.
+    #[getter]
+    fn vertex_count(&self) -> usize {
+        self.inner.vertex_count()
+    }
+
+    /// Number of triangles. Equal to the source mesh: splitting duplicates
+    /// vertices, it never changes topology.
+    #[getter]
+    fn triangle_count(&self) -> usize {
+        self.inner.triangle_count()
+    }
+
+    /// How many distinct positions the mesh occupies, which is the source
+    /// mesh's vertex count when no split was needed.
+    #[getter]
+    fn unique_position_count(&self) -> usize {
+        self.inner.unique_position_count()
+    }
+
+    /// Output vertex positions as (x, y, z).
+    #[getter]
+    fn vertices(&self) -> Vec<(f32, f32, f32)> {
+        self.inner
+            .vertices
+            .iter()
+            .map(|v| (v.x, v.y, v.z))
+            .collect()
+    }
+
+    /// One normal per output vertex as (x, y, z).
+    #[getter]
+    fn normals(&self) -> Vec<(f32, f32, f32)> {
+        self.inner
+            .normals
+            .iter()
+            .map(|n| (n.x, n.y, n.z))
+            .collect()
+    }
+
+    /// One UV per output vertex as (u, v).
+    #[getter]
+    fn uvs(&self) -> Vec<(f32, f32)> {
+        self.inner.uvs.clone()
+    }
+
+    /// Triangle indices over the output vertices.
+    #[getter]
+    fn indices(&self) -> Vec<u32> {
+        self.inner.indices.clone()
+    }
+
+    fn __repr__(&self) -> String {
+        format!(
+            "RenderMesh(vertices={}, triangles={}, unique_positions={})",
+            self.vertex_count(),
+            self.triangle_count(),
+            self.unique_position_count()
         )
     }
 }
@@ -329,6 +476,7 @@ fn csg_intersection(mesh_a: &PyMesh, mesh_b: &PyMesh) -> PyResult<PyMesh> {
 #[pymodule]
 fn vaultmind_forge_core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyMesh>()?;
+    m.add_class::<PyRenderMesh>()?;
 
     // Primitive creation functions
     m.add_function(wrap_pyfunction!(create_box, m)?)?;

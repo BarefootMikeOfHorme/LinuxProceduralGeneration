@@ -216,28 +216,55 @@ fn export_gltf_for_engine(
 }
 
 /// Write OBJ mesh data
+///
+/// Writes the render form, not the welded topology, for the same reason the
+/// top-level OBJ writer does: the three index streams are kept 1:1, so each
+/// output vertex must own exactly one normal and one UV. See
+/// `export::export_obj_with_smoothing` for the full reasoning.
 fn export_obj_data(file: &mut File, mesh: &Mesh) -> Result<()> {
+    let render = mesh.split_for_render(crate::export::DEFAULT_EXPORT_SMOOTH_ANGLE_DEG);
+
     // Vertices
-    for v in &mesh.vertices {
-        writeln!(file, "v {} {} {}", v.x, v.y, v.z).ok();
+    for v in &render.vertices {
+        writeln!(
+            file,
+            "v {} {} {}",
+            crate::export::obj_float(v.x),
+            crate::export::obj_float(v.y),
+            crate::export::obj_float(v.z)
+        )
+        .ok();
     }
 
     // Normals
-    for n in &mesh.normals {
-        writeln!(file, "vn {} {} {}", n.x, n.y, n.z).ok();
+    for n in &render.normals {
+        writeln!(
+            file,
+            "vn {} {} {}",
+            crate::export::obj_float(n.x),
+            crate::export::obj_float(n.y),
+            crate::export::obj_float(n.z)
+        )
+        .ok();
     }
 
     // UVs
-    for uv in &mesh.uvs {
-        writeln!(file, "vt {} {}", uv.0, uv.1).ok();
+    for uv in &render.uvs {
+        writeln!(
+            file,
+            "vt {} {}",
+            crate::export::obj_float(uv.0),
+            crate::export::obj_float(uv.1)
+        )
+        .ok();
     }
 
-    // Faces. Only reference UV/normal indices when the mesh actually
-    // contains those attributes.
-    let has_uvs = mesh.uvs.len() >= mesh.vertices.len();
-    let has_normals = mesh.normals.len() >= mesh.vertices.len();
+    // Faces. The split guarantees the three streams line up, so the reference
+    // form is unambiguous.
+    let has_uvs = render.uvs.len() == render.vertices.len();
+    let has_normals = render.normals.len() == render.vertices.len();
 
-    for chunk in mesh.indices.chunks(3) {
+    for chunk in render.indices.chunks(3) {
         if chunk.len() == 3 {
             let refs: Vec<String> = chunk
                 .iter()
