@@ -792,7 +792,9 @@ At the end of each future work session, update the same fields with current evid
 - Native Rust versus legacy C++ ownership.
 - AL1 package language/distribution form.
 - Optional Blender version and packaging route.
-- Build123d versus CadQuery as the first Python B-rep adapter.
+- ~~Build123d versus CadQuery as the first Python B-rep adapter.~~ Settled:
+  build123d is the default (Arm 4, line 568). CadQuery was not adopted; it
+  survives only as the bake-off comparison in the build123d arm.
 - FreeCAD packaging route and FreeCADCmd worker contract.
 - Model catalog and VRAM admission policy.
 - Initial commit contents and generated-fixture policy.

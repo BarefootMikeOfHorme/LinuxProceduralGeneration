@@ -46,7 +46,8 @@ validated across supported platforms.
 
 ## Other backends
 
-- CadQuery: alternative Python B-rep adapter
+- CadQuery: not adopted. Retained only as the comparison arm in the build123d
+  bake-off; it is not a registered `CadProfile` and is not installed.
 - OpenSCAD: lightweight procedural CSG and `.scad` generation
 - Blender: scene composition, rendering, animation, and visual assets
 - LPG Rust/PyO3: native mesh primitives, OBJ, validation, and geometry tools
