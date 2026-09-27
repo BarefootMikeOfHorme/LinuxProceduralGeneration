@@ -2,7 +2,14 @@
 
 use nalgebra::{Point3, Vector3};
 use super::{half_turn_angle, wrap_angle};
-use std::f32::consts::PI;
+// Inert: `std::f32::consts::PI` is imported for the angle work below but is
+// currently unreferenced, because every generator now derives its angles from
+// `wrap_angle` and `half_turn_angle` so that a full turn lands on exactly 2*PI
+// in f64 rather than on an f32 rounding of it. The intended future use is an
+// explicit full-turn constant in the torus's two wrap closures, where the
+// numerator is written out longhand today. Left commented rather than removed
+// so the intent is recorded instead of being rediscovered.
+// use std::f32::consts::PI;
 use crate::geometry::{Mesh, Primitive};
 use crate::Result;
 
@@ -339,12 +346,26 @@ impl Primitive for Sphere {
         // passed while a cap was inside out. Only a per-region check finds it, and
         // an inward-facing cap corrupts ray-cast parity, backface culling, and
         // anything downstream that trusts the winding.
+        //
+        // `face_uvs` is what recovers the wrap. A single UV per vertex cannot:
+        // the seg-0 column belongs to the quad at u = 0 *and* to the wrap quad at
+        // u = 1, and one vertex can only carry one of those. The vertex buffer
+        // keeps u = 0 and the per-corner buffer gives the wrap quad its u = 1, so
+        // the seam is expressed without reopening the watertightness hole that a
+        // spare column of vertices used to cause.
+        let mut face_uvs: Vec<[(f32, f32); 3]> =
+            Vec::with_capacity((self.segments * 2 * self.rings.saturating_sub(1)) as usize);
+        let u_at = |seg: u32| seg as f32 / self.segments as f32;
+        let v_at = |ring: u32| ring as f32 / self.rings as f32;
+
         for seg in 0..self.segments {
             let a = first_ring + seg as u32;
             let b = first_ring + ((seg + 1) % self.segments) as u32;
             mesh.indices.push(north_pole);
             mesh.indices.push(b);
             mesh.indices.push(a);
+            // Corner order must match the index order: (pole, b, a).
+            face_uvs.push([(0.5, 0.0), (u_at(seg + 1), v_at(1)), (u_at(seg), v_at(1))]);
         }
 
         // Quad bands between consecutive interior rings.
@@ -375,6 +396,20 @@ impl Primitive for Sphere {
                 mesh.indices.push(a);
                 mesh.indices.push(c);
                 mesh.indices.push(d);
+
+                // Row r holds ring r + 1, so the band runs v(r+1) to v(r+2).
+                // Both triangles give their two shared corners the same UV, which
+                // is what lets the render split merge them.
+                face_uvs.push([
+                    (u_at(seg), v_at(r + 1)),
+                    (u_at(seg + 1), v_at(r + 1)),
+                    (u_at(seg + 1), v_at(r + 2)),
+                ]);
+                face_uvs.push([
+                    (u_at(seg), v_at(r + 1)),
+                    (u_at(seg + 1), v_at(r + 2)),
+                    (u_at(seg), v_at(r + 2)),
+                ]);
             }
         }
 
@@ -392,8 +427,14 @@ impl Primitive for Sphere {
                 mesh.indices.push(south_pole);
                 mesh.indices.push(a);
                 mesh.indices.push(b);
+                // (pole, a, b), so the corner order matches the index order.
+                let last = ring_count as u32;
+                face_uvs.push([(0.5, 1.0), (u_at(seg), v_at(last)), (u_at(seg + 1), v_at(last))]);
             }
         }
+
+        debug_assert_eq!(face_uvs.len(), mesh.triangle_count());
+        mesh.face_uvs = face_uvs;
 
         mesh.compute_normals();
         Ok(mesh)
@@ -492,7 +533,10 @@ impl Primitive for Cylinder {
             mesh.indices.push(next_top);
             mesh.indices.push(next_bottom);
         }
-        let side_face_count = mesh.indices.len() / 3;
+        // Was `let side_face_count = mesh.indices.len() / 3;` here. Superseded by
+        // `side_faces` below, which is what the debug assertion actually checks, and
+        // never read. Removing it rather than commenting it because it is a local
+        // binding with no intended future use, not a note worth keeping.
 
         // Bottom and top cap centers.
         let bottom_center_idx = mesh.vertices.len() as u32;
@@ -535,6 +579,9 @@ impl Primitive for Cylinder {
         // coordinate for that column is 1.0, not 0.0. One UV per vertex forces a
         // choice between a strip that runs off the end and one that folds back
         // on itself, so the seam has to be per corner.
+        // `i` is the *unwrapped* segment index, so passing `segments` yields
+        // u = 1.0. That is the whole point of the closure existing, and it is why
+        // the wrap quad below can be written without a special case.
         let side_uv = |i: u32, top: bool| {
             (
                 i as f32 / self.segments as f32,
@@ -557,13 +604,11 @@ impl Primitive for Cylinder {
         let mut face_uvs: Vec<[(f32, f32); 3]> =
             Vec::with_capacity(self.segments as usize * 4);
         for i in 0..self.segments {
-            let next = (i + 1) % self.segments;
-            // The wrap quad needs u = 1.0 on its far column, not u = 0.0.
-            let next_u = if next == 0 { 1.0 } else { next as f32 / self.segments as f32 };
-            let curr_u = i as f32 / self.segments as f32;
-
-            face_uvs.push([(curr_u, 0.0), (curr_u, 1.0), (next_u, 0.0)]);
-            face_uvs.push([(curr_u, 1.0), (next_u, 1.0), (next_u, 0.0)]);
+            // `i + 1` rather than `(i + 1) % segments`, so the last quad reaches
+            // u = 1.0 on its far column instead of folding back to 0.0. The
+            // modulo is applied to the *index* only, never to the coordinate.
+            face_uvs.push([side_uv(i, false), side_uv(i, true), side_uv(i + 1, false)]);
+            face_uvs.push([side_uv(i, true), side_uv(i + 1, true), side_uv(i + 1, false)]);
         }
         debug_assert_eq!(face_uvs.len(), side_faces as usize);
 
@@ -726,7 +771,33 @@ impl Primitive for Cone {
         // to a point at the apex. The flank's far column needs u = 1.0 on the
         // wrap quad, which is exactly the case a single UV per vertex cannot
         // express, since column 0 belongs to the strip at both u = 0 and u = 1.
+        // Built in the same order the faces are emitted: every base disc
+        // triangle first, then every flank triangle.
+        //
+        // This used to interleave the two, pushing a disc UV and a flank UV on
+        // each iteration. The index buffer above does not interleave - it
+        // finishes all `segments` base triangles before starting the flank - so
+        // `face_uvs[f]` was the wrong face for every odd `f` and for everything
+        // after it. A per-corner layer is a parallel array: if the two orders
+        // disagree, the texture is applied to the wrong triangle, silently and
+        // in a way no vertex count or topology check can see. Only the first
+        // entry happened to be right.
         let mut face_uvs: Vec<[(f32, f32); 3]> = Vec::with_capacity(self.segments as usize * 2);
+
+        // Base disc, polar around the cap centre. The angle is recomputed in f64
+        // for the same reason the vertex positions are: the wrap column has to
+        // land on the same unit-circle point as column 0, and in f32 it lands
+        // about 2.4e-7 away from it.
+        let disc_uv = |index: u32| -> (f32, f32) {
+            let angle = wrap_angle(index, self.segments);
+            let (sin_a, cos_a) = angle.sin_cos();
+            ((0.5 + 0.5 * cos_a) as f32, (0.5 + 0.5 * sin_a) as f32)
+        };
+        for i in 0..self.segments {
+            let next = (i + 1) % self.segments;
+            face_uvs.push([(0.5, 0.5), disc_uv(i), disc_uv(next)]);
+        }
+        // Flank, narrowing to the apex at (0.5, 1.0).
         for i in 0..self.segments {
             let next = (i + 1) % self.segments;
             let curr_u = i as f32 / self.segments as f32;
@@ -735,20 +806,9 @@ impl Primitive for Cone {
             } else {
                 next as f32 / self.segments as f32
             };
-
-            // Base disc, polar around the cap centre. The angle is recomputed in
-            // f64 for the same reason the vertex positions are: the wrap column
-            // has to land on the same unit-circle point as column 0, and in f32
-            // it lands about 2.4e-7 away from it.
-            let disc_uv = |index: u32| -> (f32, f32) {
-                let angle = wrap_angle(index, self.segments);
-                let (sin_a, cos_a) = angle.sin_cos();
-                ((0.5 + 0.5 * cos_a) as f32, (0.5 + 0.5 * sin_a) as f32)
-            };
-            face_uvs.push([(0.5, 0.5), disc_uv(i), disc_uv(next)]);
-            // Flank, narrowing to the apex at (0.5, 1.0).
             face_uvs.push([(curr_u, 0.0), (0.5, 1.0), (next_u, 0.0)]);
         }
+        debug_assert_eq!(face_uvs.len(), mesh.triangle_count());
         mesh.face_uvs = face_uvs;
 
         // The base rim is a hard edge where the flat base meets the flank.
@@ -894,6 +954,10 @@ impl Primitive for Torus {
         }
 
         // Generate indices
+        let mut face_uvs: Vec<[(f32, f32); 3]> =
+            Vec::with_capacity((self.major_segments * self.minor_segments * 2) as usize);
+        let u_at = |i: u32| i as f32 / self.major_segments as f32;
+        let v_at = |j: u32| j as f32 / self.minor_segments as f32;
         for i in 0..self.major_segments {
             for j in 0..self.minor_segments {
                 let curr = i * self.minor_segments + j;
@@ -915,8 +979,25 @@ impl Primitive for Torus {
                 mesh.indices.push(next_j);
                 mesh.indices.push(next_both);
                 mesh.indices.push(next_i);
+
+                // A torus closes twice, so it has two seams, and the wrap
+                // parameter is the segment count rather than segment + 1. `u_at`
+                // and `v_at` are called with the *unwrapped* index, so the quad
+                // at the end of a row gets u = 1.0 or v = 1.0 on its far side
+                // while the shared vertex keeps 0.0 on its other side. That is
+                // the case a single UV per vertex cannot express and the reason
+                // the per-corner buffer exists.
+                face_uvs.push([(u_at(i), v_at(j)), (u_at(i), v_at(j + 1)), (u_at(i + 1), v_at(j))]);
+                face_uvs.push([
+                    (u_at(i), v_at(j + 1)),
+                    (u_at(i + 1), v_at(j + 1)),
+                    (u_at(i + 1), v_at(j)),
+                ]);
             }
         }
+
+        debug_assert_eq!(face_uvs.len(), mesh.triangle_count());
+        mesh.face_uvs = face_uvs;
 
         Ok(mesh)
     }

@@ -307,14 +307,28 @@ class TestRenderSplit:
     derivation between the two.
     """
 
-    def test_smooth_sphere_needs_no_duplication(self):
+    def test_smooth_sphere_duplicates_only_its_uv_seam(self):
         sphere = native.create_sphere(1.0)
         render = sphere.split_for_render(180.0)
 
-        # A sphere has no sharp edges and only shallow angles, so splitting it
-        # must not invent a single vertex. If this regresses, every sphere in the
-        # pipeline silently triples in size.
-        assert render.vertex_count == sphere.vertex_count
+        # This used to assert that a smooth sphere duplicates nothing at all,
+        # which recorded a defect as expected behaviour. It held only because
+        # the sphere had no per-corner UV layer: with a single UV per vertex the
+        # seg-0 column carried u = 0 and the wrap quad interpolated across it,
+        # losing the last texel of every wrap-around UV. The mesh was smooth,
+        # watertight, and textured slightly wrong.
+        #
+        # Now the seam is expressed per corner, and the seg-0 column has to
+        # split: each of those vertices genuinely belongs to the quad at u = 0
+        # and to the wrap quad at u = 1. So 482 + 15 = 497.
+        #
+        # The part that must not move is the position count. A sphere is a
+        # welded sphere; only attributes may split, because CAD consumers and
+        # the point-in-solid classifier both key on vertex identity.
+        interior_rings = 15
+        assert (
+            render.vertex_count == sphere.vertex_count + interior_rings
+        ), f"expected the UV seam column and nothing else: {render.vertex_count}"
         assert render.unique_position_count == sphere.vertex_count
         assert render.triangle_count == sphere.triangle_count
 
@@ -550,3 +564,123 @@ class TestKeyedRenderSplit:
                 f"at {angle} degrees got {len(normals)} distinct normals, "
                 f"expected 6: {sorted(normals)}"
             )
+
+
+class TestPerCornerUvLayer:
+    """The per-corner UV buffer every primitive now fills.
+
+    A per-corner layer is a parallel array: `face_uvs[f]` annotates face `f`,
+    and if the two are built in different orders the texture lands on the wrong
+    triangle. Nothing about that is visible in a vertex count, a winding check
+    or a topology check, which is why it needs its own tests.
+    """
+
+    def test_every_primitive_fills_the_layer(self):
+        for name, mesh in [
+            ("box", native.create_box((1.0, 1.0, 1.0))),
+            ("sphere", native.create_sphere(1.0)),
+            ("cylinder", native.create_cylinder(1.0, 2.0)),
+            ("cone", native.create_cone(1.0, 2.0)),
+            ("torus", native.create_torus(2.0, 1.0)),
+        ]:
+            assert len(mesh.face_uvs) == mesh.triangle_count, (
+                f"{name}: the per-corner UV layer covers {len(mesh.face_uvs)} of "
+                f"{mesh.triangle_count} faces"
+            )
+            for face in mesh.face_uvs:
+                assert len(face) == 3
+
+    def test_the_cone_layer_is_in_face_order(self):
+        # The regression. The cone emits all `segments` base disc triangles and
+        # then all `segments` flank triangles, but the layer used to be built by
+        # interleaving a disc UV and a flank UV per iteration. So `face_uvs[f]`
+        # was the wrong face for every odd f and for everything after it, and
+        # only the first entry happened to line up.
+        #
+        # The two islands are trivially distinguishable: a disc triangle has the
+        # cap centre at exactly (0.5, 0.5) and a flank triangle has the apex at
+        # exactly (0.5, 1.0). If the order is right, the first half of the faces
+        # are all disc and the second half are all flank.
+        cone = native.create_cone(1.0, 2.0)
+        faces = cone.face_uvs
+        half = len(faces) // 2
+
+        def has(face, point):
+            return any(abs(uv[0] - point[0]) < 1e-6 and abs(uv[1] - point[1]) < 1e-6 for uv in face)
+
+        # The cap centre is the unambiguous marker: (0.5, 0.5). The apex at
+        # (0.5, 1.0) cannot be used to tell the islands apart, because the polar
+        # disc is inscribed in the unit square and its rim passes through exactly
+        # that point - disc_uv at a quarter turn lands on (0.5, 1.0). A rim
+        # point and an apex are genuinely the same pair of numbers.
+        #
+        # So the assertion is that precisely the first half of the faces carry
+        # the cap centre, and that they are the first half and not some other
+        # half. That is non-vacuous: if the layer were interleaved, these markers
+        # would alternate and the index set would not be a prefix.
+        marked = [i for i, face in enumerate(faces) if has(face, (0.5, 0.5))]
+        assert marked == list(range(half)), (
+            f"the {half} faces carrying the cap centre are {marked[:8]}..., not the "
+            f"first {half}, so the UV layer is not in face order"
+        )
+        for index, face in enumerate(faces[half:], start=half):
+            assert any(abs(uv[1] - 1.0) < 1e-6 for uv in face), (
+                f"face {index} is in the flank half but no corner sits on the apex "
+                f"row v = 1.0: {face}"
+            )
+            assert not has(face, (0.5, 0.5)), (
+                f"face {index} is in the flank half but carries the cap centre at "
+                f"(0.5, 0.5), so the UV layer is out of order: {face}"
+            )
+
+    def test_a_sphere_wrap_reaches_one(self):
+        # The seam is only useful if the far side is recorded. Before the layer
+        # existed, the seg-0 vertex carried u = 0 and the wrap interpolated across
+        # it, losing the last texel of every wrap-around UV.
+        sphere = native.create_sphere(1.0)
+        us = [uv[0] for face in sphere.face_uvs for uv in face]
+        vs = [uv[1] for face in sphere.face_uvs for uv in face]
+        assert max(us) == pytest.approx(1.0), "the sphere's u wrap never reaches 1.0"
+        assert max(vs) == pytest.approx(1.0), "and v never reaches the south pole"
+        assert min(us) == pytest.approx(0.0)
+
+    def test_a_torus_wrap_reaches_one_in_both_directions(self):
+        # A torus closes twice, so it has two seams. Handling only the major one
+        # would still tile wrong around the tube.
+        torus = native.create_torus(2.0, 1.0)
+        us = [uv[0] for face in torus.face_uvs for uv in face]
+        vs = [uv[1] for face in torus.face_uvs for uv in face]
+        assert max(us) == pytest.approx(1.0), "the major wrap never reaches u = 1.0"
+        assert max(vs) == pytest.approx(1.0), "the minor wrap never reaches v = 1.0"
+
+    def test_all_uvs_stay_inside_the_unit_square(self):
+        for name, mesh in [
+            ("box", native.create_box((1.0, 1.0, 1.0))),
+            ("sphere", native.create_sphere(1.0)),
+            ("cylinder", native.create_cylinder(1.0, 2.0)),
+            ("cone", native.create_cone(1.0, 2.0)),
+            ("torus", native.create_torus(2.0, 1.0)),
+        ]:
+            for index, face in enumerate(mesh.face_uvs):
+                for corner, uv in enumerate(face):
+                    assert 0.0 <= uv[0] <= 1.0 and 0.0 <= uv[1] <= 1.0, (
+                        f"{name} face {index} corner {corner} has uv {uv}, outside "
+                        f"the unit square"
+                    )
+
+    def test_joining_the_seams_did_not_cost_a_welded_position(self):
+        # The regression guard for the whole pass. Expressing a seam in the
+        # attribute layer must not reopen the watertightness hole that a spare
+        # column of vertices used to cause, and must not move a vertex.
+        for name, mesh in [
+            ("box", native.create_box((1.0, 1.0, 1.0))),
+            ("sphere", native.create_sphere(1.0)),
+            ("cylinder", native.create_cylinder(1.0, 2.0)),
+            ("cone", native.create_cone(1.0, 2.0)),
+            ("torus", native.create_torus(2.0, 1.0)),
+        ]:
+            report = native.MeshValidator().validate(mesh)
+            assert report.is_watertight, f"{name} is no longer watertight: {report.issues}"
+            assert (
+                report.non_manifold_edge_count == 0
+            ), f"{name} has {report.non_manifold_edge_count} non-manifold edges"

@@ -69,13 +69,33 @@ fn cube_faces_point_outward_on_the_render_mesh() {
 }
 
 #[test]
-fn sphere_renders_smooth_with_no_duplication() {
+fn sphere_renders_smooth_duplicating_only_its_uv_seam() {
+    // Renamed, and the assertion rewritten, because the old one recorded a
+    // defect as expected behaviour. It asserted that a sphere duplicates
+    // nothing at all, which was true only because the sphere had no per-corner
+    // UV layer: with a single UV per vertex the seg-0 column carried u = 0 and
+    // the wrap quad interpolated across it, losing the last texel of every
+    // wrap-around UV. The mesh was smooth and watertight and textured slightly
+    // wrong, which is the worst combination of defects to ship.
+    //
+    // Now the seam is expressed per corner, and the seg-0 column duplicates
+    // because each of those vertices genuinely belongs to the quad at u = 0 and
+    // to the wrap quad at u = 1. Exactly that column, and nothing else.
     let mesh = Sphere::new(1.0).to_mesh().unwrap();
+    // Ring count, not vertex count: the sphere is 2 poles plus `rings - 1`
+    // interior rings of `segments` vertices, so the seam column is 15 and
+    // `vertex_count - 2` is 480.
+    let interior_rings = (mesh.vertex_count() - 2) / Sphere::new(1.0).segments as usize;
     let render = mesh.split_for_render(180.0);
     assert_eq!(
         render.vertex_count(),
+        mesh.vertex_count() + interior_rings,
+        "only the UV seam column may duplicate, and positions must stay welded"
+    );
+    assert_eq!(
+        render.unique_position_count(),
         mesh.vertex_count(),
-        "a sphere has no sharp edges, so nothing should be duplicated"
+        "a sphere is still a welded sphere; only attributes may split"
     );
     assert_eq!(render.triangle_count(), mesh.triangle_count());
 }
