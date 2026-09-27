@@ -631,7 +631,7 @@ def evaluate(
         written.append(path)
 
     if html_report:
-        from vaultmind_forge.forge_cli_html_report import write_html_report
+        from vaultmind_forge.forge_cli.html_report import write_html_report
         html_out = write_html_report(job_id, reports, diagnostics, root / "lineage_logs" / "reports")
         console.print(f"HTML report: {html_out}")
 
