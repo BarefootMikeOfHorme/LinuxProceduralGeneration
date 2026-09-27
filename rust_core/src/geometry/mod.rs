@@ -7,6 +7,34 @@ use nalgebra::{Point3, Vector3};
 use serde::{Deserialize, Serialize};
 use crate::{Result, GeometryError};
 
+/// Angle for step `index` of `count` around a full turn, in radians.
+///
+/// Computed in f64 and only narrowed by the caller, deliberately. A wrapped
+/// primitive evaluates this at `index == count`, where the angle is `2*pi` and
+/// `sin` is about -2.4e-16 rather than 0. Doing the same arithmetic in f32 puts
+/// the error at the f32 half-ulp near 2*pi, which is about 2.4e-7: nine orders of
+/// magnitude worse, and enough to leave a wrap column a hair away from column 0
+/// instead of on it.
+///
+/// That is a type bug, not a tolerance problem, and it is worth naming because
+/// the symptom looks exactly like one. An earlier revision of the cylinder, cone
+/// and torus closed their seams with a spare column of vertices, on the theory
+/// that the duplicate needed a weld tolerance to absorb. It did not need a
+/// tolerance at all: it needed the index-level wrap *and* f64 angles, and the
+/// spare column was a construction bug that no tolerance fixes.
+pub(crate) fn wrap_angle(index: u32, count: u32) -> f64 {
+    debug_assert!(count > 0, "a wrap angle needs a positive segment count");
+    std::f64::consts::TAU * f64::from(index) / f64::from(count)
+}
+
+/// Angle for step `index` of `count` across a half turn, in radians, in f64.
+///
+/// See [`wrap_angle`] for why the precision matters.
+pub(crate) fn half_turn_angle(index: u32, count: u32) -> f64 {
+    debug_assert!(count > 0, "a half-turn angle needs a positive segment count");
+    std::f64::consts::PI * f64::from(index) / f64::from(count)
+}
+
 pub mod primitives;
 pub mod operations;
 pub mod render;

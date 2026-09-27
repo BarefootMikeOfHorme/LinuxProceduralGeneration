@@ -12,11 +12,13 @@ pub mod optimizer;
 pub mod lod;
 pub mod subdivision;
 pub mod obj;
+pub mod simplify;
 
 pub use optimizer::MeshOptimizer;
 pub use validation::{MeshValidator, ValidationReport};
 pub use lod::LodGenerator;
 pub use obj::load_obj;
+pub use simplify::simplify;
 
 /// Clean mesh by removing degenerate triangles, duplicate vertices, etc.
 pub fn clean_mesh(mesh: &mut Mesh) -> Result<()> {

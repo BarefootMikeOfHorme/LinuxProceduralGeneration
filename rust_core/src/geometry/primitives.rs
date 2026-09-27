@@ -1,6 +1,7 @@
 //! Geometric primitives (box, sphere, cylinder, cone, torus)
 
 use nalgebra::{Point3, Vector3};
+use super::{half_turn_angle, wrap_angle};
 use std::f32::consts::PI;
 use crate::geometry::{Mesh, Primitive};
 use crate::Result;
@@ -268,26 +269,27 @@ impl Primitive for Sphere {
         // single column loses the last texel of wrap-around UVs, which is a
         // far smaller cost than an unwatertight solid that breaks CSG.
         for ring in 1..self.rings {
-            let phi = PI * ring as f32 / self.rings as f32;
-            let sin_phi = phi.sin();
-            let cos_phi = phi.cos();
+            let phi = half_turn_angle(ring, self.rings);
+            let (sin_phi, cos_phi) = phi.sin_cos();
 
             for seg in 0..self.segments {
-                let theta = 2.0 * PI * seg as f32 / self.segments as f32;
-                let sin_theta = theta.sin();
-                let cos_theta = theta.cos();
+                let theta = wrap_angle(seg, self.segments);
+                let (sin_theta, cos_theta) = theta.sin_cos();
 
                 let x = sin_phi * cos_theta;
                 let y = cos_phi;
                 let z = sin_phi * sin_theta;
 
                 mesh.vertices.push(Point3::new(
-                    self.center.x + self.radius * x,
-                    self.center.y + self.radius * y,
-                    self.center.z + self.radius * z,
+                    (self.center.x as f64 + self.radius as f64 * x) as f32,
+                    (self.center.y as f64 + self.radius as f64 * y) as f32,
+                    (self.center.z as f64 + self.radius as f64 * z) as f32,
                 ));
 
-                mesh.normals.push(Vector3::new(x, y, z));
+                // Narrowed from the same f64 direction the position used, so the
+                // stored normal is the rounding of the exact one rather than an
+                // independent f32 computation that could disagree with it.
+                mesh.normals.push(Vector3::new(x as f32, y as f32, z as f32));
 
                 let u = seg as f32 / self.segments as f32;
                 let v = ring as f32 / self.rings as f32;
@@ -444,23 +446,16 @@ impl Primitive for Cylinder {
         // point-in-solid queries, which is what made CSG misclassify triangles
         // against it.
         for i in 0..self.segments {
-            let theta = 2.0 * PI * i as f32 / self.segments as f32;
-            let x = self.radius * theta.cos();
-            let z = self.radius * theta.sin();
+            let theta = wrap_angle(i, self.segments);
+            let (sin_theta, cos_theta) = theta.sin_cos();
+            let x = (self.center.x as f64 + self.radius as f64 * cos_theta) as f32;
+            let z = (self.center.z as f64 + self.radius as f64 * sin_theta) as f32;
 
             // Bottom vertex
-            mesh.vertices.push(Point3::new(
-                self.center.x + x,
-                self.center.y - half_height,
-                self.center.z + z,
-            ));
+            mesh.vertices.push(Point3::new(x, self.center.y - half_height, z));
 
             // Top vertex
-            mesh.vertices.push(Point3::new(
-                self.center.x + x,
-                self.center.y + half_height,
-                self.center.z + z,
-            ));
+            mesh.vertices.push(Point3::new(x, self.center.y + half_height, z));
         }
 
         // Side faces. The wrap goes back to column 0, which is what closes the
@@ -533,10 +528,11 @@ impl Primitive for Cylinder {
             if centre {
                 return (0.5, 0.5);
             }
-            let theta = 2.0 * PI * i as f32 / self.segments as f32;
+            let theta = wrap_angle(i, self.segments);
+            let (sin_theta, cos_theta) = theta.sin_cos();
             (
-                0.5 + 0.5 * theta.cos(),
-                0.5 + 0.5 * theta.sin(),
+                (0.5 + 0.5 * cos_theta) as f32,
+                (0.5 + 0.5 * sin_theta) as f32,
             )
         };
 
@@ -670,14 +666,12 @@ impl Primitive for Cone {
         // edges and an unwatertight solid. A closed UV seam belongs in
         // `face_uvs`, not in a spare column of vertices.
         for i in 0..self.segments {
-            let theta = 2.0 * PI * i as f32 / self.segments as f32;
-            let x = self.radius * theta.cos();
-            let z = self.radius * theta.sin();
-
+            let theta = wrap_angle(i, self.segments);
+            let (sin_theta, cos_theta) = theta.sin_cos();
             mesh.vertices.push(Point3::new(
-                self.center.x + x,
+                (self.center.x as f64 + self.radius as f64 * cos_theta) as f32,
                 self.center.y,
-                self.center.z + z,
+                (self.center.z as f64 + self.radius as f64 * sin_theta) as f32,
             ));
         }
 
@@ -718,8 +712,6 @@ impl Primitive for Cone {
         let mut face_uvs: Vec<[(f32, f32); 3]> = Vec::with_capacity(self.segments as usize * 2);
         for i in 0..self.segments {
             let next = (i + 1) % self.segments;
-            let theta = 2.0 * PI * i as f32 / self.segments as f32;
-            let theta_next = 2.0 * PI * next as f32 / self.segments as f32;
             let curr_u = i as f32 / self.segments as f32;
             let next_u = if next == 0 {
                 1.0
@@ -727,15 +719,16 @@ impl Primitive for Cone {
                 next as f32 / self.segments as f32
             };
 
-            // Base disc.
-            face_uvs.push([
-                (0.5, 0.5),
-                (0.5 + 0.5 * theta.cos(), 0.5 + 0.5 * theta.sin()),
-                (
-                    0.5 + 0.5 * theta_next.cos(),
-                    0.5 + 0.5 * theta_next.sin(),
-                ),
-            ]);
+            // Base disc, polar around the cap centre. The angle is recomputed in
+            // f64 for the same reason the vertex positions are: the wrap column
+            // has to land on the same unit-circle point as column 0, and in f32
+            // it lands about 2.4e-7 away from it.
+            let disc_uv = |index: u32| -> (f32, f32) {
+                let angle = wrap_angle(index, self.segments);
+                let (sin_a, cos_a) = angle.sin_cos();
+                ((0.5 + 0.5 * cos_a) as f32, (0.5 + 0.5 * sin_a) as f32)
+            };
+            face_uvs.push([(0.5, 0.5), disc_uv(i), disc_uv(next)]);
             // Flank, narrowing to the apex at (0.5, 1.0).
             face_uvs.push([(curr_u, 0.0), (0.5, 1.0), (next_u, 0.0)]);
         }
@@ -848,31 +841,33 @@ impl Primitive for Torus {
         // vertices were close but not identical and nothing joined them. That
         // produced 144 boundary edges, leaving the solid unwatertight.
         for i in 0..self.major_segments {
-            let theta = 2.0 * PI * i as f32 / self.major_segments as f32;
-            let cos_theta = theta.cos();
-            let sin_theta = theta.sin();
+            let theta = wrap_angle(i, self.major_segments);
+            let (sin_theta, cos_theta) = theta.sin_cos();
 
             for j in 0..self.minor_segments {
-                let phi = 2.0 * PI * j as f32 / self.minor_segments as f32;
-                let cos_phi = phi.cos();
-                let sin_phi = phi.sin();
+                let phi = wrap_angle(j, self.minor_segments);
+                let (sin_phi, cos_phi) = phi.sin_cos();
 
                 // Torus parametric equations
-                let x = (self.major_radius + self.minor_radius * cos_phi) * cos_theta;
-                let y = self.minor_radius * sin_phi;
-                let z = (self.major_radius + self.minor_radius * cos_phi) * sin_theta;
+                // The whole position is accumulated in f64 and narrowed once, so
+                // the two independent wraps (major and minor) cannot each
+                // contribute an f32 rounding of their own on the way in.
+                let tube = self.major_radius as f64 + self.minor_radius as f64 * cos_phi;
+                let x = tube * cos_theta;
+                let y = self.minor_radius as f64 * sin_phi;
+                let z = tube * sin_theta;
 
                 mesh.vertices.push(Point3::new(
-                    self.center.x + x,
-                    self.center.y + y,
-                    self.center.z + z,
+                    (self.center.x as f64 + x) as f32,
+                    (self.center.y as f64 + y) as f32,
+                    (self.center.z as f64 + z) as f32,
                 ));
 
-                // Normal vector for torus
+                // Normal narrowed from the same f64 direction the position used.
                 let nx = cos_phi * cos_theta;
                 let ny = sin_phi;
                 let nz = cos_phi * sin_theta;
-                mesh.normals.push(Vector3::new(nx, ny, nz));
+                mesh.normals.push(Vector3::new(nx as f32, ny as f32, nz as f32));
 
                 // UV coordinates
                 let u = i as f32 / self.major_segments as f32;

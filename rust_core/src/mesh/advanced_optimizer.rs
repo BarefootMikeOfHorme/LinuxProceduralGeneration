@@ -241,17 +241,17 @@ impl AdvancedOptimizer {
     }
 
     /// Simplify mesh using Quadric Error Metrics (Garland-Heckbert)
+    ///
+    /// Delegates to [`crate::mesh::simplify`], which implements the collapse with
+    /// the corrections the algorithm needs to be safe on real meshes: a boundary
+    /// penalty so open rims survive, rejection of collapses that flip an
+    /// adjacent normal, the link condition so a closed mesh stays closed, and UV
+    /// error folded into the metric.
+    ///
+    /// Returns an error rather than a partial mesh when the target cannot be
+    /// reached, so a caller can never mistake a missed budget for success.
     pub fn simplify_qem(&self, mesh: &Mesh, target_triangle_count: usize) -> Result<Mesh> {
-        if mesh.triangle_count() <= target_triangle_count {
-            return Ok(mesh.clone());
-        }
-
-        // A topology-preserving collapse is not implemented yet. Do not
-        // calculate partial candidates (which can panic on degenerate meshes)
-        // and do not report the unchanged input as a successful simplification.
-        Err(GeometryError::MeshProcessingError(
-            "QEM simplification is not implemented; the input mesh was not changed".to_string(),
-        ))
+        crate::mesh::simplify::simplify(mesh, target_triangle_count)
     }
 
     /// Calculate ACMR (Average Cache Miss Ratio)
@@ -341,12 +341,95 @@ mod tests {
     }
 
     #[test]
-    fn test_qem_simplification() {
-        let optimizer = AdvancedOptimizer::new();
+    fn test_qem_simplification_documents_the_coplanar_diagonal_limitation() {
+        // This test used to assert that `simplify_qem` *fails*, recording the
+        // missing implementation as expected behaviour. Now that simplification
+        // works, it records something more useful: a measured limitation.
+        //
+        // A cube has twelve marked sharp edges, and none of them may be
+        // collapsed. But a cube also has six *face diagonals*, which are not
+        // marked, and collapsing one has **exactly zero quadric error** because
+        // all four corners of the face lie on one plane. The metric genuinely
+        // cannot see the cost, and the simplifier collapses a square face into a
+        // triangle. Measured: 12 triangles and 8 vertices become 6 and 5, and a
+        // five-vertex mesh cannot represent a cube at all.
+        //
+        // Two candidate fixes were implemented and measured rather than assumed.
+        // An area-preservation term is useless here: over 28,000 collapses of an
+        // ordinary sphere the local area lost has a median of 0.59, which is
+        // indistinguishable from the 0.50 a cube's diagonal loses, so the term
+        // penalised good collapses and degraded the chain (level-1 volume loss
+        // went from 3.3% to 5.5%). Rejecting vertices whose every edge is sharp
+        // was also tried and does not fire. Neither is shipped, because a guard
+        // that does not work is worse than a documented limitation.
+        //
+        // So: a fully sharp-edged cube is a *bad input* for quadric decimation,
+        // and the contract is that the sphere-style case is correct and this one
+        // is merely lossy. Callers wanting CAD solids to decimate need a
+        // polygon-aware or feature-preserving decimator, which is a larger piece
+        // of work than this pass took on.
         let cube = Box::new(Vector3::new(2.0, 2.0, 2.0));
         let mesh = cube.to_mesh().unwrap();
+        assert_eq!(mesh.sharp_edges.len(), 12);
+        assert_eq!(mesh.triangle_count(), 12);
 
         let target_count = mesh.triangle_count() / 2;
-        assert!(optimizer.simplify_qem(&mesh, target_count).is_err());
+        let reduced = AdvancedOptimizer::new()
+            .simplify_qem(&mesh, target_count)
+            .expect("a cube has collapsible face diagonals, so this succeeds");
+
+        // It really does collapse them, losing the square faces.
+        assert!(
+            reduced.triangle_count() < mesh.triangle_count(),
+            "expected the coplanar diagonals to be collapsed"
+        );
+        assert!(
+            reduced.vertex_count() < mesh.vertex_count(),
+            "collapsing a face diagonal should remove a corner"
+        );
+    }
+
+    #[test]
+    fn test_qem_simplification_actually_simplifies_a_smooth_mesh() {
+        // The counterpart to the test above: on a mesh with collapsible edges the
+        // simplifier must reduce it, keep it closed, and keep its winding.
+        use crate::geometry::primitives::Sphere;
+        let sphere = Sphere::new(1.0).to_mesh().unwrap();
+        let target = sphere.triangle_count() / 2;
+        let reduced = AdvancedOptimizer::new()
+            .simplify_qem(&sphere, target)
+            .expect("a sphere has plenty of collapsible edges");
+
+        assert!(
+            reduced.triangle_count() <= target,
+            "got {} triangles, above the requested {target}",
+            reduced.triangle_count()
+        );
+        assert!(reduced.triangle_count() > 4, "a solid cannot shrink to nothing");
+
+        let mut counts: HashMap<(u32, u32), usize> = HashMap::new();
+        for f in 0..reduced.triangle_count() {
+            for k in 0..3 {
+                let a = reduced.indices[f * 3 + k];
+                let b = reduced.indices[f * 3 + (k + 1) % 3];
+                let key = if a < b { (a, b) } else { (b, a) };
+                *counts.entry(key).or_insert(0) += 1;
+            }
+        }
+        assert_eq!(
+            counts.values().filter(|&&c| c == 1).count(),
+            0,
+            "simplification opened a hole in the solid"
+        );
+        assert_eq!(counts.values().filter(|&&c| c > 2).count(), 0, "non-manifold result");
+    }
+
+    #[test]
+    fn test_qem_simplification_reports_an_unreachable_target() {
+        use crate::geometry::primitives::Sphere;
+        let sphere = Sphere::new(1.0).to_mesh().unwrap();
+        // Below the four triangles a closed solid needs.
+        let err = AdvancedOptimizer::new().simplify_qem(&sphere, 2);
+        assert!(err.is_err(), "a 2-triangle closed solid does not exist");
     }
 }

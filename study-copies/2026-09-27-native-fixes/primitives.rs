@@ -1,6 +1,7 @@
 //! Geometric primitives (box, sphere, cylinder, cone, torus)
 
 use nalgebra::{Point3, Vector3};
+use super::{half_turn_angle, wrap_angle};
 use std::f32::consts::PI;
 use crate::geometry::{Mesh, Primitive};
 use crate::Result;
@@ -84,28 +85,90 @@ impl Primitive for Box {
             Point3::new(c.x - hx, c.y + hy, c.z + hz),
         ];
 
-        // 6 faces, 2 triangles each
+        // 6 faces, 2 triangles each, wound counter-clockwise when seen from
+        // outside so that face normals and the signed volume come out positive.
+        //
+        // Winding matters here and used to be wrong: every face was listed
+        // clockwise-from-outside, giving a signed volume of -size.x*size.y*size.z
+        // and normals pointing into the solid. That inverts box lighting and
+        // silently flips the inside/outside answer for anything built on top of
+        // it, so the order below is load-bearing, not cosmetic.
         let indices = vec![
-            // Front
-            0, 1, 2, 0, 2, 3,
-            // Back
-            5, 4, 7, 5, 7, 6,
-            // Left
-            4, 0, 3, 4, 3, 7,
-            // Right
-            1, 5, 6, 1, 6, 2,
-            // Bottom
-            4, 5, 1, 4, 1, 0,
-            // Top
-            3, 2, 6, 3, 6, 7,
+            // Front (-Z)
+            0, 2, 1, 0, 3, 2,
+            // Back (+Z)
+            5, 7, 4, 5, 6, 7,
+            // Left (-X)
+            4, 3, 0, 4, 7, 3,
+            // Right (+X)
+            1, 6, 5, 1, 2, 6,
+            // Bottom (-Y)
+            4, 1, 5, 4, 0, 1,
+            // Top (+Y)
+            3, 6, 2, 3, 7, 6,
         ];
 
         mesh.vertices = vertices;
         mesh.indices = indices;
         mesh.compute_normals();
 
-        // Generate UVs (simple box mapping)
-        mesh.uvs = vec![(0.0, 0.0); mesh.vertices.len()];
+        // A cube has twelve hard edges. Marking them sharp is what tells
+        // `split_for_render` to keep the faces flat; without it a 180-degree
+        // auto-smooth angle averages all six face normals into a rounded blob.
+        for &(a, b) in &[
+            (0u32, 4u32),
+            (1, 5),
+            (2, 6),
+            (3, 7), // along Z
+            (0, 1),
+            (3, 2),
+            (4, 5),
+            (7, 6), // along X
+            (0, 3),
+            (1, 2),
+            (4, 7),
+            (5, 6), // along Y
+        ] {
+            mesh.mark_edge_sharp(a, b);
+        }
+
+        // Each face gets its own 0..1 square. A single UV per vertex cannot do
+        // this: the eight corners are shared by three faces each, and no one
+        // coordinate is right for all three. So the per-corner buffer is
+        // authoritative and `uvs` is left empty rather than filled with a
+        // plausible-looking value that no face actually uses.
+        //
+        // Each face's (u, v) axes are chosen so that u x v is the outward
+        // normal. That keeps the tangent frame right-handed, so a normal map
+        // applied on top is not mirrored.
+        let (min_x, max_x) = (c.x - hx, c.x + hx);
+        let (min_y, max_y) = (c.y - hy, c.y + hy);
+        let (min_z, max_z) = (c.z - hz, c.z + hz);
+        let span = |lo: f32, hi: f32, v: f32| (v - lo) / (hi - lo);
+        let flip = |lo: f32, hi: f32, v: f32| (hi - v) / (hi - lo);
+
+        // Face order matches the index order above.
+        let face_uv = |p: Point3<f32>, face: usize| -> (f32, f32) {
+            match face {
+                0 => (flip(min_x, max_x, p.x), span(min_y, max_y, p.y)), // -Z: u=-X v=+Y
+                1 => (span(min_x, max_x, p.x), span(min_y, max_y, p.y)), // +Z: u=+X v=+Y
+                2 => (flip(min_y, max_y, p.y), span(min_z, max_z, p.z)), // -X: u=-Y v=+Z
+                3 => (span(min_y, max_y, p.y), span(min_z, max_z, p.z)), // +X: u=+Y v=+Z
+                4 => (flip(min_z, max_z, p.z), span(min_x, max_x, p.x)), // -Y: u=-Z v=+X
+                _ => (span(min_z, max_z, p.z), span(min_x, max_x, p.x)), // +Y: u=+Z v=+X
+            }
+        };
+
+        mesh.face_uvs = (0..mesh.triangle_count())
+            .map(|f| {
+                let base = f * 3;
+                [
+                    face_uv(mesh.vertices[mesh.indices[base] as usize], f),
+                    face_uv(mesh.vertices[mesh.indices[base + 1] as usize], f),
+                    face_uv(mesh.vertices[mesh.indices[base + 2] as usize], f),
+                ]
+            })
+            .collect();
 
         Ok(mesh)
     }
@@ -206,26 +269,27 @@ impl Primitive for Sphere {
         // single column loses the last texel of wrap-around UVs, which is a
         // far smaller cost than an unwatertight solid that breaks CSG.
         for ring in 1..self.rings {
-            let phi = PI * ring as f32 / self.rings as f32;
-            let sin_phi = phi.sin();
-            let cos_phi = phi.cos();
+            let phi = half_turn_angle(ring, self.rings);
+            let (sin_phi, cos_phi) = phi.sin_cos();
 
             for seg in 0..self.segments {
-                let theta = 2.0 * PI * seg as f32 / self.segments as f32;
-                let sin_theta = theta.sin();
-                let cos_theta = theta.cos();
+                let theta = wrap_angle(seg, self.segments);
+                let (sin_theta, cos_theta) = theta.sin_cos();
 
                 let x = sin_phi * cos_theta;
                 let y = cos_phi;
                 let z = sin_phi * sin_theta;
 
                 mesh.vertices.push(Point3::new(
-                    self.center.x + self.radius * x,
-                    self.center.y + self.radius * y,
-                    self.center.z + self.radius * z,
+                    (self.center.x as f64 + self.radius as f64 * x) as f32,
+                    (self.center.y as f64 + self.radius as f64 * y) as f32,
+                    (self.center.z as f64 + self.radius as f64 * z) as f32,
                 ));
 
-                mesh.normals.push(Vector3::new(x, y, z));
+                // Narrowed from the same f64 direction the position used, so the
+                // stored normal is the rounding of the exact one rather than an
+                // independent f32 computation that could disagree with it.
+                mesh.normals.push(Vector3::new(x as f32, y as f32, z as f32));
 
                 let u = seg as f32 / self.segments as f32;
                 let v = ring as f32 / self.rings as f32;
@@ -246,12 +310,24 @@ impl Primitive for Sphere {
         let ring_count = self.rings - 1;
 
         // Fan from the north pole to the first interior ring.
+        //
+        // The order is (pole, b, a), not (pole, a, b). Going pole -> a -> b runs
+        // clockwise seen from outside the cap, so the normal points down into the
+        // sphere. The quad bands below and the south fan are wound the other way,
+        // so the north cap was the one inverted piece in an otherwise outward
+        // mesh: 928 faces summed to +3.998 and these 32 to -0.0396.
+        //
+        // That is not a cosmetic slip. The total signed volume still came out
+        // positive, at 94.6% of the ideal 4.18879, so a plain volume check
+        // passed while a cap was inside out. Only a per-region check finds it, and
+        // an inward-facing cap corrupts ray-cast parity, backface culling, and
+        // anything downstream that trusts the winding.
         for seg in 0..self.segments {
             let a = first_ring + seg as u32;
             let b = first_ring + ((seg + 1) % self.segments) as u32;
             mesh.indices.push(north_pole);
-            mesh.indices.push(a);
             mesh.indices.push(b);
+            mesh.indices.push(a);
         }
 
         // Quad bands between consecutive interior rings.
@@ -286,14 +362,19 @@ impl Primitive for Sphere {
         }
 
         // Fan from the last interior ring to the south pole.
+        //
+        // This is (pole, a, b) while the north fan is (pole, b, a), and the
+        // asymmetry is required: a closed outward-wound surface is traversed in
+        // opposite rotational senses at the two poles. Giving both fans the same
+        // order inverts one of them, which is what happened here.
         if ring_count > 0 {
             let last_ring = first_ring + (ring_count - 1) as u32 * stride;
             for seg in 0..self.segments {
                 let a = last_ring + seg as u32;
                 let b = last_ring + ((seg + 1) % self.segments) as u32;
                 mesh.indices.push(south_pole);
-                mesh.indices.push(b);
                 mesh.indices.push(a);
+                mesh.indices.push(b);
             }
         }
 
@@ -353,32 +434,36 @@ impl Primitive for Cylinder {
 
         let half_height = self.height / 2.0;
 
-        // Top and bottom circles
-        for i in 0..=self.segments {
-            let theta = 2.0 * PI * i as f32 / self.segments as f32;
-            let x = self.radius * theta.cos();
-            let z = self.radius * theta.sin();
+        // Top and bottom circles.
+        //
+        // The loop stops at `segments`, not `segments + 1`. The extra column was
+        // meant to carry a UV seam, but a closed seam is expressed by
+        // `face_uvs` instead, and the extra column left the wrap unjoined: column
+        // `segments` sits at theta = 2*PI, where sin is about -2.4e-7 rather than
+        // 0, so it was a *near* duplicate of column 0 rather than an exact one
+        // and no edge ever joined them. That left 6 boundary edges, so the solid
+        // was not watertight, and an unwatertight solid cannot answer
+        // point-in-solid queries, which is what made CSG misclassify triangles
+        // against it.
+        for i in 0..self.segments {
+            let theta = wrap_angle(i, self.segments);
+            let (sin_theta, cos_theta) = theta.sin_cos();
+            let x = (self.center.x as f64 + self.radius as f64 * cos_theta) as f32;
+            let z = (self.center.z as f64 + self.radius as f64 * sin_theta) as f32;
 
             // Bottom vertex
-            mesh.vertices.push(Point3::new(
-                self.center.x + x,
-                self.center.y - half_height,
-                self.center.z + z,
-            ));
+            mesh.vertices.push(Point3::new(x, self.center.y - half_height, z));
 
             // Top vertex
-            mesh.vertices.push(Point3::new(
-                self.center.x + x,
-                self.center.y + half_height,
-                self.center.z + z,
-            ));
+            mesh.vertices.push(Point3::new(x, self.center.y + half_height, z));
         }
 
-        // Side faces
+        // Side faces. The wrap goes back to column 0, which is what closes the
+        // seam; the UV discontinuity across that last quad lives in `face_uvs`.
         for i in 0..self.segments {
             let curr_bottom = i * 2;
             let curr_top = curr_bottom + 1;
-            let next_bottom = ((i + 1) % (self.segments + 1)) * 2;
+            let next_bottom = ((i + 1) % self.segments) * 2;
             let next_top = next_bottom + 1;
 
             // Two triangles per quad, wound outward.
@@ -390,6 +475,7 @@ impl Primitive for Cylinder {
             mesh.indices.push(next_top);
             mesh.indices.push(next_bottom);
         }
+        let side_face_count = mesh.indices.len() / 3;
 
         // Bottom and top cap centers.
         let bottom_center_idx = mesh.vertices.len() as u32;
@@ -408,7 +494,7 @@ impl Primitive for Cylinder {
         for i in 0..self.segments {
             let curr_bottom = i * 2;
             let curr_top = curr_bottom + 1;
-            let next = ((i + 1) % (self.segments + 1)) * 2;
+            let next = ((i + 1) % self.segments) * 2;
             let next_top = next + 1;
 
             // Bottom cap points outward along -Y.
@@ -423,7 +509,62 @@ impl Primitive for Cylinder {
         }
 
         mesh.compute_normals();
-        mesh.uvs = vec![(0.0, 0.0); mesh.vertices.len()];
+
+        // Three UV islands, matching how a cylinder is unwrapped in practice: the
+        // side wall as one strip, each cap as its own disc.
+        //
+        // The side strip is where a vertex UV cannot work. The wrap quad runs
+        // from u = (segments-1)/segments back to column 0, and the correct
+        // coordinate for that column is 1.0, not 0.0. One UV per vertex forces a
+        // choice between a strip that runs off the end and one that folds back
+        // on itself, so the seam has to be per corner.
+        let side_uv = |i: u32, top: bool| {
+            (
+                i as f32 / self.segments as f32,
+                if top { 1.0 } else { 0.0 },
+            )
+        };
+        let cap_uv = |i: u32, centre: bool| -> (f32, f32) {
+            if centre {
+                return (0.5, 0.5);
+            }
+            let theta = wrap_angle(i, self.segments);
+            let (sin_theta, cos_theta) = theta.sin_cos();
+            (
+                (0.5 + 0.5 * cos_theta) as f32,
+                (0.5 + 0.5 * sin_theta) as f32,
+            )
+        };
+
+        let side_faces = self.segments * 2;
+        let mut face_uvs: Vec<[(f32, f32); 3]> =
+            Vec::with_capacity(self.segments as usize * 4);
+        for i in 0..self.segments {
+            let next = (i + 1) % self.segments;
+            // The wrap quad needs u = 1.0 on its far column, not u = 0.0.
+            let next_u = if next == 0 { 1.0 } else { next as f32 / self.segments as f32 };
+            let curr_u = i as f32 / self.segments as f32;
+
+            face_uvs.push([(curr_u, 0.0), (curr_u, 1.0), (next_u, 0.0)]);
+            face_uvs.push([(curr_u, 1.0), (next_u, 1.0), (next_u, 0.0)]);
+        }
+        debug_assert_eq!(face_uvs.len(), side_faces as usize);
+
+        for i in 0..self.segments {
+            let next = (i + 1) % self.segments;
+            face_uvs.push([cap_uv(0, true), cap_uv(i, false), cap_uv(next, false)]);
+            face_uvs.push([cap_uv(0, true), cap_uv(next, false), cap_uv(i, false)]);
+        }
+        mesh.face_uvs = face_uvs;
+
+        // The two rim circles are hard edges: the side wall meets a cap at 90
+        // degrees. Without these the rim smooths into the wall, which rounds the
+        // silhouette and puts a curved normal map across a flat cap.
+        for i in 0..self.segments {
+            let next = ((i + 1) % self.segments) * 2;
+            mesh.mark_edge_sharp(i * 2, next);
+            mesh.mark_edge_sharp(i * 2 + 1, next + 1);
+        }
 
         Ok(mesh)
     }
@@ -517,16 +658,20 @@ impl Primitive for Cone {
             self.center.z,
         ));
 
-        // Base circle vertices
-        for i in 0..=self.segments {
-            let theta = 2.0 * PI * i as f32 / self.segments as f32;
-            let x = self.radius * theta.cos();
-            let z = self.radius * theta.sin();
-
+        // Base circle vertices.
+        //
+        // Stops at `segments`, not `segments + 1`. The extra column sat at
+        // theta = 2*PI, where sin is about -2.4e-7 rather than 0, so it was a
+        // near duplicate of column 0 that no edge ever joined, leaving 4 boundary
+        // edges and an unwatertight solid. A closed UV seam belongs in
+        // `face_uvs`, not in a spare column of vertices.
+        for i in 0..self.segments {
+            let theta = wrap_angle(i, self.segments);
+            let (sin_theta, cos_theta) = theta.sin_cos();
             mesh.vertices.push(Point3::new(
-                self.center.x + x,
+                (self.center.x as f64 + self.radius as f64 * cos_theta) as f32,
                 self.center.y,
-                self.center.z + z,
+                (self.center.z as f64 + self.radius as f64 * sin_theta) as f32,
             ));
         }
 
@@ -541,7 +686,7 @@ impl Primitive for Cone {
         // Base triangles (fan from center)
         for i in 0..self.segments {
             let curr = 1 + i;
-            let next = 1 + ((i + 1) % (self.segments + 1));
+            let next = 1 + ((i + 1) % self.segments);
 
             mesh.indices.push(base_center_idx);
             mesh.indices.push(curr);
@@ -551,7 +696,7 @@ impl Primitive for Cone {
         // Side triangles (from base to apex)
         for i in 0..self.segments {
             let curr = 1 + i;
-            let next = 1 + ((i + 1) % (self.segments + 1));
+            let next = 1 + ((i + 1) % self.segments);
 
             mesh.indices.push(curr);
             mesh.indices.push(apex_idx);
@@ -559,7 +704,40 @@ impl Primitive for Cone {
         }
 
         mesh.compute_normals();
-        mesh.uvs = vec![(0.0, 0.0); mesh.vertices.len()];
+
+        // Two UV islands: the base as a disc, the flank as a strip that narrows
+        // to a point at the apex. The flank's far column needs u = 1.0 on the
+        // wrap quad, which is exactly the case a single UV per vertex cannot
+        // express, since column 0 belongs to the strip at both u = 0 and u = 1.
+        let mut face_uvs: Vec<[(f32, f32); 3]> = Vec::with_capacity(self.segments as usize * 2);
+        for i in 0..self.segments {
+            let next = (i + 1) % self.segments;
+            let curr_u = i as f32 / self.segments as f32;
+            let next_u = if next == 0 {
+                1.0
+            } else {
+                next as f32 / self.segments as f32
+            };
+
+            // Base disc, polar around the cap centre. The angle is recomputed in
+            // f64 for the same reason the vertex positions are: the wrap column
+            // has to land on the same unit-circle point as column 0, and in f32
+            // it lands about 2.4e-7 away from it.
+            let disc_uv = |index: u32| -> (f32, f32) {
+                let angle = wrap_angle(index, self.segments);
+                let (sin_a, cos_a) = angle.sin_cos();
+                ((0.5 + 0.5 * cos_a) as f32, (0.5 + 0.5 * sin_a) as f32)
+            };
+            face_uvs.push([(0.5, 0.5), disc_uv(i), disc_uv(next)]);
+            // Flank, narrowing to the apex at (0.5, 1.0).
+            face_uvs.push([(curr_u, 0.0), (0.5, 1.0), (next_u, 0.0)]);
+        }
+        mesh.face_uvs = face_uvs;
+
+        // The base rim is a hard edge where the flat base meets the flank.
+        for i in 0..self.segments {
+            mesh.mark_edge_sharp(1 + i, 1 + ((i + 1) % self.segments));
+        }
 
         Ok(mesh)
     }
@@ -654,33 +832,42 @@ impl Primitive for Torus {
 
         let mut mesh = Mesh::new();
 
-        // Generate torus vertices
-        for i in 0..=self.major_segments {
-            let theta = 2.0 * PI * i as f32 / self.major_segments as f32;
-            let cos_theta = theta.cos();
-            let sin_theta = theta.sin();
+        // Generate torus vertices.
+        //
+        // Both loops stop short of their segment count, so neither seam gets a
+        // spare column. A torus closes twice, around the major circle and around
+        // the tube, and the old inclusive bounds left an unjoined near-duplicate
+        // at each wrap: theta = 2*PI has sin about -2.4e-7 rather than 0, so the
+        // vertices were close but not identical and nothing joined them. That
+        // produced 144 boundary edges, leaving the solid unwatertight.
+        for i in 0..self.major_segments {
+            let theta = wrap_angle(i, self.major_segments);
+            let (sin_theta, cos_theta) = theta.sin_cos();
 
-            for j in 0..=self.minor_segments {
-                let phi = 2.0 * PI * j as f32 / self.minor_segments as f32;
-                let cos_phi = phi.cos();
-                let sin_phi = phi.sin();
+            for j in 0..self.minor_segments {
+                let phi = wrap_angle(j, self.minor_segments);
+                let (sin_phi, cos_phi) = phi.sin_cos();
 
                 // Torus parametric equations
-                let x = (self.major_radius + self.minor_radius * cos_phi) * cos_theta;
-                let y = self.minor_radius * sin_phi;
-                let z = (self.major_radius + self.minor_radius * cos_phi) * sin_theta;
+                // The whole position is accumulated in f64 and narrowed once, so
+                // the two independent wraps (major and minor) cannot each
+                // contribute an f32 rounding of their own on the way in.
+                let tube = self.major_radius as f64 + self.minor_radius as f64 * cos_phi;
+                let x = tube * cos_theta;
+                let y = self.minor_radius as f64 * sin_phi;
+                let z = tube * sin_theta;
 
                 mesh.vertices.push(Point3::new(
-                    self.center.x + x,
-                    self.center.y + y,
-                    self.center.z + z,
+                    (self.center.x as f64 + x) as f32,
+                    (self.center.y as f64 + y) as f32,
+                    (self.center.z as f64 + z) as f32,
                 ));
 
-                // Normal vector for torus
+                // Normal narrowed from the same f64 direction the position used.
                 let nx = cos_phi * cos_theta;
                 let ny = sin_phi;
                 let nz = cos_phi * sin_theta;
-                mesh.normals.push(Vector3::new(nx, ny, nz));
+                mesh.normals.push(Vector3::new(nx as f32, ny as f32, nz as f32));
 
                 // UV coordinates
                 let u = i as f32 / self.major_segments as f32;
@@ -692,10 +879,15 @@ impl Primitive for Torus {
         // Generate indices
         for i in 0..self.major_segments {
             for j in 0..self.minor_segments {
-                let curr = i * (self.minor_segments + 1) + j;
-                let next_i = ((i + 1) % (self.major_segments + 1)) * (self.minor_segments + 1) + j;
-                let next_j = curr + 1;
-                let next_both = next_i + 1;
+                let curr = i * self.minor_segments + j;
+                // Both wraps are computed from the segment counts rather than by
+                // adding one. `curr + 1` steps off the end of the row when j is
+                // the last minor segment, which walks straight past the end of
+                // the buffer on the final major row.
+                let next_i = ((i + 1) % self.major_segments) * self.minor_segments + j;
+                let next_j = i * self.minor_segments + (j + 1) % self.minor_segments;
+                let next_both =
+                    ((i + 1) % self.major_segments) * self.minor_segments + (j + 1) % self.minor_segments;
 
                 // First triangle, wound outward.
                 mesh.indices.push(curr);
@@ -726,6 +918,7 @@ impl Primitive for Torus {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::collections::HashMap;
 
     #[test]
     fn test_box_creation() {
@@ -754,12 +947,81 @@ mod tests {
             .sum()
     }
 
+    /// Count edges used by exactly one triangle: a boundary edge, meaning the
+    /// mesh is not closed.
+    fn boundary_edge_count(mesh: &Mesh) -> usize {
+        let mut counts: HashMap<(u32, u32), usize> = HashMap::new();
+        for f in 0..mesh.triangle_count() {
+            for k in 0..3 {
+                let a = mesh.indices[f * 3 + k];
+                let b = mesh.indices[f * 3 + (k + 1) % 3];
+                let key = if a < b { (a, b) } else { (b, a) };
+                *counts.entry(key).or_insert(0) += 1;
+            }
+        }
+        counts.values().filter(|&&c| c == 1).count()
+    }
+
     #[test]
     fn test_cylinder_is_capped_and_outward() {
         let mesh = Cylinder::new(1.0, 2.0).with_segments(8).to_mesh().unwrap();
-        assert_eq!(mesh.vertex_count(), 20);
+        // 8 columns of (bottom, top) plus one centre vertex per cap. This used to
+        // be asserted as 20, which is 2 * (8 + 1) + 2: the extra column was the
+        // unjoined wrap seam, and the test had recorded the defect as expected
+        // behaviour. The wrap now reuses column 0, so the solid is closed.
+        assert_eq!(mesh.vertex_count(), 18);
         assert_eq!(mesh.triangle_count(), 32);
         assert!(signed_volume(&mesh) > 0.0);
+        assert_eq!(
+            boundary_edge_count(&mesh),
+            0,
+            "cylinder has boundary edges, so it is not watertight"
+        );
+    }
+
+    #[test]
+    fn test_cylinder_uv_seam_is_expressible() {
+        let mesh = Cylinder::new(1.0, 2.0).with_segments(8).to_mesh().unwrap();
+        assert_eq!(mesh.face_uvs.len(), mesh.triangle_count());
+
+        // The wrap quad must reach u = 1.0. A single UV per vertex cannot say
+        // this, because column 0 is shared by the first quad at u = 0 and the
+        // last quad at u = 1; the per-corner buffer is what allows both.
+        let max_u = mesh
+            .face_uvs
+            .iter()
+            .flat_map(|tri| tri.iter().map(|&(u, _)| u))
+            .fold(f32::MIN, f32::max);
+        assert!(
+            (max_u - 1.0).abs() < 1e-6,
+            "the side strip never reaches u = 1.0 (max {max_u}), so the seam will not tile"
+        );
+
+        // The caps are separate islands, so the render split has to break the
+        // surface into more vertices than the welded topology has.
+        let render = mesh.split_for_render(180.0);
+        assert!(
+            render.unique_position_count() > 8,
+            "cylinder UV islands did not split anything"
+        );
+    }
+
+    #[test]
+    fn test_cylinder_rim_is_sharp() {
+        let mesh = Cylinder::new(1.0, 2.0).with_segments(8).to_mesh().unwrap();
+        assert_eq!(mesh.sharp_edges.len(), 16, "8 rim edges per cap");
+
+        // At a zero-degree threshold every face is flat anyway, so the rim marks
+        // are what has to keep the cap and wall apart at a generous 180.
+        let render = mesh.split_for_render(180.0);
+        let flat = render
+            .indices
+            .chunks(3)
+            .all(|t| t[0] != t[1] && t[1] != t[2] && t[0] != t[2]);
+        assert!(
+            flat,
+            "a cylinder with marked rims and a 180-degree threshold should be flat shaded, not rounded"
+        );
     }
 
     #[test]
